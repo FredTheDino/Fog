@@ -1,5 +1,6 @@
 SDL_Window* window;
 SDL_GLContext context;
+
 static bool
 init(const char *title, int width, int height) {
     if (SDL_Init(SDL_INIT_VIDEO)) {
