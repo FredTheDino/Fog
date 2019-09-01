@@ -1,9 +1,11 @@
+// TODO(ed): You don't need this really...
 #include <algorithm>
 
 namespace Input {
 
     static Binding *
     find_binding(Mapping *mapping, InputCode code) {
+        // TODO(ed): The place where <algorithm> is used.
         auto binding = std::lower_bound(
                 mapping->bindings + 0,
                 mapping->bindings + mapping->used_bindings,
@@ -12,7 +14,7 @@ namespace Input {
                     return a.code < b;
                 });
 
-        if (binding == (mapping->bindings + mapping->used_bindings))
+        if (binding->code != code)
             return nullptr;
         return binding;
     }
@@ -54,11 +56,12 @@ namespace Input {
         insert(mapping, binding);
         return true;
     }
-    
+
     static bool
     activate(Mapping *mapping, InputCode code, f32 value) {
         Binding *binding = find_binding(mapping, code);
-        if (!binding) return false;
+        if (!binding)
+            return false;
         u32 index = binding->index();
         ASSERT(0 <= index && index < NUM_BINDINGS_PER_CONTROLLER);
         u32 player = binding->playerID();
@@ -67,16 +70,23 @@ namespace Input {
         return true;
     }
 
+    // TODO(ed): down, released, pressed.
+
     static f32
     value(Mapping *mapping, Player player, Name name) {
-        Binding binding = {0, player, name, 0};
         u32 num_down = 0;
         f32 value = 0;
-        for (u32 i = 0; i < NUM_ALTERNATIVE_BINDINGS; i++) {
-            auto button = mapping->buttons[binding.playerID()][binding.index()];
-            if (button.is_down() && button.is_used()) {
-                ++num_down;
-                value += button.value;
+        for (u32 p = 0; p < (u32) Player::NUM; p++) {
+            Player p_mask = Player(1 << p);
+            if (!is(player, p_mask)) continue;
+
+            Binding binding = {0, p_mask, name, 0};
+            for (u32 i = 0; i < NUM_ALTERNATIVE_BINDINGS; i++) {
+                auto button = mapping->buttons[binding.playerID()][binding.index()];
+                if (button.is_down() && button.is_used()) {
+                    ++num_down;
+                    value += button.value;
+                }
             }
         }
         if (num_down)

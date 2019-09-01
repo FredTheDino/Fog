@@ -50,6 +50,7 @@ namespace Input {
         RIGHT,
         UP,
         DOWN,
+        QUIT,
 
         COUNT,
     };
