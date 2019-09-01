@@ -27,6 +27,10 @@
 *.lib
 
 # Executables
+bin/**/*
 *.exe
 *.out
 *.app
+
+# Other
+.gdb_history
