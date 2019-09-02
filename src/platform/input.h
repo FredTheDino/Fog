@@ -60,6 +60,8 @@ namespace Input {
         UP       = 0b00,
         PRESSED  = 0b11,
         DOWN     = 0b01,
+
+        TRIGGERED = 0b10,
     };
 
     static ButtonState
@@ -125,6 +127,10 @@ namespace Input {
             bool is_down() { return (u32) state & (u32) ButtonState::DOWN; }
             bool is_used() { return name != Name::NONE; }
         };
+
+        const VirtualButton
+        get(Binding binding) const { return buttons[binding.playerID()]
+                                                   [binding.index()];   }
 
         // All the states for each button.
         VirtualButton buttons[(u32) Player::NUM][NUM_BINDINGS_PER_CONTROLLER];

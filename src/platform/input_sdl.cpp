@@ -4,7 +4,7 @@ namespace SDL {
 #define K(key) (SDL::key_to_input_code((SDLK_##key)))
     static Input::InputCode
     key_to_input_code(s32 scancode) {
-        return scancode << 4 | 0b0001;
+        return scancode << 3 | 0b0001;
     }
 
     static void

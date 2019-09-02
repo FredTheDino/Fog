@@ -62,10 +62,16 @@ main(int argc, char **argv) {
     CHECK(add(&mapping, K(ESCAPE), Player::P1, Name::QUIT));
 
     while (SDL::running) {
+        frame(&mapping);
         SDL::poll_events();
 
-        if (value(&mapping, Player::ANY, Name::QUIT))
+        if (triggered(&mapping, Player::ANY, Name::LEFT)) {
+            LOG("A: %f", value(&mapping, Player::P1, Name::LEFT));
+        }
+
+        if (value(&mapping, Player::ANY, Name::QUIT)) {
             SDL::running = false;
+        }
         Renderer::clear();
         Renderer::blit();
         // TODO: Input loop.
