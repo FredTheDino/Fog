@@ -1,3 +1,5 @@
+# Left
+- A way to track memory allocations
 - A simple abstracted renderer with render commands, that can draw sprites.
     - OpenGL
     - Shaders
@@ -5,5 +7,7 @@
     - Simple text
 - Send up a texture array (3D texture) for sprites, with ids.
 - Asset system for handling textures and sprite data
-- Simple input system with controller support
-- 
+
+
+# DONE
+- Simple input system with controller support [DONE]
