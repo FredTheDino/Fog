@@ -14,6 +14,8 @@ typedef uint64_t u64; // We assume these are a thing.
 typedef float f32;
 typedef double f64;
 
+typedef f32 real; // Type used in vectors.
+
 #define PI 3.1419f
 
 #ifndef NAN
@@ -43,6 +45,13 @@ typedef double f64;
 #define ABS(n) ((n) < 0 ? -(n) : (n)) 
 
 #define MOD(a, b) (a) - floor((a) / (b)) * (b)
+
+#define LEN(a) (sizeof(a) / sizeof(a[0]))
+
+#include "math/block_vector.h"
+#include "math/block_quaternion.h"
+#include "math/block_matrix.h"
+#include "math/block_transform.h"
 
 // Debug functions
 #define LOG_MSG(fmt) __debug_log("LOG", __FILE__, __LINE__, fmt)

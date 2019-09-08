@@ -1,11 +1,14 @@
 SDL_Window* window;
 SDL_GLContext context;
 
-// TODO: Abstract base class "Asset"
+// TODO(ed): Abstract base class "Asset"
 struct Program {
-    const s32 id;
+    // TODO(ed): Make this member const.
+    s32 id;
 
-    void bind() const;
+    void bind() const {
+        glUseProgram(id);
+    }
 
     static Program ERROR() { return {-1}; }
 
@@ -92,6 +95,62 @@ compile_shader_program_from_source(const char *source) {
     return shader;
 }
 
+struct Vertex {
+    Vec2 position;
+    Vec2 texture;
+    // TODO(ed): Do I want more here? Could probably do lines somehow?
+};
+
+struct Mesh {
+    u32 vao;
+    u32 vbo;
+    u32 draw_length;
+
+    void bind() {
+        glBindVertexArray(vao);
+    }
+
+    void unbind() {
+        glBindVertexArray(0);
+    }
+
+    void draw() {
+        glDrawArrays(GL_TRIANGLES, 0, draw_length);
+    }
+
+    void draw_and_bind() {
+        bind();
+        draw();
+        unbind();
+    }
+};
+
+static Mesh load_mesh(u32 num_verts, Vertex *verts) {
+    Mesh mesh;
+    mesh.draw_length = num_verts;
+
+    glGenVertexArrays(1, &mesh.vao);
+    glBindVertexArray(mesh.vao);
+
+    glGenBuffers(1, &mesh.vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, mesh.vbo);
+    glBufferData(GL_ARRAY_BUFFER, num_verts * sizeof(verts[0]), (void *) verts, GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(verts[0]),
+                          (void *) (0 * sizeof(real)));
+
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(verts[0]),
+                          (void *) (2 * sizeof(real)));
+
+    glBindVertexArray(0);
+    return mesh;
+}
+
+Program master_shader_program;
+Mesh quad;
+
 static bool
 init(const char *title, int width, int height) {
     if (SDL_Init(SDL_INIT_VIDEO)) {
@@ -110,26 +169,43 @@ init(const char *title, int width, int height) {
         return false;
     }
 
+    // TODO(ed): Read actual file... How will the asset system work?
     const char *source = R"(#version 330 core
 #define VERT
 
 #ifdef VERT
 
+layout (location=0) in vec2 pos;
+layout (location=1) in vec2 uv;
+
+out vec2 pass_uv;
+
 void main() {
-    gl_Position = vec4(0, 0, 0, 0);
+    gl_Position = vec4(pos.x, pos.y, 0.0, 1.0);
+    pass_uv = uv;
 }
 
 #else
 
+in vec2 pass_uv;
+
 out vec4 color;
 void main() {
-    color = vec4(1, 0, 0, 1);
+    color = vec4(pass_uv, 1.0, 1.0);
 }
 
 #endif
 )";
-    Program program = compile_shader_program_from_source(source);
-    ASSERT(program);
+    master_shader_program = compile_shader_program_from_source(source);
+    ASSERT(master_shader_program);
+    master_shader_program.bind();
+
+    Vertex verticies[] = {
+        { V2(-1, -1), V2(0, 0) },
+        { V2( 0,  1), V2(1, 1) },
+        { V2( 1, -1), V2(1, 0) },
+    };
+    quad = load_mesh(LEN(verticies), verticies);
 
     // Set initial state
     glClearColor(0.3f, 0.1f, 0.2f, 1.0f);
@@ -139,6 +215,7 @@ void main() {
 static void
 clear() {
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    quad.draw_and_bind();
 }
 
 static void
