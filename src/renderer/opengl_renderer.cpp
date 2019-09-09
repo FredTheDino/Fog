@@ -1,4 +1,4 @@
-SDL_Window* window;
+SDL_Window *window;
 SDL_GLContext context;
 
 // TODO(ed): Abstract base class "Asset"
@@ -6,30 +6,27 @@ struct Program {
     // TODO(ed): Make this member const.
     s32 id;
 
-    void bind() const {
-        glUseProgram(id);
-    }
+    void bind() const { glUseProgram(id); }
 
     static Program ERROR() { return {-1}; }
 
-    operator bool() const {
-        return id != ERROR().id;
-    }
+    operator bool() const { return id != ERROR().id; }
 };
 
-static Program
-compile_shader_program_from_source(const char *source) {
-#define SHADER_ERROR_CHECK(SHDR) do {\
-    GLint success = 0;\
-    glGetShaderiv(SHDR, GL_COMPILE_STATUS, &success);\
-    if(success == GL_FALSE) {\
-        char buffer[512];\
-        glGetShaderInfoLog(SHDR, 500, NULL, &buffer[0]);\
-        ERR("%s: %s\n", "\""#SHDR"\"", buffer);\
-        glDeleteShader(frag);\
-        glDeleteShader(vert);\
-        return Program::ERROR();\
-    } } while(false);
+static Program compile_shader_program_from_source(const char *source) {
+#define SHADER_ERROR_CHECK(SHDR)                             \
+    do {                                                     \
+        GLint success = 0;                                   \
+        glGetShaderiv(SHDR, GL_COMPILE_STATUS, &success);    \
+        if (success == GL_FALSE) {                           \
+            char buffer[512];                                \
+            glGetShaderInfoLog(SHDR, 500, NULL, &buffer[0]); \
+            ERR("%s: %s\n", "\"" #SHDR "\"", buffer);        \
+            glDeleteShader(frag);                            \
+            glDeleteShader(vert);                            \
+            return Program::ERROR();                         \
+        }                                                    \
+    } while (false);
 
     u32 frag = glCreateShader(GL_FRAGMENT_SHADER);
     u32 vert = glCreateShader(GL_VERTEX_SHADER);
@@ -57,8 +54,8 @@ compile_shader_program_from_source(const char *source) {
                     b[-3] = 'F';
                     b[-2] = 'R';
                     b[-1] = 'A';
-                    b[ 0] = 'G';
-                    b[ 1] = '\0';
+                    b[0] = 'G';
+                    b[1] = '\0';
                     ++c;
                     break;
                 }
@@ -74,7 +71,7 @@ compile_shader_program_from_source(const char *source) {
         SHADER_ERROR_CHECK(frag);
     }
 
-    Program shader = { (s32) glCreateProgram() };
+    Program shader = {(s32)glCreateProgram()};
     glAttachShader(shader.id, vert);
     glAttachShader(shader.id, frag);
     glLinkProgram(shader.id);
@@ -84,13 +81,12 @@ compile_shader_program_from_source(const char *source) {
 
     GLint success = 0;
     glGetProgramiv(shader.id, GL_LINK_STATUS, &success);
-    if(success == GL_FALSE) {
+    if (success == GL_FALSE) {
         char buffer[512];
         glGetProgramInfoLog(shader.id, 500, NULL, &buffer[0]);
         ERR("Program: %s\n", buffer);
         return Program::ERROR();
     }
-
 
     return shader;
 }
@@ -106,17 +102,11 @@ struct Mesh {
     u32 vbo;
     u32 draw_length;
 
-    void bind() {
-        glBindVertexArray(vao);
-    }
+    void bind() { glBindVertexArray(vao); }
 
-    void unbind() {
-        glBindVertexArray(0);
-    }
+    void unbind() { glBindVertexArray(0); }
 
-    void draw() {
-        glDrawArrays(GL_TRIANGLES, 0, draw_length);
-    }
+    void draw() { glDrawArrays(GL_TRIANGLES, 0, draw_length); }
 
     void draw_and_bind() {
         bind();
@@ -134,15 +124,16 @@ static Mesh load_mesh(u32 num_verts, Vertex *verts) {
 
     glGenBuffers(1, &mesh.vbo);
     glBindBuffer(GL_ARRAY_BUFFER, mesh.vbo);
-    glBufferData(GL_ARRAY_BUFFER, num_verts * sizeof(verts[0]), (void *) verts, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, num_verts * sizeof(verts[0]), (void *)verts,
+                 GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(verts[0]),
-                          (void *) (0 * sizeof(real)));
+                          (void *)(0 * sizeof(real)));
 
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(verts[0]),
-                          (void *) (2 * sizeof(real)));
+                          (void *)(2 * sizeof(real)));
 
     glBindVertexArray(0);
     return mesh;
@@ -151,8 +142,7 @@ static Mesh load_mesh(u32 num_verts, Vertex *verts) {
 Program master_shader_program;
 Mesh quad;
 
-static bool
-init(const char *title, int width, int height) {
+static bool init(const char *title, int width, int height) {
     if (SDL_Init(SDL_INIT_VIDEO)) {
         LOG_MSG("Failed to initalize SDL");
         return false;
@@ -201,9 +191,9 @@ void main() {
     master_shader_program.bind();
 
     Vertex verticies[] = {
-        { V2(-1, -1), V2(0, 0) },
-        { V2( 0,  1), V2(1, 1) },
-        { V2( 1, -1), V2(1, 0) },
+        {V2(-1, -1), V2(0, 0)},
+        {V2(0, 1), V2(1, 1)},
+        {V2(1, -1), V2(1, 0)},
     };
     quad = load_mesh(LEN(verticies), verticies);
 
@@ -212,16 +202,12 @@ void main() {
     return true;
 }
 
-static void
-clear() {
+static void clear() {
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     quad.draw_and_bind();
 }
 
-static void
-blit() {
-    SDL_GL_SwapWindow(window);
-}
+static void blit() { SDL_GL_SwapWindow(window); }
 
 // Asset (Abstract base class)
 //      - Texture:
