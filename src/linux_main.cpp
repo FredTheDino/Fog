@@ -4,10 +4,12 @@ extern "C" {
 }
 
 #include "base.h"
+#include "util/memory.h"
 #include "platform/input.h"
 #define OPENGL
 #define SDL
 
+#include "util/memory.cpp"
 #include "platform/input.cpp"
 #include "renderer/command.cpp"
 
@@ -21,6 +23,7 @@ Input::Mapping mapping = {};
 #endif
 
 int main(int argc, char **argv) {
+    Util::do_all_allocations();
     ASSERT(Renderer::init("Hello", 500, 500));
 
     using namespace Input;

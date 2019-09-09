@@ -5,6 +5,7 @@
     - Shaders
     - Textures
     - Simple text
+- Asset system, preprocessing of assets
 - Send up a texture array (3D texture) for sprites, with ids.
 - Asset system for handling textures and sprite data
 
