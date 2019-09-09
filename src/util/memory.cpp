@@ -2,6 +2,10 @@
 
 namespace Util {
 
+//
+// Memory functions
+//
+
 void do_all_allocations() {
     ASSERT(TOTAL_MEMORY_BUDGET % ARENA_SIZE_IN_BYTES == 0);
 #define ADVANCED_BY(ptr, size) (MemoryArena *) (((u8 *) (ptr)) + (size))
@@ -51,6 +55,15 @@ T *MemoryArena::push(u64 count) {
     return (T *) region;
 }
 
+void MemoryArena::clear() {
+    while (next) {
+        MemoryArena *old = next;
+        next = next->next;
+        return_arean(old);
+    }
+    watermark = 0;
+}
+
 void MemoryArena::pop() {
     while (next) {
         MemoryArena *old = next;
@@ -58,6 +71,15 @@ void MemoryArena::pop() {
         return_arean(old);
     }
     return_arean(this);
+}
+
+//
+// Utility
+//
+
+bool str_eq(const char *a, const char *b) {
+    while (*a && *b && *(a++) == *(b++)) { /* Empty */ }
+    return *a == *b;
 }
 
 }  // namespace Util

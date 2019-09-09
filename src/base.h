@@ -68,7 +68,7 @@ static void __debug_log(const char* type, const char* file, int line,
     fprintf(stderr, "\n");
 }
 
-#define HALT_AND_CATCH_FILE ((int*)(void*)0)[0] = 0;
+#define HALT_AND_CATCH_FILE ((int*) (void*) 0)[0] = 0;
 #define ASSERT(expr) __assert(__FILE__, __LINE__, "\"" #expr "\"", expr)
 static void __assert(const char* file, int line, const char* expr,
                      bool assumed) {

@@ -71,7 +71,7 @@ static Program compile_shader_program_from_source(const char *source) {
         SHADER_ERROR_CHECK(frag);
     }
 
-    Program shader = {(s32)glCreateProgram()};
+    Program shader = {(s32) glCreateProgram()};
     glAttachShader(shader.id, vert);
     glAttachShader(shader.id, frag);
     glLinkProgram(shader.id);
@@ -124,16 +124,16 @@ static Mesh load_mesh(u32 num_verts, Vertex *verts) {
 
     glGenBuffers(1, &mesh.vbo);
     glBindBuffer(GL_ARRAY_BUFFER, mesh.vbo);
-    glBufferData(GL_ARRAY_BUFFER, num_verts * sizeof(verts[0]), (void *)verts,
+    glBufferData(GL_ARRAY_BUFFER, num_verts * sizeof(verts[0]), (void *) verts,
                  GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(verts[0]),
-                          (void *)(0 * sizeof(real)));
+                          (void *) (0 * sizeof(real)));
 
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(verts[0]),
-                          (void *)(2 * sizeof(real)));
+                          (void *) (2 * sizeof(real)));
 
     glBindVertexArray(0);
     return mesh;
