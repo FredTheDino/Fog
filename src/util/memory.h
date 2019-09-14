@@ -1,6 +1,7 @@
 namespace Util {
 
 struct MemoryArena {
+    bool only_one;
     u64 watermark;
     MemoryArena *next;
     void *memory;

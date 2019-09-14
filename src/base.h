@@ -68,20 +68,20 @@ static void __debug_log(const char* type, const char* file, int line,
     fprintf(stderr, "\n");
 }
 
-#define HALT_AND_CATCH_FILE ((int*) (void*) 0)[0] = 0;
-#define ASSERT(expr) __assert(__FILE__, __LINE__, "\"" #expr "\"", expr)
+#define HALT_AND_CATCH_FIRE ((int*) (void*) 0)[0] = 0;
+#define ASSERT(expr, msg) __assert(__FILE__, __LINE__, "\"" #expr "\"" ":" #msg, expr)
 static void __assert(const char* file, int line, const char* expr,
                      bool assumed) {
     if (assumed) return;
     __debug_log("!ASSERT!", file, line, expr);
-    HALT_AND_CATCH_FILE;
+    HALT_AND_CATCH_FIRE;
 }
 #define UNREACHABLE                                \
     __debug_log("UNREACHABLE", __FILE__, __LINE__, \
                 "Reached unreachable code");       \
-    HALT_AND_CATCH_FILE;
+    HALT_AND_CATCH_FIRE;
 
-#define CHECK(expr) __check(__FILE__, __LINE__, "\"" #expr "\"", expr)
+#define CHECK(expr, msg) __check(__FILE__, __LINE__, "\"" #expr "\"" ":" #msg, expr)
 static void __check(const char* file, int line, const char* expr,
                     bool assumed) {
     if (assumed) return;

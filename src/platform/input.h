@@ -94,12 +94,12 @@ struct Binding {
     }
 
     u32 index() const {
-        ASSERT(name != Name::NONE);
+        ASSERT(name != Name::NONE, "NONE is not a valid name");
         return (u32)name * NUM_ALTERNATIVE_BINDINGS + binding_id;
     }
 
     u32 playerID() const {
-        ASSERT(name != Name::NONE);
+        ASSERT(name != Name::NONE, "NONE is not a valid name");
         return toID(player);
     }
 };

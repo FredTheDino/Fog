@@ -31,13 +31,13 @@ static Program compile_shader_program_from_source(const char *source) {
     u32 frag = glCreateShader(GL_FRAGMENT_SHADER);
     u32 vert = glCreateShader(GL_VERTEX_SHADER);
 
-    LOG("\nVERT:\n%s\n", source);
     glShaderSource(vert, 1, &source, NULL);
     glCompileShader(vert);
     SHADER_ERROR_CHECK(vert);
 
     // Shader replace function.
     {
+        // TODO(ed): This can be more robust.
         const char *match_word = "#define VERT";
         u32 match_length = 0;
         const u32 buffer_size = 512;
@@ -46,7 +46,7 @@ static Program compile_shader_program_from_source(const char *source) {
         const char *c = source;
 
         while (*c) {
-            ASSERT((buffer - b) < buffer_size);
+            ASSERT((buffer - b) < buffer_size, "You only need 512B for a shader!");
             *b = *c;
             if (*c == match_word[match_length]) {
                 ++match_length;
@@ -94,6 +94,8 @@ static Program compile_shader_program_from_source(const char *source) {
 struct Vertex {
     Vec2 position;
     Vec2 texture;
+
+    Vec4 color;
     // TODO(ed): Do I want more here? Could probably do lines somehow?
 };
 
@@ -108,10 +110,62 @@ struct Mesh {
 
     void draw() { glDrawArrays(GL_TRIANGLES, 0, draw_length); }
 
-    void draw_and_bind() {
+    void bind_and_draw() {
         bind();
         draw();
         unbind();
+    }
+};
+
+struct RenderQueue {
+    // OpenGL objects for render context.
+    u32 gl_draw_hint;
+    u32 gl_array_object;
+
+    struct GLBuffer {
+        // TODO(ed): Is 512 a good number?
+        static const u32 NUM_VERTICIES_PER_BUFFER = 512;
+        u32 draw_length;
+        u32 gl_buffer;
+    };
+    u32 num_buffers;
+    GLBuffer *vertex_buffers;
+
+    Util::MemoryArena *arena;
+
+    // TODO(ed): Should this take in an arena?
+    void create() {
+        const u32 INITAL_BUFFERS = 10;
+        arena = Util::request_arena(true);
+        num_buffers = INITAL_BUFFERS;
+        vertex_buffers = arena->push<GLBuffer>(num_buffers);
+
+        gl_draw_hint = GL_TRIANGLES;
+        glGenVertexArrays(1, &gl_array_object);
+        glBindVertexArray(gl_array_object);
+
+        u32 buffers[INITAL_BUFFERS];
+        glGenBuffers(INITAL_BUFFERS, buffers);
+        for (u32 i = 0; i < INITAL_BUFFERS; i++)
+            vertex_buffers[i] = { 0, buffers[i] };
+    }
+
+    void push(u32 num_new_verticies, Vertex *new_verticies) {
+        // Find first available buffer with enough space.
+        // Make sure it's initalized by checking size.
+        // Fill in more verticies.
+    }
+
+    void draw() {
+        // Send the render command for each buffer.
+        // (Do I need to think about the order and
+        // do it in reverse? Probably?)
+    }
+
+    void clear() {
+        // Delete all gl_buffers, do this by copying all
+        // of them to a buffer, so we only do one call
+        // to opengl. It's gonna be so fast! :D
     }
 };
 
@@ -187,7 +241,7 @@ void main() {
 #endif
 )";
     master_shader_program = compile_shader_program_from_source(source);
-    ASSERT(master_shader_program);
+    ASSERT(master_shader_program, "Failed to compile shader");
     master_shader_program.bind();
 
     Vertex verticies[] = {
@@ -202,9 +256,18 @@ void main() {
     return true;
 }
 
+static void push_quad(Vec2 min, Vec2 max, Vec4 color) {
+}
+
+static void push_line(Vec2 start, Vec2 end, Vec4 start_color, Vec4 end_color) {
+}
+
+static void push_point(Vec2 point, Vec4 color) {
+}
+
 static void clear() {
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-    quad.draw_and_bind();
+    quad.bind_and_draw();
 }
 
 static void blit() { SDL_GL_SwapWindow(window); }

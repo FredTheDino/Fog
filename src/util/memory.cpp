@@ -7,7 +7,7 @@ namespace Util {
 //
 
 void do_all_allocations() {
-    ASSERT(TOTAL_MEMORY_BUDGET % ARENA_SIZE_IN_BYTES == 0);
+    ASSERT(TOTAL_MEMORY_BUDGET % ARENA_SIZE_IN_BYTES == 0, "Cannot split memory budget evenly into arenas");
 #define ADVANCED_BY(ptr, size) (MemoryArena *) (((u8 *) (ptr)) + (size))
     MemoryArena *all = (MemoryArena *) malloc(TOTAL_MEMORY_BUDGET);
 
@@ -22,13 +22,13 @@ void do_all_allocations() {
     global_memory.all_regions[NUM_ARENAS - 1].next = 0;
 }
 
-MemoryArena *request_arena() {
-    ASSERT(global_memory.free_regions);
-    ASSERT(
-        global_memory.num_free_regions);  // We should never run out of memory.
+MemoryArena *request_arena(bool only_one=false) {
+    ASSERT(global_memory.free_regions, "No more memory");
+    ASSERT(global_memory.num_free_regions, "No more memory");
     MemoryArena *next = global_memory.free_regions;
     global_memory.free_regions = next->next;
     --global_memory.num_free_regions;
+    next->only_one = only_one;
     next->next = 0;
     next->watermark = 0;
     return next;
@@ -43,9 +43,11 @@ void return_arean(MemoryArena *arena) {
 template <typename T>
 T *MemoryArena::push(u64 count) {
     u64 allocation_size = sizeof(T) * count;
-    ASSERT(allocation_size <= ARENA_SIZE_IN_BYTES);
+    ASSERT(allocation_size <= ARENA_SIZE_IN_BYTES, "Allocated too much");
     if (watermark + allocation_size > ARENA_SIZE_IN_BYTES) {
         if (!next) {
+            if (only_one)
+                HALT_AND_CATCH_FIRE;
             next = request_arena();
         }
         return next->push<T>(count);

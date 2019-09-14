@@ -6,7 +6,7 @@ extern "C" {
 #include "base.h"
 #include "util/memory.h"
 #include "platform/input.h"
-#define OPENGL
+#define OPENGL_RENDERER
 #define SDL
 
 #include "util/memory.cpp"
@@ -53,7 +53,7 @@ void start_perf_clock(const char *name) {
         if (Util::str_eq(perf.clocks[i].name, name)) break;
     }
     perf.size++;
-    ASSERT(perf.size != perf.capacity);
+    ASSERT(perf.size < perf.capacity, "Too many performance clocks");
     perf.clocks[i].name = name;
     perf.clocks[i].start = cpu_now();
 }
@@ -87,7 +87,7 @@ void report() {
         const char *name = perf.clocks[i].name;
         u64 delta_i = (perf.clocks[i].end - perf.clocks[i].start);
         f64 delta_f = ((f64)(perf.clocks[i].end - perf.clocks[i].start));
-        fprintf(stderr, "  %11s : %8llu, %8lf%%\n", name, delta_i,
+        fprintf(stderr, "  %11s : %8lu, %8lf%%\n", name, delta_i,
                 100 * delta_f / total_delta);
     }
 }
@@ -109,12 +109,12 @@ u64 now() {
 
 int main(int argc, char **argv) {
     Util::do_all_allocations();
-    ASSERT(Renderer::init("Hello", 500, 500));
+    ASSERT(Renderer::init("Hello", 500, 500), "Failed to initalize renderer");
 
     using namespace Input;
-    CHECK(add(&mapping, K(a), Player::P1, Name::LEFT));
-    CHECK(add(&mapping, K(d), Player::P1, Name::RIGHT));
-    CHECK(add(&mapping, K(ESCAPE), Player::P1, Name::QUIT));
+    CHECK(add(&mapping, K(a), Player::P1, Name::LEFT), "");
+    CHECK(add(&mapping, K(d), Player::P1, Name::RIGHT), "");
+    CHECK(add(&mapping, K(ESCAPE), Player::P1, Name::QUIT), "");
 
     while (SDL::running) {
         Perf::report();

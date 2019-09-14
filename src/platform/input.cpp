@@ -5,7 +5,7 @@ namespace Input {
 
 static Binding *find_binding(Mapping *mapping, InputCode code) {
     // TODO(ed): The place where <algorithm> is used.
-    ASSERT(code != 0);
+    ASSERT(code != 0, "0 is not a valid code");
     auto binding = std::lower_bound(
         mapping->bindings + 0, mapping->bindings + mapping->used_bindings, code,
         [](const Binding a, const InputCode b) { return a.code < b; });
@@ -15,7 +15,7 @@ static Binding *find_binding(Mapping *mapping, InputCode code) {
 }
 
 static void insert(Mapping *mapping, Binding binding) {
-    ASSERT(mapping->used_bindings < NUM_TOTAL_BINDINGS);
+    ASSERT(mapping->used_bindings < NUM_TOTAL_BINDINGS, "Too many bindings");
 
     Binding *it = mapping->bindings + mapping->used_bindings;
     while (mapping->bindings != it && binding.code < (it - 1)->code) {
@@ -27,11 +27,12 @@ static void insert(Mapping *mapping, Binding binding) {
 }
 
 static bool add(Mapping *mapping, InputCode code, Player player, Name name) {
-    ASSERT(code != 0);
+    // TODO(ed): Is this assert still needed?
+    ASSERT(code != 0, "0 is not a valid code");
     Binding binding = {code, player, name, 0};
 
     // Check if there is a free binding.
-    ASSERT(is_valid_player(player));
+    ASSERT(is_valid_player(player), "");
     auto buttons = mapping->buttons[toID(player)];
     u32 index = binding.index();
     bool valid = false;
@@ -43,8 +44,7 @@ static bool add(Mapping *mapping, InputCode code, Player player, Name name) {
         break;
     }
 
-    // We failed to find a free spot, fail.
-    CHECK(valid);
+    CHECK(valid, "Cannot add new mapping");
     if (!valid) return false;
 
     insert(mapping, binding);
@@ -55,7 +55,7 @@ static bool add(Mapping *mapping, InputCode code, Player player, Name name) {
 // variables. But if you check more than each button every frame,
 // this saves performance.
 static void frame(Mapping *mapping) {
-    for (u32 player = 0; player < (u32)Player::NUM; player++) {
+    for (u32 player = 0; player < (u32) Player::NUM; player++) {
         for (u32 button_id = 0; button_id < NUM_BINDINGS_PER_CONTROLLER;
              button_id++) {
             auto *button = mapping->buttons[player] + button_id;
@@ -68,9 +68,9 @@ static bool activate(Mapping *mapping, InputCode code, f32 value) {
     Binding *binding = find_binding(mapping, code);
     if (!binding) return false;
     u32 index = binding->index();
-    ASSERT(0 <= index && index < NUM_BINDINGS_PER_CONTROLLER);
+    ASSERT(0 <= index && index < NUM_BINDINGS_PER_CONTROLLER, "Invalid index");
     u32 player = binding->playerID();
-    ASSERT(0 <= (u32)player && player < (u32)Player::NUM);
+    ASSERT(0 <= (u32) player && player < (u32) Player::NUM, "Invalid player");
     mapping->buttons[player][index].set(value);
     return true;
 }
@@ -78,7 +78,7 @@ static bool activate(Mapping *mapping, InputCode code, f32 value) {
 // TODO(ed): down, released, pressed, triggered
 
 #define BEGIN_BINDINGS_BLOCK                                 \
-    for (u32 p = 0; p < (u32)Player::NUM; p++) {             \
+    for (u32 p = 0; p < (u32) Player::NUM; p++) {            \
         Player p_mask = Player(1 << p);                      \
         if (!is(player, p_mask)) continue;                   \
         Binding binding = {0, p_mask, name, 0};              \
@@ -91,7 +91,7 @@ static bool activate(Mapping *mapping, InputCode code, f32 value) {
 
 static bool triggered(Mapping *mapping, Player player, Name name) {
     BEGIN_BINDINGS_BLOCK {
-        if ((u32)button.state & (u32)ButtonState::TRIGGERED) return true;
+        if ((u32) button.state & (u32) ButtonState::TRIGGERED) return true;
     }
     END_BINDINGS_BLOCK
     return false;
