@@ -63,7 +63,9 @@ Vec2 normalize(Vec2 a) {
 
 Vec2 hadamard(Vec2 a, Vec2 b) { return {a.x * b.x, a.y * b.y}; }
 
-Vec2 inverse(Vec2 a) { return {(real)1.0 / a.x, (real)1.0 / a.y}; }
+Vec2 inverse(Vec2 a) { return {(real) 1.0 / a.x, (real) 1.0 / a.y}; }
+
+Vec2 rotate_ccw(Vec2 p) { return {-p.y, p.x}; }
 
 Vec2 rotate(Vec2 p, real angle) {
     real s = sin(-angle);

@@ -1,9 +1,20 @@
 SDL_Window *window;
 SDL_GLContext context;
 
+// TODO(ed): Break this apart into a source file and a header file
+
+void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id,
+                                GLenum severity, GLsizei length,
+                                const GLchar *message, const void *userParam) {
+    fprintf(stderr,
+            "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
+            (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""), type,
+            severity, message);
+    if (type == GL_DEBUG_TYPE_ERROR) HALT_AND_CATCH_FIRE;
+}
+
 // TODO(ed): Abstract base class "Asset"
 struct Program {
-    // TODO(ed): Make this member const.
     s32 id;
 
     void bind() const { glUseProgram(id); }
@@ -37,7 +48,8 @@ static Program compile_shader_program_from_source(const char *source) {
 
     // Shader replace function.
     {
-        // TODO(ed): This can be more robust.
+        // TODO(ed): This can be more robust, maybe only take
+        // in mutable strings, would simplify a lot.
         const char *match_word = "#define VERT";
         u32 match_length = 0;
         const u32 buffer_size = 512;
@@ -46,7 +58,8 @@ static Program compile_shader_program_from_source(const char *source) {
         const char *c = source;
 
         while (*c) {
-            ASSERT((buffer - b) < buffer_size, "You only need 512B for a shader!");
+            ASSERT((buffer - b) < buffer_size,
+                   "You only need 512B for a shader!");
             *b = *c;
             if (*c == match_word[match_length]) {
                 ++match_length;
@@ -96,9 +109,143 @@ struct Vertex {
     Vec2 texture;
 
     Vec4 color;
-    // TODO(ed): Do I want more here? Could probably do lines somehow?
 };
 
+struct RenderQueue {
+    u32 buffer_size;
+    // OpenGL objects for render context.
+    u32 gl_draw_hint = 0;
+
+    struct GLBuffer {
+        u32 draw_length;
+        u32 gl_buffer;
+        u32 gl_array_object;
+
+        void bind() {
+            glBindVertexArray(gl_array_object);
+            glBindBuffer(GL_ARRAY_BUFFER, gl_buffer);
+        }
+    };
+    u32 next_free;
+    u32 num_buffers;
+    GLBuffer *vertex_buffers;
+
+    Util::MemoryArena *arena;
+
+    u32 total_number_of_triangles() {
+        u32 sum = 0;
+        for (u32 i = 0; i < num_buffers; i++) {
+            sum += vertex_buffers[i].draw_length;
+        }
+        return sum;
+    }
+
+    void create(u32 triangels_per_buffer = 100) {
+        ASSERT(gl_draw_hint == 0,
+               "Cannot create same RenderQueue twice without deleteing.");
+        buffer_size = triangels_per_buffer * 3;
+        arena = Util::request_arena(true);
+        vertex_buffers = arena->push<GLBuffer>(num_buffers);
+
+        gl_draw_hint = GL_TRIANGLES;
+
+        next_free = 0;
+        num_buffers = 0;
+        expand();
+    }
+
+    void push(u32 num_new_verticies, Vertex *new_verticies) {
+        ASSERT(gl_draw_hint, "Trying to use uninitalized render queue.");
+        ASSERT(gl_draw_hint == GL_TRIANGLES, "Push code assumes triangles.");
+
+        while (num_new_verticies) {
+            for (u32 i = next_free; num_new_verticies; i++) {
+                next_free = i;
+                if (next_free == num_buffers) expand();
+                GLBuffer *buffer = vertex_buffers + next_free;
+                u32 free = buffer_size - buffer->draw_length;
+                if (free == 0) continue;
+                u32 to_push = MIN(num_new_verticies, (u32) free);
+
+                buffer->bind();
+                glBufferSubData(GL_ARRAY_BUFFER,
+                                buffer->draw_length * sizeof(Vertex),
+                                to_push * sizeof(Vertex), new_verticies);
+
+                buffer->draw_length += to_push;
+                num_new_verticies -= to_push;
+                new_verticies += to_push;
+            }
+        }
+        glBindVertexArray(0);
+    }
+
+    void expand() {
+        ASSERT(gl_draw_hint, "Trying to use uninitalized render queue");
+        arena->clear();
+        u32 to_copy = num_buffers;
+        const u32 TO_INITALIZE = 1;  // Grow by 3 each time.
+        num_buffers += TO_INITALIZE;
+        GLBuffer *new_buffers = arena->push<GLBuffer>(num_buffers);
+        if (new_buffers != vertex_buffers) {
+            for (u32 i = 0; i < to_copy; i++) {
+                new_buffers[i] = vertex_buffers[i];
+            }
+            vertex_buffers = new_buffers;
+        }
+
+        u32 vaos[TO_INITALIZE];
+        glGenVertexArrays(TO_INITALIZE, vaos);
+        u32 buffers[TO_INITALIZE];
+        glGenBuffers(TO_INITALIZE, buffers);
+        for (u32 i = 0; i < TO_INITALIZE; i++) {
+            vertex_buffers[to_copy + i] = {0, buffers[i], vaos[i]};
+            vertex_buffers[to_copy + i].bind();
+            glBufferData(GL_ARRAY_BUFFER, buffer_size * sizeof(Vertex), NULL,
+                         GL_STREAM_DRAW);
+
+            glEnableVertexAttribArray(0);
+            glEnableVertexAttribArray(1);
+            glEnableVertexAttribArray(2);
+
+            glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+                                  (void *) (0 * sizeof(real)));
+            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+                                  (void *) (2 * sizeof(real)));
+            glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+                                  (void *) (4 * sizeof(real)));
+        }
+        glBindVertexArray(0);
+    }
+
+    void draw() {
+        ASSERT(gl_draw_hint, "Trying to use uninitalized render queue");
+        for (u32 i = 0; i < num_buffers; i++) {
+            GLBuffer buffer = vertex_buffers[i];
+            if (buffer.draw_length == 0) break;
+            buffer.bind();
+            glBindBuffer(GL_ARRAY_BUFFER, buffer.gl_buffer);
+            glDrawArrays(gl_draw_hint, 0, buffer.draw_length);
+        }
+        glBindVertexArray(0);
+    }
+
+    void clear() {
+        next_free = 0;
+        for (u32 i = 0; i < num_buffers; i++) vertex_buffers[i].draw_length = 0;
+    }
+
+    void destory() {
+        next_free = 0;
+        u32 *buffers = arena->push<u32>(num_buffers);
+        for (u32 i = 0; i < num_buffers; i++)
+            buffers[i] = vertex_buffers[i].gl_buffer;
+        gl_draw_hint = 0;
+        glDeleteBuffers(num_buffers, buffers);
+    }
+};
+
+#if 0
 struct Mesh {
     u32 vao;
     u32 vbo;
@@ -117,58 +264,6 @@ struct Mesh {
     }
 };
 
-struct RenderQueue {
-    // OpenGL objects for render context.
-    u32 gl_draw_hint;
-    u32 gl_array_object;
-
-    struct GLBuffer {
-        // TODO(ed): Is 512 a good number?
-        static const u32 NUM_VERTICIES_PER_BUFFER = 512;
-        u32 draw_length;
-        u32 gl_buffer;
-    };
-    u32 num_buffers;
-    GLBuffer *vertex_buffers;
-
-    Util::MemoryArena *arena;
-
-    // TODO(ed): Should this take in an arena?
-    void create() {
-        const u32 INITAL_BUFFERS = 10;
-        arena = Util::request_arena(true);
-        num_buffers = INITAL_BUFFERS;
-        vertex_buffers = arena->push<GLBuffer>(num_buffers);
-
-        gl_draw_hint = GL_TRIANGLES;
-        glGenVertexArrays(1, &gl_array_object);
-        glBindVertexArray(gl_array_object);
-
-        u32 buffers[INITAL_BUFFERS];
-        glGenBuffers(INITAL_BUFFERS, buffers);
-        for (u32 i = 0; i < INITAL_BUFFERS; i++)
-            vertex_buffers[i] = { 0, buffers[i] };
-    }
-
-    void push(u32 num_new_verticies, Vertex *new_verticies) {
-        // Find first available buffer with enough space.
-        // Make sure it's initalized by checking size.
-        // Fill in more verticies.
-    }
-
-    void draw() {
-        // Send the render command for each buffer.
-        // (Do I need to think about the order and
-        // do it in reverse? Probably?)
-    }
-
-    void clear() {
-        // Delete all gl_buffers, do this by copying all
-        // of them to a buffer, so we only do one call
-        // to opengl. It's gonna be so fast! :D
-    }
-};
-
 static Mesh load_mesh(u32 num_verts, Vertex *verts) {
     Mesh mesh;
     mesh.draw_length = num_verts;
@@ -182,19 +277,25 @@ static Mesh load_mesh(u32 num_verts, Vertex *verts) {
                  GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(verts[0]),
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
                           (void *) (0 * sizeof(real)));
 
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(verts[0]),
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
                           (void *) (2 * sizeof(real)));
+
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+                          (void *) (4 * sizeof(real)));
 
     glBindVertexArray(0);
     return mesh;
 }
+#endif
 
 Program master_shader_program;
-Mesh quad;
+
+RenderQueue queue;
 
 static bool init(const char *title, int width, int height) {
     if (SDL_Init(SDL_INIT_VIDEO)) {
@@ -213,6 +314,11 @@ static bool init(const char *title, int width, int height) {
         return false;
     }
 
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback(MessageCallback, 0);
+
+    queue.create(500);
+
     // TODO(ed): Read actual file... How will the asset system work?
     const char *source = R"(#version 330 core
 #define VERT
@@ -221,21 +327,25 @@ static bool init(const char *title, int width, int height) {
 
 layout (location=0) in vec2 pos;
 layout (location=1) in vec2 uv;
+layout (location=2) in vec4 color;
 
 out vec2 pass_uv;
+out vec4 pass_color;
 
 void main() {
     gl_Position = vec4(pos.x, pos.y, 0.0, 1.0);
     pass_uv = uv;
+    pass_color = color;
 }
 
 #else
 
 in vec2 pass_uv;
+in vec4 pass_color;
 
 out vec4 color;
 void main() {
-    color = vec4(pass_uv, 1.0, 1.0);
+    color = pass_color;
 }
 
 #endif
@@ -244,33 +354,55 @@ void main() {
     ASSERT(master_shader_program, "Failed to compile shader");
     master_shader_program.bind();
 
-    Vertex verticies[] = {
-        {V2(-1, -1), V2(0, 0)},
-        {V2(0, 1), V2(1, 1)},
-        {V2(1, -1), V2(1, 0)},
-    };
-    quad = load_mesh(LEN(verticies), verticies);
-
     // Set initial state
     glClearColor(0.3f, 0.1f, 0.2f, 1.0f);
     return true;
 }
 
+static void push_verticies(u32 num_verticies, Vertex *verticies) {
+    queue.push(num_verticies, verticies);
+}
+
 static void push_quad(Vec2 min, Vec2 max, Vec4 color) {
+    Vertex verticies[] = {
+        {V2(min.x, min.y), V2(0, 0), color},
+        {V2(max.x, min.y), V2(0, 0), color},
+        {V2(max.x, max.y), V2(0, 0), color},
+
+        {V2(min.x, min.y), V2(0, 0), color},
+        {V2(max.x, max.y), V2(0, 0), color},
+        {V2(min.x, max.y), V2(0, 0), color},
+    };
+    queue.push(LEN(verticies), verticies);
 }
 
-static void push_line(Vec2 start, Vec2 end, Vec4 start_color, Vec4 end_color) {
+static void push_line(Vec2 start, Vec2 end, Vec4 start_color, Vec4 end_color,
+                      f32 thickness) {
+    Vec2 normal = rotate_ccw(start - end);
+    Vec2 offset = normal * thickness;
+    Vertex verticies[] = {
+        {start + offset, V2(0, 0), start_color},
+        {start - offset, V2(0, 0), start_color},
+        {end - offset, V2(0, 0), end_color},
+
+        {start + offset, V2(0, 0), start_color},
+        {end - offset, V2(0, 0), end_color},
+        {end + offset, V2(0, 0), end_color},
+    };
+    queue.push(LEN(verticies), verticies);
 }
 
-static void push_point(Vec2 point, Vec4 color) {
+static void push_point(Vec2 point, Vec4 color, f32 size) {
+    push_quad(point - V2(size, size), point + V2(size, size), color);
 }
 
-static void clear() {
-    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-    quad.bind_and_draw();
-}
+static void clear() { glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT); }
 
-static void blit() { SDL_GL_SwapWindow(window); }
+static void blit() {
+    queue.draw();
+    SDL_GL_SwapWindow(window);
+    queue.clear();
+}
 
 // Asset (Abstract base class)
 //      - Texture:

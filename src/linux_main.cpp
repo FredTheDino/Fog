@@ -107,6 +107,9 @@ u64 now() {
     return tp.tv_sec * 1000 + tp.tv_nsec;
 }
 
+#include "math.h"
+f32 rand_real() { return ((f32) rand() / (f32) RAND_MAX) * 2.0 - 1.0; }
+
 int main(int argc, char **argv) {
     Util::do_all_allocations();
     ASSERT(Renderer::init("Hello", 500, 500), "Failed to initalize renderer");
@@ -117,7 +120,7 @@ int main(int argc, char **argv) {
     CHECK(add(&mapping, K(ESCAPE), Player::P1, Name::QUIT), "");
 
     while (SDL::running) {
-        Perf::report();
+        // Perf::report();
         Perf::clear();
         Perf::start_perf_clock("MAIN");
         Perf::start_perf_clock("INPUT");
@@ -131,6 +134,18 @@ int main(int argc, char **argv) {
 
         Perf::start_perf_clock("RENDER");
         Renderer::clear();
+
+        static float x = 0;
+        if (down(&mapping, Player::ANY, Name::RIGHT)) {
+            for (u32 i = 0; i < 1000; i++)
+                Renderer::push_point(
+                    V2(rand_real(), rand_real()),
+                    V4(rand_real(), rand_real(), rand_real(), 1),
+                    rand_real() * 0.01);
+        }
+
+        LOG("NUM_TRIANGLES: %d",
+            Renderer::Impl::queue.total_number_of_triangles());
         Renderer::blit();
         Perf::stop_perf_clock("RENDER");
         Perf::stop_perf_clock("MAIN");

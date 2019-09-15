@@ -30,13 +30,13 @@ static void push_quad(Vec2 min, Vec2 max, Vec4 color) {
 }
 
 // Queues up a line to be rendered to the screen.
-static void push_line(Vec2 start, Vec2 end, Vec4 start_color, Vec4 end_color) {
-    Impl::push_line(start, end, start_color, end_color);
+static void push_line(Vec2 start, Vec2 end, Vec4 start_color, Vec4 end_color, f32 thickness=0.01) {
+    Impl::push_line(start, end, start_color, end_color, thickness);
 }
 
 // Queues up a point to be rendered to the screen.
-static void push_point(Vec2 point, Vec4 color) {
-    Impl::push_point(point, color);
+static void push_point(Vec2 point, Vec4 color, f32 size=0.01) {
+    Impl::push_point(point, color, size);
 }
 
 // Draw all rendered pixels to the screen.
