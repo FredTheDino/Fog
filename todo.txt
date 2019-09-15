@@ -7,8 +7,16 @@
     - Simple text
 - Asset system, preprocessing of assets
 - Send up a texture array (3D texture) for sprites, with ids.
+- Sound
 - Asset system for handling textures and sprite data
 
+Renderer, update buffers every frame:
+    Primitives: lines, points, and quads
+    Pass: Transform, uv (x, y), tint, time?, sheet?
+    3D texture for text, sprites, animations etc... ?
+    Maybe sort by the sheet instead?
+    Requirements, ~1000000 particles on screen, lightning fast
+    easy to work with.
 
 # DONE
 - Simple input system with controller support [DONE]
