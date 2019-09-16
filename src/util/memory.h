@@ -18,6 +18,32 @@ struct MemoryArena {
     void clear();
 };
 
+// Allocates all the memory the program should
+// ever need.
+void do_all_allocations();
+
+// Swaps the temporary memory.
+void swap_frame_memory();
+
+// Request a block of memory, |only_one| doesn't
+// allow the arena to grow as the memory usage
+// is increased but caps it at one buffer.
+MemoryArena *request_arena(bool only_one = false);
+
+// Returns the memory arean to the pool of
+// all available arenas with. Does the same
+// thing as |MemoryArena::pop|.
+void return_arean(MemoryArena *arena);
+
+static const u32 FRAME_LAG_FOR_MEMORY = 2;
+static u32 CURRENT_MEMORY = 0;
+static MemoryArena *FRAME_MEMORY[FRAME_LAG_FOR_MEMORY];
+// Returns a chunk of temporary memory for
+// use over AT MOST |FRAME_LAG_FOR_MEMORY|
+// frames.
+template <typename T>
+T *request_temporary_memory(u64 num = 1);
+
 constexpr u64 TOTAL_MEMORY_BUDGET = 1 << 29;  // ~0.5GB
 constexpr u64 ARENA_SIZE_IN_BYTES = 1 << 19;  // ~0.5MB
 constexpr u64 NUM_ARENAS = TOTAL_MEMORY_BUDGET / ARENA_SIZE_IN_BYTES;

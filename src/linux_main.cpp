@@ -135,17 +135,13 @@ int main(int argc, char **argv) {
         Perf::start_perf_clock("RENDER");
         Renderer::clear();
 
-        static float x = 0;
         if (down(&mapping, Player::ANY, Name::RIGHT)) {
-            for (u32 i = 0; i < 1000; i++)
+            for (u32 i = 0; i < 2000; i++)
                 Renderer::push_point(
                     V2(rand_real(), rand_real()),
                     V4(rand_real(), rand_real(), rand_real(), 1),
                     rand_real() * 0.01);
         }
-
-        LOG("NUM_TRIANGLES: %d",
-            Renderer::Impl::queue.total_number_of_triangles());
         Renderer::blit();
         Perf::stop_perf_clock("RENDER");
         Perf::stop_perf_clock("MAIN");

@@ -1,15 +1,18 @@
-#include <stdlib.h>  // Would love to hide malloc since it should only be used once.
 
 namespace Util {
 
 //
 // Memory functions
 //
+#include <stdio.h>
 
 void do_all_allocations() {
-    ASSERT(TOTAL_MEMORY_BUDGET % ARENA_SIZE_IN_BYTES == 0, "Cannot split memory budget evenly into arenas");
+    ASSERT(TOTAL_MEMORY_BUDGET % ARENA_SIZE_IN_BYTES == 0,
+           "Cannot split memory budget evenly into arenas");
 #define ADVANCED_BY(ptr, size) (MemoryArena *) (((u8 *) (ptr)) + (size))
-    MemoryArena *all = (MemoryArena *) malloc(TOTAL_MEMORY_BUDGET);
+    // NOTE(ed): new is used here, don't use it yourselfes.
+    MemoryArena *all = (MemoryArena *) new MemoryArena[TOTAL_MEMORY_BUDGET];
+#define new NO_Use_the_engine_provided_Util::request_temporary_memory(..)_method_instead
 
     // Setup regions.
     global_memory.free_regions = global_memory.all_regions + 0;
@@ -20,9 +23,25 @@ void do_all_allocations() {
             ADVANCED_BY(all, ARENA_SIZE_IN_BYTES * i);
     }
     global_memory.all_regions[NUM_ARENAS - 1].next = 0;
+
+    // Frame memory
+    for (u32 i = 0; i < FRAME_LAG_FOR_MEMORY; i++)
+        FRAME_MEMORY[i] = request_arena();
 }
 
-MemoryArena *request_arena(bool only_one=false) {
+void swap_frame_memory() {
+    CURRENT_MEMORY = (CURRENT_MEMORY + 1) % FRAME_LAG_FOR_MEMORY;
+    // Clear when it is swapped to so the old ones
+    // still can be used.
+    FRAME_MEMORY[CURRENT_MEMORY]->clear();
+}
+
+template <typename T>
+T *request_temporary_memory(u64 num) {
+    return FRAME_MEMORY[CURRENT_MEMORY]->push<T>(num);
+}
+
+MemoryArena *request_arena(bool only_one) {
     ASSERT(global_memory.free_regions, "No more memory");
     ASSERT(global_memory.num_free_regions, "No more memory");
     MemoryArena *next = global_memory.free_regions;
@@ -35,6 +54,8 @@ MemoryArena *request_arena(bool only_one=false) {
 }
 
 void return_arean(MemoryArena *arena) {
+    ASSERT(arena, "nullptr is not a valid argument.");
+    if (arena->next) return_arean(arena->next);
     ++global_memory.num_free_regions;
     arena->next = global_memory.free_regions;
     global_memory.free_regions = arena;
@@ -46,8 +67,7 @@ T *MemoryArena::push(u64 count) {
     ASSERT(allocation_size <= ARENA_SIZE_IN_BYTES, "Allocated too much");
     if (watermark + allocation_size > ARENA_SIZE_IN_BYTES) {
         if (!next) {
-            if (only_one)
-                HALT_AND_CATCH_FIRE;
+            if (only_one) HALT_AND_CATCH_FIRE;
             next = request_arena();
         }
         return next->push<T>(count);
@@ -66,22 +86,34 @@ void MemoryArena::clear() {
     watermark = 0;
 }
 
-void MemoryArena::pop() {
-    while (next) {
-        MemoryArena *old = next;
-        next = next->next;
-        return_arean(old);
-    }
-    return_arean(this);
-}
+void MemoryArena::pop() { return_arean(this); }
 
 //
 // Utility
 //
 
 bool str_eq(const char *a, const char *b) {
-    while (*a && *b && *(a++) == *(b++)) { /* Empty */ }
+    while (*a && *b && *(a++) == *(b++)) { /* Empty */
+    }
     return *a == *b;
+}
+
+// Returns the whole contents of the file as
+// as a string, that is valid for |FRAME_LAG_FOR_MEMORY|
+// frames.
+const char *dump_file(const char *file_path) {
+    FILE *file = fopen(file_path, "r");
+    if (!file) return 0x0;
+    fseek(file, 0, SEEK_END);
+    u64 file_size = ftell(file);
+    rewind(file);
+    char *buffer = Util::request_temporary_memory<char>(file_size + 1);
+    ASSERT(fread(buffer, sizeof(char), file_size, file) == file_size,
+           "Failed to read part of file.");
+    // Make sure it's null terminated before giving it out.
+    buffer[file_size] = '\0';
+    fclose(file);
+    return buffer;
 }
 
 }  // namespace Util

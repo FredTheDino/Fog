@@ -1,17 +1,20 @@
-// TODO(ed): You don't need this really...
-#include <algorithm>
-
 namespace Input {
 
 static Binding *find_binding(Mapping *mapping, InputCode code) {
-    // TODO(ed): The place where <algorithm> is used.
     ASSERT(code != 0, "0 is not a valid code");
-    auto binding = std::lower_bound(
-        mapping->bindings + 0, mapping->bindings + mapping->used_bindings, code,
-        [](const Binding a, const InputCode b) { return a.code < b; });
-
-    if (binding->code != code) return nullptr;
-    return binding;
+    u64 low = 0;
+    u64 high = mapping->used_bindings;
+    while (low <= high) {
+        auto cur = (low + high) / 2;
+        auto cur_code = mapping->bindings[cur].code;;
+        if (cur_code > code)
+            high = cur - 1;
+        else if (cur_code < code)
+            low = cur + 1;
+        else
+            return mapping->bindings + cur;
+    }
+    return nullptr;
 }
 
 static void insert(Mapping *mapping, Binding binding) {

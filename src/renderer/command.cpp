@@ -7,12 +7,14 @@ namespace Renderer {
 
 namespace Impl {
 #ifdef OPENGL_RENDERER
-// #include "opengl_renderer.h"
+#include "opengl_renderer.h"
 #include "opengl_renderer.cpp"
 #else
 #error "No renderer selected"
 #endif
 }  // namespace Impl
+
+using Impl::Vertex;
 
 static bool init(const char *title, int width, int height) {
     return Impl::init(title, width, height);
@@ -23,6 +25,10 @@ static bool init(const char *title, int width, int height) {
 
 // Clear the screen and prepare for rendering.
 static void clear() { Impl::clear(); }
+
+// Push a group of verticies.
+static void push_verticies(u32 num_verticies, Vertex *verticies) {
+}
 
 // Queues up a quad to render to the screen.
 static void push_quad(Vec2 min, Vec2 max, Vec4 color) {
