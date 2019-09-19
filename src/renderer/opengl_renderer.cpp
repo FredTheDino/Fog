@@ -178,9 +178,18 @@ static bool init(const char *title, int width, int height) {
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(gl_debug_message, 0);
 
-    queue.create(500);
+    queue.create(512);
 
-    // TODO(ed): Better IO system, with it's own memory.
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_3D, texture);
+    glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA, OPENGL_TEXTURE_WIDTH,
+                 OPENGL_TEXTURE_HEIGHT, OPENGL_TEXTURE_DEPTH, 0, GL_RGBA,
+                 GL_UNSIGNED_BYTE, nullptr);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glActiveTexture(GL_TEXTURE0);
+
     const char *source;
     ASSERT(source = Util::dump_file("res/master_shader.glsl"),
            "Failed to read file.");
@@ -228,6 +237,49 @@ static void push_line(Vec2 start, Vec2 end, Vec4 start_color, Vec4 end_color,
 
 static void push_point(Vec2 point, Vec4 color, f32 size) {
     push_quad(point - V2(size, size), point + V2(size, size), color);
+}
+
+struct StoredImage {
+    u32 width, height;
+};
+
+static StoredImage stored_images[OPENGL_TEXTURE_DEPTH];
+
+static u32 next_free_layer = 0;
+static u32 upload_texture(Image image, s32 index) {
+    if (index == -1) {
+        index = next_free_layer++;
+    }
+    ASSERT(index <= 0 || 512 <= index, "Invalid index.");
+    ASSERT(next_free_layer != 512, "Uploaded too many textures");
+
+    stored_images[index] = {image.width, image.height};
+    ASSERT(0 < image.components && image.components < 5,
+           "Invalid number of components");
+    u32 data_format;
+    switch (image.components) {
+        case (1):
+            data_format = GL_RED;
+            break;
+        case (2):
+            data_format = GL_RG;
+            break;
+        case (3):
+            data_format = GL_RGB;
+            break;
+        case (4):
+            data_format = GL_RGBA;
+            break;
+        default:
+            UNREACHABLE;
+            return 0;
+    }
+    CHECK(image.width == OPENGL_TEXTURE_WIDTH &&
+              image.height == OPENGL_TEXTURE_HEIGHT,
+          "Not using the entire texture 'slice'.");
+    glTexSubImage3D(GL_TEXTURE_3D, 0, 0, 0, index, image.width, image.height, 1,
+                    data_format, GL_UNSIGNED_BYTE, image.data);
+    return index;
 }
 
 static void clear() { glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT); }

@@ -22,6 +22,9 @@ static bool init(const char *title, int width, int height) {
 
 // TODO: Make this into a queue ordeal, so the implementation
 // can live on a separate thread.
+//
+// TODO: Make a static push call so only the moving geometry
+// has to be pushed.
 
 // Clear the screen and prepare for rendering.
 static void clear() { Impl::clear(); }
@@ -43,6 +46,10 @@ static void push_line(Vec2 start, Vec2 end, Vec4 start_color, Vec4 end_color, f3
 // Queues up a point to be rendered to the screen.
 static void push_point(Vec2 point, Vec4 color, f32 size=0.01) {
     Impl::push_point(point, color, size);
+}
+
+static u32 upload_texture(Image image, s32 index=-1) {
+    return Impl::upload_texture(image, index);
 }
 
 // Draw all rendered pixels to the screen.

@@ -9,11 +9,16 @@
 #include "math/block_math.h"
 
 #include "util/debug.cpp"
+#include "util/types.h"
 #include "util/memory.h"
 #include "platform/input.h"
 #define OPENGL_RENDERER
+#define OPENGL_TEXTURE_WIDTH 512
+#define OPENGL_TEXTURE_HEIGHT 512
+#define OPENGL_TEXTURE_DEPTH 512
 #define SDL
 
+#include "util/io.cpp"
 #include "util/memory.cpp"
 #include "platform/input.cpp"
 #include "renderer/command.cpp"
@@ -119,6 +124,10 @@ int main(int argc, char **argv) {
     Util::do_all_allocations();
     ASSERT(Renderer::init("Hello", 500, 500), "Failed to initalize renderer");
 
+    Image image = Util::load_png("res/test.png");
+    ASSERT(image, "Failed to load image");
+    Renderer::upload_texture(image);
+
     using namespace Input;
     CHECK(add(&mapping, K(a), Player::P1, Name::LEFT), "");
     CHECK(add(&mapping, K(d), Player::P1, Name::RIGHT), "");
@@ -150,7 +159,6 @@ int main(int argc, char **argv) {
         Renderer::blit();
         Perf::stop_perf_clock("RENDER");
         Perf::stop_perf_clock("MAIN");
-        // TODO: Input loop.
     }
 
     return 0;

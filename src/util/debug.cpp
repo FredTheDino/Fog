@@ -14,7 +14,7 @@ void __debug_log(const char* type, const char* file, int line,
 }
 
 #define HALT_AND_CATCH_FIRE ((int*) (void*) 0)[0] = 0;
-#define ASSERT(expr, msg) __assert(__FILE__, __LINE__, "\"" #expr "\"" ":" #msg, expr)
+#define ASSERT(expr, msg) __assert(__FILE__, __LINE__, "\"" #expr "\"" ": " #msg, expr)
 void __assert(const char* file, int line, const char* expr,
                      bool assumed) {
     if (assumed) return;
@@ -26,7 +26,7 @@ void __assert(const char* file, int line, const char* expr,
                 "Reached unreachable code");       \
     HALT_AND_CATCH_FIRE;
 
-#define CHECK(expr, msg) __check(__FILE__, __LINE__, "\"" #expr "\"" ":" #msg, expr)
+#define CHECK(expr, msg) __check(__FILE__, __LINE__, "\"" #expr "\"" ": " #msg, expr)
 void __check(const char* file, int line, const char* expr,
                     bool assumed) {
     if (assumed) return;

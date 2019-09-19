@@ -1,7 +1,6 @@
 namespace Input {
 
 static Binding *find_binding(Mapping *mapping, InputCode code) {
-    ASSERT(code != 0, "0 is not a valid code");
     u64 low = 0;
     u64 high = mapping->used_bindings;
     while (low <= high) {
@@ -30,8 +29,6 @@ static void insert(Mapping *mapping, Binding binding) {
 }
 
 static bool add(Mapping *mapping, InputCode code, Player player, Name name) {
-    // TODO(ed): Is this assert still needed?
-    ASSERT(code != 0, "0 is not a valid code");
     Binding binding = {code, player, name, 0};
 
     // Check if there is a free binding.
