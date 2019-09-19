@@ -35,9 +35,6 @@ MemoryArena *request_arena(bool only_one = false);
 // thing as |MemoryArena::pop|.
 void return_arean(MemoryArena *arena);
 
-static const u32 FRAME_LAG_FOR_MEMORY = 2;
-static u32 CURRENT_MEMORY = 0;
-static MemoryArena *FRAME_MEMORY[FRAME_LAG_FOR_MEMORY];
 // Returns a chunk of temporary memory for
 // use over AT MOST |FRAME_LAG_FOR_MEMORY|
 // frames.

@@ -4,7 +4,9 @@ namespace Util {
 //
 // Memory functions
 //
-#include <stdio.h>
+static const u32 FRAME_LAG_FOR_MEMORY = 2;
+static u32 CURRENT_MEMORY = 0;
+static MemoryArena *FRAME_MEMORY[FRAME_LAG_FOR_MEMORY];
 
 void do_all_allocations() {
     ASSERT(TOTAL_MEMORY_BUDGET % ARENA_SIZE_IN_BYTES == 0,
@@ -98,12 +100,28 @@ bool str_eq(const char *a, const char *b) {
     return *a == *b;
 }
 
+struct String {
+    char *data;
+    u64 length;
+
+    operator bool () const {
+        return data && length;
+    }
+    operator const char *() const {
+        return data;
+    }
+
+    operator char *() const {
+        return data;
+    }
+};
+
 // Returns the whole contents of the file as
 // as a string, that is valid for |FRAME_LAG_FOR_MEMORY|
 // frames.
-const char *dump_file(const char *file_path) {
+String dump_file(const char *file_path) {
     FILE *file = fopen(file_path, "r");
-    if (!file) return 0x0;
+    if (!file) return {};
     fseek(file, 0, SEEK_END);
     u64 file_size = ftell(file);
     rewind(file);
@@ -113,7 +131,15 @@ const char *dump_file(const char *file_path) {
     // Make sure it's null terminated before giving it out.
     buffer[file_size] = '\0';
     fclose(file);
-    return buffer;
+    return { buffer, file_size };
+}
+
+const u8 *load_png(const char *file_path) {
+    String file = dump_file(file_path);
+    if (!file) return nullptr;
+    int x, y, c;
+    u8 *image = stbi_load_from_memory((const u8 *) file.data, file.length, &x, &y, &c, 0);
+    return image;
 }
 
 }  // namespace Util

@@ -1,6 +1,6 @@
 CXX = clang++
-DEBUG_FLAGS = -ggdb -O0 -DDEBUG
-WARNINGS = -Wall -Wno-unknown-warning-option -Wno-missing-braces -Wno-error
+DEBUG_FLAGS = -ggdb -O0 -DDEBUG # -DFOG_VERBOSE
+WARNINGS = -Wall -Wno-unknown-warning-option -Wno-unused-but-set-variable -Wno-unused-function -Wno-missing-braces -Wno-error
 FLAGS = $(WARNINGS) -std=c++17 -Iinc $(DEBUG_FLAGS)
 LIB_PATH = ./lib/linux 
 LIBS = -lSDL2 -lSDL2main -ldl -lpthread

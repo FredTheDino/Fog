@@ -1,9 +1,14 @@
-extern "C" {
-#include "stdarg.h"
-#include "stdio.h"
-}
+#include <stdarg.h>
+#include <stdio.h>
+#include <stb_image.h>
 
-#include "base.h"
+#define STBI_ONLY_PNG
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
+#include "math/block_math.h"
+
+#include "util/debug.cpp"
 #include "util/memory.h"
 #include "platform/input.h"
 #define OPENGL_RENDERER
@@ -94,7 +99,7 @@ void report() {
 
 }  // namespace Perf
 
-#include <time.h>
+#include <ctime>
 u64 Perf::cpu_now() {
     timespec tp;
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &tp);
