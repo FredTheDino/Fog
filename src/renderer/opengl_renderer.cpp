@@ -121,13 +121,16 @@ void RenderQueue::expand() {
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
         glEnableVertexAttribArray(2);
+        glEnableVertexAttribArray(3);
 
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-                              (void *) (0 * sizeof(real)));
+                              (void *) offsetof(Vertex, position));
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-                              (void *) (2 * sizeof(real)));
-        glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-                              (void *) (4 * sizeof(real)));
+                              (void *) offsetof(Vertex, texture));
+        glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+                              (void *) offsetof(Vertex, sprite));
+        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+                              (void *) offsetof(Vertex, color));
     }
     glBindVertexArray(0);
 }
@@ -180,22 +183,25 @@ static bool init(const char *title, int width, int height) {
 
     queue.create(512);
 
-    GLuint texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_3D, texture);
-    glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA, OPENGL_TEXTURE_WIDTH,
-                 OPENGL_TEXTURE_HEIGHT, OPENGL_TEXTURE_DEPTH, 0, GL_RGBA,
-                 GL_UNSIGNED_BYTE, nullptr);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glActiveTexture(GL_TEXTURE0);
-
     const char *source;
     ASSERT(source = Util::dump_file("res/master_shader.glsl"),
            "Failed to read file.");
     master_shader_program = compile_shader_program_from_source(source);
     ASSERT(master_shader_program, "Failed to compile shader");
     master_shader_program.bind();
+
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
+
+    glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RGBA8, OPENGL_TEXTURE_WIDTH,
+                   OPENGL_TEXTURE_HEIGHT, OPENGL_TEXTURE_DEPTH);
+
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    glActiveTexture(GL_TEXTURE0);
 
     // Set initial state
     glClearColor(0.3f, 0.1f, 0.2f, 1.0f);
@@ -206,17 +212,22 @@ static void push_verticies(u32 num_verticies, Vertex *verticies) {
     queue.push(num_verticies, verticies);
 }
 
-static void push_quad(Vec2 min, Vec2 max, Vec4 color) {
+static void push_quad(Vec2 min, Vec2 min_uv, Vec2 max, Vec2 max_uv,
+                      float sprite, Vec4 color) {
     Vertex verticies[] = {
-        {V2(min.x, min.y), V2(0, 0), color},
-        {V2(max.x, min.y), V2(0, 0), color},
-        {V2(max.x, max.y), V2(0, 0), color},
+        {V2(min.x, min.y), V2(min_uv.x, max_uv.y), sprite, color},
+        {V2(max.x, min.y), V2(max_uv.x, max_uv.y), sprite, color},
+        {V2(max.x, max.y), V2(max_uv.x, min_uv.y), sprite, color},
 
-        {V2(min.x, min.y), V2(0, 0), color},
-        {V2(max.x, max.y), V2(0, 0), color},
-        {V2(min.x, max.y), V2(0, 0), color},
+        {V2(min.x, min.y), V2(min_uv.x, max_uv.y), sprite, color},
+        {V2(max.x, max.y), V2(max_uv.x, min_uv.y), sprite, color},
+        {V2(min.x, max.y), V2(min_uv.x, min_uv.y), sprite, color},
     };
     queue.push(LEN(verticies), verticies);
+}
+
+static void push_quad(Vec2 min, Vec2 max, Vec4 color) {
+    push_quad(min, V2(-1, -1), max, V2(-1, -1), OPENGL_INVALID_SPRITE, color);
 }
 
 static void push_line(Vec2 start, Vec2 end, Vec4 start_color, Vec4 end_color,
@@ -224,13 +235,13 @@ static void push_line(Vec2 start, Vec2 end, Vec4 start_color, Vec4 end_color,
     Vec2 normal = rotate_ccw(start - end);
     Vec2 offset = normal * thickness;
     Vertex verticies[] = {
-        {start + offset, V2(0, 0), start_color},
-        {start - offset, V2(0, 0), start_color},
-        {end - offset, V2(0, 0), end_color},
+        {start + offset, V2(0, 0), OPENGL_INVALID_SPRITE, start_color},
+        {start - offset, V2(0, 0), OPENGL_INVALID_SPRITE, start_color},
+        {end - offset, V2(0, 0), OPENGL_INVALID_SPRITE, end_color},
 
-        {start + offset, V2(0, 0), start_color},
-        {end - offset, V2(0, 0), end_color},
-        {end + offset, V2(0, 0), end_color},
+        {start + offset, V2(0, 0), OPENGL_INVALID_SPRITE, start_color},
+        {end - offset, V2(0, 0), OPENGL_INVALID_SPRITE, end_color},
+        {end + offset, V2(0, 0), OPENGL_INVALID_SPRITE, end_color},
     };
     queue.push(LEN(verticies), verticies);
 }
@@ -247,11 +258,14 @@ static StoredImage stored_images[OPENGL_TEXTURE_DEPTH];
 
 static u32 next_free_layer = 0;
 static u32 upload_texture(Image image, s32 index) {
+    // TODO(ed): Make the auto populate more inteligent
     if (index == -1) {
         index = next_free_layer++;
     }
-    ASSERT(index <= 0 || 512 <= index, "Invalid index.");
-    ASSERT(next_free_layer != 512, "Uploaded too many textures");
+    next_free_layer = MAX(index, next_free_layer);
+    ASSERT(0 <= index && index <= OPENGL_TEXTURE_DEPTH, "Invalid index.");
+    ASSERT(next_free_layer != OPENGL_TEXTURE_DEPTH,
+           "Uploaded too many textures");
 
     stored_images[index] = {image.width, image.height};
     ASSERT(0 < image.components && image.components < 5,
@@ -277,8 +291,10 @@ static u32 upload_texture(Image image, s32 index) {
     CHECK(image.width == OPENGL_TEXTURE_WIDTH &&
               image.height == OPENGL_TEXTURE_HEIGHT,
           "Not using the entire texture 'slice'.");
-    glTexSubImage3D(GL_TEXTURE_3D, 0, 0, 0, index, image.width, image.height, 1,
-                    data_format, GL_UNSIGNED_BYTE, image.data);
+    LOG("ARGS: index: %d, width: %d, height: %d, foramt: %d, data: %p", index,
+        image.width, image.height, data_format, image.data);
+    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, index, image.width,
+                    image.height, 1, data_format, GL_UNSIGNED_BYTE, image.data);
     return index;
 }
 

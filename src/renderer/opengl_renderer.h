@@ -13,9 +13,10 @@ struct Program {
 struct Vertex {
     Vec2 position;
     Vec2 texture;
-
+    f32  sprite;
     Vec4 color;
 };
+#define OPENGL_INVALID_SPRITE -1.0
 
 //
 // Used to render large batches of objects
@@ -76,6 +77,7 @@ struct RenderQueue {
 // Render state
 Program master_shader_program;
 RenderQueue queue;
+GLuint texture;
 
 // OpenGL global variables
 SDL_Window *window;

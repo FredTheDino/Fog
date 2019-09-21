@@ -30,25 +30,30 @@ static bool init(const char *title, int width, int height) {
 static void clear() { Impl::clear(); }
 
 // Push a group of verticies.
-static void push_verticies(u32 num_verticies, Vertex *verticies) {
-}
+static void push_verticies(u32 num_verticies, Vertex *verticies) {}
 
 // Queues up a quad to render to the screen.
-static void push_quad(Vec2 min, Vec2 max, Vec4 color) {
+static void push_quad(Vec2 min, Vec2 min_uv, Vec2 max, Vec2 max_uv,
+                      int sprite, Vec4 color = V4(1, 1, 1, 1)) {
+    Impl::push_quad(min, min_uv, max, max_uv, sprite, color);
+}
+
+static void push_quad(Vec2 min, Vec2 max, Vec4 color = V4(1, 1, 1, 1)) {
     Impl::push_quad(min, max, color);
 }
 
 // Queues up a line to be rendered to the screen.
-static void push_line(Vec2 start, Vec2 end, Vec4 start_color, Vec4 end_color, f32 thickness=0.01) {
+static void push_line(Vec2 start, Vec2 end, Vec4 start_color, Vec4 end_color,
+                      f32 thickness = 0.01) {
     Impl::push_line(start, end, start_color, end_color, thickness);
 }
 
 // Queues up a point to be rendered to the screen.
-static void push_point(Vec2 point, Vec4 color, f32 size=0.01) {
+static void push_point(Vec2 point, Vec4 color, f32 size = 0.01) {
     Impl::push_point(point, color, size);
 }
 
-static u32 upload_texture(Image image, s32 index=-1) {
+static u32 upload_texture(Image image, s32 index = -1) {
     return Impl::upload_texture(image, index);
 }
 

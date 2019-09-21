@@ -33,8 +33,7 @@ Image load_png(const char *file_path) {
     if (!file) return {};
     int x, y, c;
     u8 *image = stbi_load_from_memory((const u8 *) file.data, file.length, &x,
-                                      &y, &c, 4);
-    LOG("%d", c);
+                                      &y, &c, 0);
     CHECK(x == OPENGL_TEXTURE_WIDTH && y == OPENGL_TEXTURE_HEIGHT,
           "Loading texture of incorrect dimensions");
     return {image, (u32) x, (u32) y, (u8) c};

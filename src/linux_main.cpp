@@ -15,7 +15,8 @@
 #define OPENGL_RENDERER
 #define OPENGL_TEXTURE_WIDTH 512
 #define OPENGL_TEXTURE_HEIGHT 512
-#define OPENGL_TEXTURE_DEPTH 512
+// NOTE(ed): Required by the OpenGL 3.0 spec to be atleast 256.
+#define OPENGL_TEXTURE_DEPTH 256
 #define SDL
 
 #include "util/io.cpp"
@@ -32,6 +33,8 @@ Input::Mapping mapping = {};
 #error "No other platform layer than SDL supported."
 #endif
 
+// TODO: Want frequency, total time, and average time.
+// So this needs to have an actual reset.
 namespace Perf {
 
 struct PerfClock {
@@ -124,9 +127,12 @@ int main(int argc, char **argv) {
     Util::do_all_allocations();
     ASSERT(Renderer::init("Hello", 500, 500), "Failed to initalize renderer");
 
-    Image image = Util::load_png("res/test.png");
-    ASSERT(image, "Failed to load image");
-    Renderer::upload_texture(image);
+    Image test_image = Util::load_png("res/test.png");
+    Image test_text_image = Util::load_png("res/text_test.png");
+    Image wat = Util::load_png("res/wat.png");
+    Renderer::upload_texture(test_text_image);
+    Renderer::upload_texture(test_image);
+    Renderer::upload_texture(wat);
 
     using namespace Input;
     CHECK(add(&mapping, K(a), Player::P1, Name::LEFT), "");
@@ -149,13 +155,13 @@ int main(int argc, char **argv) {
         Perf::start_perf_clock("RENDER");
         Renderer::clear();
 
-        if (down(&mapping, Player::ANY, Name::RIGHT)) {
-            for (u32 i = 0; i < 2000; i++)
-                Renderer::push_point(
-                    V2(rand_real(), rand_real()),
-                    V4(rand_real(), rand_real(), rand_real(), 1),
-                    rand_real() * 0.01);
-        }
+        Vec2 p = V2(0, 0);
+        Renderer::push_quad(p, V2(0, 0), p + V2(0.2, 0.2), V2(1, 1), 0);
+        p = V2(-1, 0.5);
+        Renderer::push_quad(p, V2(0, 0), p + V2(0.4, 0.3), V2(1, 1), 1);
+        p = V2(-1, 0);
+        Renderer::push_quad(p, V2(0, 0), p + V2(0.4, 0.3), V2(1, 1), 2);
+        Renderer::push_point(V2(0, 0.5), V4(1, 0, 1, 1));
         Renderer::blit();
         Perf::stop_perf_clock("RENDER");
         Perf::stop_perf_clock("MAIN");
