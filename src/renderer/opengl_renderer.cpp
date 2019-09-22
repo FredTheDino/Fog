@@ -190,6 +190,9 @@ static bool init(const char *title, int width, int height) {
     ASSERT(master_shader_program, "Failed to compile shader");
     master_shader_program.bind();
 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
 
@@ -256,18 +259,8 @@ struct StoredImage {
 
 static StoredImage stored_images[OPENGL_TEXTURE_DEPTH];
 
-static u32 next_free_layer = 0;
 static u32 upload_texture(Image image, s32 index) {
-    // TODO(ed): Make the auto populate more inteligent
-    if (index == -1) {
-        index = next_free_layer++;
-    }
-    next_free_layer = MAX(index, next_free_layer);
     ASSERT(0 <= index && index <= OPENGL_TEXTURE_DEPTH, "Invalid index.");
-    ASSERT(next_free_layer != OPENGL_TEXTURE_DEPTH,
-           "Uploaded too many textures");
-
-    stored_images[index] = {image.width, image.height};
     ASSERT(0 < image.components && image.components < 5,
            "Invalid number of components");
     u32 data_format;

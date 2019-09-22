@@ -130,9 +130,9 @@ int main(int argc, char **argv) {
     Image test_image = Util::load_png("res/test.png");
     Image test_text_image = Util::load_png("res/text_test.png");
     Image wat = Util::load_png("res/wat.png");
-    Renderer::upload_texture(test_text_image);
-    Renderer::upload_texture(test_image);
-    Renderer::upload_texture(wat);
+    Renderer::upload_texture(test_text_image, 0);
+    Renderer::upload_texture(test_image, 1);
+    Renderer::upload_texture(wat, 2);
 
     using namespace Input;
     CHECK(add(&mapping, K(a), Player::P1, Name::LEFT), "");

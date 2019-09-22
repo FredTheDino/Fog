@@ -53,7 +53,7 @@ static void push_point(Vec2 point, Vec4 color, f32 size = 0.01) {
     Impl::push_point(point, color, size);
 }
 
-static u32 upload_texture(Image image, s32 index = -1) {
+static u32 upload_texture(Image image, s32 index) {
     return Impl::upload_texture(image, index);
 }
 

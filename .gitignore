@@ -34,3 +34,5 @@ bin/**/*
 
 # Other
 .gdb_history
+vgcore.*
+tags
