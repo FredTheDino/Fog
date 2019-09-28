@@ -19,3 +19,12 @@ struct Image {
     }
 };
 
+// TODO(ed): Choose a more standard sample rate.
+const u64 AUDIO_SAMPLE_RATE = 1337;
+
+struct Sound {
+    u8 *samples;
+    u64 num_samples;
+    u8 is_stereo;
+};
+

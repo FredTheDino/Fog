@@ -1,3 +1,4 @@
+#include <stdarg.h>
 // Debug functions
 #define LOG_MSG(fmt) __debug_log("LOG", __FILE__, __LINE__, fmt)
 #define LOG(fmt, ...) __debug_log("LOG", __FILE__, __LINE__, fmt, __VA_ARGS__)

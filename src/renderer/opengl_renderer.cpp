@@ -261,6 +261,7 @@ static StoredImage stored_images[OPENGL_TEXTURE_DEPTH];
 
 static u32 upload_texture(Image image, s32 index) {
     ASSERT(0 <= index && index <= OPENGL_TEXTURE_DEPTH, "Invalid index.");
+    LOG("components: %d", image.components);
     ASSERT(0 < image.components && image.components < 5,
            "Invalid number of components");
     u32 data_format;
