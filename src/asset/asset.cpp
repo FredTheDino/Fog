@@ -28,6 +28,10 @@ Image *fetch(AssetID id) {
     return &raw_fetch(id, Type::TEXTURE)->image;
 }
 
+Shader *fetch(AssetID id) {
+    return &raw_fetch(id, Type::SHADER)->shader;
+}
+
 template <typename T>
 size_t read_from_file(FILE *stream, void *ptr, size_t num = 1) {
     auto read = fread(ptr, sizeof(T), num, stream);
@@ -67,6 +71,12 @@ void load(const char *file_path) {
                 u64 size = asset_ptr->image.size();
                 asset_ptr->image.data = system.arena->push<u8>(size);
                 read_from_file<u8>(file, asset_ptr->image.data, size);
+            } break;
+            case (Type::SHADER): {
+                u64 size = header.asset_size;
+                char *source = system.arena->push<u8>(size);
+                read_from_file<u8>(file, source, size);
+                
             } break;
             default:
                 LOG("UNKOWN ASSET TYPE %d", header.type);

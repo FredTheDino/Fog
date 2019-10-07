@@ -35,7 +35,7 @@ Input::Mapping mapping = {};
 #error "No other platform layer than SDL supported."
 #endif
 
-// TODO: Want frequency, total time, and average time.
+// TODO(ed): Want frequency, total time, and average time.
 // So this needs to have an actual reset.
 namespace Perf {
 

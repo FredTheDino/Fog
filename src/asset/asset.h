@@ -42,21 +42,49 @@ struct Header {
     u32 asset_id;
 };
 
+struct Font {
+    struct Glyph {
+        // TODO(ed): Assert that no precision is lost.
+        char id;
+        f32 x, y;
+        f32 w, h;
+        f32 x_offset, y_offset;
+        f32 advance;
+    };
+
+    struct Kerning {
+        // TODO(ed): Assert that no precision is lost.
+        u16 key;
+        s8 ammount;
+    };
+
+    u64 texture;
+    u64 num_glyphs;
+    u64 num_kernings;
+
+    Glyph *glyphs;
+    Kerning *kerning;
+};
+
 struct Data {
     union {
         Image image;
         Sound sound;
+        char *shader_source;
+        Font font;
     };
 };
 
 };  // namespace Asset
 
+// The file format: 
+//
 // Number of Assets,
 // Size of String list,
 // Size of header,
 // size of body
 // =============================
-// String list (Unkown size)
+// String list
 // =============================
 // Headers
 // =============================

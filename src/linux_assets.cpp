@@ -44,28 +44,60 @@ Asset::Header get_asset_header(const std::string *path, Asset::Type type) {
             Asset::ASSET_ID_NO_ASSET};
 }
 
-void load_texture(AssetFile *file, Asset::Header header) {
-    int w, h, c;
-    u8 *buffer = stbi_load(header.file_path, &w, &h, &c, 0);
-    if (!buffer) return;
-    Image image = {buffer, (u32) w, (u32) h, (u8) c};
-    Asset::Data asset = {image};
-
-    printf("LOADING IMAGE: %s\n", header.file_path);
+void add_asset_to_file(AssetFile *file, Asset::Header *header, Asset::Data *asset) {
+    assert(header);
+    assert(asset);
+    header->asset_id = file->asset_headers.size();
 
     file->header.number_of_assets++;
-    file->header.size_of_strings += header.file_path_length;
+    file->header.size_of_strings += header->file_path_length;
     file->header.size_of_headers += sizeof(Asset::Header);
-    auto size = sizeof(Asset::Data) + w * h * c * sizeof(u8);
-    file->header.size_of_data += size;
+    file->header.size_of_data += header->asset_size;
 
+    file->asset_headers.push_back(*header);
+    file->assets.push_back(*asset);
     assert(file->asset_headers.size() == file->assets.size());
-    file->asset_headers.push_back(header);
-    file->assets.push_back(asset);
 }
 
-void load_font(AssetFile *file, Asset::Header header) {
-    // TODO:
+void load_texture(AssetFile *file, Asset::Header *header) {
+    int w, h, c;
+    u8 *buffer = stbi_load(header->file_path, &w, &h, &c, 0);
+    if (!buffer) return;
+    Image image = {buffer, (u32) w, (u32) h, (u8) c};
+    header->asset_size = sizeof(Asset::Data) + w * h * c * sizeof(u8);
+    Asset::Data asset = {image};
+
+    add_asset_to_file(file, header, &asset);
+}
+
+void load_font(AssetFile *file, Asset::Header *header) {
+    Asset::Font font = {};
+    { 
+        Asset::Header sdf_header = *header;
+        sdf_header.asset_id = 0xFFFFFFF;  // Invalid value
+        sdf_header.type = Asset::Type::TEXTURE;
+        sdf_header.file_path = (char *) malloc(header->file_path_length);
+        strcpy(sdf_header.file_path, header->file_path);
+        sdf_header.file_path[header->file_path_length - 1] = 'f';
+        sdf_header.file_path[header->file_path_length - 2] = 'd';
+        sdf_header.file_path[header->file_path_length - 3] = 's';
+        load_texture(file, &sdf_header);
+        assert(sdf_header.asset_id != 0xFFFFFFF);
+        font.texture = sdf_header.asset_id;
+    }
+    FILE *font_file = fopen(header->file_path, "r");
+    char *line = nullptr;
+    size_t size = 0;
+    while (getline(&line, &size, font_file) != -1) {
+        if (strcmp(line, "char", 4) == 0) {
+            // TODO: Parse
+        } else if (strcmp(line, "kerning") == 0) {
+        }
+        
+        free(line);
+        line = nullptr;
+        size = 0;
+    }
 }
 
 void load_atlas(AssetFile *file, Asset::Header header) {
@@ -82,11 +114,11 @@ void process_asset(AssetFile *file, const std::string *path) {
     Asset::Header header = get_asset_header(path, type);
     switch (header.type) {
         case (Asset::Type::TEXTURE):
-            load_texture(file, header);
+            load_texture(file, &header);
             break;
         case (Asset::Type::FONT):
-            // load_font(file, header);
-            // break;
+            load_font(file, &header);
+            break;
         case (Asset::Type::ATLAS):
             // load_atlas(file, header);
             // break;
@@ -151,11 +183,14 @@ void dump_asset_file(AssetFile *file, const char *out_path) {
                            asset.image.components;
                 write_to_file(output_file, asset.image.data, size);
             } break;
+            case (Asset::Type::SHADER): {
+                write_to_file(output_file, asset.shader_source, header->asset_size);
+            } break;
             default:
+                printf("UNIMPLEMENTED ASSET TYPE\n");
                 break;
         };
         header->asset_size = ftell(output_file) - header->offset;
-        header->asset_id = i;
     }
     u64 data_end = ftell(output_file);
     assert(data_end - data_begin == file->header.size_of_data);
