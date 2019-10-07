@@ -11,11 +11,12 @@
 #include "util/debug.cpp"
 #include "util/types.h"
 #include "util/memory.h"
+#include "asset/asset.h"
 #include "platform/input.h"
 #define OPENGL_RENDERER
 #define OPENGL_TEXTURE_WIDTH 512
 #define OPENGL_TEXTURE_HEIGHT 512
-// NOTE(ed): Required by the OpenGL 3.0 spec to be atleast 256.
+// NOTE(ed): Chose 256 b.c required by the OpenGL 3.0 spec to be valid.
 #define OPENGL_TEXTURE_DEPTH 256
 #define SDL
 
@@ -23,6 +24,7 @@
 #include "util/memory.cpp"
 #include "platform/input.cpp"
 #include "renderer/command.cpp"
+#include "asset/asset.cpp"
 
 Input::Mapping mapping = {};
 
@@ -125,19 +127,16 @@ f32 rand_real() { return ((f32) rand() / (f32) RAND_MAX) * 2.0 - 1.0; }
 
 int main(int argc, char **argv) {
     Util::do_all_allocations();
+    Asset::load("data.fog");
     ASSERT(Renderer::init("Hello", 500, 500), "Failed to initalize renderer");
 
-    Image test_image = Util::load_png("res/test.png");
-    Image test_text_image = Util::load_png("res/text_test.png");
-    Image wat = Util::load_png("res/wat.png");
-    Renderer::upload_texture(test_text_image, 0);
-    Renderer::upload_texture(test_image, 1);
-    Renderer::upload_texture(wat, 2);
+    Image *test_image = Asset::fetch(ASSET_TEST);
+    Renderer::upload_texture(test_image, 0);
 
     using namespace Input;
-    CHECK(add(&mapping, K(a), Player::P1, Name::LEFT), "");
-    CHECK(add(&mapping, K(d), Player::P1, Name::RIGHT), "");
-    CHECK(add(&mapping, K(ESCAPE), Player::P1, Name::QUIT), "");
+    CHECK(add(&mapping, K(a), Player::P1, Name::LEFT), "Failed to create mapping");
+    CHECK(add(&mapping, K(d), Player::P1, Name::RIGHT), "Failed to create mapping");
+    CHECK(add(&mapping, K(ESCAPE), Player::P1, Name::QUIT), "Failed to create mapping");
 
     while (SDL::running) {
         // Perf::report();

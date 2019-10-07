@@ -1,11 +1,15 @@
 namespace Input {
 
 static Binding *find_binding(Mapping *mapping, InputCode code) {
-    u64 low = 0;
-    u64 high = mapping->used_bindings;
+    s64 low = 0;
+    s64 high = mapping->used_bindings;
     while (low <= high) {
-        auto cur = (low + high) / 2;
-        auto cur_code = mapping->bindings[cur].code;;
+        s64 cur = (low + high) / 2;
+        if (cur < 0 || mapping->used_bindings < cur) {
+            LOG_MSG("Haha!");
+            return nullptr;
+        }
+        auto cur_code = mapping->bindings[cur].code;
         if (cur_code > code)
             high = cur - 1;
         else if (cur_code < code)

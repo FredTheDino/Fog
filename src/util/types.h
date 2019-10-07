@@ -1,3 +1,5 @@
+#pragma once
+
 struct String {
     char *data;
     u64 length;
@@ -9,13 +11,17 @@ struct String {
 };
 
 struct Image {
-    const u8 *data;
+    u8 *data;
     const u32 width;
     const u32 height;
     const u8 components;
 
     operator bool () const {
         return data;
+    }
+
+    u64 size() const {
+        return width * height * components;
     }
 };
 

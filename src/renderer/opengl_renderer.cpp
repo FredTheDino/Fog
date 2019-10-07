@@ -257,15 +257,13 @@ struct StoredImage {
     u32 width, height;
 };
 
-static StoredImage stored_images[OPENGL_TEXTURE_DEPTH];
-
-static u32 upload_texture(Image image, s32 index) {
+static u32 upload_texture(const Image *image, s32 index) {
     ASSERT(0 <= index && index <= OPENGL_TEXTURE_DEPTH, "Invalid index.");
-    LOG("components: %d", image.components);
-    ASSERT(0 < image.components && image.components < 5,
+    LOG("components: %d", image->components);
+    ASSERT(0 < image->components && image->components < 5,
            "Invalid number of components");
     u32 data_format;
-    switch (image.components) {
+    switch (image->components) {
         case (1):
             data_format = GL_RED;
             break;
@@ -282,13 +280,13 @@ static u32 upload_texture(Image image, s32 index) {
             UNREACHABLE;
             return 0;
     }
-    CHECK(image.width == OPENGL_TEXTURE_WIDTH &&
-              image.height == OPENGL_TEXTURE_HEIGHT,
+    CHECK(image->width == OPENGL_TEXTURE_WIDTH &&
+              image->height == OPENGL_TEXTURE_HEIGHT,
           "Not using the entire texture 'slice'.");
     LOG("ARGS: index: %d, width: %d, height: %d, foramt: %d, data: %p", index,
-        image.width, image.height, data_format, image.data);
-    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, index, image.width,
-                    image.height, 1, data_format, GL_UNSIGNED_BYTE, image.data);
+        image->width, image->height, data_format, image->data);
+    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, index, image->width,
+                    image->height, 1, data_format, GL_UNSIGNED_BYTE, image->data);
     return index;
 }
 

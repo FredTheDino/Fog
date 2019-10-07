@@ -42,7 +42,7 @@ template <typename T>
 T *request_temporary_memory(u64 num = 1);
 
 constexpr u64 TOTAL_MEMORY_BUDGET = 1 << 29;  // ~0.5GB
-constexpr u64 ARENA_SIZE_IN_BYTES = 1 << 19;  // ~0.5MB
+constexpr u64 ARENA_SIZE_IN_BYTES = 1 << 21;  // ~2.0MB
 constexpr u64 NUM_ARENAS = TOTAL_MEMORY_BUDGET / ARENA_SIZE_IN_BYTES;
 struct GlobalMemoryBank {
     u64 num_free_regions;

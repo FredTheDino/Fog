@@ -67,7 +67,7 @@ void return_arean(MemoryArena *arena) {
 template <typename T>
 T *MemoryArena::push(u64 count) {
     u64 allocation_size = sizeof(T) * count;
-    ASSERT(allocation_size <= ARENA_SIZE_IN_BYTES, "Allocated too much");
+    ASSERT(allocation_size <= ARENA_SIZE_IN_BYTES, "Too large allocation");
     if (watermark + allocation_size > ARENA_SIZE_IN_BYTES) {
         if (!next) {
             if (only_one) HALT_AND_CATCH_FIRE;
