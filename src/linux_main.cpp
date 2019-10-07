@@ -128,9 +128,9 @@ f32 rand_real() { return ((f32) rand() / (f32) RAND_MAX) * 2.0 - 1.0; }
 int main(int argc, char **argv) {
     Util::do_all_allocations();
     Asset::load("data.fog");
-    ASSERT(Renderer::init("Hello", 500, 500), "Failed to initalize renderer");
+    ASSERT(Renderer::init("Hello there", 500, 500), "Failed to initalize renderer");
 
-    Image *test_image = Asset::fetch(ASSET_TEST);
+    Image *test_image = Asset::fetch(ASSET_DEBUG_TEST);
     Renderer::upload_texture(test_image, 0);
 
     using namespace Input;

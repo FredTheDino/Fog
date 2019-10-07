@@ -10,18 +10,22 @@ ENGINE_SOURCE_FILE = src/linux_main.cpp
 ASSET_BUILDER_PROGRAM_NAME = $(BIN_DIR)/mist
 ASSET_BUILDER_SOURCE_FILE = src/linux_assets.cpp
 ASSET_OUTPUT = data.fog
-ASSET_FILES = $(shell find res/)
+ASSET_FILES = $(shell find res/ -type f -name "*.*")
+ASSET_SOURCE_FILES = $(shell find src/asset/ -type f -name "*.*")
+ASSET_SOURCE_FILES += src/linux_assets.cpp
+SOURCE_FILES = $(shell find src/ -type f -name "*.*")
+
 TERMINAL = $(echo $TERM)
 
 .PHONY: default run asset clean debug valgrind
 
 default: $(ENGINE_PROGRAM_NAME) $(ASSET_OUTPUT)
 
-$(ENGINE_PROGRAM_NAME): $(ASSET_OUTPUT) $(ASSET_FILES) $(ASSET_BUILDER_PROGRAM_NAME)
+$(ENGINE_PROGRAM_NAME): $(SOURCE_FILES) $(ASSET_OUTPUT) $(ASSET_FILES) $(ASSET_BUILDER_PROGRAM_NAME)
 	mkdir -p bin
 	$(CXX) $(FLAGS) $(ENGINE_SOURCE_FILE) -o $(ENGINE_PROGRAM_NAME) -L $(LIB_PATH) $(LIBS)
 
-$(ASSET_BUILDER_PROGRAM_NAME): $(ASSET_BUILDER_SOURCE_FILE) $(HEADERS)
+$(ASSET_BUILDER_PROGRAM_NAME): $(ASSET_SOURCE_FILES) $(ASSET_BUILDER_SOURCE_FILE)
 	mkdir -p bin
 	$(CXX) $(FLAGS) $(ASSET_BUILDER_SOURCE_FILE) -o $(ASSET_BUILDER_PROGRAM_NAME) -L $(LIB_PATH) $(LIBS)
 

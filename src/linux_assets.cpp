@@ -112,7 +112,7 @@ void dump_asset_file(AssetFile *file, const char *out_path) {
     write_to_file(output_file, &file->asset_headers[0],
                   file->header.number_of_assets);
 
-    FILE *source_file = fopen("src/__fog_assets.cpp", "w");
+    FILE *source_file = fopen("src/fog_assets", "w");
     u64 string_begin = ftell(output_file);
     u64 string_cur = string_begin;
     for (u64 i = 0; i < file->asset_headers.size(); i++) {

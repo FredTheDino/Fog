@@ -1,4 +1,4 @@
-#include "../__fog_assets.cpp"
+#include "../fog_assets"
 
 namespace Asset {
 
