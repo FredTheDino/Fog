@@ -1,4 +1,5 @@
 #include <stdarg.h>
+#include <stdlib.h>
 // Debug functions
 #define LOG_MSG(fmt) __debug_log("LOG", __FILE__, __LINE__, fmt)
 #define LOG(fmt, ...) __debug_log("LOG", __FILE__, __LINE__, fmt, __VA_ARGS__)
@@ -14,7 +15,8 @@ void __debug_log(const char* type, const char* file, int line,
     fprintf(stderr, "\n");
 }
 
-#define HALT_AND_CATCH_FIRE ((int*) (void*) 0)[0] = 0;
+// #define HALT_AND_CATCH_FIRE ((int*) (void*) 0)[0] = 0;
+#define HALT_AND_CATCH_FIRE exit(-1)
 #define ASSERT(expr, msg) __assert(__FILE__, __LINE__, "" #expr "" ": " #msg, expr)
 void __assert(const char* file, int line, const char* expr,
                      bool assumed) {

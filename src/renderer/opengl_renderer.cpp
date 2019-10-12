@@ -47,7 +47,8 @@ static Program compile_shader_program_from_source(const char *source) {
     return shader;
 }
 
-u32 RenderQueue::total_number_of_verticies() const {
+template <typename T>
+u32 RenderQueue<T>::total_number_of_verticies() const {
     u32 sum = 0;
     for (u32 i = 0; i < num_buffers; i++) {
         sum += vertex_buffers[i].draw_length;
@@ -55,7 +56,8 @@ u32 RenderQueue::total_number_of_verticies() const {
     return sum;
 }
 
-void RenderQueue::create(u32 triangels_per_buffer) {
+template <typename T>
+void RenderQueue<T>::create(u32 triangels_per_buffer) {
     ASSERT(gl_draw_hint == 0,
            "Cannot create same RenderQueue twice without deleteing.");
     buffer_size = triangels_per_buffer * 3;
@@ -69,7 +71,8 @@ void RenderQueue::create(u32 triangels_per_buffer) {
     expand();
 }
 
-void RenderQueue::push(u32 num_new_verticies, Vertex *new_verticies) {
+template <typename T>
+void RenderQueue<T>::push(u32 num_new_verticies, T *new_verticies) {
     ASSERT(gl_draw_hint, "Trying to use uninitalized render queue.");
     ASSERT(gl_draw_hint == GL_TRIANGLES, "Push code assumes triangles.");
 
@@ -84,8 +87,8 @@ void RenderQueue::push(u32 num_new_verticies, Vertex *new_verticies) {
 
             buffer->bind();
             glBufferSubData(GL_ARRAY_BUFFER,
-                            buffer->draw_length * sizeof(Vertex),
-                            to_push * sizeof(Vertex), new_verticies);
+                            buffer->draw_length * sizeof(T),
+                            to_push * sizeof(T), new_verticies);
 
             buffer->draw_length += to_push;
             num_new_verticies -= to_push;
@@ -95,7 +98,9 @@ void RenderQueue::push(u32 num_new_verticies, Vertex *new_verticies) {
     glBindVertexArray(0);
 }
 
-void RenderQueue::expand() {
+
+template <typename T>
+void RenderQueue<T>::expand() {
     ASSERT(gl_draw_hint, "Trying to use uninitalized render queue");
     arena->clear();
     u32 to_copy = num_buffers;
@@ -115,27 +120,55 @@ void RenderQueue::expand() {
     for (u32 i = 0; i < GROW_BY; i++) {
         vertex_buffers[to_copy + i] = {0, buffers[i], vaos[i]};
         vertex_buffers[to_copy + i].bind();
-        glBufferData(GL_ARRAY_BUFFER, buffer_size * sizeof(Vertex), NULL,
+        glBufferData(GL_ARRAY_BUFFER, buffer_size * sizeof(T), NULL,
                      GL_STREAM_DRAW);
-
-        glEnableVertexAttribArray(0);
-        glEnableVertexAttribArray(1);
-        glEnableVertexAttribArray(2);
-        glEnableVertexAttribArray(3);
-
-        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-                              (void *) offsetof(Vertex, position));
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-                              (void *) offsetof(Vertex, texture));
-        glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-                              (void *) offsetof(Vertex, sprite));
-        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-                              (void *) offsetof(Vertex, color));
+        enable_attrib_pointer();
     }
     glBindVertexArray(0);
 }
 
-void RenderQueue::draw() const {
+template <>
+void RenderQueue<Vertex>::enable_attrib_pointer() {
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
+    glEnableVertexAttribArray(3);
+
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+                          (void *) offsetof(Vertex, position));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+                          (void *) offsetof(Vertex, texture));
+    glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+                          (void *) offsetof(Vertex, sprite));
+    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+                          (void *) offsetof(Vertex, color));
+}
+
+template <>
+void RenderQueue<SdfVertex>::enable_attrib_pointer() {
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
+    glEnableVertexAttribArray(3);
+    glEnableVertexAttribArray(4);
+    glEnableVertexAttribArray(5);
+
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(SdfVertex),
+                          (void *) offsetof(SdfVertex, position));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(SdfVertex),
+                          (void *) offsetof(SdfVertex, texture));
+    glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(SdfVertex),
+                          (void *) offsetof(SdfVertex, sprite));
+    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(SdfVertex),
+                          (void *) offsetof(SdfVertex, color));
+    glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(SdfVertex),
+                          (void *) offsetof(SdfVertex, edge));
+    glVertexAttribPointer(5, 1, GL_FLOAT, GL_FALSE, sizeof(SdfVertex),
+                          (void *) offsetof(SdfVertex, offset));
+}
+
+template <typename T>
+void RenderQueue<T>::draw() const {
     ASSERT(gl_draw_hint, "Trying to use uninitalized render queue");
     for (u32 i = 0; i < num_buffers; i++) {
         GLBuffer buffer = vertex_buffers[i];
@@ -147,12 +180,14 @@ void RenderQueue::draw() const {
     glBindVertexArray(0);
 }
 
-void RenderQueue::clear() {
+template <typename T>
+void RenderQueue<T>::clear() {
     next_free = 0;
     for (u32 i = 0; i < num_buffers; i++) vertex_buffers[i].draw_length = 0;
 }
 
-void RenderQueue::destory() {
+template <typename T>
+void RenderQueue<T>::destory() {
     next_free = 0;
     u32 *buffers = arena->push<u32>(num_buffers);
     for (u32 i = 0; i < num_buffers; i++)
@@ -181,14 +216,19 @@ static bool init(const char *title, int width, int height) {
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(gl_debug_message, 0);
 
-    queue.create(512);
+    sprite_render_queue.create(512);
+    font_render_queue.create(256);
 
     const char *source;
     ASSERT(source = Util::dump_file("res/master_shader.glsl"),
            "Failed to read file.");
     master_shader_program = compile_shader_program_from_source(source);
     ASSERT(master_shader_program, "Failed to compile shader");
-    master_shader_program.bind();
+
+    ASSERT(source = Util::dump_file("res/font_shader.glsl"),
+           "Failed to read file.");
+    font_shader_program = compile_shader_program_from_source(source);
+    ASSERT(font_shader_program, "Failed to compile shader");
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
@@ -212,11 +252,24 @@ static bool init(const char *title, int width, int height) {
 }
 
 static void push_verticies(u32 num_verticies, Vertex *verticies) {
-    queue.push(num_verticies, verticies);
+    sprite_render_queue.push(num_verticies, verticies);
+}
+
+static void push_sdf_quad(Vec2 min, Vec2 max, Vec2 min_uv, Vec2 max_uv, f32 sprite, Vec4 color, f32 edge, f32 offset) {
+    SdfVertex verticies[] = {
+        {V2(min.x, min.y), V2(min_uv.x, max_uv.y), sprite, color, edge, offset},
+        {V2(max.x, min.y), V2(max_uv.x, max_uv.y), sprite, color, edge, offset},
+        {V2(max.x, max.y), V2(max_uv.x, min_uv.y), sprite, color, edge, offset},
+
+        {V2(min.x, min.y), V2(min_uv.x, max_uv.y), sprite, color, edge, offset},
+        {V2(max.x, max.y), V2(max_uv.x, min_uv.y), sprite, color, edge, offset},
+        {V2(min.x, max.y), V2(min_uv.x, min_uv.y), sprite, color, edge, offset},
+    };
+    font_render_queue.push(LEN(verticies), verticies);
 }
 
 static void push_quad(Vec2 min, Vec2 min_uv, Vec2 max, Vec2 max_uv,
-                      float sprite, Vec4 color) {
+                      f32 sprite, Vec4 color) {
     Vertex verticies[] = {
         {V2(min.x, min.y), V2(min_uv.x, max_uv.y), sprite, color},
         {V2(max.x, min.y), V2(max_uv.x, max_uv.y), sprite, color},
@@ -226,7 +279,7 @@ static void push_quad(Vec2 min, Vec2 min_uv, Vec2 max, Vec2 max_uv,
         {V2(max.x, max.y), V2(max_uv.x, min_uv.y), sprite, color},
         {V2(min.x, max.y), V2(min_uv.x, min_uv.y), sprite, color},
     };
-    queue.push(LEN(verticies), verticies);
+    sprite_render_queue.push(LEN(verticies), verticies);
 }
 
 static void push_quad(Vec2 min, Vec2 max, Vec4 color) {
@@ -246,7 +299,7 @@ static void push_line(Vec2 start, Vec2 end, Vec4 start_color, Vec4 end_color,
         {end - offset, V2(0, 0), OPENGL_INVALID_SPRITE, end_color},
         {end + offset, V2(0, 0), OPENGL_INVALID_SPRITE, end_color},
     };
-    queue.push(LEN(verticies), verticies);
+    sprite_render_queue.push(LEN(verticies), verticies);
 }
 
 static void push_point(Vec2 point, Vec4 color, f32 size) {
@@ -293,9 +346,15 @@ static u32 upload_texture(const Image *image, s32 index) {
 static void clear() { glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT); }
 
 static void blit() {
-    queue.draw();
+    master_shader_program.bind();
+    sprite_render_queue.draw();
+
+    font_shader_program.bind();
+    font_render_queue.draw();
+
     SDL_GL_SwapWindow(window);
-    queue.clear();
+    font_render_queue.clear();
+    sprite_render_queue.clear();
 }
 
 // Asset (Abstract base class)

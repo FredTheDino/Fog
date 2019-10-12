@@ -1,4 +1,4 @@
-constexpr AssetID ASSET_DROID_SANS = 0;
-constexpr AssetID ASSET_DEBUG_TEST = 1;
-constexpr AssetID ASSET_MASTER_SHADER = 2;
+constexpr AssetID ASSET_DEBUG_TEST = 0;
+constexpr AssetID ASSET_DROID_SANS = 1;
+constexpr AssetID ASSET_DROID_SANS_FONT = 2;
 constexpr AssetID ASSET_TEST = 3;

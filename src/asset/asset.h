@@ -45,7 +45,7 @@ struct Header {
 struct Font {
     struct Glyph {
         // TODO(ed): Assert that no precision is lost.
-        char id;
+        u8 id;
         f32 x, y;
         f32 w, h;
         f32 x_offset, y_offset;
@@ -55,15 +55,19 @@ struct Font {
     struct Kerning {
         // TODO(ed): Assert that no precision is lost.
         u16 key;
-        s8 ammount;
+        f32 ammount;
+
+        bool operator< (const Kerning &other) const {
+            return key < other.key;
+        }
     };
 
     u64 texture;
-    u64 num_glyphs;
-    u64 num_kernings;
+    const s64 num_glyphs = 256;
+    s64 num_kernings;
 
     Glyph *glyphs;
-    Kerning *kerning;
+    Kerning *kernings;
 };
 
 struct Data {

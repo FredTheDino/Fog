@@ -130,8 +130,10 @@ int main(int argc, char **argv) {
     Asset::load("data.fog");
     ASSERT(Renderer::init("Hello there", 500, 500), "Failed to initalize renderer");
 
-    Image *test_image = Asset::fetch(ASSET_DEBUG_TEST);
+    Image *test_image = Asset::fetch_image(ASSET_DEBUG_TEST);
     Renderer::upload_texture(test_image, 0);
+    test_image = Asset::fetch_image(ASSET_DROID_SANS);
+    Renderer::upload_texture(test_image, 1);
 
     using namespace Input;
     CHECK(add(&mapping, K(a), Player::P1, Name::LEFT), "Failed to create mapping");
@@ -146,6 +148,7 @@ int main(int argc, char **argv) {
         frame(&mapping);
         Perf::stop_perf_clock("INPUT");
         SDL::poll_events();
+        f32 tick = SDL_GetTicks() / 1000.0f;
 
         if (value(&mapping, Player::ANY, Name::QUIT)) {
             SDL::running = false;
@@ -154,13 +157,19 @@ int main(int argc, char **argv) {
         Perf::start_perf_clock("RENDER");
         Renderer::clear();
 
+        Renderer::push_sdf_quad(V2(-1, 1), V2(1, -1), V2(0, 1), V2(1, 0), 1,
+                                V4(0.4, 0.8, 0.2, 1.0), 0.3, 0.01);
+
+        Renderer::push_quad(V2(0, 0.5), V2(0.5, 0), V2(0, 0), V2(1, 1), 1,
+                            V4(0.4, 0.8, 0.2, 1.0));
+#if 0
         Vec2 p = V2(0, 0);
         Renderer::push_quad(p, V2(0, 0), p + V2(0.2, 0.2), V2(1, 1), 0);
         p = V2(-1, 0.5);
         Renderer::push_quad(p, V2(0, 0), p + V2(0.4, 0.3), V2(1, 1), 1);
         p = V2(-1, 0);
-        Renderer::push_quad(p, V2(0, 0), p + V2(0.4, 0.3), V2(1, 1), 2);
         Renderer::push_point(V2(0, 0.5), V4(1, 0, 1, 1));
+#endif
         Renderer::blit();
         Perf::stop_perf_clock("RENDER");
         Perf::stop_perf_clock("MAIN");

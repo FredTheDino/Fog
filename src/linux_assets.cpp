@@ -7,6 +7,7 @@
 
 #include <string>
 #include <vector>
+#include <algorithm>
 #include <unordered_map>
 #include <cstring>
 
@@ -70,6 +71,17 @@ void load_texture(AssetFile *file, Asset::Header *header) {
     add_asset_to_file(file, header, &asset);
 }
 
+long read_next_long(char **read_head) {
+    *read_head = strchr(*read_head, '=') + 1;
+    assert(*read_head && **read_head);
+    return strtol(*read_head, read_head, 10);
+}
+
+bool starts_with(const char *a, const char *b) {
+    while (*b && *(a) == *(b)) {a++; b++;};
+    return *b == '\0';
+}
+
 void load_font(AssetFile *file, Asset::Header *header) {
     Asset::Font font = {};
     { 
@@ -78,26 +90,75 @@ void load_font(AssetFile *file, Asset::Header *header) {
         sdf_header.type = Asset::Type::TEXTURE;
         sdf_header.file_path = (char *) malloc(header->file_path_length);
         strcpy(sdf_header.file_path, header->file_path);
-        sdf_header.file_path[header->file_path_length - 1] = 'f';
-        sdf_header.file_path[header->file_path_length - 2] = 'd';
-        sdf_header.file_path[header->file_path_length - 3] = 's';
+        sdf_header.file_path[header->file_path_length - 2] = 'f';
+        sdf_header.file_path[header->file_path_length - 3] = 'd';
+        sdf_header.file_path[header->file_path_length - 4] = 's';
+        printf("%s\n", sdf_header.file_path);
         load_texture(file, &sdf_header);
         assert(sdf_header.asset_id != 0xFFFFFFF);
         font.texture = sdf_header.asset_id;
     }
+    float inv_width  = 1.0f / file->assets[font.texture].image.width;
+    float inv_height = 1.0f / file->assets[font.texture].image.height;
     FILE *font_file = fopen(header->file_path, "r");
-    char *line = nullptr;
+    assert(font_file);
+    char *read_line = nullptr;
     size_t size = 0;
-    while (getline(&line, &size, font_file) != -1) {
-        if (strcmp(line, "char", 4) == 0) {
-            // TODO: Parse
-        } else if (strcmp(line, "kerning") == 0) {
+    // TODO: Might switch O(n) for O(nlogn) to save space.
+    font.glyphs = (Asset::Font::Glyph *) malloc(font.num_glyphs * sizeof(Asset::Font::Glyph));
+    long expected_glyphs = 0, expected_kernings = 0;
+    while (getline(&read_line, &size, font_file) != -1) {
+        char *line = read_line;
+        if (starts_with(line, "char")) {
+            if (starts_with(line, "chars")) {
+                expected_glyphs = read_next_long(&line);
+                assert(expected_glyphs);
+            } else {
+                Asset::Font::Glyph g = {
+                    // id
+                    (u8) read_next_long(&line),
+                    // x, y
+                    read_next_long(&line) * inv_width,
+                    read_next_long(&line) * inv_height,
+                    // w, h
+                    read_next_long(&line) * inv_width,
+                    read_next_long(&line) * inv_height,
+                    // xo, yo
+                    read_next_long(&line) * inv_width,
+                    read_next_long(&line) * inv_height,
+                    // advance
+                    read_next_long(&line) * inv_width
+                };
+                font.glyphs[g.id] = g;
+            }
+        } else if (starts_with(line, "kerning")) {
+            if (starts_with(line, "kernings")) {
+                expected_kernings = read_next_long(&line);
+                font.kernings = (Asset::Font::Kerning *) malloc(expected_kernings *
+                                                  sizeof(Asset::Font::Kerning));
+            } else {
+                long first = read_next_long(&line);
+                long second = read_next_long(&line);
+                assert(first <= 0xFF && second <= 0xFF);
+                font.kernings[font.num_kernings++] = {
+                    (u16) (first << 8 | second),
+                    read_next_long(&line) * inv_width
+                };
+            }
         }
         
-        free(line);
-        line = nullptr;
+        free(read_line);
+        read_line = nullptr;
         size = 0;
     }
+    assert(expected_kernings == font.num_kernings);
+    std::sort(font.kernings, font.kernings + font.num_kernings);
+
+    header->asset_size = sizeof(Asset::Data) +
+                         sizeof(Asset::Font::Kerning) * font.num_kernings + 
+                         sizeof(Asset::Font::Glyph)   * font.num_glyphs;
+    Asset::Data asset = {.font = font};
+    add_asset_to_file(file, header, &asset);
 }
 
 void load_atlas(AssetFile *file, Asset::Header header) {
@@ -158,6 +219,9 @@ void dump_asset_file(AssetFile *file, const char *out_path) {
         size_t end = file_path.find_last_of('.');
         for (auto &c : file_path) c = toupper(c);
         file_path = file_path.substr(4, end - 4);  // Len of "res/"
+        if (header->type == Asset::Type::FONT) {
+            file_path += "_FONT";
+        }
         printf("\tFound asset: %s -> %s\n", header->file_path,
                file_path.c_str());
         fprintf(source_file, "constexpr AssetID ASSET_%s = %lu;\n",
@@ -186,8 +250,16 @@ void dump_asset_file(AssetFile *file, const char *out_path) {
             case (Asset::Type::SHADER): {
                 write_to_file(output_file, asset.shader_source, header->asset_size);
             } break;
+            case (Asset::Type::FONT): {
+                write_to_file(output_file, &asset);
+                u64 num_glyphs = asset.font.num_glyphs;
+                write_to_file(output_file, asset.font.glyphs, num_glyphs);
+                u64 num_kernings = asset.font.num_kernings;
+                write_to_file(output_file, asset.font.kernings, num_kernings);
+            } break;
             default:
                 printf("UNIMPLEMENTED ASSET TYPE\n");
+                continue;
                 break;
         };
         header->asset_size = ftell(output_file) - header->offset;
@@ -209,6 +281,9 @@ int main(int nargs, char **vargs) {
     valid_endings[".png"] = Asset::Type::TEXTURE;
     valid_endings[".jpg"] = Asset::Type::TEXTURE;
     valid_endings[".bmp"] = Asset::Type::TEXTURE;
+    // .sdf is for the font files, they are loaded
+    // in the font pass only if there is a matching
+    // .fnt file.
 
     // Fonts
     valid_endings[".fnt"] = Asset::Type::FONT;
@@ -219,11 +294,8 @@ int main(int nargs, char **vargs) {
     // Sound
     valid_endings[".wav"] = Asset::Type::SOUND;
 
-    // Shader
+    // Config files?
     valid_endings[".cfg"] = Asset::Type::CONFIG;
-
-    // Shader
-    valid_endings[".glsl"] = Asset::Type::SHADER;
 
     printf("\n\t=== ASSET FINDING ===\n");
 

@@ -53,6 +53,11 @@ static void push_point(Vec2 point, Vec4 color, f32 size = 0.01) {
     Impl::push_point(point, color, size);
 }
 
+static void push_sdf_quad(Vec2 min, Vec2 max, Vec2 min_uv, Vec2 max_uv, int sprite,
+                          Vec4 color, f32 edge, f32 offset) {
+    Impl::push_sdf_quad(min, max, min_uv, max_uv, sprite, color, edge, offset);
+}
+
 // Upload a texture to a specific slot on the GPU.
 static u32 upload_texture(Image image, s32 index) {
     return Impl::upload_texture(&image, index);

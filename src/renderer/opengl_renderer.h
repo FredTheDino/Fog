@@ -10,18 +10,31 @@ struct Program {
     operator bool() const { return id != ERROR().id; }
 };
 
+#pragma pack(1)
 struct Vertex {
     Vec2 position;
     Vec2 texture;
     f32  sprite;
     Vec4 color;
 };
+
+struct SdfVertex {
+    Vec2 position;
+    Vec2 texture;
+    f32  sprite;
+    Vec4 color;
+    f32  edge;
+    f32  offset;
+};
+#pragma pack(pop)
+
 #define OPENGL_INVALID_SPRITE -1.0
 
 //
 // Used to render large batches of objects
 // with little hazzle.
 //
+template <typename T>
 struct RenderQueue {
     u32 buffer_size;
     // OpenGL objects for render context, also stored
@@ -59,12 +72,16 @@ struct RenderQueue {
     void create(u32 triangels_per_buffer = 100);
 
     // Add more verticies to render.
-    void push(u32 num_new_verticies, Vertex *new_verticies);
+    void push(u32 num_new_verticies, T *new_verticies);
 
     // Expands the current queue by |GROW_BY| new buffers
     // with |buffer_size| elements in them.
     const u32 GROW_BY = 3;
     void expand();
+
+    // Enable the Attrib Pointers, this is the only
+    // non generic part.
+    void enable_attrib_pointer();
 
     // Whipes all buffers to allow for new
     // data.
@@ -76,7 +93,11 @@ struct RenderQueue {
 
 // Render state
 Program master_shader_program;
-RenderQueue queue;
+Program font_shader_program;
+
+RenderQueue<Vertex> sprite_render_queue;
+RenderQueue<SdfVertex> font_render_queue;
+
 GLuint texture;
 
 // OpenGL global variables

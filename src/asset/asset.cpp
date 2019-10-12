@@ -24,12 +24,12 @@ Data *raw_fetch(AssetID id, Type type) {
     }
 }
 
-Image *fetch(AssetID id) {
+Image *fetch_image(AssetID id) {
     return &raw_fetch(id, Type::TEXTURE)->image;
 }
 
-Shader *fetch(AssetID id) {
-    return &raw_fetch(id, Type::SHADER)->shader;
+Font *fetch_font(AssetID id) {
+    return &raw_fetch(id, Type::FONT)->font;
 }
 
 template <typename T>
@@ -67,20 +67,24 @@ void load(const char *file_path) {
         LOG("Loading: %s", header.file_path);
         read_from_file<Data>(file, asset_ptr);
         switch (header.type) {
-            case (Type::TEXTURE): {
-                u64 size = asset_ptr->image.size();
-                asset_ptr->image.data = system.arena->push<u8>(size);
-                read_from_file<u8>(file, asset_ptr->image.data, size);
-            } break;
-            case (Type::SHADER): {
-                u64 size = header.asset_size;
-                char *source = system.arena->push<u8>(size);
-                read_from_file<u8>(file, source, size);
-                
-            } break;
-            default:
-                LOG("UNKOWN ASSET TYPE %d", header.type);
-                break;
+        case Type::TEXTURE: {
+            u64 size = asset_ptr->image.size();
+            asset_ptr->image.data = system.arena->push<u8>(size);
+            read_from_file<u8>(file, asset_ptr->image.data, size);
+        } break;
+        case Type::FONT: {
+            asset_ptr->font.glyphs =
+                system.arena->push<Font::Glyph>(asset_ptr->font.num_glyphs);
+            read_from_file<Font::Glyph>(file, asset_ptr->font.glyphs,
+                                        asset_ptr->font.num_glyphs);
+            asset_ptr->font.kernings =
+                system.arena->push<Font::Kerning>(asset_ptr->font.num_kernings);
+            read_from_file<Font::Glyph>(file, asset_ptr->font.kernings,
+                                        asset_ptr->font.num_kernings);
+        } break;
+        default:
+            LOG("UNKOWN ASSET TYPE %d", header.type);
+            break;
         };
     }
 }
