@@ -1,5 +1,3 @@
-#include "../fog_assets"
-
 namespace Asset {
 
 struct System {

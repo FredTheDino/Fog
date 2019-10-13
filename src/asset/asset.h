@@ -65,15 +65,17 @@ struct Font {
         u16 key = (a << 8) | b;
         s64 low = 0;
         s64 high = num_kernings;
+        s64 last_guess = -1;
         while (low <= high) {
             s64 cur = (low + high) / 2;
-            if (cur < 0 || num_kernings < cur)
+            if (cur < 0 || num_kernings < cur || cur == last_guess)
                 break;
+            last_guess = cur;
             u16 cur_key = kernings[cur].key;
             if (cur_key > key)
-                low = cur + 1;
-            else if (cur_key < key)
                 high = cur + 1;
+            else if (cur_key < key)
+                low = cur + 1;
             else
                 return kernings[cur].ammount;
         }
@@ -84,6 +86,7 @@ struct Font {
     f32 height;
     const s64 num_glyphs = 256;
     s64 num_kernings;
+    bool monospace = false;
 
     Glyph *glyphs;
     Kerning *kernings;
@@ -97,6 +100,9 @@ struct Data {
         Font font;
     };
 };
+
+Image *fetch_image(AssetID id);
+Font *fetch_font(AssetID id);
 
 };  // namespace Asset
 

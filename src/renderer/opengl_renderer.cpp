@@ -1,3 +1,6 @@
+const static int GLSL_CAMERA_BLOCK = 0;
+static GLuint ubo_camera;
+
 static Program compile_shader_program_from_source(const char *source) {
 #define SHADER_ERROR_CHECK(SHDR)                             \
     do {                                                     \
@@ -16,8 +19,17 @@ static Program compile_shader_program_from_source(const char *source) {
     u32 frag = glCreateShader(GL_FRAGMENT_SHADER);
     u32 vert = glCreateShader(GL_VERTEX_SHADER);
 
-    const char *complete_source[] = {"#version 330\n", "#define VERT\n",
-                                     source};
+    const char *complete_source[] = {
+        "#version 330\n", "#define VERT\n",
+        "layout (std140) uniform Camera\n",
+        "{\n",
+        "    vec2 position;\n",
+        "    float zoom;\n",
+        "    float aspect_ratio;\n",
+        "    float width;\n",
+        "    float height;\n",
+        "};",
+        source};
     glShaderSource(vert, LEN(complete_source), complete_source, NULL);
     glCompileShader(vert);
     SHADER_ERROR_CHECK(vert);
@@ -43,6 +55,9 @@ static Program compile_shader_program_from_source(const char *source) {
         ERR("Program: %s\n", buffer);
         return Program::ERROR();
     }
+
+    unsigned int block = glGetUniformBlockIndex(shader, "Camera");   
+    glUniformBlockBinding(shader, block, GLSL_CAMERA_BLOCK);
 
     return shader;
 }
@@ -199,12 +214,17 @@ void RenderQueue<T>::destory() {
     glDeleteBuffers(num_buffers, buffers);
 }
 
+static void resize_window(int width, int height) {
+    recalculate_global_aspect_ratio(width, height);
+    glViewport(0, 0, width, height);
+}
+
 static bool init(const char *title, int width, int height) {
     if (SDL_Init(SDL_INIT_VIDEO)) {
         LOG_MSG("Failed to initalize SDL");
         return false;
     }
-    window = SDL_CreateWindow(title, 0, 0, width, height, SDL_WINDOW_OPENGL);
+    window = SDL_CreateWindow(title, 0, 0, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
@@ -215,12 +235,21 @@ static bool init(const char *title, int width, int height) {
         LOG_MSG("Failed to load OpenGL");
         return false;
     }
+    resize_window(width, height);
 
+    SDL::window_callback = resize_window;
+    SDL_GL_SetSwapInterval(1);
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(gl_debug_message, 0);
 
     sprite_render_queue.create(512);
     font_render_queue.create(256);
+
+    glGenBuffers(1, &ubo_camera);
+    glBindBuffer(GL_UNIFORM_BUFFER, ubo_camera);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(Camera), NULL, GL_STATIC_DRAW);
+    glBindBufferBase(GL_UNIFORM_BUFFER, GLSL_CAMERA_BLOCK, ubo_camera);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     const char *source;
     ASSERT(source = Util::dump_file("res/master_shader.glsl"),
@@ -357,6 +386,10 @@ static u32 upload_texture(const Image *image, s32 index) {
 static void clear() { glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT); }
 
 static void blit() {
+    glBindBuffer(GL_UNIFORM_BUFFER, ubo_camera);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Camera), &global_camera);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
     master_shader_program.bind();
     sprite_render_queue.draw();
 

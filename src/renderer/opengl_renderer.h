@@ -27,7 +27,6 @@ struct SdfVertex {
     f32  high;
     s32  border;
 };
-#pragma pack(pop)
 
 #define OPENGL_INVALID_SPRITE -1.0
 

@@ -1,7 +1,10 @@
 constexpr AssetID ASSET_DEBUG_TEST = 0;
 constexpr AssetID TEX_DEBUG_TEST = 0;
-constexpr AssetID ASSET_DROID_SANS = 1;
-constexpr AssetID TEX_DROID_SANS = 1;
-constexpr AssetID ASSET_DROID_SANS_FONT = 2;
-constexpr AssetID ASSET_TEST = 3;
-constexpr AssetID TEX_TEST = 2;
+constexpr AssetID ASSET_MONACO = 1;
+constexpr AssetID TEX_MONACO = 1;
+constexpr AssetID ASSET_MONACO_FONT = 2;
+constexpr AssetID ASSET_DROID_SANS = 3;
+constexpr AssetID TEX_DROID_SANS = 2;
+constexpr AssetID ASSET_DROID_SANS_FONT = 4;
+constexpr AssetID ASSET_TEST = 5;
+constexpr AssetID TEX_TEST = 3;

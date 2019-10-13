@@ -1,4 +1,5 @@
-// TODO(ed): Find better home.
+void (*window_callback)(int, int) = nullptr;
+
 enum class Player {
     NONE = 0b0000,
 

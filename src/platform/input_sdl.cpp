@@ -13,6 +13,12 @@ static void poll_events() {
             case (SDL_WINDOWEVENT):
                 if (event.window.event == SDL_WINDOWEVENT_CLOSE)
                     running = false;
+                if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+                    if (window_callback) {
+                        window_callback(event.window.data1,
+                                        event.window.data2);
+                    }
+                }
                 break;
             case (SDL_QUIT):
                 running = false;
