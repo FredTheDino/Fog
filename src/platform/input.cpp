@@ -5,10 +5,8 @@ static Binding *find_binding(Mapping *mapping, InputCode code) {
     s64 high = mapping->used_bindings;
     while (low <= high) {
         s64 cur = (low + high) / 2;
-        if (cur < 0 || mapping->used_bindings < cur) {
-            LOG_MSG("Haha!");
-            return nullptr;
-        }
+        if (cur < 0 || mapping->used_bindings < cur)
+            break;
         auto cur_code = mapping->bindings[cur].code;
         if (cur_code > code)
             high = cur - 1;

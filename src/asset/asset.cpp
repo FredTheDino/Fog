@@ -14,12 +14,14 @@ struct System {
 Data *raw_fetch(AssetID id, Type type) {
     if (system.file_header.number_of_assets < id) {
         ERR("Invalid asset id (%d)", id);
+        HALT_AND_CATCH_FIRE;
         return nullptr;
     }
     if (type == Type::NONE || system.headers[id].type == type) {
         return &system.assets[id];
     } else {
         ERR("Not the expected type (%d)", id);
+        HALT_AND_CATCH_FIRE;
         return nullptr;
     }
 }
@@ -71,6 +73,7 @@ void load(const char *file_path) {
             u64 size = asset_ptr->image.size();
             asset_ptr->image.data = system.arena->push<u8>(size);
             read_from_file<u8>(file, asset_ptr->image.data, size);
+            Renderer::upload_texture(asset_ptr->image, asset_ptr->image.id);
         } break;
         case Type::FONT: {
             asset_ptr->font.glyphs =

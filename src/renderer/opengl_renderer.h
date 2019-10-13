@@ -23,8 +23,9 @@ struct SdfVertex {
     Vec2 texture;
     f32  sprite;
     Vec4 color;
-    f32  edge;
-    f32  offset;
+    f32  low;
+    f32  high;
+    s32  border;
 };
 #pragma pack(pop)
 

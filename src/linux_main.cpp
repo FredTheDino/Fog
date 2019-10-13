@@ -25,6 +25,7 @@
 #include "platform/input.cpp"
 #include "renderer/command.cpp"
 #include "asset/asset.cpp"
+#include "renderer/text.cpp"
 
 Input::Mapping mapping = {};
 
@@ -127,13 +128,13 @@ f32 rand_real() { return ((f32) rand() / (f32) RAND_MAX) * 2.0 - 1.0; }
 
 int main(int argc, char **argv) {
     Util::do_all_allocations();
-    Asset::load("data.fog");
     ASSERT(Renderer::init("Hello there", 500, 500), "Failed to initalize renderer");
+    Asset::load("data.fog");
 
-    Image *test_image = Asset::fetch_image(ASSET_DEBUG_TEST);
-    Renderer::upload_texture(test_image, 0);
-    test_image = Asset::fetch_image(ASSET_DROID_SANS);
-    Renderer::upload_texture(test_image, 1);
+    // Image *test_image = Asset::fetch_image(ASSET_DEBUG_TEST);
+    // Renderer::upload_texture(test_image, 0);
+    // test_image = Asset::fetch_image(ASSET_DROID_SANS);
+    // Renderer::upload_texture(test_image, 1);
 
     using namespace Input;
     CHECK(add(&mapping, K(a), Player::P1, Name::LEFT), "Failed to create mapping");
@@ -157,11 +158,14 @@ int main(int argc, char **argv) {
         Perf::start_perf_clock("RENDER");
         Renderer::clear();
 
-        Renderer::push_sdf_quad(V2(-1, 1), V2(1, -1), V2(0, 1), V2(1, 0), 1,
-                                V4(0.4, 0.8, 0.2, 1.0), 0.3, 0.01);
+        f32 t = 0.40;
+        f32 s = 0.55; 
+        draw_text("Hello World", -1, 0, 16.0, ASSET_DROID_SANS_FONT, V4(0, 0, 0, 1), 0.2, false);
+        // Renderer::push_sdf_quad(V2(-1, 1), V2(3, -3), V2(0, 1), V2(1, 0), 1,
+        //                         V4(0.4, 0.8, 0.2, 1.0), t, s);
 
-        Renderer::push_quad(V2(0, 0.5), V2(0.5, 0), V2(0, 0), V2(1, 1), 1,
-                            V4(0.4, 0.8, 0.2, 1.0));
+        // Renderer::push_quad(V2(0, 0.5), V2(0.5, 0), V2(0, 0), V2(1, 1), 1,
+        //                     V4(0.4, 0.8, 0.2, 1.0));
 #if 0
         Vec2 p = V2(0, 0);
         Renderer::push_quad(p, V2(0, 0), p + V2(0.2, 0.2), V2(1, 1), 0);

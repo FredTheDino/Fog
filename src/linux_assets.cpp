@@ -61,10 +61,14 @@ void add_asset_to_file(AssetFile *file, Asset::Header *header, Asset::Data *asse
 }
 
 void load_texture(AssetFile *file, Asset::Header *header) {
+    static u16 id = 0;
     int w, h, c;
     u8 *buffer = stbi_load(header->file_path, &w, &h, &c, 0);
+    if (w > 512 || h > 512) {
+        printf("Cannot load %s, because it is too large.\n", header->file_path);
+    }
     if (!buffer) return;
-    Image image = {buffer, (u32) w, (u32) h, (u8) c};
+    Image image = {buffer, (u32) w, (u32) h, (u8) c, id++};
     header->asset_size = sizeof(Asset::Data) + w * h * c * sizeof(u8);
     Asset::Data asset = {image};
 
@@ -96,10 +100,12 @@ void load_font(AssetFile *file, Asset::Header *header) {
         printf("%s\n", sdf_header.file_path);
         load_texture(file, &sdf_header);
         assert(sdf_header.asset_id != 0xFFFFFFF);
-        font.texture = sdf_header.asset_id;
+        font.texture = file->assets[sdf_header.asset_id].image.id;
     }
-    float inv_width  = 1.0f / file->assets[font.texture].image.width;
-    float inv_height = 1.0f / file->assets[font.texture].image.height;
+    // TODO(ed): This is hard coded for a reason, maybe make this
+    // more explicit...
+    float inv_width  = 1.0 / 512.0;
+    float inv_height = 1.0 / 512.0;
     FILE *font_file = fopen(header->file_path, "r");
     assert(font_file);
     char *read_line = nullptr;
@@ -129,6 +135,7 @@ void load_font(AssetFile *file, Asset::Header *header) {
                     // advance
                     read_next_long(&line) * inv_width
                 };
+                font.height = std::max(g.h, font.height);
                 font.glyphs[g.id] = g;
             }
         } else if (starts_with(line, "kerning")) {
@@ -226,6 +233,10 @@ void dump_asset_file(AssetFile *file, const char *out_path) {
                file_path.c_str());
         fprintf(source_file, "constexpr AssetID ASSET_%s = %lu;\n",
                 file_path.c_str(), i);
+        if (header->type == Asset::Type::TEXTURE) {
+            fprintf(source_file, "constexpr AssetID TEX_%s = %lu;\n",
+                    file_path.c_str(), file->assets[i].image.id);
+        }
 
         write_to_file(output_file, header->file_path, header->file_path_length);
         header->file_path = (char *) (string_cur - string_begin);

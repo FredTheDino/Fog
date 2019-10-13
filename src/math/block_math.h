@@ -44,6 +44,8 @@ typedef f32 real;  // Type used in vectors.
 
 #define MOD(a, b) (a) - floor((a) / (b)) * (b)
 
+#define SQ(a) ((a) * (a))
+
 #define LEN(a) (sizeof(a) / sizeof(a[0]))
 
 #include "block_vector.h"

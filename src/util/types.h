@@ -15,6 +15,7 @@ struct Image {
     const u32 width;
     const u32 height;
     const u8 components;
+    const u16 id;
 
     operator bool () const {
         return data;

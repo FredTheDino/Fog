@@ -152,6 +152,7 @@ void RenderQueue<SdfVertex>::enable_attrib_pointer() {
     glEnableVertexAttribArray(3);
     glEnableVertexAttribArray(4);
     glEnableVertexAttribArray(5);
+    glEnableVertexAttribArray(6);
 
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(SdfVertex),
                           (void *) offsetof(SdfVertex, position));
@@ -162,9 +163,11 @@ void RenderQueue<SdfVertex>::enable_attrib_pointer() {
     glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(SdfVertex),
                           (void *) offsetof(SdfVertex, color));
     glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(SdfVertex),
-                          (void *) offsetof(SdfVertex, edge));
+                          (void *) offsetof(SdfVertex, low));
     glVertexAttribPointer(5, 1, GL_FLOAT, GL_FALSE, sizeof(SdfVertex),
-                          (void *) offsetof(SdfVertex, offset));
+                          (void *) offsetof(SdfVertex, high));
+    glVertexAttribPointer(6, 1, GL_INT, GL_FALSE, sizeof(SdfVertex),
+                          (void *) offsetof(SdfVertex, border));
 }
 
 template <typename T>
@@ -240,7 +243,7 @@ static bool init(const char *title, int width, int height) {
                    OPENGL_TEXTURE_HEIGHT, OPENGL_TEXTURE_DEPTH);
 
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
@@ -255,15 +258,23 @@ static void push_verticies(u32 num_verticies, Vertex *verticies) {
     sprite_render_queue.push(num_verticies, verticies);
 }
 
-static void push_sdf_quad(Vec2 min, Vec2 max, Vec2 min_uv, Vec2 max_uv, f32 sprite, Vec4 color, f32 edge, f32 offset) {
+static void push_sdf_quad(Vec2 min, Vec2 max, Vec2 min_uv, Vec2 max_uv,
+                          f32 sprite, Vec4 color, f32 low, f32 high,
+                          bool border) {
     SdfVertex verticies[] = {
-        {V2(min.x, min.y), V2(min_uv.x, max_uv.y), sprite, color, edge, offset},
-        {V2(max.x, min.y), V2(max_uv.x, max_uv.y), sprite, color, edge, offset},
-        {V2(max.x, max.y), V2(max_uv.x, min_uv.y), sprite, color, edge, offset},
+        {V2(min.x, min.y), V2(min_uv.x, max_uv.y), sprite, color, low, high,
+         border},
+        {V2(max.x, min.y), V2(max_uv.x, max_uv.y), sprite, color, low, high,
+         border},
+        {V2(max.x, max.y), V2(max_uv.x, min_uv.y), sprite, color, low, high,
+         border},
 
-        {V2(min.x, min.y), V2(min_uv.x, max_uv.y), sprite, color, edge, offset},
-        {V2(max.x, max.y), V2(max_uv.x, min_uv.y), sprite, color, edge, offset},
-        {V2(min.x, max.y), V2(min_uv.x, min_uv.y), sprite, color, edge, offset},
+        {V2(min.x, min.y), V2(min_uv.x, max_uv.y), sprite, color, low, high,
+         border},
+        {V2(max.x, max.y), V2(max_uv.x, min_uv.y), sprite, color, low, high,
+         border},
+        {V2(min.x, max.y), V2(min_uv.x, min_uv.y), sprite, color, low, high,
+         border},
     };
     font_render_queue.push(LEN(verticies), verticies);
 }
@@ -336,7 +347,7 @@ static u32 upload_texture(const Image *image, s32 index) {
     CHECK(image->width == OPENGL_TEXTURE_WIDTH &&
               image->height == OPENGL_TEXTURE_HEIGHT,
           "Not using the entire texture 'slice'.");
-    LOG("ARGS: index: %d, width: %d, height: %d, foramt: %d, data: %p", index,
+    LOG("ARGS: index: %d, width: %d, height: %d", index,
         image->width, image->height, data_format, image->data);
     glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, index, image->width,
                     image->height, 1, data_format, GL_UNSIGNED_BYTE, image->data);

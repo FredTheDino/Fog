@@ -62,7 +62,27 @@ struct Font {
         }
     };
 
+    f32 find_kerning(char a, char b) {
+        u16 key = (a << 8) | b;
+        s64 low = 0;
+        s64 high = num_kernings;
+        while (low <= high) {
+            s64 cur = (low + high) / 2;
+            if (cur < 0 || num_kernings < cur)
+                break;
+            u16 cur_key = kernings[cur].key;
+            if (cur_key > key)
+                low = cur + 1;
+            else if (cur_key < key)
+                high = cur + 1;
+            else
+                return kernings[cur].ammount;
+        }
+        return 0;
+    }
+
     u64 texture;
+    f32 height;
     const s64 num_glyphs = 256;
     s64 num_kernings;
 
