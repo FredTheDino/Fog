@@ -158,9 +158,23 @@ int main(int argc, char **argv) {
         Perf::start_perf_clock("RENDER");
         Renderer::clear();
 
-        f32 t = 0.40;
-        f32 s = 0.55; 
-        draw_text("Hello World", -1, 0, 16.0, ASSET_DROID_SANS_FONT, V4(0, 0, 0, 1), 0.2, false);
+        f32 edge = 0.2; 
+        f32 size = 2.0;
+        AssetID font = ASSET_DROID_SANS_FONT;
+        f32 y = 0;
+        const char *texts[] = {
+            "Hello world!",
+            "This is some text",
+            "Look",
+            "At_THAT",
+            "That",
+            "Layout"
+        };
+        for (const char *text : texts) {
+            Vec2 dim = messure_text(text, size, font);
+            draw_text(text, dim.x / -2.0, y, size, font, V4(0, 0, 0, 1));
+            y -= dim.y;
+        }
         // Renderer::push_sdf_quad(V2(-1, 1), V2(3, -3), V2(0, 1), V2(1, 0), 1,
         //                         V4(0.4, 0.8, 0.2, 1.0), t, s);
 

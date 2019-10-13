@@ -42,9 +42,9 @@ struct Header {
     u32 asset_id;
 };
 
+// NOTE(ed): Only ASCII is supported.
 struct Font {
     struct Glyph {
-        // TODO(ed): Assert that no precision is lost.
         u8 id;
         f32 x, y;
         f32 w, h;
@@ -53,7 +53,6 @@ struct Font {
     };
 
     struct Kerning {
-        // TODO(ed): Assert that no precision is lost.
         u16 key;
         f32 ammount;
 
