@@ -220,7 +220,7 @@ static void resize_window(int width, int height) {
 }
 
 static bool init(const char *title, int width, int height) {
-    if (SDL_Init(SDL_INIT_VIDEO)) {
+    if (SDL_Init(SDL_INIT_EVERYTHING)) {
         LOG_MSG("Failed to initalize SDL");
         return false;
     }

@@ -35,6 +35,10 @@
 #include "asset/asset.cpp"
 #include "util/performance.cpp"
 
+#include "platform/mixer.h"
+#include "platform/mixer.cpp"
+
+
 // TODO(ed): Better place for this.
 Input::Mapping mapping = {};
 
@@ -67,6 +71,8 @@ int main(int argc, char **argv) {
     Util::do_all_allocations();
     ASSERT(Renderer::init("Hello there", 500, 500),
            "Failed to initalize renderer");
+    ASSERT(Mixer::init(),
+            "Failed to initalize audio mixer");
     Asset::load("data.fog");
 
     using namespace Input;
