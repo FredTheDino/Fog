@@ -34,8 +34,17 @@ Font *fetch_font(AssetID id) {
 
 template <typename T>
 size_t read_from_file(FILE *stream, void *ptr, size_t num = 1) {
-    auto read = fread(ptr, sizeof(T), num, stream);
-    ASSERT(read == num, "Failed to read from asset file");
+    if (!num) {
+        ERR_MSG("Has to read something from file, invalid read");
+        return 0;
+    }
+    size_t read = 0;
+    do {
+        size_t last_read = fread(ptr, sizeof(T), num - read, stream);
+        ASSERT(last_read, "Failed to read anything from asset file.");
+        read += last_read;
+        ptr = (void *) ((u8 *) ptr + last_read * sizeof(T));
+    } while (read < num);
     return read;
 }
 
@@ -78,10 +87,12 @@ void load(const char *file_path) {
                 system.arena->push<Font::Glyph>(asset_ptr->font.num_glyphs);
             read_from_file<Font::Glyph>(file, asset_ptr->font.glyphs,
                                         asset_ptr->font.num_glyphs);
-            asset_ptr->font.kernings =
-                system.arena->push<Font::Kerning>(asset_ptr->font.num_kernings);
-            read_from_file<Font::Glyph>(file, asset_ptr->font.kernings,
-                                        asset_ptr->font.num_kernings);
+            if (asset_ptr->font.num_kernings) {
+                asset_ptr->font.kernings =
+                    system.arena->push<Font::Kerning>(asset_ptr->font.num_kernings);
+                read_from_file<Font::Glyph>(file, asset_ptr->font.kernings,
+                        asset_ptr->font.num_kernings);
+            }
         } break;
         default:
             LOG("UNKOWN ASSET TYPE %d", header.type);

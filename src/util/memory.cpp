@@ -9,21 +9,14 @@ static u32 CURRENT_MEMORY = 0;
 static MemoryArena *FRAME_MEMORY[FRAME_LAG_FOR_MEMORY];
 
 void do_all_allocations() {
-    ASSERT(TOTAL_MEMORY_BUDGET % ARENA_SIZE_IN_BYTES == 0,
-           "Cannot split memory budget evenly into arenas");
-#define ADVANCED_BY(ptr, size) (MemoryArena *) (((u8 *) (ptr)) + (size))
-    // NOTE(ed): new is used here, don't use it yourselfes.
-    MemoryArena *all = (MemoryArena *) new MemoryArena[TOTAL_MEMORY_BUDGET];
-#define new NO_Use_the_engine_provided_Util::request_temporary_memory(..) \
-    _method_instead
+    static_assert(TOTAL_MEMORY_BUDGET % ARENA_SIZE_IN_BYTES == 0);
 
     // Setup regions.
     global_memory.free_regions = global_memory.all_regions + 0;
     global_memory.num_free_regions = NUM_ARENAS;
     for (u64 i = 0; i < NUM_ARENAS - 1; i++) {
         global_memory.all_regions[i].next = global_memory.all_regions + i + 1;
-        global_memory.all_regions[i].memory =
-            ADVANCED_BY(all, ARENA_SIZE_IN_BYTES * i);
+        global_memory.all_regions[i].memory = malloc(ARENA_SIZE_IN_BYTES);
     }
     global_memory.all_regions[NUM_ARENAS - 1].next = 0;
 
@@ -68,6 +61,7 @@ template <typename T>
 T *MemoryArena::push(u64 count) {
     u64 allocation_size = sizeof(T) * count;
     ASSERT(allocation_size <= ARENA_SIZE_IN_BYTES, "Too large allocation");
+    // TODO(ed): Should do boundry checking here.
     if (watermark + allocation_size > ARENA_SIZE_IN_BYTES) {
         if (!next) {
             if (only_one) HALT_AND_CATCH_FIRE;
@@ -81,6 +75,7 @@ T *MemoryArena::push(u64 count) {
 }
 
 void MemoryArena::clear() {
+    // TODO(ed): Should do boundry checking here.
     while (next) {
         MemoryArena *old = next;
         next = next->next;
