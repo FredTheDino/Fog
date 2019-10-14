@@ -35,6 +35,7 @@
 #include "asset/asset.cpp"
 #include "util/performance.cpp"
 
+// TODO(ed): Better place for this.
 Input::Mapping mapping = {};
 
 #ifdef SDL
@@ -54,6 +55,14 @@ u64 Perf::highp_now() {
 #include "math.h"
 f32 rand_real() { return ((f32) rand() / (f32) RAND_MAX) * 2.0 - 1.0; }
 
+#include "boilerplate/lines_on_a_grid.cpp"
+#ifndef FOG_GAME
+#   error "No game found"
+//
+// To make a game, create the functions:
+//
+#endif
+
 int main(int argc, char **argv) {
     Util::do_all_allocations();
     ASSERT(Renderer::init("Hello there", 500, 500),
@@ -61,14 +70,16 @@ int main(int argc, char **argv) {
     Asset::load("data.fog");
 
     using namespace Input;
-    CHECK(add(&mapping, K(a), Player::P1, Name::LEFT),
-          "Failed to create mapping");
-    CHECK(add(&mapping, K(d), Player::P1, Name::RIGHT),
-          "Failed to create mapping");
     CHECK(add(&mapping, K(ESCAPE), Player::P1, Name::QUIT),
           "Failed to create mapping");
+    Game::setup_input();
 
+    f32 last_tick = SDL_GetTicks() / 1000.0f;
     while (SDL::running) {
+        f32 tick = SDL_GetTicks() / 1000.0f;
+        f32 delta = tick - last_tick;
+        last_tick = tick;
+
         Perf::report();
         Perf::clear();
         START_PERF(MAIN);
@@ -76,25 +87,18 @@ int main(int argc, char **argv) {
         frame(&mapping);
         STOP_PERF(INPUT);
         SDL::poll_events();
-        f32 tick = SDL_GetTicks() / 1000.0f;
-        Renderer::global_camera.position.x = sin(tick * 3);
-        Renderer::global_camera.position.y = cos(tick * 3);
-        Renderer::global_camera.zoom = 10;
 
         if (value(&mapping, Player::ANY, Name::QUIT)) {
             SDL::running = false;
         }
+        Game::update(delta);
 
         START_PERF(RENDER);
         Renderer::clear();
-#if 1
-        int n = 10;
-        for (int i = -n; i < n; i++) {
-            Renderer::push_line(V2(i, -n), V2(i, n), V4(0, 1, 0, 1));
-            Renderer::push_line(V2(-n, i), V2(n, i), V4(1, 0, 0, 1));
-        }
-        Renderer::push_point(V2(0, 0), V4(1, 0, 1, 1), 0.2);
-#endif
+
+        // User defined
+        Game::draw();
+
         Renderer::blit();
         STOP_PERF(RENDER);
         STOP_PERF(MAIN);
