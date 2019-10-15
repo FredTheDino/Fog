@@ -36,3 +36,5 @@ bin/**/*
 .gdb_history
 vgcore.*
 tags
+
+doc.html

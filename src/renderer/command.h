@@ -1,4 +1,7 @@
 namespace Renderer {
+//--
+// This is a section!
+//--
 
 // Initalize the graphics context.
 static bool init(const char *title, int width, int height);
@@ -6,9 +9,16 @@ static bool init(const char *title, int width, int height);
 // Clear the screen and prepare for rendering.
 static void clear();
 
-// Queues up a quad to render to the screen.
+////
+// Hello world!
+////
+
+//*
+// Queues up a quad to render to the screen, this function is cheap to call.
 static void push_quad(Vec2 min, Vec2 min_uv, Vec2 max, Vec2 max_uv, int sprite,
                       Vec4 color = V4(1, 1, 1, 1));
+
+
 
 static void push_quad(Vec2 min, Vec2 max, Vec4 color = V4(1, 1, 1, 1));
 
