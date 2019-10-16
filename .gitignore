@@ -37,4 +37,4 @@ bin/**/*
 vgcore.*
 tags
 
-doc.html
+doc/doc.html

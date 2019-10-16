@@ -1,0 +1,23 @@
+body {
+    margin: 1em;
+    background-color: #EEE;
+    font-family: sans-serif;
+}
+
+.block {
+    margin: 0.5em;
+    padding: 0.5em;
+    border-radius: 5px;
+    box-shadow: 2px 2px 3px 0px rgba(0,0,0,0.31);
+    background-color: #CCC;
+}
+
+.block .code {
+    font-size: 1.2em;
+    background-color: #111;
+    color: #EEE;
+    font-family: monospace;
+    margin: 0.5em;
+    padding: 0.5em;
+
+}

@@ -73,6 +73,7 @@ def format_func(comment):
     out = ""
     in_comment = False
     for line in comment.split("\n"): 
+        if line.strip() == "": continue
         if not in_comment and line.startswith("//"):
             in_comment = True
             if out:
@@ -86,25 +87,59 @@ def format_func(comment):
             out += line.replace("//", "").strip()
         else:
             out += line
+            if ";" in line:
+                out += "<br>"
     return out
 
 def format_comment(comment):
-    return tag("p", comment.replace("////", "").replace("//", "").strip(), "comment")
+    out = ""
+    in_comment = False
+    for line in comment.split("\n"): 
+        if line.strip() == "": continue
+        if not in_comment and line.startswith("//"):
+            in_comment = True
+            if out:
+                out += "</p>"
+            out += "<p class='ex comment'>"
+        if in_comment and not line.startswith("//"):
+            in_comment = False
+            out += "</p>"
+            out += "<p class='ex code'>"
+        if in_comment:
+            out += line.replace("//", "").strip()
+        else:
+            out += line
+            if ";" in line:
+                out += "<br>"
+    return out
 
-def format_section(comment):
-    return tag("p", comment.replace("//--", "").replace("//", "").strip(), "section")
+def format_desc(comment):
+    return tag("p", comment.replace("//--", "").replace("//", "").strip(), "description")
 
-f = open("doc.html", "w")
-for region in sorted(comments):
-    f.write(tag("h2", region.capitalize(), "section"))
-    for comment_type, comment in sorted(comments[region]):
-        if not comment: continue
-        # Formats the comments to a more suitable HTML format.
-        if comment_type == FUNC:
-            output = format_func(comment)
-        elif comment_type == SECTION:
-            output = format_section(comment)
-        elif comment_type == COMMENT:
-            output = format_comment(comment)
-        f.write(tag("div", output, "block"))
-f.close()
+with open("doc/doc.html", "w") as f:
+    preamble = "\
+<html>\
+    <head>\
+        <title>Fog - Documentation</title>\
+        <meta charset=utf-8>\
+        <link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\">\
+    </head>\
+    <body>"
+    f.write(preamble)
+    for region in sorted(comments):
+        f.write(tag("h2", region.capitalize(), "title"))
+        for comment_type, comment in sorted(comments[region]):
+            if not comment: continue
+            # Formats the comments to a more suitable HTML format.
+            if comment_type == SECTION:
+                output = format_desc(comment)
+                f.write(output)
+                continue
+
+            if comment_type == FUNC:
+                output = format_func(comment)
+            elif comment_type == COMMENT:
+                output = format_comment(comment)
+            f.write(tag("div", output, "block"))
+    f.write("</body></html>")
+    f.close()
