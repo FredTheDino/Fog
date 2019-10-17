@@ -3,6 +3,7 @@ from os import listdir as ls
 import os.path as path
 from functools import reduce
 from enum import Enum
+from highlighter import highlight_code
 
 def search(region, root):
     files_in_lists = [search(f, path.join(root, f)) for f in ls(root)
@@ -87,7 +88,7 @@ def format_comment(comment):
         if in_comment:
             out += " " + line.replace("//", "").strip()
         else:
-            out += " " + line
+            out += " " + highlight_code(line)
             if ";" in line:
                 out += "<br>"
     return out.strip()
