@@ -20,6 +20,7 @@
 #include "platform/input.h"
 #include "renderer/command.h"
 #include "renderer/camera.h"
+#include "logic/logic.h"
 #define OPENGL_RENDERER
 #define OPENGL_TEXTURE_WIDTH 512
 #define OPENGL_TEXTURE_HEIGHT 512
@@ -68,11 +69,19 @@ int main(int argc, char **argv) {
     ASSERT(Renderer::init("Hello there", 500, 500),
            "Failed to initalize renderer");
     Asset::load("data.fog");
+    ASSERT(Logic::init(), "Failed to initalize logic system");
 
     using namespace Input;
     CHECK(add(&mapping, K(ESCAPE), Player::P1, Name::QUIT),
           "Failed to create mapping");
     Game::setup_input();
+
+    for (int i = 0; i < 50; i++) {
+        Logic::Callback callback = [i](f32 percent, f32 time, f32 delta) {
+            LOG("%d, %f", i, time);
+        };
+        Logic::add_to_early_update(callback);
+    }
 
     f32 last_tick = SDL_GetTicks() / 1000.0f;
     while (SDL::running) {
@@ -91,6 +100,7 @@ int main(int argc, char **argv) {
         if (value(&mapping, Player::ANY, Name::QUIT)) {
             SDL::running = false;
         }
+        Logic::early_update(tick, delta);
         Game::update(delta);
 
         START_PERF(RENDER);

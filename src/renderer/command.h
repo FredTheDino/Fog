@@ -1,4 +1,3 @@
-namespace Renderer {
 //--
 // This section contains all the possible ways to render
 // things. This is is not exsaustive and there are some
@@ -8,6 +7,7 @@ namespace Renderer {
 // used since they're a lot safer and simpler than the raw
 // calls.
 //--
+namespace Renderer {
 
 // Initalize the graphics context.
 static bool init(const char *title, int width, int height);
@@ -28,8 +28,7 @@ static void push_quad(Vec2 min, Vec2 max, Vec4 color = V4(1, 1, 1, 1));
 // Queues up a line to be rendered to the screen.
 static void push_line(Vec2 start, Vec2 end, Vec4 start_color, Vec4 end_color,
                       f32 thickness = 0.001);
-static void push_line(Vec2 start, Vec2 end, Vec4 color,
-                      f32 thickness = 0.001);
+static void push_line(Vec2 start, Vec2 end, Vec4 color, f32 thickness = 0.001);
 
 //*
 // Queues up a point to be rendered to the screen.
