@@ -14,12 +14,19 @@ ASSET_FILES = $(shell find res/ -type f -name "*.*")
 ASSET_SOURCE_FILES = $(shell find src/asset/ -type f -name "*.*")
 ASSET_SOURCE_FILES += src/linux_assets.cpp
 SOURCE_FILES = $(shell find src/ -type f -name "*.*")
+DOCUMENTATION_GENERATOR = $(shell python3 doc/doc-builder.py)
+DOCUMENTATION = doc/doc.html
 
 TERMINAL = $(echo $TERM)
 
-.PHONY: default run asset clean debug valgrind
+.PHONY: default run asset clean debug valgrind doc
 
-default: $(ENGINE_PROGRAM_NAME) $(ASSET_OUTPUT)
+default: $(ENGINE_PROGRAM_NAME) $(ASSET_OUTPUT) $(DOCUMENTATION)
+
+doc: $(DOCUMENTATION)
+
+$(DOCUMENTATION) : $(SOURCE_FILES)
+	$(DOCUMENTATION_GENERATOR)
 
 $(ENGINE_PROGRAM_NAME): $(SOURCE_FILES) $(ASSET_OUTPUT) $(ASSET_FILES) $(ASSET_BUILDER_PROGRAM_NAME)
 	mkdir -p bin
@@ -39,6 +46,7 @@ clean:
 	rm -f $(BIN_DIR)/*
 	rm -f data.fog
 	rm -f src/__fog_assets.cpp
+	rm doc/doc.html
 
 run: $(ENGINE_PROGRAM_NAME) 
 	./$(ENGINE_PROGRAM_NAME)
