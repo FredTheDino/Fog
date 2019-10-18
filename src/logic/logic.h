@@ -5,8 +5,21 @@
 #define Function std::function
 //--
 // The logic subsystem is in charge of manageing the updates
-// of the system in various ways.
+// of the system in various ways. You can manually interface
+// with it through the callback interaction. There are 4
+// different times when callbacks are processed:
+// <ul>
+//   <li>pre_update, Before the update</li>
+//   <li>post_update, After the update</li>
+//   <li>pre_draw, Before the draw</li>
+//   <li>post_draw, After the draw</li>
+// </ul>
+// Choosing when to call something can be a bit tricky,
+// but custom UI elements should go in the "post_draw" for
+// example, and if you depend on anything from the "pre_udate"
+// step, "post_update" is the most suitable.
 //--
+
 namespace Logic {
 
 //*
@@ -84,7 +97,7 @@ struct LogicSystem {
     TimerBucket pre_update_bucket;
 } logic_system = {};
 
-//*
+////
 // Registers a function to be called at a specific time,
 // the function may take 3, 2, 1 or 0 arguments, the
 // arguments being:
@@ -95,8 +108,17 @@ struct LogicSystem {
 // </ul>
 // Note that "start" is relative to the game starting and
 // not an absolut time.
+////
+
+// TODO(ed): Add in post_update, pre_draw and post_draw.
+
+//*
+// Adds a callback to the list of callbacks to be called, and
+// checks if the "start" time has passed before updating, stopping
+// all execution after the "end" has been reached.
 static void pre_update(Callback callback, f32 start = 0.0, f32 end = ONCE,
                        f32 spacing = 0.0);
+
 static void pre_update(Function<void(f32, f32)> callback, f32 start = 0.0,
                        f32 end = ONCE, f32 spacing = 0.0);
 static void pre_update(Function<void(f32)> callback, f32 start = 0.0,
@@ -118,7 +140,9 @@ static void pre_update(f32 time, f32 delta);
 // </p>
 // <p>
 // This example modifies the variable <i>score</i> every
-// third second and increases it by 1.
+// third second and increases it by 1. Thus you only
+// have to call pre_update once to call the callback
+// until the end of time.
 // </p>
 int score = 0;
 Function callback = [&score](){
@@ -126,7 +150,6 @@ Function callback = [&score](){
     LOG_MSG("I do stuff every third second!");
 };
 Logic::pre_update(callback, 1.0, Logic::FOREVER, 3.0);
-// Blarg!
 ////
 
 #endif
