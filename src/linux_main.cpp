@@ -21,6 +21,7 @@
 #include "renderer/command.h"
 #include "renderer/camera.h"
 #include "logic/logic.h"
+#include "logic/logic.cpp"
 #define OPENGL_RENDERER
 #define OPENGL_TEXTURE_WIDTH 512
 #define OPENGL_TEXTURE_HEIGHT 512
@@ -76,12 +77,18 @@ int main(int argc, char **argv) {
           "Failed to create mapping");
     Game::setup_input();
 
-    for (int i = 0; i < 50; i++) {
-        Logic::Callback callback = [i](f32 percent, f32 time, f32 delta) {
-            LOG("%d, %f", i, time);
+    for (int i = 0; i < 1; i++) {
+        Function callback = [i](f32 percent, f32 time, f32 delta) {
+            LOG("%f", percent);
         };
-        Logic::add_to_early_update(callback);
+        Logic::pre_update(callback, 1.0, 5.0, 1.0);
     }
+
+    Function callback = [](){
+        LOG_MSG("I do stuff every third second!");
+    };
+    Logic::pre_update(callback, 1.0, Logic::FOREVER, 3.0);
+
 
     f32 last_tick = SDL_GetTicks() / 1000.0f;
     while (SDL::running) {
@@ -100,14 +107,18 @@ int main(int argc, char **argv) {
         if (value(&mapping, Player::ANY, Name::QUIT)) {
             SDL::running = false;
         }
-        Logic::early_update(tick, delta);
+
+        Logic::pre_update(tick, delta);
         Game::update(delta);
+        //Logic::post_update(tick, delta);
 
         START_PERF(RENDER);
         Renderer::clear();
 
         // User defined
+        //Logic::pre_draw(tick, delta);
         Game::draw();
+        //Logic::post_draw(tick, delta);
 
         Renderer::blit();
         STOP_PERF(RENDER);
