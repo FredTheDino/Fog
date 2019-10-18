@@ -108,10 +108,12 @@ def format_comment(comment):
         if in_comment:
             out += line.replace("//", "").strip()
         else:
-            out += line
-            if ";" in line:
-                out += "<br>"
-    return out
+            indent = len(line) - len(line.lstrip())
+            out += "<span indent=\"{}\"></span>"\
+                    .format("#" * indent)
+            out += line.replace("<", "&lt;").replace(">", "&gt;").lstrip()
+            out += "<br>"
+    return out.strip()
 
 def format_desc(comment):
     return tag("p", comment.replace("//--", "").replace("//", "").strip(), "description")
