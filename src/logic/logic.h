@@ -29,6 +29,15 @@ namespace Logic {
 const f32 FOREVER = -1;
 const f32 ONCE = 0;
 
+enum At {
+    PRE_UPDATE,
+    POST_UPDATE,
+    PRE_DRAW,
+    POST_DRAW,
+
+    COUNT,
+};
+
 // Takes in the timestep and delta as arguments.
 typedef Function<void(f32, f32, f32)> Callback;
 
@@ -94,7 +103,7 @@ struct LogicSystem {
     Util::MemoryArena *arena;
     Callback non_function;
 
-    TimerBucket pre_update_bucket;
+    TimerBucket buckets[At::COUNT];
 } logic_system = {};
 
 ////
@@ -116,17 +125,17 @@ struct LogicSystem {
 // Adds a callback to the list of callbacks to be called, and
 // checks if the "start" time has passed before updating, stopping
 // all execution after the "end" has been reached.
-static void pre_update(Callback callback, f32 start = 0.0, f32 end = ONCE,
+static void add_callback(At at, Callback callback, f32 start = 0.0, f32 end = ONCE,
                        f32 spacing = 0.0);
 
-static void pre_update(Function<void(f32, f32)> callback, f32 start = 0.0,
+static void add_callback(At at, Function<void(f32, f32)> callback, f32 start = 0.0,
                        f32 end = ONCE, f32 spacing = 0.0);
-static void pre_update(Function<void(f32)> callback, f32 start = 0.0,
+static void add_callback(At at, Function<void(f32)> callback, f32 start = 0.0,
                        f32 end = ONCE, f32 spacing = 0.0);
-static void pre_update(Function<void()> callback, f32 start = 0.0,
+static void add_callback(At at, Function<void()> callback, f32 start = 0.0,
                        f32 end = ONCE, f32 spacing = 0.0);
 
-static void pre_update(f32 time, f32 delta);
+static void call(At at, f32 time, f32 delta);
 
 }  // namespace Logi
 
@@ -141,7 +150,7 @@ static void pre_update(f32 time, f32 delta);
 // <p>
 // This example modifies the variable <i>score</i> every
 // third second and increases it by 1. Thus you only
-// have to call pre_update once to call the callback
+// have to call add_callback once to call the callback
 // until the end of time.
 // </p>
 int score = 0;
@@ -149,7 +158,7 @@ Function callback = [&score](){
     score++;
     LOG_MSG("I do stuff every third second!");
 };
-Logic::pre_update(callback, 1.0, Logic::FOREVER, 3.0);
+Logic::add_callback(Logic::At::PRE_DRAW, callback, 1.0, Logic::FOREVER, 3.0);
 ////
 
 #endif

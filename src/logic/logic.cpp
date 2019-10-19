@@ -67,29 +67,29 @@ s32 TimerBucket::add_timer(Timer *timer) {
     return id;
 }
 
-static void pre_update(Callback callback, f32 start, f32 end, f32 spacing) {
+static void add_callback(At at, Callback callback, f32 start, f32 end, f32 spacing) {
     if (start == FOREVER) return;
     Timer t = {0, start, start, end, spacing, callback};
-    logic_system.pre_update_bucket.add_timer(&t);
+    logic_system.buckets[at].add_timer(&t);
 }
 
-static void pre_update(Function<void(f32, f32)> callback, f32 start, f32 end, f32 spacing) {
+static void add_callback(At at, Function<void(f32, f32)> callback, f32 start, f32 end, f32 spacing) {
     Callback f = [callback](f32 a, f32 b, f32 c) { callback(a, b); };
-    pre_update(f, start, end, spacing);
+    add_callback(at, f, start, end, spacing);
 }
 
-static void pre_update(Function<void(f32)> callback, f32 start, f32 end, f32 spacing) {
+static void add_callback(At at, Function<void(f32)> callback, f32 start, f32 end, f32 spacing) {
     Callback f = [callback](f32 a, f32 b, f32 c) { callback(a); };
-    pre_update(f, start, end, spacing);
+    add_callback(at, f, start, end, spacing);
 }
 
-static void pre_update(Function<void()> callback, f32 start, f32 end, f32 spacing) {
+static void add_callback(At at, Function<void()> callback, f32 start, f32 end, f32 spacing) {
     Callback f = [callback](f32 a, f32 b, f32 c) { callback(); };
-    pre_update(f, start, end, spacing);
+    add_callback(at, f, start, end, spacing);
 }
 
-static void pre_update(f32 time, f32 delta) {
-    logic_system.pre_update_bucket.update(time, delta);
+static void call(At at, f32 time, f32 delta) {
+    logic_system.buckets[at].update(time, delta);
 }
 
 };

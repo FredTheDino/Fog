@@ -81,13 +81,15 @@ int main(int argc, char **argv) {
         Function callback = [i](f32 percent, f32 time, f32 delta) {
             LOG("%f", percent);
         };
-        Logic::pre_update(callback, 1.0, 5.0, 1.0);
+        Logic::add_callback(Logic::At::PRE_UPDATE, callback, 1.0, 5.0, 1.0);
+        Logic::add_callback(Logic::At::PRE_DRAW, callback, 1.2, 5.0, 1.0);
+        Logic::add_callback(Logic::At::POST_DRAW, callback, 1.4, 5.0, 1.0);
     }
 
     Function callback = [](){
         LOG_MSG("I do stuff every third second!");
     };
-    Logic::pre_update(callback, 1.0, Logic::FOREVER, 3.0);
+    Logic::add_callback(Logic::At::POST_UPDATE, callback, 1.0, Logic::FOREVER, 3.0);
 
 
     f32 last_tick = SDL_GetTicks() / 1000.0f;
@@ -108,17 +110,17 @@ int main(int argc, char **argv) {
             SDL::running = false;
         }
 
-        Logic::pre_update(tick, delta);
+        Logic::call(Logic::At::PRE_UPDATE, tick, delta);
         Game::update(delta);
-        //Logic::post_update(tick, delta);
+        Logic::call(Logic::At::POST_UPDATE, tick, delta);
 
         START_PERF(RENDER);
         Renderer::clear();
 
         // User defined
-        //Logic::pre_draw(tick, delta);
+        Logic::call(Logic::At::PRE_DRAW, tick, delta);
         Game::draw();
-        //Logic::post_draw(tick, delta);
+        Logic::call(Logic::At::POST_DRAW, tick, delta);
 
         Renderer::blit();
         STOP_PERF(RENDER);
