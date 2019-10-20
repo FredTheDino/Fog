@@ -20,6 +20,7 @@ void TimerBucket::update(f32 time, f32 delta) {
         if ((slot + 1) % TIMERS_PER_BLOCK == 0)
             b = b->next;
     }
+    update_max();
 }
 
 s32 TimerBucket::add_timer(Timer *timer) {
@@ -67,26 +68,67 @@ s32 TimerBucket::add_timer(Timer *timer) {
     return id;
 }
 
-static void add_callback(At at, Callback callback, f32 start, f32 end, f32 spacing) {
-    if (start == FOREVER) return;
+void TimerBucket::remove_timer(s32 index) {
+    TimerBucketNode *bucket = &buckets;
+    s32 slot = index;
+    while (slot >= TIMERS_PER_BLOCK) {
+        slot -= TIMERS_PER_BLOCK;
+        bucket = bucket->next;
+    }
+    ASSERT(bucket, "Invalid pointer");
+    ASSERT(slot % TIMERS_PER_BLOCK == 0, "Error in implementation");
+    Timer *timer = bucket->timers + slot;
+    ASSERT(timer->used(), "Cannot delete allready deleted timer");
+    next_free = timer->kill(next_free);
+    update_max();
+}
+
+void TimerBucket::update_max() {
+    update_max(0, &buckets);
+}
+
+void TimerBucket::update_max(s32 bucket_index, TimerBucketNode *node) {
+    if (!node) return;
+    s32 slot = (bucket_index + 1) * TIMERS_PER_BLOCK;
+    if (slot > max_id) return;
+    update_max(bucket_index + 1, node->next);
+    s32 relative_slot = MIN(slot, max_id);
+    while (relative_slot == max_id) {
+        if (node->timers[relative_slot].used()) break;
+        relative_slot--;
+        max_id--;
+    }
+}
+
+static LogicID add_callback(At at, Callback callback, f32 start, f32 end, f32 spacing) {
+    ASSERT(start != FOREVER, "I'm sorry Dave, I can't let you do that.");
     Timer t = {0, start, start, end, spacing, callback};
-    logic_system.buckets[at].add_timer(&t);
+    return {at, logic_system.buckets[at].add_timer(&t)};
 }
 
-static void add_callback(At at, Function<void(f32, f32)> callback, f32 start, f32 end, f32 spacing) {
+static LogicID add_callback(At at, Function<void(f32, f32)> callback, f32 start, f32 end, f32 spacing) {
     Callback f = [callback](f32 a, f32 b, f32 c) { callback(a, b); };
-    add_callback(at, f, start, end, spacing);
+    return add_callback(at, f, start, end, spacing);
 }
 
-static void add_callback(At at, Function<void(f32)> callback, f32 start, f32 end, f32 spacing) {
+static LogicID add_callback(At at, Function<void(f32)> callback, f32 start, f32 end, f32 spacing) {
     Callback f = [callback](f32 a, f32 b, f32 c) { callback(a); };
-    add_callback(at, f, start, end, spacing);
+    return add_callback(at, f, start, end, spacing);
 }
 
-static void add_callback(At at, Function<void()> callback, f32 start, f32 end, f32 spacing) {
+static LogicID add_callback(At at, Function<void()> callback, f32 start, f32 end, f32 spacing) {
     Callback f = [callback](f32 a, f32 b, f32 c) { callback(); };
-    add_callback(at, f, start, end, spacing);
+    return add_callback(at, f, start, end, spacing);
 }
+
+static void remove_callback(LogicID id) {
+    ASSERT(0 <= id.at && id.at <= At::COUNT && 0 <= id.index,
+            "Invalid logic id");
+    logic_system.buckets[id.at].remove_timer(id.index);   
+}
+
+//static void update_callback(LogicID id,) {
+//}
 
 static void call(At at, f32 time, f32 delta) {
     logic_system.buckets[at].update(time, delta);

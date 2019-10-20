@@ -87,10 +87,14 @@ int main(int argc, char **argv) {
     }
 
     Function callback = [](){
-        LOG_MSG("I do stuff every third second!");
+        LOG_MSG("I do stuff!");
     };
-    Logic::add_callback(Logic::At::POST_UPDATE, callback, 1.0, Logic::FOREVER, 3.0);
-
+    Logic::LogicID id = Logic::add_callback(Logic::At::POST_UPDATE, callback,
+                                            0.0, Logic::FOREVER, 1.0);
+    Function callback_2 = [id](){
+        Logic::remove_callback(id);
+    };
+    Logic::add_callback(Logic::At::POST_UPDATE, callback_2, 1.5);
 
     f32 last_tick = SDL_GetTicks() / 1000.0f;
     while (SDL::running) {
@@ -105,6 +109,7 @@ int main(int argc, char **argv) {
         frame(&mapping);
         STOP_PERF(INPUT);
         SDL::poll_events();
+
 
         if (value(&mapping, Player::ANY, Name::QUIT)) {
             SDL::running = false;

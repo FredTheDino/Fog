@@ -52,6 +52,10 @@ struct Timer {
     bool active(f32 time, s32 slot) {
         return id == slot && next <= time;
     }
+
+    bool used() {
+        return id >= 0;
+    }
     
     bool done(f32 time) {
         return end <= time && end != FOREVER;
@@ -84,6 +88,11 @@ struct Timer {
 
 const s32 TIMERS_PER_BLOCK = 32;
 
+struct LogicID {
+    At at;
+    s32 index;
+};
+
 struct TimerBucket {
     s32 max_id = 0;
     s32 next_free = 0;
@@ -95,6 +104,9 @@ struct TimerBucket {
     TimerBucketNode buckets;
 
     s32 add_timer(Timer *timer);
+    void remove_timer(s32 index);
+    void update_max();
+    void update_max(s32 bucket_index, TimerBucketNode *node);
 
     void update(f32 time, f32 delta);
 };
@@ -125,15 +137,17 @@ struct LogicSystem {
 // Adds a callback to the list of callbacks to be called, and
 // checks if the "start" time has passed before updating, stopping
 // all execution after the "end" has been reached.
-static void add_callback(At at, Callback callback, f32 start = 0.0, f32 end = ONCE,
+static LogicID add_callback(At at, Callback callback, f32 start = 0.0, f32 end = ONCE,
                        f32 spacing = 0.0);
 
-static void add_callback(At at, Function<void(f32, f32)> callback, f32 start = 0.0,
+static LogicID add_callback(At at, Function<void(f32, f32)> callback, f32 start = 0.0,
                        f32 end = ONCE, f32 spacing = 0.0);
-static void add_callback(At at, Function<void(f32)> callback, f32 start = 0.0,
+static LogicID add_callback(At at, Function<void(f32)> callback, f32 start = 0.0,
                        f32 end = ONCE, f32 spacing = 0.0);
-static void add_callback(At at, Function<void()> callback, f32 start = 0.0,
+static LogicID add_callback(At at, Function<void()> callback, f32 start = 0.0,
                        f32 end = ONCE, f32 spacing = 0.0);
+
+static void remove_callback(LogicID id);
 
 static void call(At at, f32 time, f32 delta);
 
