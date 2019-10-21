@@ -9,7 +9,7 @@
 #include "math/block_math.h"
 
 #include "asset/asset.h"
-#include "fog_assets"
+#include "../fog_assets.cpp"
 
 #include "renderer/text.h"
 
@@ -20,6 +20,8 @@
 #include "platform/input.h"
 #include "renderer/command.h"
 #include "renderer/camera.h"
+#include "logic/logic.h"
+#include "logic/logic.cpp"
 #define OPENGL_RENDERER
 #define OPENGL_TEXTURE_WIDTH 512
 #define OPENGL_TEXTURE_HEIGHT 512
@@ -59,7 +61,7 @@ u64 Perf::highp_now() {
 #include "math.h"
 f32 rand_real() { return ((f32) rand() / (f32) RAND_MAX) * 2.0 - 1.0; }
 
-#include "boilerplate/lines_on_a_grid.cpp"
+#include "../game/lines_on_a_grid.cpp"
 #ifndef FOG_GAME
 #   error "No game found"
 //
@@ -74,6 +76,7 @@ int main(int argc, char **argv) {
     ASSERT(Mixer::init(),
             "Failed to initalize audio mixer");
     Asset::load("data.fog");
+    ASSERT(Logic::init(), "Failed to initalize logic system");
 
     using namespace Input;
     CHECK(add(&mapping, K(ESCAPE), Player::P1, Name::QUIT),
@@ -94,16 +97,20 @@ int main(int argc, char **argv) {
         STOP_PERF(INPUT);
         SDL::poll_events();
 
-        if (value(&mapping, Player::ANY, Name::QUIT)) {
+        if (value(&mapping, Player::ANY, Name::QUIT))
             SDL::running = false;
-        }
+
+        Logic::call(Logic::At::PRE_UPDATE, tick, delta);
         Game::update(delta);
+        Logic::call(Logic::At::POST_UPDATE, tick, delta);
 
         START_PERF(RENDER);
         Renderer::clear();
 
         // User defined
+        Logic::call(Logic::At::PRE_DRAW, tick, delta);
         Game::draw();
+        Logic::call(Logic::At::POST_DRAW, tick, delta);
 
         Renderer::blit();
         STOP_PERF(RENDER);

@@ -138,4 +138,34 @@ struct InputEvent {
     bool pressed;
     f32 value;
 };
+
+#ifdef _EXAMPLE_
+//*
+// Register a new mapping to the input system. <br>
+// mapping - The input map, a global one is provided by the engine as "mapping".
+// code - The keycode, K(a) generates the keycode for pressing "a".
+// player - The player that has this binding, can be P1, P2, P3, P4.
+static bool add(Mapping *mapping, InputCode code, Player player, Name name);
+
+//*
+// Returns true if the input was pressed or released this frame.
+static bool triggered(Mapping *mapping, Player player, Name name);
+
+//*
+// Returns true if the input was pressed this frame.
+static bool pressed(Mapping *mapping, Player player, Name name);
+
+//*
+// Returns true if the input was released this frame.
+static bool released(Mapping *mapping, Player player, Name name);
+
+//*
+// Returns true if the input is down.
+static bool down(Mapping *mapping, Player player, Name name);
+	
+//*
+// Returns the value of the input, usefull for aalog input.
+static f32 value(Mapping *mapping, Player player, Name name);
+#endif
+
 };  // namespace Input

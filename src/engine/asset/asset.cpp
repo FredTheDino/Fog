@@ -51,6 +51,7 @@ size_t read_from_file(FILE *stream, void *ptr, size_t num = 1) {
 void load(const char *file_path) {
     system.arena = Util::request_arena();
     FILE *file = fopen(file_path, "rb");
+    ASSERT(file, "Failed to open resource file!");
 
     read_from_file<FileHeader>(file, &system.file_header);
     u32 num_assets = system.file_header.number_of_assets;

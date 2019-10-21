@@ -1,7 +1,9 @@
+#!/usr/bin/python3
 from os import listdir as ls
 import os.path as path
-from functools import reduce 
+from functools import reduce
 from enum import Enum
+from highlighter import highlight_code
 
 def search(region, root):
     files_in_lists = [search(f, path.join(root, f)) for f in ls(root)
@@ -69,28 +71,6 @@ def tag(tag, content, html_class=""):
     html_class = " class='{}'".format(html_class) if html_class else ""
     return "<{}{}>{}</{}>".format(tag, html_class, content, tag)
 
-def format_func(comment):
-    out = ""
-    in_comment = False
-    for line in comment.split("\n"): 
-        if line.strip() == "": continue
-        if not in_comment and line.startswith("//"):
-            in_comment = True
-            if out:
-                out += "</p>"
-            out += "<p class='func comment'>"
-        if in_comment and not line.startswith("//"):
-            in_comment = False
-            out += "</p>"
-            out += "<p class='func code'>"
-        if in_comment:
-            out += line.replace("//", "").strip()
-        else:
-            out += line
-            if ";" in line:
-                out += "<br>"
-    return out
-
 def format_comment(comment):
     out = ""
     in_comment = False
@@ -106,12 +86,14 @@ def format_comment(comment):
             out += "</p>"
             out += "<p class='ex code'>"
         if in_comment:
-            out += line.replace("//", "").strip()
+            out += " " + line.replace("//", "").strip()
         else:
-            out += line
-            if ";" in line:
-                out += "<br>"
-    return out
+            indent = len(line) - len(line.lstrip())
+            out += "<span indent=\"{}\"></span>"\
+                    .format("#" * indent)
+            out += highlight_code(line.replace("<", "&lt;").replace(">", "&gt;").lstrip())
+            out += "<br>"
+    return out.strip()
 
 def format_desc(comment):
     return tag("p", comment.replace("//--", "").replace("//", "").strip(), "description")
@@ -133,13 +115,11 @@ with open("doc/doc.html", "w") as f:
             # Formats the comments to a more suitable HTML format.
             if comment_type == SECTION:
                 output = format_desc(comment)
-                f.write(output)
-                continue
 
-            if comment_type == FUNC:
-                output = format_func(comment)
-            elif comment_type == COMMENT:
+            if comment_type == FUNC or comment_type == COMMENT:
                 output = format_comment(comment)
-            f.write(tag("div", output, "block"))
+                output = tag("div", output, "block")
+
+            f.write(output)
     f.write("</body></html>")
     f.close()
