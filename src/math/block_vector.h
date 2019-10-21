@@ -8,6 +8,7 @@ struct Vec4;
 
 #define FLOAT_EQ_MARGIN 0.0000001
 
+
 // SIMD this, later OFC.
 struct Vec2 {
     union {
@@ -78,8 +79,6 @@ real angle(Vec2 p) {
     if (isnan(angle)) return SIGN(p.y) * -PI;
     return angle;
 }
-
-real mod(real a, real b) { return a - floor(a / b) * b; }
 
 struct Vec3 {
     union {
@@ -235,5 +234,120 @@ Vec2 V2(real x, real y) { return {x, y}; }
 Vec3 V3(real x, real y, real z) { return {x, y, z}; }
 
 Vec4 V4(real x, real y, real z, real w) { return {x, y, z, w}; }
+
+#ifdef _EXAMPLE_
+////
+// <h3>Vec2</h3>
+// A 2d vector, each element can be accessed indivisually (x, y) or through the
+// _[n], where n is the component you want to access. All vector oprations
+// return a new vector, thus you don't have to care about modifying old valus. <br>
+// Overloaded operators:
+// <ul>
+// 		<li>uniary -, negates the compoents of the vector</li>
+// 		<li>binary -, subtracts the components of the two vectors</li>
+// 		<li>binary +, adds the components the of two vectors</li>
+// 		<li>binary *, multiplies the vector by a scalar</li>
+// 		<li>binary /, divides the vector by a scalar</li>
+// 		<li>binary ==, Checks if the numbers are equal to a cirtain margin</li>
+// </ul>
+struct Vec2;
+// The other functions that can be used on a Vec2 are.<br>
+// <hr>
+// a dot b, component wise multiplication and addition.
+real dot(Vec2 a, Vec2 b);
+// |a|*|a|
+real length_squared(Vec2 a);
+// |a|
+real length(Vec2 a);
+// a / |a|
+Vec2 normalize(Vec2 a);
+// Component wise multiplication.
+Vec2 hadamard(Vec2 a, Vec2 b);
+// 1.0 / a
+Vec2 inverse(Vec2 a);
+// {-y, x}
+Vec2 rotate_ccw(Vec2 p);
+// Rotates the vector "p" by "angle"
+Vec2 rotate(Vec2 p, real angle);
+// Returns the angle of "p" relative to the x-axis.
+real angle(Vec2 p);
+// <br>
+// Constructs a new Vec2, can be used as default argument.
+Vec2 V2(real x, real y);
+// Padds out a V3 with zeroes, returning {x, y, 0}
+Vec3 V3(Vec2 a);
+// Padds out a V4 with appropriate lements, {x, y, 0, x4}
+Vec4 V4(Vec2 a, x4=1.0);
+////
+
+////
+// <h3>Vec3</h3>
+// A 3d vector, each element can be accessed indivisually (x, y, z) or through the
+// _[n], where n is the component you want to access. All vector oprations
+// return a new vector, thus you don't have to care about modifying old valus. <br>
+// Overloaded operators:
+// <ul>
+// 		<li>uniary -, negates the compoents of the vector</li>
+// 		<li>binary -, subtracts the components of the two vectors</li>
+// 		<li>binary +, adds the components the of two vectors</li>
+// 		<li>binary *, multiplies the vector by a scalar</li>
+// 		<li>binary /, divides the vector by a scalar</li>
+// 		<li>binary ==, Checks if the numbers are equal to a cirtain margin</li>
+// </ul>
+struct Vec3;
+// The other functions that can be used on a Vec3 are.<br>
+// <hr>
+// a dot b, component wise multiplication and addition.
+real dot(Vec3 a, Vec3 b);
+// Returns a vector perpendicular to "a" and "b".
+Vec3 cross(Vec3 a, Vec3 b) {
+// |a|
+real length(Vec3 a);
+// |a|*|a|
+real length_squared(Vec3 a);
+// |a|*|a|*|a|
+real length_squared(Vec3 a);
+// a / |a|
+Vec3 normalize(Vec3 a);
+// <br>
+// Cuts the last value, returning {x, y}
+Vec2 V2(Vec3 a);
+// Creates a new Vec3.
+Vec3 V3(real x, real y, real z);
+// Padds out a V4 with appropriate lements, {x, y, z, x4}
+Vec4 V4(Vec2 a, x4=1.0);
+////
+
+////
+// <h3>Vec4</h3>
+// A 4d vector, each element can be accessed indivisually (x, y, z, w) or through the
+// _[n], where n is the component you want to access. All vector oprations
+// return a new vector, thus you don't have to care about modifying old valus. <br>
+// Overloaded operators:
+// <ul>
+// 		<li>uniary -, negates the compoents of the vector</li>
+// 		<li>binary -, subtracts the components of the two vectors</li>
+// 		<li>binary +, adds the components the of two vectors</li>
+// 		<li>binary *, multiplies the vector by a scalar</li>
+// 		<li>binary /, divides the vector by a scalar</li>
+// 		<li>binary ==, Checks if the numbers are equal to a cirtain margin</li>
+// </ul>
+struct Vec3;
+// The other functions that can be used on a Vec4 are.<br>
+// <hr>
+// a dot b, component wise multiplication and addition.
+real dot(Vec4 a, Vec4 b);
+// |a|*|a|
+real length_squared(Vec4 a);
+// |a|
+real length(Vec4 a);
+// a / |a|
+Vec4 normalize(Vec4 a);
+// <br>
+// Creates a new Vec4.
+Vec4 V4(real x, real y, real z);
+////
+
+#endif
 
 #pragma pack(pop)

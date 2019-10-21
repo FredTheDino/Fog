@@ -48,6 +48,59 @@ typedef f32 real;  // Type used in vectors.
 
 #define LEN(a) (sizeof(a) / sizeof(a[0]))
 
+#ifdef _EXAMPLE_
+
+//*
+// Returns the larger of "a" and "b" using the "<" operator.
+MAX(a, b)
+
+//*
+// Returns the smaller of "a" and "b" using the "<" operator.
+MIN(a, b)
+
+//*
+// Returns the larger absolut value of "a" and "b" using the "<" operator.
+ABS_MAX(a, b)
+
+//*
+// Returns the smaller absolut value of "a" and "b" using the "<" operator.
+ABS_MIN(a, b)
+
+//*
+// Lerps between "a" and "b" using the factor "l".
+LERP(a, l, b)
+
+//*
+// Clamps the value of "v" between "min" and "max".
+CLAMP(min, max, v)
+
+//*
+// Returns the sign of of "n", where n == 0 => 1
+SIGN_NO_ZERO(n)
+
+//*
+// Returns the sign of of "n", where n == 0 => 0
+SIGN(n)
+
+//*
+// Returns true of "l < v < h""
+IN_RANGE(l, h, v) 
+
+//*
+// Returns the absolute value of "n".
+ABS(n)
+
+//*
+// a mod b, where b is allowed to be a float. Not as fast as the
+// built in "%" operator.
+MOD(a, b)
+
+//*
+// Squares "a".
+SQ(a)
+
+#endif
+
 #include "block_vector.h"
 #include "block_quaternion.h"
 #include "block_matrix.h"
