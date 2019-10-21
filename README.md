@@ -16,10 +16,19 @@ dependencies installed:
 You can now run the different make commands:
 
 ### Make
- - make: Compiles the project.
- - make run: Compiles and runs the project.
- - make clean: Removes all outputted build files.
- - make debug: Compiles and starts gdb (if you have it installed).
+```bash
+make        # Compiles the project.
+```
+```bash
+make run    # Compiles and runs the project.
+```
+```bash
+make clean  # Removes all outputted build files.
+```
+```bash
+make debug  # Compiles and starts gdb (if you have it installed).
+```
+
 There are more commands you can run, and you can of course tweak the
 build options in the make file, but that's the gist of it.
 
