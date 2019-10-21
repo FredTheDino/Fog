@@ -1,13 +1,39 @@
-TO_HIGHLIGHT = {"static", "void", "Vec2", "Vec3", "Vec4", "f32"}
+TYPE_COLOR = "#f80"
+TYPE_STRINGS = {
+    "static", "void", "Vec2", "Vec3", "Vec4", "f32", "LogicID",
+    "Callback", "At", "const", "bool", "int", "Function", "struct",
+    "real", "s8", "s16", "s32", "s64", "u8", "u16", "u32", "u64",
+    "AssetID", "Mapping", "InputCode", "Player", "Name"
+}
+
+MACRO_COLOR = "#0ff"
+MACRO_STRINGS = {
+    "LOG_MSG", "CLAMP", "LERP", "ABS", "ABS_MAX", "MAX", "SIGN",
+    "SIGN_NO_ZERO", "ABS_MIN", "MIN", "IN_RANGE", "SQ", "MOD"
+}
+
+NUMBER_COLOR = "#f4f"
+
+SPLIT_SEPS = set(" ,;()\n")
 
 def highlight_code(line):
     """ Adds orange color to words marked to be highlighted """
     def highlight(word):
-        if word in TO_HIGHLIGHT:
-            return '<span style="color: #f80">' + word + '</span>'
+        if word in TYPE_STRINGS:
+            return color_html(word, TYPE_COLOR)
+        if word in MACRO_STRINGS:
+            return color_html(word, MACRO_COLOR)
+        if is_number(word):
+            return color_html(word, NUMBER_COLOR)
         return word
 
-    return "".join([highlight(w) + s for w, s in zip(*split_all(line, " ,;()"))])
+
+    return "".join([highlight(w) + s for w, s in zip(*split_all(line, SPLIT_SEPS))])
+
+
+def color_html(string, color):
+    """ Wrap a string in a span with color specified as style. """
+    return '<span style="color: {}">{}</span>'.format(color, string)
 
 
 def split_all(string, sep):
@@ -49,3 +75,8 @@ def split_all(string, sep):
         splits.append("")
 
     return words, splits
+
+
+def is_number(string):
+    """ Return whether or not a string is a number """
+    return string.lstrip("-").replace(".", "", 1).isdigit()
