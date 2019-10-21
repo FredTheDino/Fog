@@ -57,6 +57,18 @@ static void push_point(Vec2 point, Vec4 color, f32 size) {
     Impl::push_point(point, color, size);
 }
 
+static void push_sprite(Vec2 position, Vec2 dimension, AssetID texture,
+						s32 x, s32 y, s32 w, s32 h, Vec4 color) {
+	Image *image = Asset::fetch_image(texture);
+	f32 inv_width = 1.0 / (f32) image->width;
+	f32 inv_height = 1.0 / (f32) image->height;
+	Vec2 uv_min = V2(x * inv_width, y * inv_height);
+	Vec2 uv_max = V2((x + w) * inv_width, (y + h) * inv_height);
+	push_quad(position - dimension * 0.5, uv_min, 
+			  position + dimension * 0.5, uv_max,
+			  image->id, color);
+}
+
 static void push_sdf_quad(Vec2 min, Vec2 max, Vec2 min_uv, Vec2 max_uv,
                           int sprite, Vec4 color, f32 low, f32 high,
                           bool border) {
