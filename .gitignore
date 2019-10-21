@@ -38,3 +38,6 @@ vgcore.*
 tags
 
 doc/doc.html
+src/fog_assets.cpp
+
+*/__pycache__
