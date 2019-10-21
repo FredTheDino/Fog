@@ -6,6 +6,29 @@
 
 A "simple" and efficient game engine made with thought, care and OpenSource.
 
+## Quickstart guide
+To compile, assuming you're on Linux, make sure you have the following
+dependencies installed:
+ - OpenGL driver
+ - g++/clang++
+ - C-stdlib
+ - A window manager of choice
+You can now run the different make commands:
+
+### Make
+ - make: Compiles the project.
+ - make run: Compiles and runs the project.
+ - make clean: Removes all outputted build files.
+ - make debug: Compiles and starts gdb (if you have it installed).
+There are more commands you can run, and you can of course tweak the
+build options in the make file, but that's the gist of it.
+
+### Writing code
+The code goes in "src/game", here you are free to include anything you
+please. Note that the engine is build using a JUMBO build system,
+so there is no shame in linking in source files and headers, since
+that's what the makefile is set up for.
+
 ## Goals
 Simple, open and efficient.
 
@@ -30,7 +53,6 @@ to "draw_sprite", the renderer should figure the rest out, this is
 precisely the idea. Making it possible to do what you want to do in an
 efficient way.
 
-
 ## Anti-Goals
 "Fog" is **NOT** a noob friendly API or an engine for "AAA" games.
 There are already other alternatives, like Unity, Unreal and GameMaker,
@@ -41,7 +63,7 @@ management.
 "Fog" is **NOT** the simplest engine for the job. It's okay to have features
 that not everyone will use. As long as they're optional.
 
-
+<!--- Bellow is a feature list, not yet set in stone.
 # Features
 
  - The beginning of a robust rendering API.
@@ -138,4 +160,4 @@ Features with a "?" at the end are suggested and are subject to change.
  - [ ] Layers, a way so not everything collides.
  - [ ] Triggers, elements not interacting with the collisions but generating of events.
  - [ ] Efficient implementation O(n log(n)) in average case.
-
+-->
