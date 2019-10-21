@@ -10,22 +10,25 @@ void audio_callback(void* userdata, u8* stream, int len) {
 }
 
 bool init() {
+    audio_mixer.arena = Util::request_arena();
 
     SDL_AudioSpec want = {};
-    want.freq = 48000;
+    want.freq = audio_mixer.freq;
     want.format = AUDIO_F32;
-    want.samples = 4096;
-    want.channels = 1;
+    want.samples = 2048;
+    want.channels = 2;
     want.callback = audio_callback;
 
+    // Let SDL handle the translation for us.
     SDL_AudioSpec have;
     SDL_AudioDeviceID dev;
     dev = SDL_OpenAudioDevice(NULL, 0, &want, &have, 0);
     if (dev <= 0) {
         ERR("%s", SDL_GetError());
+        return false;
     }
+    
     SDL_PauseAudioDevice(dev, 0);
-    LOG("%d, %d", want.freq, have.freq);
     return true;
 }
 
