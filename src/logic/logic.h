@@ -41,20 +41,44 @@ enum At {
 // Takes in the timestep and delta as arguments.
 typedef Function<void(f32, f32, f32)> Callback;
 
+const s32 TIMERS_PER_BLOCK = 32;
+
+//*
+// An ID representing a callback that is being called
+// in the future.
+struct LogicID;
+
+struct LogicID {
+    At at;
+    s32 id;
+    u8 gen;
+
+    bool operator==(LogicID &other) const {
+        return at == other.at
+            && gen == other.gen
+            && id == other.id;
+    }
+};
+
 struct Timer {
     s32 id;
+    u8 gen;
     f32 start;
     f32 next;
     f32 end;
     f32 spacing;
     Callback callback;
 
-    bool active(f32 time, s32 slot) {
-        return id == slot && next <= time;
+    bool active(f32 time, s32 in_id) {
+        return in_id == id && next <= time;
     }
 
     bool used() {
         return id >= 0;
+    }
+
+    bool is(s32 in_id, u8 in_gen) {
+        return in_id == id && in_gen == gen;
     }
     
     bool done(f32 time) {
@@ -86,15 +110,8 @@ struct Timer {
     }
 };
 
-const s32 TIMERS_PER_BLOCK = 32;
-
-struct LogicID {
-    At at;
-    s32 index;
-};
-
 struct TimerBucket {
-    s32 max_id = 0;
+    s32 maximum_slot = 0;
     s32 next_free = 0;
 
     struct TimerBucketNode {
@@ -103,8 +120,9 @@ struct TimerBucket {
     };
     TimerBucketNode buckets;
 
-    s32 add_timer(Timer *timer);
-    void remove_timer(s32 index);
+    LogicID add_timer(Timer *timer);
+    void remove_timer(LogicID id);
+    Timer *get_timer(s32 index);
     void update_max();
     void update_max(s32 bucket_index, TimerBucketNode *node);
 
@@ -121,7 +139,7 @@ struct LogicSystem {
 ////
 // Registers a function to be called at a specific time,
 // the function may take 3, 2, 1 or 0 arguments, the
-// arguments being:
+// arguments being ordered:
 // <ul>
 //     <li> Time since last frame. (delta)</li>
 //     <li> Current time stamp. (time)</li>
@@ -137,17 +155,40 @@ struct LogicSystem {
 // Adds a callback to the list of callbacks to be called, and
 // checks if the "start" time has passed before updating, stopping
 // all execution after the "end" has been reached.
-static LogicID add_callback(At at, Callback callback, f32 start = 0.0, f32 end = ONCE,
-                       f32 spacing = 0.0);
+static LogicID add_callback(At at, Callback callback, f32 start = 0.0,
+                            f32 end = ONCE, f32 spacing = 0.0);
 
-static LogicID add_callback(At at, Function<void(f32, f32)> callback, f32 start = 0.0,
-                       f32 end = ONCE, f32 spacing = 0.0);
-static LogicID add_callback(At at, Function<void(f32)> callback, f32 start = 0.0,
-                       f32 end = ONCE, f32 spacing = 0.0);
+static LogicID add_callback(At at, Function<void(f32, f32)> callback,
+                            f32 start = 0.0, f32 end = ONCE, f32 spacing = 0.0);
+static LogicID add_callback(At at, Function<void(f32)> callback,
+                            f32 start = 0.0, f32 end = ONCE, f32 spacing = 0.0);
 static LogicID add_callback(At at, Function<void()> callback, f32 start = 0.0,
-                       f32 end = ONCE, f32 spacing = 0.0);
+                            f32 end = ONCE, f32 spacing = 0.0);
 
+//*
+// [Might Delete]
+// Replaces a callback with another one, thus removing one and replacing
+// the old one with the new callback.
+static void update_callback(LogicID id, Callback callback, f32 start, f32 end,
+                            f32 spacing);
+
+static void update_callback(LogicID at, Function<void(f32, f32)> callback,
+                               f32 start = 0.0, f32 end = ONCE,
+                               f32 spacing = 0.0);
+static void update_callback(LogicID at, Function<void(f32)> callback,
+                               f32 start = 0.0, f32 end = ONCE,
+                               f32 spacing = 0.0);
+static void update_callback(LogicID at, Function<void()> callback,
+                               f32 start = 0.0, f32 end = ONCE,
+                               f32 spacing = 0.0);
+
+//*
+// Stops a callback from being called, making sure it is never updated again.
 static void remove_callback(LogicID id);
+
+//*
+// Returns true if the callback is going to be used sometime in the future.
+static bool used_callback(LogicID id);
 
 static void call(At at, f32 time, f32 delta);
 

@@ -77,25 +77,6 @@ int main(int argc, char **argv) {
           "Failed to create mapping");
     Game::setup_input();
 
-    for (int i = 0; i < 1; i++) {
-        Function callback = [i](f32 percent, f32 time, f32 delta) {
-            LOG("%f", percent);
-        };
-        Logic::add_callback(Logic::At::PRE_UPDATE, callback, 1.0, 5.0, 1.0);
-        Logic::add_callback(Logic::At::PRE_DRAW, callback, 1.2, 5.0, 1.0);
-        Logic::add_callback(Logic::At::POST_DRAW, callback, 1.4, 5.0, 1.0);
-    }
-
-    Function callback = [](){
-        LOG_MSG("I do stuff!");
-    };
-    Logic::LogicID id = Logic::add_callback(Logic::At::POST_UPDATE, callback,
-                                            0.0, Logic::FOREVER, 1.0);
-    Function callback_2 = [id](){
-        Logic::remove_callback(id);
-    };
-    Logic::add_callback(Logic::At::POST_UPDATE, callback_2, 1.5);
-
     f32 last_tick = SDL_GetTicks() / 1000.0f;
     while (SDL::running) {
         f32 tick = SDL_GetTicks() / 1000.0f;
@@ -110,10 +91,8 @@ int main(int argc, char **argv) {
         STOP_PERF(INPUT);
         SDL::poll_events();
 
-
-        if (value(&mapping, Player::ANY, Name::QUIT)) {
+        if (value(&mapping, Player::ANY, Name::QUIT))
             SDL::running = false;
-        }
 
         Logic::call(Logic::At::PRE_UPDATE, tick, delta);
         Game::update(delta);
