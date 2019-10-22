@@ -6,13 +6,13 @@ TYPE_STRINGS = {
     "AssetID", "Mapping", "InputCode", "Player", "Name"
 }
 
-MACRO_COLOR = "#0ff"
+MACRO_COLOR = "#0cc"
 MACRO_STRINGS = {
     "LOG_MSG", "CLAMP", "LERP", "ABS", "ABS_MAX", "MAX", "SIGN",
     "SIGN_NO_ZERO", "ABS_MIN", "MIN", "IN_RANGE", "SQ", "MOD"
 }
 
-NUMBER_COLOR = "#f4f"
+NUMBER_COLOR = "#c8c"
 
 SPLIT_SEPS = set(" ,;()\n")
 
