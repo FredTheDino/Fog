@@ -18,6 +18,37 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+//
+// Used to read in the WAV header.
+//
+struct WAVHeader {
+	char riff[4];
+	s32 size;
+	char wave[4];
+
+	// FMT chunk
+	char fmt[4];
+	s32 fmt_size;
+	s16 format;
+	s16 channels;
+	s32 sample_rate;
+	s32 byte_rate;
+	s16 block_align;
+	s16 bitdepth;
+
+};
+
+struct WAVChunk {
+	char type[4];
+	s32 size;
+};
+
+struct WAVData {
+    u32 size;
+    f32 *data;
+    WAVData *next;
+};
+
 struct AssetFile {
     Asset::FileHeader header;
     std::vector<Asset::Header> asset_headers;
@@ -167,8 +198,40 @@ void load_font(AssetFile *file, Asset::Header *header) {
     add_asset_to_file(file, header, &asset);
 }
 
-void load_atlas(AssetFile *file, Asset::Header header) {
+void load_atlas(AssetFile *file, Asset::Header *header) {
     // TODO:
+}
+
+void load_sound(AssetFile *file, Asset::Header *header) {
+    FILE *wav_file = fopen(header->file_path, "rb");
+    fseek(wav_file, 0, SEEK_END);
+    long end = ftell(wav_file);
+    rewind(wav_file);
+
+    WAVHeader wav_header;
+    fread((WAVHeader *) &wav_header, sizeof(wav_header), 1, wav_file);
+    if (wav_header.format != 1) {
+        printf("Failed to load \"%s\", only accepts uncompressed data (%d)\n",
+               header->file_path, wav_header.format);
+        fclose(wav_file);
+        return;
+    }
+    WAVData data = {};
+    WAVData *curr = &data;
+    while (end != ftell(wav_file)) {
+        WAVChunk chunk;
+        fread(&chunk, sizeof(WAVChunk), 1, wav_file);
+        if (chunk.type[0] == 'd' && chunk.type[1] == 'a' &&
+            chunk.type[2] == 't' && chunk.type[3] == 'a') {
+            curr->size = chunk.size;
+            curr->data = (f32 *) malloc(chunk.size);
+            curr->next = (WAVData *) malloc(sizeof(WAVData));
+            fread((void *) curr->data, 1, chunk.size, wav_file);
+            curr = curr->next;
+        } else {
+            fseek(wav_file, chunk.size, SEEK_CUR);
+        }
+    }
 }
 
 void process_asset(AssetFile *file, const std::string *path) {
@@ -185,6 +248,9 @@ void process_asset(AssetFile *file, const std::string *path) {
             break;
         case (Asset::Type::FONT):
             load_font(file, &header);
+            break;
+        case (Asset::Type::SOUND):
+            load_sound(file, &header);
             break;
         case (Asset::Type::ATLAS):
             // load_atlas(file, header);
@@ -303,12 +369,16 @@ int main(int nargs, char **vargs) {
 
     // Sound
     valid_endings[".wav"] = Asset::Type::SOUND;
+    // TODO(ed): This might be nice to have
+    // valid_endings[".ogg"] = Asset::Type::SOUND;
 
-    // Config files?
+    // Config files? Is this a good idea?
     valid_endings[".cfg"] = Asset::Type::CONFIG;
 
     printf("\n\t=== ASSET FINDING ===\n");
 
+    // TODO(ed): Some form of compression on this data
+    // would make it a lot less space savy
     AssetFile file = {};
     const char *out_path = "bin/data.fog";
     for (int i = 0; i < nargs; i++) {
