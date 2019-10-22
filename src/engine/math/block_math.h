@@ -42,7 +42,7 @@ typedef f32 real;  // Type used in vectors.
 
 #define ABS(n) ((n) < 0 ? -(n) : (n))
 
-#define MOD(a, b) (a) - floor((a) / (b)) * (b)
+#define MOD(a, b) ((a) - floor((a) / (b)) * (b))
 
 #define SQ(a) ((a) * (a))
 
