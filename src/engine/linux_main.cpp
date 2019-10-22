@@ -9,7 +9,7 @@
 #include "math/block_math.h"
 
 #include "asset/asset.h"
-#include "fog_assets"
+#include "../fog_assets.cpp"
 
 #include "renderer/text.h"
 
@@ -57,7 +57,7 @@ u64 Perf::highp_now() {
 #include "math.h"
 f32 rand_real() { return ((f32) rand() / (f32) RAND_MAX) * 2.0 - 1.0; }
 
-#include "boilerplate/lines_on_a_grid.cpp"
+#include "../game/lines_on_a_grid.cpp"
 #ifndef FOG_GAME
 #   error "No game found"
 //

@@ -97,7 +97,6 @@ void load_font(AssetFile *file, Asset::Header *header) {
         sdf_header.file_path[header->file_path_length - 2] = 'f';
         sdf_header.file_path[header->file_path_length - 3] = 'd';
         sdf_header.file_path[header->file_path_length - 4] = 's';
-        printf("%s\n", sdf_header.file_path);
         load_texture(file, &sdf_header);
         assert(sdf_header.asset_id != 0xFFFFFFF);
         font.texture = file->assets[sdf_header.asset_id].image.id;
@@ -212,7 +211,7 @@ void dump_asset_file(AssetFile *file, const char *out_path) {
     write_to_file(output_file, &file->asset_headers[0],
                   file->header.number_of_assets);
 
-    FILE *source_file = fopen("src/fog_assets", "w");
+    FILE *source_file = fopen("src/fog_assets.cpp", "w");
     u64 string_begin = ftell(output_file);
     u64 string_cur = string_begin;
     for (u64 i = 0; i < file->asset_headers.size(); i++) {
@@ -311,7 +310,7 @@ int main(int nargs, char **vargs) {
     printf("\n\t=== ASSET FINDING ===\n");
 
     AssetFile file = {};
-    const char *out_path = "data.fog";
+    const char *out_path = "bin/data.fog";
     for (int i = 0; i < nargs; i++) {
         if (std::strcmp(vargs[i], "-o") == 0) {
             out_path = vargs[++i];
