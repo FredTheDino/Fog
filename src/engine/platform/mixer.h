@@ -1,4 +1,15 @@
 namespace Mixer {
+//--
+// The platform subsystem is in charge of all the interfacing
+// with the user, except for showing graphics on the screen.
+// The main parts of the system are handling the input
+// and playing sound. Behind the scenes there are a lot
+// of threads and other mishaps that are hidden behind a simpler
+// interface. This makes some of the functions non-trivial
+// even though they seam simple, and most things can fail in 
+// spectacular ways depending on the OS. But most of the OS
+// specific code should be limited to this submodule.
+//--
 
 struct AudioMixer {
     u64 num_sounds;
@@ -63,4 +74,22 @@ AudioID play_sound_at(AssetID asset_id, Vec2 position, f32 pitch = 1.0,
 //  - id, the sound that is wished to stop.
 void stop_sound(AudioID id);
 
+#ifdef _EXAMPLES_
+////
+// <h2>Playing a sound</h2>
+// <p>
+// Playing sounds is quite simple, if you have a wave-file placed in the
+// resource folder, the resource will be auto-built into the bundled asset file
+// and a new constant will be available in <span
+// class="path">src/fog_assets.cpp</span>.
+// </p>
+// <p>
+// Playing a sound is really quite simple.
+// </p>
+Mixer::play_sound(ASSET_MY_SOUND_FILE);
+// This line will play an omnipresent audio source that can be heard unrelated
+// to where the camera is placed in the game world.
+////
+
+#endif
 };

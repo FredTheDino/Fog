@@ -89,12 +89,6 @@ int main(int argc, char **argv) {
           "Failed to create mapping");
     Game::setup_input();
 
-
-    // for (f32 i = 0; i < 8; i++) {
-    //     Mixer::set_note(i, Mixer::pitch(i * 4), 0.15, 1.0);
-    //     // Mixer::set_note(i, 220 * i * 4, 0.15, 1.0);
-    // }
-
     f32 last_tick = SDL_GetTicks() / 1000.0f;
     while (SDL::running) {
         f32 tick = SDL_GetTicks() / 1000.0f;
@@ -111,24 +105,6 @@ int main(int argc, char **argv) {
 
         if (value(&mapping, Player::ANY, Name::QUIT))
             SDL::running = false;
-
-        if (pressed(&mapping, Player::ANY, Name::LEFT)) {
-            // Mixer::set_note(0, 440, 0.5, 0.3);
-        }
-        if (pressed(&mapping, Player::ANY, Name::RIGHT)) {
-            Mixer::AudioID id = Mixer::play_sound_at(ASSET_NOISE, V2(sin(tick), cos(tick)), 1.0, 0.1, 0, 0, false);
-            if (id.slot != Mixer::NUM_SOURCES) {
-                counter++;
-                LOG("counter: %d, %d", counter, id.slot);
-                auto callback = [id]() {
-                    Mixer::stop_sound(id);
-                    LOG("counter: %d", counter);
-                    counter--;
-                };
-                Logic::add_callback(Logic::At::PRE_UPDATE, callback, tick + 0.1, 0, 0);
-            }
-            // Mixer::set_note(0, 880, 0.0, 0.3);
-        }
 
         Logic::call(Logic::At::PRE_UPDATE, tick, delta);
         Game::update(delta);

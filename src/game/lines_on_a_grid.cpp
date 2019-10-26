@@ -14,16 +14,14 @@ void setup_input() {
 
     auto call_a = [&counter_a]() {
         counter_a++;
-        LOG("A: %d", counter_a);
     };
 
     auto call_b = [&counter_b]() {
         counter_b++;
-        LOG("B: %d", counter_b);
     };
     // Logic::add_callback(Logic::At::PRE_UPDATE, call_a, 0, Logic::FOREVER, 0.1);
     // Logic::add_callback(Logic::At::PRE_UPDATE, call_b, 0, Logic::FOREVER, 0.5);
-    Logic::add_callback(Logic::At::PRE_UPDATE, call_b, 0, 1.0, 0.5);
+    // Logic::add_callback(Logic::At::PRE_UPDATE, call_b, 0, 1.0, 0.5);
 }
 
 // Main logic

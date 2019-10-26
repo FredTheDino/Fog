@@ -70,7 +70,7 @@ struct Timer {
     Callback callback;
 
     bool done(f32 time) {
-        return end <= time && end != FOREVER;
+        return start <= time && end <= time && end != FOREVER;
     }
 
     void call(f32 time, f32 delta) {
@@ -164,7 +164,7 @@ static void remove_callback(LogicID id);
 
 static void call(At at, f32 time, f32 delta);
 
-}  // namespace Logi
+}  // namespace Logic
 
 #if _EXAMPLES_
 ////
