@@ -38,10 +38,9 @@ enum At {
     COUNT,
 };
 
-// Takes in the timestep and delta as arguments.
+// Takes in the timestep, delta and the percentage of the progress
+// as arguments.
 typedef Function<void(f32, f32, f32)> Callback;
-
-const s32 TIMERS_PER_BLOCK = 32;
 
 //*
 // An ID representing a callback that is being called
@@ -50,81 +49,58 @@ struct LogicID;
 
 struct LogicID {
     At at;
-    s32 id;
+    s16 slot;
     u8 gen;
 
     bool operator==(LogicID &other) const {
         return at == other.at
             && gen == other.gen
-            && id == other.id;
+            && slot == other.slot;
     }
 };
 
 struct Timer {
-    s32 id;
+    s16 forward;
     u8 gen;
+
     f32 start;
     f32 next;
     f32 end;
     f32 spacing;
     Callback callback;
 
-    bool active(f32 time, s32 in_id) {
-        return in_id == id && next <= time;
-    }
-
-    bool used() {
-        return id >= 0;
-    }
-
-    bool is(s32 in_id, u8 in_gen) {
-        return in_id == id && in_gen == gen;
-    }
-    
     bool done(f32 time) {
         return end <= time && end != FOREVER;
     }
 
     void call(f32 time, f32 delta) {
-        if (end == FOREVER) {
-            callback(delta, time, 0);
-        } else if (end == ONCE) {
-            callback(delta, time, 1);
-        } else {
-            f32 percent = CLAMP(0, 1, (time - start) / (end - start));
-            callback(delta, time, percent);
+        if (next <= time && next != -1) {
+            if (end == FOREVER) {
+                callback(delta, time, 0);
+            } else if (end == ONCE) {
+                callback(delta, time, 1);
+            } else {
+                f32 percent = CLAMP(0, 1, (time - start) / (end - start));
+                callback(delta, time, percent);
+            }
+            next += spacing;
         }
-        next += spacing;
-    }
-
-    s32 kill(s32 old) {
-        s32 result = -(id + 1);
-        id = old;
-        return result;
-    }
-
-    s32 revive(s32 slot) {
-        s32 result = id;
-        id = -(slot + 1);
-        return result;
     }
 };
 
 struct TimerBucket {
-    s32 maximum_slot = 0;
-    s32 next_free = 0;
+    static const s32 NUM_TIMERS = 512;
+    static const s16 NONE = -1;
+    Timer timers[NUM_TIMERS];
 
-    struct TimerBucketNode {
-        Timer timers[TIMERS_PER_BLOCK];
-        TimerBucketNode *next = nullptr;
-    };
-    TimerBucketNode buckets;
+    s16 active;
+    s16 free;
+
+    void init();
 
     LogicID add_timer(Timer *timer);
+    Timer *get_timer(LogicID id);
     void remove_timer(LogicID id);
-    Timer *get_timer(s32 index);
-    void update_max();
-    void update_max(s32 bucket_index, TimerBucketNode *node);
 
     void update(f32 time, f32 delta);
 };
@@ -185,10 +161,6 @@ static void update_callback(LogicID at, Function<void()> callback,
 //*
 // Stops a callback from being called, making sure it is never updated again.
 static void remove_callback(LogicID id);
-
-//*
-// Returns true if the callback is going to be used sometime in the future.
-static bool used_callback(LogicID id);
 
 static void call(At at, f32 time, f32 delta);
 

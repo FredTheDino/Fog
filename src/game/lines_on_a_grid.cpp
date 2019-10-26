@@ -3,12 +3,27 @@
 
 namespace Game {
 
+s32 counter_a = 0;
+s32 counter_b = 0;
 void setup_input() {
     using namespace Input;
     add(&mapping, K(a), Player::P1, Name::LEFT);
     add(&mapping, K(d), Player::P1, Name::RIGHT);
     add(&mapping, K(w), Player::P1, Name::UP);
     add(&mapping, K(s), Player::P1, Name::DOWN);
+
+    auto call_a = [&counter_a]() {
+        counter_a++;
+        LOG("A: %d", counter_a);
+    };
+
+    auto call_b = [&counter_b]() {
+        counter_b++;
+        LOG("B: %d", counter_b);
+    };
+    // Logic::add_callback(Logic::At::PRE_UPDATE, call_a, 0, Logic::FOREVER, 0.1);
+    // Logic::add_callback(Logic::At::PRE_UPDATE, call_b, 0, Logic::FOREVER, 0.5);
+    Logic::add_callback(Logic::At::PRE_UPDATE, call_b, 0, 1.0, 0.5);
 }
 
 // Main logic
