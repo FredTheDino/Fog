@@ -4,8 +4,6 @@ static bool init() {
     return true;
 }
 
-
-
 void TimerBucket::update(f32 time, f32 delta) {
     TimerBucketNode *b = &buckets;
     for (s32 slot = 0; slot < maximum_slot; slot++) {

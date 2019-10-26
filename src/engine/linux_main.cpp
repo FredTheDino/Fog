@@ -29,6 +29,13 @@
 #define OPENGL_TEXTURE_DEPTH 256
 #define SDL
 
+#include "math.h"
+f32 random_real(f32 low, f32 high) { 
+    ASSERT(low < high, "Invalid random range");
+    return ((f32) rand() / (f32) RAND_MAX) * (high - low) + low;
+}
+
+
 #include "util/io.cpp"
 #include "util/memory.cpp"
 #include "platform/input.cpp"
@@ -58,9 +65,6 @@ u64 Perf::highp_now() {
     return (tp.tv_sec * 1000000000 + tp.tv_nsec) / 1000;
 }
 
-#include "math.h"
-f32 rand_real() { return ((f32) rand() / (f32) RAND_MAX) * 2.0 - 1.0; }
-
 #include "../game/lines_on_a_grid.cpp"
 #ifndef FOG_GAME
 #   error "No game found"
@@ -68,6 +72,8 @@ f32 rand_real() { return ((f32) rand() / (f32) RAND_MAX) * 2.0 - 1.0; }
 // To make a game, create the functions:
 //
 #endif
+
+static int counter = 0;
 
 int main(int argc, char **argv) {
     Util::do_all_allocations();
@@ -107,15 +113,28 @@ int main(int argc, char **argv) {
             SDL::running = false;
 
         if (pressed(&mapping, Player::ANY, Name::LEFT)) {
-            // Mixer::set_note(0, 440, 0.5, 1.0);
+            // Mixer::set_note(0, 440, 0.5, 0.3);
         }
         if (pressed(&mapping, Player::ANY, Name::RIGHT)) {
-            Mixer::play_sound(ASSET_NOISE, 1.0, 1.0);
+            Mixer::AudioID id = Mixer::play_sound_at(ASSET_NOISE, V2(sin(tick), cos(tick)), 1.0, 0.1, 0, 0, false);
+            if (id.slot != Mixer::NUM_SOURCES) {
+                counter++;
+                LOG("counter: %d, %d", counter, id.slot);
+                auto callback = [id]() {
+                    Mixer::stop_sound(id);
+                    LOG("counter: %d", counter);
+                    counter--;
+                };
+                Logic::add_callback(Logic::At::PRE_UPDATE, callback, tick + 0.1, 0, 0);
+            }
+            // Mixer::set_note(0, 880, 0.0, 0.3);
         }
 
         Logic::call(Logic::At::PRE_UPDATE, tick, delta);
         Game::update(delta);
         Logic::call(Logic::At::POST_UPDATE, tick, delta);
+
+        Mixer::audio_struct.position = Renderer::global_camera.position;
 
         START_PERF(RENDER);
         Renderer::clear();
