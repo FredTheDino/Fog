@@ -10,7 +10,11 @@ void __debug_log(const char* type, const char* file, int line,
     // TODO: Log file with timestamps?
     va_list args;
     va_start(args, fmt);
+#ifdef VIM_JUMP_TO
     fprintf(stderr, "%s|%d| [%s]: ", file, line, type);
+#else
+    fprintf(stderr, "%s @ %d [%s]:\n-- ", file, line, type);
+#endif
     vfprintf(stderr, fmt, args);
     fprintf(stderr, "\n");
 }

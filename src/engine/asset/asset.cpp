@@ -32,6 +32,10 @@ Font *fetch_font(AssetID id) {
     return &raw_fetch(id, Type::FONT)->font;
 }
 
+Sound *fetch_sound(AssetID id) {
+    return &raw_fetch(id, Type::SOUND)->sound;
+}
+
 template <typename T>
 size_t read_from_file(FILE *stream, void *ptr, size_t num = 1) {
     if (!num) {
@@ -94,6 +98,10 @@ void load(const char *file_path) {
                 read_from_file<Font::Glyph>(file, asset_ptr->font.kernings,
                         asset_ptr->font.num_kernings);
             }
+        } break;
+        case Type::SOUND: {
+            asset_ptr->sound.data = system.arena->push<u8>(asset_ptr->sound.size);
+            read_from_file<u8>(file, asset_ptr->sound.data, asset_ptr->sound.size);
         } break;
         default:
             LOG("UNKOWN ASSET TYPE %d", header.type);

@@ -83,10 +83,11 @@ int main(int argc, char **argv) {
           "Failed to create mapping");
     Game::setup_input();
 
-    for (f32 i = 0; i < 8; i++) {
-        Mixer::set_note(i, Mixer::pitch(i * 4), 0.15, 1.0);
-        // Mixer::set_note(i, 220 * i * 4, 0.15, 1.0);
-    }
+
+    // for (f32 i = 0; i < 8; i++) {
+    //     Mixer::set_note(i, Mixer::pitch(i * 4), 0.15, 1.0);
+    //     // Mixer::set_note(i, 220 * i * 4, 0.15, 1.0);
+    // }
 
     f32 last_tick = SDL_GetTicks() / 1000.0f;
     while (SDL::running) {
@@ -106,10 +107,10 @@ int main(int argc, char **argv) {
             SDL::running = false;
 
         if (pressed(&mapping, Player::ANY, Name::LEFT)) {
-            Mixer::set_note(0, 440, 0.5, 1.0);
+            // Mixer::set_note(0, 440, 0.5, 1.0);
         }
         if (pressed(&mapping, Player::ANY, Name::RIGHT)) {
-            Mixer::set_note(0, Mixer::pitch(80), 0.0, 1.0);
+            Mixer::play_sound(ASSET_NOISE, 1.0, 1.0);
         }
 
         Logic::call(Logic::At::PRE_UPDATE, tick, delta);

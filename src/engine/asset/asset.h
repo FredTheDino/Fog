@@ -1,6 +1,6 @@
 #include "../util/types.h"
 
-using AssetID = const u64;
+using AssetID = u64;
 
 namespace Asset {
 
