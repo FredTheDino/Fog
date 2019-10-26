@@ -32,7 +32,8 @@ struct SoundSource {
 };
 
 const u32 NUM_INSTRUMENTS = 10;
-const u32 NUM_SOURCES = 10;
+const u32 NUM_SOURCES = 32;
+
 struct AudioStruct {
     Instrument instruments[NUM_INSTRUMENTS];
     SoundSource sources[NUM_SOURCES];
@@ -65,7 +66,6 @@ void set_note(u32 instrument_id, f32 new_pitch, f32 new_gain, f32 time=1.0) {
 AudioID push_sound(SoundSource source) {
     lock_audio();
     if (audio_struct.num_free_sources) {
-        LOG_MSG("A");
         u16 source_id =
             audio_struct.free_sources[--audio_struct.num_free_sources];
         source.gen = audio_struct.sources[source_id].gen + 1;
@@ -73,7 +73,6 @@ AudioID push_sound(SoundSource source) {
         unlock_audio();
         return {source.gen, source_id};
     } else {
-        LOG_MSG("B");
         ERR_MSG("Not enough free sources, skipping playing of sound");
     }
     unlock_audio();
@@ -94,6 +93,7 @@ AudioID play_sound_at(AssetID asset_id, Vec2 position, f32 pitch, f32 gain,
 }
 
 void stop_sound(AudioID id) {
+    LOG("Called for audio: %d", id.slot);
     ASSERT(id.slot < NUM_SOURCES, "Invalid index in ID");
     lock_audio();
     SoundSource *source = audio_struct.sources + id.slot;
@@ -101,6 +101,8 @@ void stop_sound(AudioID id) {
     if (source->gen == id.gen) {
         audio_struct.free_sources[++audio_struct.num_free_sources] = id.slot;
         source->gain = 0.0;
+    } else {
+        ERR_MSG("Invalid removal of AudioID that does not exist");
     }
     unlock_audio();
 }
