@@ -1,5 +1,12 @@
 #pragma once
 
+//--
+// <p>
+// The Util module is other miscellaneous utilitis that handle boring
+// stuff, like memory and asset types.
+// </p>
+//--
+
 struct String {
     char *data;
     u64 length;

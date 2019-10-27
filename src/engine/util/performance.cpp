@@ -16,7 +16,6 @@ void clear() {
     }
 }
 
-#define START_PERF(marker) Perf::_start_perf_clock(Perf::marker, "" #marker "")
 void _start_perf_clock(MarkerID id, const char *name) {
     ASSERT(0 <= id && id < NUMBER_OF_MARKERS, "Invalid perf ID");
     Clock *clock = clocks + id;
@@ -29,7 +28,6 @@ void _start_perf_clock(MarkerID id, const char *name) {
     }
 }
 
-#define STOP_PERF(marker) Perf::_stop_perf_clock(Perf::marker)
 void _stop_perf_clock(MarkerID id) {
     ASSERT(0 <= id && id < NUMBER_OF_MARKERS, "Invalid perf ID");
     Clock *clock = clocks + id;

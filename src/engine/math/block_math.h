@@ -1,6 +1,33 @@
 #include <math.h>
 #include <stdint.h>
 
+//--
+// <p>
+// The math module holds a ton of usefull math operations.
+// Most of them are defined using the preprocessor macros,
+// which gives no type safety for better and for worse.
+// </p>
+// <p>
+// There is also a fairly comprehensive library of vector
+// math functions, these often come in handy and should
+// play nice with most compilers.
+// </p>
+// <p>
+// There is also an array of built in types that are used
+// in the engine, since the size of the standard types (int, char...)
+// can vary wildly, they are named according to a simple naming scheme.
+// Here is a comprehensive list:
+// </p>
+// <ul>
+//   <li>Signed: s8, s16, s32, s64</li>
+//   <li>Unsigned: u8, u16, u32, u64</li>
+//   <li>Floating point: f32, f64</li>
+// </ul>
+// <p>
+// The goal in the long run is to move away from the C-std math library,
+// but currently the engine has the header pre-included.
+// </p>
+
 typedef int8_t s8;
 typedef int16_t s16;
 typedef int32_t s32;
@@ -21,9 +48,10 @@ typedef f32 real;  // Type used in vectors.
 #endif
 
 // Custom Math functions, since I don't to trust the
-// stdlib ones since they may vary between compilers.
+// stdlib ones because they may vary between compilers.
 // So I did the work instead and added in the little
-// things I need. We'll see
+// things I need. We'll see if more is needed, but cos/sin
+// and sqrt are not yet implemented.
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 
@@ -47,6 +75,11 @@ typedef f32 real;  // Type used in vectors.
 #define SQ(a) ((a) * (a))
 
 #define LEN(a) (sizeof(a) / sizeof(a[0]))
+
+#include "block_vector.h"
+#include "block_quaternion.h"
+#include "block_matrix.h"
+#include "block_transform.h"
 
 #ifdef _EXAMPLE_
 
@@ -91,8 +124,8 @@ IN_RANGE(l, h, v)
 ABS(n)
 
 //*
-// a mod b, where b is allowed to be a float. Not as fast as the
-// built in "%" operator.
+// a mod b, where a and b are allowed to be a float. Not as fast as the built
+// in "%" operator.
 MOD(a, b)
 
 //*
@@ -100,8 +133,3 @@ MOD(a, b)
 SQ(a)
 
 #endif
-
-#include "block_vector.h"
-#include "block_quaternion.h"
-#include "block_matrix.h"
-#include "block_transform.h"

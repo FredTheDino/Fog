@@ -26,12 +26,20 @@ struct AudioID {
     u16 slot;
 };
 
+// TODO(ed): Some reverb and echo effects would
+// go a long way to create cool atmospheres.
+
+// TODO(ed): The instrument playing API needs some
+// work, it might be good to move to an approach where 
+// bars are queried for by the audio thread.
 const f32 NEXT_TONE = 1.0594630943593;
 const f32 BASE_TONE = 440;
 
 constexpr f32 AUDIO_DEFAULT_GAIN = 0.2;
 constexpr f32 AUDIO_DEFAULT_VARIANCE = 0.01;
 
+// These should not be called unless you really
+// know what you're doing.
 void lock_audio();
 void unlock_audio();
 

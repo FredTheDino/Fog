@@ -1,5 +1,17 @@
 void (*window_callback)(int, int) = nullptr;
 
+// TODO(ed): Shift and key combinations? Should those be handled?
+
+//*
+// <p>
+// Player is an enum bit-field, with enums for P1, P2, P3 and P4. There
+// are also pseudo-players like "ANY" player, which is all players and "NONE"
+// which doesn't match any player.
+// More players can of course be added but requires some knowledge of the
+// engine. These magic-constans are feed into the input functions and
+// can trivially be used to identify player entities.
+// </p>
+
 enum class Player {
     NONE = 0b0000,
 
@@ -40,6 +52,12 @@ u32 toID(Player p) {
 
 namespace Input {
 
+//*
+// To add a new "key" or "name" to the input system, an enum in the engine has
+// to be updated. This enum is called "Input::Name" an lives in
+// "/src/engine/platform/input.h". Adding a new name should be done before
+// the "COUNT" element.
+
 enum class Name {
     NONE = 0,
 
@@ -49,7 +67,7 @@ enum class Name {
     DOWN,
     QUIT,
 
-    COUNT,
+    COUNT, // Don't write anything after this.
 };
 
 enum class ButtonState {
@@ -139,33 +157,67 @@ struct InputEvent {
     f32 value;
 };
 
-#ifdef _EXAMPLE_
 //*
 // Register a new mapping to the input system. <br>
-// mapping - The input map, a global one is provided by the engine as "mapping".
-// code - The keycode, K(a) generates the keycode for pressing "a".
-// player - The player that has this binding, can be P1, P2, P3, P4.
+// <ul>
+//    <li>mapping - The input map, a global one is provided by the engine as
+//    "mapping".</li>
+//    <li>code - The keycode, K(a) generates the keycode for pressing "a".</li>
+//    <li>player - The player that has this binding, can be P1, P2, P3,
+//    P4.</li>
+// </ul>
 static bool add(Mapping *mapping, InputCode code, Player player, Name name);
 
 //*
-// Returns true if the input was pressed or released this frame.
+// Returns true if the input button, stick or key was pressed or released this frame.
 static bool triggered(Mapping *mapping, Player player, Name name);
 
 //*
-// Returns true if the input was pressed this frame.
+// Returns true if the input button, stick or key was pressed this frame.
 static bool pressed(Mapping *mapping, Player player, Name name);
 
 //*
-// Returns true if the input was released this frame.
+// Returns true if the input button, stick or key was released this frame.
 static bool released(Mapping *mapping, Player player, Name name);
 
 //*
-// Returns true if the input is down.
+// Returns true if the input button, stick or key is held down.
 static bool down(Mapping *mapping, Player player, Name name);
 	
 //*
-// Returns the value of the input, usefull for aalog input.
+// Returns the value of the input, useful for analog input.
 static f32 value(Mapping *mapping, Player player, Name name);
+
+#ifdef _EXAMPLE_
+
+////
+// <h2>Adding and using input mappings</h2>
+// To add an input mapping, first add the name for the input in the struct
+// "Input::Name" in "/src/engine/platform/input.h". Then the rest is simple,
+// just remember to call it in the initialization function for the game.
+Input::add(&mapping, K(a), Input::Player::P1, Input::Name::MY_INPUT);
+Input::add(&mapping, K(d), Input::Player::P2, Input::Name::MY_INPUT);
+// This call adds a new mapping, mapping the key "a" on the keyboard
+// to player 1's "MY_INPUT" and mapping "d" on the keyboard to
+// player 2's "MY_INPUT". To see if the input was activated this
+// frame, simply call:
+if (Input::pressed(&mapping, Input::Player::P1, Input::Name::MY_INPUT)) {
+    do_stuff();
+}
+if (Input::pressed(&mapping, Input::Player::ANY, Input::Name::MY_INPUT)) {
+    do_more_stuff();
+}
+// "do_stuff" will be called if the "a" key was pressed THIS FRAME,
+// we only check for the input for player 1. And "do_more_stuff" will
+// be called if either "a" or "b" were pressed, since we removed the
+// requirement of what player pressed it.  Assuming the previous section
+// where the mapping was added was called off course.
+//
+// It might be a good idea to "using namespace Input;" if you are going
+// to do a lot of input calls, since it quite quickly becomes very noise.
+
+
+
 #endif
 
 };  // namespace Input
