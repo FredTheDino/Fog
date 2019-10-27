@@ -1,5 +1,17 @@
 #include "../util/types.h"
 
+//-
+// The asset system is in charge of loading and passing around assets for other
+// sub-systems of the engine to use. It bundles all the memory in one place for
+// easy access and management and is initialized when the engine starts. If
+// you're using the supplied Makefile, assets will be automatically prepared
+// when you build the project.
+//-
+
+//*
+// An AssetID is a simple and easy way to identify an asset, they should be
+// unique and created by "src/fog_assets.cpp"
+
 using AssetID = u64;
 
 namespace Asset {
@@ -101,10 +113,35 @@ struct Data {
     };
 };
 
+//*
+// Checks if the passed in "id" is mapped to an image,
+// if it is an image is returned via pointer. It is
+// not recommended to modify any data received from the
+// asset system, as multiple threads could be reading
+// from it and it's bound to cause headaches.
 Image *fetch_image(AssetID id);
+
+//*
+// Checks if the passed in "id" is mapped to a font,
+// if it is an image is returned via pointer. It is
+// not recommended to modify any data received from the
+// asset system, as multiple threads could be reading
+// from it and it's bound to cause headaches.
 Font *fetch_font(AssetID id);
 
 };  // namespace Asset
+
+#if _EXAMPLES_
+
+////
+// <h2>Loading a new asset</h2>
+// Place the desired asset in the "res" folder, make sure it's 
+// a compatible type for the engine, and rebuild the project.
+// The "src/fog_assets.cpp" file has now been updated and the
+// new constant can be used where "AssetID"s are asked for.
+////
+
+#endif
 
 // The file format: 
 //
