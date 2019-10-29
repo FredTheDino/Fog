@@ -30,6 +30,25 @@ static void poll_events() {
                 Input::InputCode code = key_to_input_code(event.key.keysym.sym);
                 Input::activate(&mapping, code, value);
             } break;
+            case (SDL_MOUSEBUTTONDOWN):
+            case (SDL_MOUSEBUTTONUP): {
+                Input::ButtonState state = 
+                    event.type == SDL_MOUSEBUTTONDOWN ? 
+                    Input::ButtonState::PRESSED : Input::ButtonState::RELEASED;
+                if (event.button.button == SDL_BUTTON_LEFT) {
+                    mapping.mouse.state[0] = state;
+                } else if (event.button.button == SDL_BUTTON_MIDDLE) {
+                    mapping.mouse.state[1] = state;
+                } else if (event.button.button == SDL_BUTTON_RIGHT) {
+                    mapping.mouse.state[2] = state;
+                }
+            } break;
+            case (SDL_MOUSEMOTION):
+                mapping.mouse.x = event.motion.x;
+                mapping.mouse.y = event.motion.y;
+                mapping.mouse.rel_x += event.motion.xrel;
+                mapping.mouse.rel_y += event.motion.yrel;
+                break;
             default:
                 break;
         }

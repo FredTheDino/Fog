@@ -64,6 +64,13 @@ static void frame(Mapping *mapping) {
             button->state = clear_frame_flag(button->state);
         }
     }
+
+    // Reset mouse frame
+    mapping->mouse.rel_x = 0;
+    mapping->mouse.rel_y = 0;
+    mapping->mouse.state[0] = clear_frame_flag(mapping->mouse.state[0]);
+    mapping->mouse.state[1] = clear_frame_flag(mapping->mouse.state[1]);
+    mapping->mouse.state[2] = clear_frame_flag(mapping->mouse.state[2]);
 }
 
 static bool activate(Mapping *mapping, InputCode code, f32 value) {
@@ -85,6 +92,7 @@ static bool activate(Mapping *mapping, InputCode code, f32 value) {
         if (!is(player, p_mask)) continue;                   \
         Binding binding = {0, p_mask, name, 0};              \
         for (u32 i = 0; i < NUM_ALTERNATIVE_BINDINGS; i++) { \
+            binding.binding_id = i;                          \
             auto button = mapping->get(binding);             \
             if (!button.is_used()) continue;
 #define END_BINDINGS_BLOCK \
@@ -134,6 +142,38 @@ static f32 value(Mapping *mapping, Player player, Name name) {
     END_BINDINGS_BLOCK
     if (num_down) return value / num_down;
     return 0;
+}
+
+static s32 mouse_x(Mapping *mapping) {
+    return mapping->mouse.x;
+}
+
+static s32 mouse_y(Mapping *mapping) {
+    return mapping->mouse.y;
+}
+
+static s32 mouse_rel_x(Mapping *mapping) {
+    return mapping->mouse.rel_x;
+}
+
+static s32 mouse_rel_y(Mapping *mapping) {
+    return mapping->mouse.rel_y;
+}
+
+static bool mouse_triggered(Mapping *mapping, u8 button) {
+    return (u32)mapping->mouse.state[button] & (u32)ButtonState::TRIGGERED;
+}
+
+static bool mouse_pressed(Mapping *mapping, u8 button) {
+    return (u32)mapping->mouse.state[button] == (u32)ButtonState::PRESSED;
+}
+
+static bool mouse_released(Mapping *mapping, u8 button) {
+    return (u32)mapping->mouse.state[button] == (u32)ButtonState::RELEASED;
+}
+
+static bool mouse_down(Mapping *mapping, u8 button) {
+    return (u32)mapping->mouse.state[button] & (u32)ButtonState::DOWN;
 }
 
 #undef BEGIN_BINDINGS_BLOCK

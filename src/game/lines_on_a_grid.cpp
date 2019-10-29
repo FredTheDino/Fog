@@ -33,6 +33,9 @@ void update(f32 delta) {
     f32 delta_y = down(&mapping, Player::P1, Name::UP) -
                   down(&mapping, Player::P1, Name::DOWN);
     Renderer::global_camera.position.y -= delta_y * delta;
+    if (mouse_pressed(&mapping, 0)) {
+        LOG("Mouse{ x:%d, y:%d }", mouse_x(&mapping), mouse_y(&mapping));
+    }
 }
 
 // Main draw
