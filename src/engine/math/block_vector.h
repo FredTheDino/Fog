@@ -2,14 +2,57 @@
 
 #pragma pack(push, 1)
 
+struct Vec2i;
+
 struct Vec2;
 struct Vec3;
 struct Vec4;
 
 #define FLOAT_EQ_MARGIN 0.0000001
 
+struct Vec2i {
+    union {
+        struct {
+            s32 x, y;
+        };
+        s32 _[2];
+    };
 
-// SIMD this, later OFC.
+    Vec2i operator-() const { return {-x, -y}; }
+
+    Vec2i operator+(Vec2i other) const { return {other.x + x, y + other.y}; }
+
+    Vec2i operator-(Vec2i other) const { return {x - other.x, y - other.y}; }
+
+    Vec2i operator*(s32 scaler) const { return {x * scaler, y * scaler}; }
+
+    Vec2i operator/(s32 scaler) const { return {x / scaler, y / scaler}; }
+
+    void operator+=(Vec2i other) {
+        x += other.x;
+        y += other.y;
+    }
+
+    void operator-=(Vec2i other) {
+        x -= other.x;
+        y -= other.y;
+    }
+
+    void operator*=(s32 scaler) { *this = (*this) * scaler; }
+
+    void operator/=(s32 scaler) { *this = (*this) / scaler; }
+
+    bool operator==(Vec2i other) {
+        return x == other.x && y == other.y;
+    }
+};
+
+s32 dot(Vec2i a, Vec2i b) { return a.x * b.x + a.y * b.y; }
+
+s32 length_squared(Vec2i a) { return dot(a, a); }
+
+real length(Vec2i a) { return sqrt((real) length_squared(a)); }
+
 struct Vec2 {
     union {
         struct {

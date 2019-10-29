@@ -73,8 +73,6 @@ u64 Perf::highp_now() {
 //
 #endif
 
-static int counter = 0;
-
 int main(int argc, char **argv) {
     Util::do_all_allocations();
     ASSERT(Renderer::init("Hello there", 500, 500),

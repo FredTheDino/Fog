@@ -29,13 +29,11 @@ static void push_quad(Vec2 min, Vec2 max, Vec4 color = V4(1, 1, 1, 1));
 // position - The center of the sprite in world coordinates<br>
 // dimension - The total width of the sprite in world coordinates<br>
 // texture - The ASSET that matches the texture you want applied<br>
-// x - The x-coordinates top-left coordinate of the sprite in pixel-coordinates<br>
-// y - The y-coordinates top-left coordinate of the sprite in pixel-coordinates<br>
-// w - The width of the sprite section in pixel-coordinates<br>
-// h - The heiht of the sprite section in pixel-coordinates<br>
+// uv_min - The top left part of the image, in pixel coordinates<br>
+// uv_dimension - The width and height of the area of the image to render, in pixel coordinates.<br>
 // color - The color to tint the sprite, default value is no-tinting<br>
 static void push_sprite(Vec2 position, Vec2 dimension, AssetID texture,
-						s32 x, s32 y, s32 w, s32 h, Vec4 color = V4(1, 1, 1, 1));
+						Vec2 uv_min, Vec2 uv_dimension, Vec4 color = V4(1, 1, 1, 1));
 
 //*
 // Queues up a line to be rendered to the screen.
