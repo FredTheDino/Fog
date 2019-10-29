@@ -149,6 +149,16 @@ struct Mapping {
 
     // All the states for each button.
     VirtualButton buttons[(u32)Player::NUM][NUM_BINDINGS_PER_CONTROLLER];
+
+    struct VirtualMouse {
+        ButtonState state[3];
+        s32 x, y;
+        s32 rel_x, rel_y;
+
+        //TODO(er): Add moved
+    };
+
+    VirtualMouse mouse;
 };
 
 struct InputEvent {
@@ -183,10 +193,42 @@ static bool released(Mapping *mapping, Player player, Name name);
 //*
 // Returns true if the input button, stick or key is held down.
 static bool down(Mapping *mapping, Player player, Name name);
-	
+
 //*
 // Returns the value of the input, useful for analog input.
 static f32 value(Mapping *mapping, Player player, Name name);
+
+//*
+// Returns the x-coordinate of the mouse.
+static s32 mouse_x(Mapping *mapping);
+
+//*
+// Returns the y-coordinate of the mouse.
+static s32 mouse_y(Mapping *mapping);
+
+//*
+// Returns the change in the x-coordinate of the mouse since the last frame.
+static s32 mouse_rel_x(Mapping *mapping);
+
+//*
+// Returns the change in the y-coordinate of the mouse since the last frame.
+static s32 mouse_rel_y(Mapping *mapping);
+
+//*
+// Returns true if the mouse button was pressed or released this frame.
+static bool mouse_triggered(Mapping *mapping, u8 button);
+
+//*
+// Returns true if the mouse button was pressed this frame.
+static bool mouse_pressed(Mapping *mapping, u8 button);
+
+//*
+// Returns true if the mouse button was released this frame.
+static bool mouse_released(Mapping *mapping, u8 button);
+
+//*
+// Returns true if the mouse button is held down.
+static bool mouse_down(Mapping *mapping, u8 button);
 
 #ifdef _EXAMPLE_
 
