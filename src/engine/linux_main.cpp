@@ -30,11 +30,6 @@
 #define SDL
 
 #include "math.h"
-f32 random_real(f32 low, f32 high) { 
-    ASSERT(low < high, "Invalid random range");
-    return ((f32) rand() / (f32) RAND_MAX) * (high - low) + low;
-}
-
 
 #include "util/io.cpp"
 #include "util/memory.cpp"
@@ -74,6 +69,8 @@ u64 Perf::highp_now() {
 #endif
 
 int main(int argc, char **argv) {
+    init_random();
+
     Util::do_all_allocations();
     ASSERT(Renderer::init("Hello there", 500, 500),
            "Failed to initalize renderer");
@@ -86,6 +83,8 @@ int main(int argc, char **argv) {
     CHECK(add(&mapping, K(ESCAPE), Player::P1, Name::QUIT),
           "Failed to create mapping");
     Game::setup_input();
+
+
 
     f32 last_tick = SDL_GetTicks() / 1000.0f;
     while (SDL::running) {

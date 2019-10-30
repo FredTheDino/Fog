@@ -40,12 +40,15 @@ void update(f32 delta) {
 
 // Main draw
 void draw() {
-    int n = 10;
-    for (int i = -n; i < n; i++) {
-        Renderer::push_line(V2(i, -n), V2(i, n), V4(0, 1, 0, 1));
-        Renderer::push_line(V2(-n, i), V2(n, i), V4(1, 0, 0, 1));
-    }
-    Renderer::push_point(V2(0, 0), V4(1, 0, 1, 1), 0.2);
+    //int n = 10;
+    //for (int i = -n; i < n; i++) {
+    //    Renderer::push_line(V2(i, -n), V2(i, n), V4(0, 1, 0, 1));
+    //    Renderer::push_line(V2(-n, i), V2(n, i), V4(1, 0, 0, 1));
+    //}
+    //Renderer::push_point(V2(0, 0), V4(1, 0, 1, 1), 0.2);
+    for (s32 i = 0; i < 5; i++)
+        Renderer::push_point(random_unit_vec2(), V4(random_unit_vec3(), 1), 0.01);
+
 }
 
 }  // namespace Game
