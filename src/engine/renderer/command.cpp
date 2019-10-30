@@ -60,8 +60,9 @@ static void push_point(Vec2 point, Vec4 color, f32 size) {
 static void push_sprite(Vec2 position, Vec2 dimension, AssetID texture,
 						Vec2 uv_min, Vec2 uv_dimension, Vec4 color) {
 	Image *image = Asset::fetch_image(texture);
-	Vec2 inv_dimension = {1.0f / (f32) image->width, 1.0f / (f32) image->height};
-	uv_min = hadamard(uv_min, inv_dimension); 
+    Vec2 inv_dimension = {1.0f / (f32) OPENGL_TEXTURE_WIDTH,
+                          1.0f / (f32) OPENGL_TEXTURE_HEIGHT};
+    uv_min = hadamard(uv_min, inv_dimension); 
 	Vec2 uv_max = uv_min + hadamard(uv_dimension, inv_dimension);
 	push_quad(position - dimension * 0.5, uv_min, 
 			  position + dimension * 0.5, uv_max,

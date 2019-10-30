@@ -110,6 +110,9 @@ struct LogicSystem {
     Callback non_function;
 
     TimerBucket buckets[At::COUNT];
+
+    f32 time;
+    f32 delta;
 } logic_system = {};
 
 ////
@@ -162,7 +165,18 @@ static void update_callback(LogicID at, Function<void()> callback,
 // Stops a callback from being called, making sure it is never updated again.
 static void remove_callback(LogicID id);
 
-static void call(At at, f32 time, f32 delta);
+// Updates the internal clock.
+static void frame(f32 time);
+
+//*
+// Returns the current time.
+static f32 now();
+
+//*
+// Returns the time since the last frame.
+static f32 delta();
+
+static void call(At at);
 
 }  // namespace Logic
 
@@ -183,7 +197,7 @@ static void call(At at, f32 time, f32 delta);
 int score = 0;
 Function callback = [&score](){
     score++;
-    LOG_MSG("I do stuff every third second!");
+    LOG("I do stuff every third second!");
 };
 Logic::add_callback(Logic::At::PRE_DRAW, callback, 1.0, Logic::FOREVER, 3.0);
 ////

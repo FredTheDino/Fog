@@ -52,7 +52,7 @@ void report() {
     f32 edge = 0.20;
     const int buffer_size = 256;
     char buffer[buffer_size];
-    f32 y = 1.0 / Renderer::global_camera.aspect_ratio + height / 2.0;
+    f32 y = Renderer::global_camera.aspect_ratio + height / 2.0;
 
     snprintf(buffer, buffer_size, "=== PERFORMANCE ===");
     y -= height;

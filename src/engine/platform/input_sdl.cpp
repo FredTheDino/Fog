@@ -28,7 +28,7 @@ static void poll_events() {
                 if (event.key.repeat) break;
                 f32 value = event.key.type == SDL_KEYDOWN ? 1.0 : 0.0;
                 Input::InputCode code = key_to_input_code(event.key.keysym.sym);
-                Input::activate(&mapping, code, value);
+                Input::activate(code, value);
             } break;
             case (SDL_MOUSEBUTTONDOWN):
             case (SDL_MOUSEBUTTONUP): {
@@ -46,8 +46,8 @@ static void poll_events() {
             case (SDL_MOUSEMOTION):
                 mapping.mouse.x = event.motion.x;
                 mapping.mouse.y = event.motion.y;
-                mapping.mouse.rel_x += event.motion.xrel;
-                mapping.mouse.rel_y += event.motion.yrel;
+                mapping.mouse.move_x += event.motion.xrel;
+                mapping.mouse.move_y += event.motion.yrel;
                 break;
             default:
                 break;

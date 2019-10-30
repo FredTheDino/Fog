@@ -1,10 +1,9 @@
 #include <stdarg.h>
 #include <stdlib.h>
 // Debug functions
-#define LOG_MSG(fmt) __debug_log("LOG", __FILE__, __LINE__, fmt)
-#define LOG(fmt, ...) __debug_log("LOG", __FILE__, __LINE__, fmt, __VA_ARGS__)
-#define ERR_MSG(fmt) __debug_log("ERR", __FILE__, __LINE__, fmt)
-#define ERR(fmt, ...) __debug_log("ERR", __FILE__, __LINE__, fmt, __VA_ARGS__)
+// TODO(ed): It might be possible to remove the _MSG, 
+#define LOG(fmt, ...) __debug_log("LOG", __FILE__, __LINE__, fmt, ##__VA_ARGS__)
+#define ERR(fmt, ...) __debug_log("ERR", __FILE__, __LINE__, fmt, ##__VA_ARGS__)
 void __debug_log(const char* type, const char* file, int line,
                         const char* fmt, ...) {
     // TODO: Log file with timestamps?

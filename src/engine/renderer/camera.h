@@ -11,7 +11,7 @@ struct Camera {
 void recalculate_global_aspect_ratio(int width, int height) {
     global_camera.width = width;
     global_camera.height = height;
-    global_camera.aspect_ratio = global_camera.width / global_camera.height;
+    global_camera.aspect_ratio = global_camera.height / global_camera.width;
 }
 
 };  // namespace Renderer

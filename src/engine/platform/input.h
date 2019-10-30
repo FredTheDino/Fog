@@ -67,6 +67,8 @@ enum class Name {
     DOWN,
     QUIT,
 
+    DEBUG_PERF,
+
     COUNT, // Don't write anything after this.
 };
 
@@ -153,13 +155,13 @@ struct Mapping {
     struct VirtualMouse {
         ButtonState state[3];
         s32 x, y;
-        s32 rel_x, rel_y;
+        s32 move_x, move_y;
 
         //TODO(er): Add moved
     };
 
     VirtualMouse mouse;
-};
+} global_mapping;
 
 struct InputEvent {
     InputCode code;
@@ -176,59 +178,51 @@ struct InputEvent {
 //    <li>player - The player that has this binding, can be P1, P2, P3,
 //    P4.</li>
 // </ul>
-static bool add(Mapping *mapping, InputCode code, Player player, Name name);
+static bool add(InputCode code, Player player, Name name);
 
 //*
 // Returns true if the input button, stick or key was pressed or released this frame.
-static bool triggered(Mapping *mapping, Player player, Name name);
+static bool triggered(Player player, Name name);
 
 //*
 // Returns true if the input button, stick or key was pressed this frame.
-static bool pressed(Mapping *mapping, Player player, Name name);
+static bool pressed(Player player, Name name);
 
 //*
 // Returns true if the input button, stick or key was released this frame.
-static bool released(Mapping *mapping, Player player, Name name);
+static bool released(Player player, Name name);
 
 //*
 // Returns true if the input button, stick or key is held down.
-static bool down(Mapping *mapping, Player player, Name name);
+static bool down(Player player, Name name);
 
 //*
 // Returns the value of the input, useful for analog input.
-static f32 value(Mapping *mapping, Player player, Name name);
+static f32 value(Player player, Name name);
 
 //*
-// Returns the x-coordinate of the mouse.
-static s32 mouse_x(Mapping *mapping);
+// Returns the screen coordinates in pixels for the mouse position.
+static Vec2 mouse_position();
 
 //*
-// Returns the y-coordinate of the mouse.
-static s32 mouse_y(Mapping *mapping);
-
-//*
-// Returns the change in the x-coordinate of the mouse since the last frame.
-static s32 mouse_rel_x(Mapping *mapping);
-
-//*
-// Returns the change in the y-coordinate of the mouse since the last frame.
-static s32 mouse_rel_y(Mapping *mapping);
+// Returns the movement of the mouse this frame, in pixels.
+static Vec2 mouse_move();
 
 //*
 // Returns true if the mouse button was pressed or released this frame.
-static bool mouse_triggered(Mapping *mapping, u8 button);
+static bool mouse_triggered(u8 button);
 
 //*
 // Returns true if the mouse button was pressed this frame.
-static bool mouse_pressed(Mapping *mapping, u8 button);
+static bool mouse_pressed(u8 button);
 
 //*
 // Returns true if the mouse button was released this frame.
-static bool mouse_released(Mapping *mapping, u8 button);
+static bool mouse_released(u8 button);
 
 //*
 // Returns true if the mouse button is held down.
-static bool mouse_down(Mapping *mapping, u8 button);
+static bool mouse_down(u8 button);
 
 #ifdef _EXAMPLE_
 
@@ -237,16 +231,16 @@ static bool mouse_down(Mapping *mapping, u8 button);
 // To add an input mapping, first add the name for the input in the struct
 // "Input::Name" in "/src/engine/platform/input.h". Then the rest is simple,
 // just remember to call it in the initialization function for the game.
-Input::add(&mapping, K(a), Input::Player::P1, Input::Name::MY_INPUT);
-Input::add(&mapping, K(d), Input::Player::P2, Input::Name::MY_INPUT);
+Input::add(K(a), Input::Player::P1, Input::Name::MY_INPUT);
+Input::add(K(d), Input::Player::P2, Input::Name::MY_INPUT);
 // This call adds a new mapping, mapping the key "a" on the keyboard
 // to player 1's "MY_INPUT" and mapping "d" on the keyboard to
 // player 2's "MY_INPUT". To see if the input was activated this
 // frame, simply call:
-if (Input::pressed(&mapping, Input::Player::P1, Input::Name::MY_INPUT)) {
+if (Input::pressed(Input::Player::P1, Input::Name::MY_INPUT)) {
     do_stuff();
 }
-if (Input::pressed(&mapping, Input::Player::ANY, Input::Name::MY_INPUT)) {
+if (Input::pressed(Input::Player::ANY, Input::Name::MY_INPUT)) {
     do_more_stuff();
 }
 // "do_stuff" will be called if the "a" key was pressed THIS FRAME,
