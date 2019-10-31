@@ -75,7 +75,7 @@ u64 Perf::highp_now() {
 
 int main(int argc, char **argv) {
     Util::do_all_allocations();
-    ASSERT(Renderer::init("Hello there", 500, 500),
+    ASSERT(Renderer::init("Hello there", 1000, 500),
            "Failed to initalize renderer");
     ASSERT(Mixer::init(),
             "Failed to initalize audio mixer");
@@ -93,7 +93,7 @@ int main(int argc, char **argv) {
         f32 delta = tick - last_tick;
         last_tick = tick;
 
-        Perf::report();
+        //Perf::report();
         Perf::clear();
         START_PERF(MAIN);
         START_PERF(INPUT);
