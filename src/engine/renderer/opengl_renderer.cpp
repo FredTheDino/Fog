@@ -221,7 +221,7 @@ static void resize_window(int width, int height) {
 
 static bool init(const char *title, int width, int height) {
     if (SDL_Init(SDL_INIT_EVERYTHING)) {
-        LOG_MSG("Failed to initalize SDL");
+        LOG("Failed to initalize SDL");
         return false;
     }
     window = SDL_CreateWindow(title, 0, 0, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
@@ -232,7 +232,7 @@ static bool init(const char *title, int width, int height) {
     context = SDL_GL_CreateContext(window);
 
     if (!gladLoadGL()) {
-        LOG_MSG("Failed to load OpenGL");
+        LOG("Failed to load OpenGL");
         return false;
     }
     resize_window(width, height);
@@ -352,7 +352,6 @@ struct StoredImage {
 
 static u32 upload_texture(const Image *image, s32 index) {
     ASSERT(0 <= index && index <= OPENGL_TEXTURE_DEPTH, "Invalid index.");
-    LOG("components: %d", image->components);
     ASSERT(0 < image->components && image->components < 5,
            "Invalid number of components");
     u32 data_format;
@@ -376,8 +375,6 @@ static u32 upload_texture(const Image *image, s32 index) {
     CHECK(image->width == OPENGL_TEXTURE_WIDTH &&
               image->height == OPENGL_TEXTURE_HEIGHT,
           "Not using the entire texture 'slice'.");
-    LOG("ARGS: index: %d, width: %d, height: %d", index,
-        image->width, image->height, data_format, image->data);
     glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, index, image->width,
                     image->height, 1, data_format, GL_UNSIGNED_BYTE, image->data);
     return index;

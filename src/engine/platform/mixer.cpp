@@ -73,7 +73,7 @@ AudioID push_sound(SoundSource source) {
         unlock_audio();
         return {source.gen, source_id};
     } else {
-        ERR_MSG("Not enough free sources, skipping playing of sound");
+        ERR("Not enough free sources, skipping playing of sound");
     }
     unlock_audio();
     return {0, NUM_SOURCES};
@@ -102,7 +102,7 @@ void stop_sound(AudioID id) {
         audio_struct.free_sources[++audio_struct.num_free_sources] = id.slot;
         source->gain = 0.0;
     } else {
-        ERR_MSG("Invalid removal of AudioID that does not exist");
+        ERR("Invalid removal of AudioID that does not exist");
     }
     unlock_audio();
 }

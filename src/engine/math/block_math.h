@@ -81,6 +81,9 @@ typedef f32 real;  // Type used in vectors.
 #include "block_matrix.h"
 #include "block_transform.h"
 
+#include "random.h"
+#include "random.cpp"
+
 #ifdef _EXAMPLE_
 
 //*

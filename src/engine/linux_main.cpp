@@ -30,11 +30,6 @@
 #define SDL
 
 #include "math.h"
-f32 random_real(f32 low, f32 high) { 
-    ASSERT(low < high, "Invalid random range");
-    return ((f32) rand() / (f32) RAND_MAX) * (high - low) + low;
-}
-
 
 #include "util/io.cpp"
 #include "util/memory.cpp"
@@ -73,7 +68,34 @@ u64 Perf::highp_now() {
 //
 #endif
 
+#ifdef DEBUG
+bool show_perf = false;
+void setup_debug_keybindings() {
+    using namespaceInput;
+
+    CHECK(add(K(ESCAPE), Player::P1, Name::QUIT),
+          "Failed to create mapping");
+    CHECK(add(K(F1), Player::P1, Name::DEBUG_PERF),
+          "Failed to create mapping");
+
+    const auto debug_callback = [&show_perf]() {
+        if (pressed(Player::P1, Name::DEBUG_PERF))
+            show_perf = !show_perf;
+    };
+    Logic::add_callback(Logic::At::PRE_UPDATE, debug_callback, Logic::now(),
+                        Logic::FOREVER);
+}
+
+#define SETUP_DEBUG_KEYBINDINGS setup_debug_keybindings()
+#else
+constexpr bool show_perf = false;
+#define SETUP_DEBUG_KEYBINDINGS
+#endif
+
 int main(int argc, char **argv) {
+    using namespace Input;
+    init_random();
+
     Util::do_all_allocations();
     ASSERT(Renderer::init("Hello there", 1000, 500),
            "Failed to initalize renderer");
@@ -82,41 +104,39 @@ int main(int argc, char **argv) {
     Asset::load("data.fog");
     ASSERT(Logic::init(), "Failed to initalize logic system");
 
-    using namespace Input;
-    CHECK(add(&mapping, K(ESCAPE), Player::P1, Name::QUIT),
-          "Failed to create mapping");
-    Game::setup_input();
+    SETUP_DEBUG_KEYBINDINGS;
 
-    f32 last_tick = SDL_GetTicks() / 1000.0f;
+    Logic::frame(SDL_GetTicks() / 1000.0f);
+    Game::setup();
     while (SDL::running) {
-        f32 tick = SDL_GetTicks() / 1000.0f;
-        f32 delta = tick - last_tick;
-        last_tick = tick;
+        Logic::frame(SDL_GetTicks() / 1000.0f);
 
-        //Perf::report();
+        if (show_perf)
+        Perf::report();
         Perf::clear();
         START_PERF(MAIN);
         START_PERF(INPUT);
-        frame(&mapping);
+        clear_input_for_frame();
         STOP_PERF(INPUT);
         SDL::poll_events();
 
-        if (value(&mapping, Player::ANY, Name::QUIT))
+        if (value(Player::ANY, Name::QUIT))
             SDL::running = false;
 
-        Logic::call(Logic::At::PRE_UPDATE, tick, delta);
-        Game::update(delta);
-        Logic::call(Logic::At::POST_UPDATE, tick, delta);
+        Logic::call(Logic::At::PRE_UPDATE);
+        // User defined
+        Game::update(Logic::delta());
+        Logic::call(Logic::At::POST_UPDATE);
 
         Mixer::audio_struct.position = Renderer::global_camera.position;
 
         START_PERF(RENDER);
         Renderer::clear();
 
+        Logic::call(Logic::At::PRE_DRAW);
         // User defined
-        Logic::call(Logic::At::PRE_DRAW, tick, delta);
         Game::draw();
-        Logic::call(Logic::At::POST_DRAW, tick, delta);
+        Logic::call(Logic::At::POST_DRAW);
 
         Renderer::blit();
         STOP_PERF(RENDER);

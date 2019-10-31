@@ -14,6 +14,24 @@ static bool init() {
     return true;
 }
 
+static void frame(f32 time) {
+    if (!logic_system.time) {
+        logic_system.delta = 0;
+        logic_system.time = time;
+        return;
+    }
+    logic_system.delta = time - logic_system.time;
+    logic_system.time = time;
+}
+
+static f32 now() {
+    return logic_system.time;
+}
+
+static f32 delta() {
+    return logic_system.delta;
+}
+
 void TimerBucket::update(f32 time, f32 delta) {
     s16 *slot = &active;
     while (*slot != TimerBucket::NONE) {
@@ -63,7 +81,7 @@ Timer *TimerBucket::get_timer(LogicID id) {
     Timer *timer = timers + id.slot;
     if (timer->gen == id.gen)
         return timer;
-    ERR_MSG("Failed to get timer");
+    ERR("Failed to get timer");
     return nullptr;
 }
 
@@ -127,8 +145,8 @@ static void update_callback(LogicID id, Function<void()> callback, f32 start,
     update_callback(id, f, start, end, spacing);
 }
 
-static void call(At at, f32 time, f32 delta) {
-    logic_system.buckets[at].update(time, delta);
+static void call(At at) {
+    logic_system.buckets[at].update(logic_system.time, logic_system.delta);
 }
 };
 

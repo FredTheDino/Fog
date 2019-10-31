@@ -39,7 +39,7 @@ Sound *fetch_sound(AssetID id) {
 template <typename T>
 size_t read_from_file(FILE *stream, void *ptr, size_t num = 1) {
     if (!num) {
-        ERR_MSG("Has to read something from file, invalid read");
+        ERR("Has to read something from file, invalid read");
         return 0;
     }
     size_t read = 0;
@@ -52,10 +52,13 @@ size_t read_from_file(FILE *stream, void *ptr, size_t num = 1) {
     return read;
 }
 
-void load(const char *file_path) {
+bool load(const char *file_path) {
     system.arena = Util::request_arena();
     FILE *file = fopen(file_path, "rb");
-    ASSERT(file, "Failed to open resource file!");
+    if (!file) {
+        ERR("Failed to open resource file!");
+        return false;
+    }
 
     read_from_file<FileHeader>(file, &system.file_header);
     u32 num_assets = system.file_header.number_of_assets;
@@ -78,7 +81,6 @@ void load(const char *file_path) {
         Header header = system.headers[asset];
         Data *asset_ptr = &system.assets[asset];
         fseek(file, header.offset, SEEK_SET);
-        LOG("Loading: %s", header.file_path);
         read_from_file<Data>(file, asset_ptr);
         switch (header.type) {
         case Type::TEXTURE: {
@@ -104,10 +106,11 @@ void load(const char *file_path) {
             read_from_file<u8>(file, asset_ptr->sound.data, asset_ptr->sound.size);
         } break;
         default:
-            LOG("UNKOWN ASSET TYPE %d", header.type);
+            ERR("UNKOWN ASSET TYPE %d", header.type);
             break;
         };
     }
+    return true;
 }
 
 }  // namespace Asset
