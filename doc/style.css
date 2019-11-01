@@ -1,8 +1,77 @@
 body {
-    margin: 1em;
-    padding: 1em;
     background-color: #EEE;
     font-family: sans-serif;
+    padding: 0px;
+    margin: 0px
+}
+
+nav {
+    left: 0;
+    top: 0;
+    width: 30%;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    position: fixed;
+}
+
+nav h2 {
+    margin-top: 0.5em;
+    padding-left: 0.5em;
+}
+
+nav a {
+    text-decoration: none;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0px;
+    padding-left: 1em;
+}
+
+a:hover {
+    color: #EEE;
+}
+
+nav, nav a {
+    background-color: #CCC;
+    color: #000;
+    font-size: 1.2em;
+}
+
+nav>ul>li>ul, nav>ul>li>ul a {
+    background-color: #DDD;
+    font-size: 1.0em;
+    color: #33;
+}
+
+nav>ul>li>ul>li>ul, nav>ul>li>ul>li>ul a {
+    font-size: 0.9em;
+}
+
+.hideable.hide::before {
+    font-family: monospace;
+    content: "▶ ";
+}
+
+.hideable::before {
+    font-family: monospace;
+    content: "▼ ";
+}
+
+nav>ul>li>ul>li>ul a::before {
+    content: "• ";
+}
+
+.hide + * {
+    display: none;
+}
+
+article {
+    position: relative;
+    left: calc(31%);
+    width: calc(100% - 32%);
 }
 
 .block {

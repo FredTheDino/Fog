@@ -212,16 +212,17 @@ def has_content(region_headings):
 
 def write_documentation(path, documentation):
     with open(path, "w") as f:
-        PREAMBLE = "<html><head><title>Fog - Documentation</title><meta charset=utf-8><link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\"></head><body>"
+        PREAMBLE = "<html><head><title>Fog - Documentation</title><meta charset=utf-8><script src=\"script.js\"></script><link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\"></head><body>"
         f.write(PREAMBLE)
         # Writing nav
+        f.write("<nav><h2>Content</h2>")
         f.write("<ul id=\"nav\">")
         for region, headings in documentation:
             if not has_content(headings): continue
-            f.write(tag("li", link(region.capitalize(), "#" + region)))
+            f.write(tag("li", link(region.capitalize(), "#" + region), "hide hideable"))
             f.write("<li><ul>")
             for heading in headings:
-                f.write(tag("li", link(heading, "#" + make_id_friendly(heading))))
+                f.write(tag("li", link(heading, "#" + make_id_friendly(heading)),  "hide hideable"))
                 f.write("<li><ul>")
                 for comment_type, comment in headings[heading]:
                     if not comment: continue
@@ -239,7 +240,9 @@ def write_documentation(path, documentation):
                     
             f.write("</li></ul>")
         f.write("</ul>")
+        f.write("</nav>")
 
+        f.write("<article>")
         for region, headings in documentation:
             if not has_content(headings): continue
             f.write(tag("h1", region.capitalize(), "region heading", region))
@@ -255,6 +258,7 @@ def write_documentation(path, documentation):
                     elif comment_type == COMMENT:
                         output = format_comment(heading, comment)
                     f.write(output)
+        f.write("</article>")
         f.write("</body></html>")
 
 

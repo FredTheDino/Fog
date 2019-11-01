@@ -43,38 +43,37 @@ void __check(const char* file, int line, const char* expr,
 
 #if _EXAMPLES_
 
-//*
-// Writes a piece of text to the console. "fmt" is a preformatted string
-// and a newline is written after.
-LOG_MSG(fmt)
+///# Debugging
+// This section holds tools to ease the debugging. The
+// ASSERT and CHECK calls can be very usefull and LOG
+// is the only true form of debugging.
+
+///*
 // Similar to "printf" in how it is called, "fmt" is a format
 // string and a newline is written after.
 LOG(fmt, ...)
 
-//*
-// Writes a message to the console as an error. "fmt" is a preformatted string
-// and a newline is written after.
-ERR_MSG(fmt)
+///*
 // Similar to "printf" in how it is called. "fmt" is a preformatted string
 // and a newline is written after.
 ERR(fmt, ...)
 
-//*
+///*
 // Assumes "expr" is true, if this assumption failes, the program crashes
 // and an error is written to the console with extra information and the
 // "msg" provided.
 ASSERT(expr, msg)
 
-//*
+///*
 // Checks if "expr" is false, if it is "msg" is written to the console.
 CHECK(expr, msg)
 
-//*
+///* HALT_AND_CATCH_FIRE
 // Crashes the program unconditionally, no matter where it's placed and
 // where it's called from the program is promptly taken down.
 HALT_AND_CATCH_FIRE
 
-//*
+///* UNREACHABLE
 // Marks this code path as unreachable and writes an error message
 // with the location to the console.
 UNREACHABLE

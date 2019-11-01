@@ -1,5 +1,16 @@
 namespace Util {
 
+///# Memory management
+// Memory mangement is very central to the Fog engine,
+// and the current allocator is a simple arena allocator.
+// Interfacing with this is similar to malloc, but freeing
+// memory is done in bulk.
+//
+// There is also a temporary allocator, this allocator frees
+// resources at the end of the next frame. Thus the memorys
+// lifetime is automatically managed with minimal overhead
+// compared to a garbage collector.
+
 struct MemoryArena {
     bool only_one;
     u64 watermark;
@@ -25,18 +36,18 @@ void do_all_allocations();
 // Swaps the temporary memory.
 void swap_frame_memory();
 
-//*
+///*
 // Request a block of memory, |only_one| doesn't allow the arena to grow as the
 // memory usage is increased but caps it at one buffer. This works in a similar
 // way as "malloc".
 MemoryArena *request_arena(bool only_one = false);
 
-//*
+///*
 // Returns the memory arean to the pool of all available arenas with. Does the
 // same thing as MemoryArena::pop.
 void return_arean(MemoryArena *arena);
 
-//*
+///*
 // Returns a chunk of temporary memory for use over AT MOST
 // FRAME_LAG_FOR_MEMORY frames. These allocations don't need to be freed, and
 // are usually valid for 2 frames.
