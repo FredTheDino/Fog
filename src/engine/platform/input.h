@@ -2,7 +2,12 @@ void (*window_callback)(int, int) = nullptr;
 
 // TODO(ed): Shift and key combinations? Should those be handled?
 
-//*
+///# Input
+// The input system allows players and keys to be mapped to a name.
+// The name is essentially an integer and should be kept in the enum
+// Input::Name.
+
+///* Player type
 // <p>
 // Player is an enum bit-field, with enums for P1, P2, P3 and P4. There
 // are also pseudo-players like "ANY" player, which is all players and "NONE"
@@ -10,6 +15,16 @@ void (*window_callback)(int, int) = nullptr;
 // More players can of course be added but requires some knowledge of the
 // engine. These magic-constans are feed into the input functions and
 // can trivially be used to identify player entities.
+// </p>
+// <p>
+// Possible values are:
+// <ul>
+//    <li>P1 - The first player</li>
+//    <li>P2 - The second player</li>
+//    <li>P3 - The third player</li>
+//    <li>P4 - The fourth player</li>
+//    <li>ANY - Any of the players (Does not currently work when assigning input)</li>
+// </ul>
 // </p>
 
 enum class Player {
@@ -170,90 +185,54 @@ struct InputEvent {
 };
 
 //*
-// Register a new mapping to the input system. <br>
-// <ul>
-//    <li>mapping - The input map, a global one is provided by the engine as
-//    "mapping".</li>
-//    <li>code - The keycode, K(a) generates the keycode for pressing "a".</li>
-//    <li>player - The player that has this binding, can be P1, P2, P3,
-//    P4.</li>
-// </ul>
+// Register a new mapping to the input system.<br>
+// code, the keycode, should be recived from calling K(DESIRED_KEY), DESIRED_KEY
+// should be lowercase letters for normal keys and UPPERCASE for special keys.
+// Player, yhe player that has this binding, can be P1, P2, P3, P4.
 static bool add(InputCode code, Player player, Name name);
 
-//*
+///*
 // Returns true if the input button, stick or key was pressed or released this frame.
 static bool triggered(Player player, Name name);
 
-//*
+///*
 // Returns true if the input button, stick or key was pressed this frame.
 static bool pressed(Player player, Name name);
 
-//*
+///*
 // Returns true if the input button, stick or key was released this frame.
 static bool released(Player player, Name name);
 
-//*
+///*
 // Returns true if the input button, stick or key is held down.
 static bool down(Player player, Name name);
 
-//*
+///*
 // Returns the value of the input, useful for analog input.
 static f32 value(Player player, Name name);
 
-//*
+///*
 // Returns the screen coordinates in pixels for the mouse position.
 static Vec2 mouse_position();
 
-//*
+///*
 // Returns the movement of the mouse this frame, in pixels.
 static Vec2 mouse_move();
 
-//*
+///*
 // Returns true if the mouse button was pressed or released this frame.
 static bool mouse_triggered(u8 button);
 
-//*
+///*
 // Returns true if the mouse button was pressed this frame.
 static bool mouse_pressed(u8 button);
 
-//*
+///*
 // Returns true if the mouse button was released this frame.
 static bool mouse_released(u8 button);
 
-//*
+///*
 // Returns true if the mouse button is held down.
 static bool mouse_down(u8 button);
-
-#ifdef _EXAMPLE_
-
-////
-// <h2>Adding and using input mappings</h2>
-// To add an input mapping, first add the name for the input in the struct
-// "Input::Name" in "/src/engine/platform/input.h". Then the rest is simple,
-// just remember to call it in the initialization function for the game.
-Input::add(K(a), Input::Player::P1, Input::Name::MY_INPUT);
-Input::add(K(d), Input::Player::P2, Input::Name::MY_INPUT);
-// This call adds a new mapping, mapping the key "a" on the keyboard
-// to player 1's "MY_INPUT" and mapping "d" on the keyboard to
-// player 2's "MY_INPUT". To see if the input was activated this
-// frame, simply call:
-if (Input::pressed(Input::Player::P1, Input::Name::MY_INPUT)) {
-    do_stuff();
-}
-if (Input::pressed(Input::Player::ANY, Input::Name::MY_INPUT)) {
-    do_more_stuff();
-}
-// "do_stuff" will be called if the "a" key was pressed THIS FRAME,
-// we only check for the input for player 1. And "do_more_stuff" will
-// be called if either "a" or "b" were pressed, since we removed the
-// requirement of what player pressed it.  Assuming the previous section
-// where the mapping was added was called off course.
-//
-// It might be a good idea to "using namespace Input;" if you are going
-// to do a lot of input calls, since it quite quickly becomes very noise.
-
-
-
-#endif
 
 };  // namespace Input

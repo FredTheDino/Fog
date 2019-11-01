@@ -104,13 +104,13 @@ def link(text, to):
     return "<a href=\"{}\">{}</a>".format(to, text)
 
 
-def strip_non_letters(string):
+def make_id_friendly(string):
     """
-    Only keeps lowercase characters. Mostly used for
-    hyperlinks.
+    Returns the string but made into something that can be used
+    as an ID.
     """
     from re import sub
-    return sub(r"[^a-z]", "", string.lower())
+    return sub(r"[^a-z0-9]", "", string.lower())
 
 
 def process_comment_section(lines):
@@ -149,7 +149,7 @@ def find_comment_title(comment):
 
 
 def find_comment_id(section, comment):
-    return strip_non_letters(section + find_comment_title(comment))
+    return make_id_friendly(section + find_comment_title(comment))
 
 
 def format_comment(section, comment):
@@ -174,11 +174,18 @@ def find_documentation_title(comment):
         for word in line.split(" "):
             if "(" in word:
                 return word[:word.index("(")].replace("*", "")
-    return ":/"
+    return "ERROR-NO-TITLE"
 
 
 def find_documentation_id(section, comment):
-    return strip_non_letters(section + find_documentation_title(comment))
+    for line in comment.split("\n"): 
+        if "///*" in line:
+            potential_title = line[5:].strip()
+            if potential_title:
+                return potential_title
+        if "(" in line and not "//" in line:
+            return make_id_friendly(line)
+    return "ERROR-NO-ID"
 
 
 def format_documentation(section, comment):
@@ -191,7 +198,7 @@ def format_documentation(section, comment):
 
 
 def format_heading(heading, comment):
-    return tag("h2", heading, "section heading", strip_non_letters(heading)) + \
+    return tag("h2", heading, "section heading", make_id_friendly(heading)) + \
            tag("p", comment.replace("///#", "").replace("//", "").strip())
 
 
@@ -214,7 +221,7 @@ def write_documentation(path, documentation):
             f.write(tag("li", link(region.capitalize(), "#" + region)))
             f.write("<li><ul>")
             for heading in headings:
-                f.write(tag("li", link(heading, "#" + strip_non_letters(heading))))
+                f.write(tag("li", link(heading, "#" + make_id_friendly(heading))))
                 f.write("<li><ul>")
                 for comment_type, comment in headings[heading]:
                     if not comment: continue

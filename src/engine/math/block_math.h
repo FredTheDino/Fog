@@ -1,7 +1,7 @@
 #include <math.h>
 #include <stdint.h>
 
-//--
+///# Math
 // <p>
 // The math module holds a ton of usefull math operations.
 // Most of them are defined using the preprocessor macros,
@@ -84,55 +84,55 @@ typedef f32 real;  // Type used in vectors.
 #include "random.h"
 #include "random.cpp"
 
-#ifdef _EXAMPLE_
+#ifdef _COMMENTS_
 
-//*
+///*
 // Returns the larger of "a" and "b" using the "<" operator.
 MAX(a, b)
 
-//*
+///*
 // Returns the smaller of "a" and "b" using the "<" operator.
 MIN(a, b)
 
-//*
+///*
 // Returns the larger absolut value of "a" and "b" using the "<" operator.
 ABS_MAX(a, b)
 
-//*
+///*
 // Returns the smaller absolut value of "a" and "b" using the "<" operator.
 ABS_MIN(a, b)
 
-//*
+///*
 // Lerps between "a" and "b" using the factor "l".
 LERP(a, l, b)
 
-//*
+///*
 // Clamps the value of "v" between "min" and "max".
 CLAMP(min, max, v)
 
-//*
+///*
 // Returns the sign of of "n", where n == 0 => 1
 SIGN_NO_ZERO(n)
 
-//*
+///*
 // Returns the sign of of "n", where n == 0 => 0
 SIGN(n)
 
-//*
+///*
 // Returns true of "l < v < h""
 IN_RANGE(l, h, v) 
 
-//*
+///*
 // Returns the absolute value of "n".
 ABS(n)
 
-//*
+///*
 // a mod b, where a and b are allowed to be a float. Not as fast as the built
 // in "%" operator.
 MOD(a, b)
 
-//*
-// Squares "a".
+///*
+// Squares "a" by multiplying it by itself.
 SQ(a)
 
 #endif

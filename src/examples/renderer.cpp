@@ -65,3 +65,4 @@ Renderer::push_rectangle(V2(2, 2), V2(2, 2), V4(1, 0, 0, 1));
 Renderer::draw_text("Hello World!", 0, 0, 1, ASSET_MONACO_FONT);
 // This will render "Hello World!" at (0, 0) with the height being 1 unit
 // in world coordinates.
+
