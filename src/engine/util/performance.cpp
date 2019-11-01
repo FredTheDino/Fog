@@ -46,7 +46,7 @@ void report() {
     f64 frame_time = clocks[MAIN].last_time;
     AssetID font = ASSET_MONACO_FONT;
     Asset::fetch_font(font)->monospace = true;
-    const f32 font_size = 400.0 / Renderer::global_camera.width;
+    const f32 font_size = 40 / (f32) Renderer::global_camera.width;
     f32 height = messure_text("A", font_size, font).y;
     Vec4 color = V4(1, 1, 1, 1);
     f32 edge = 0.20;

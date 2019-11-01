@@ -16,10 +16,13 @@ def search(region, root):
                                     if path.isfile(path.join(root, f))]]
     return reduce(lambda a, b: a + b, files_in_lists)
 
-# Defines the sorting order for them
-HEADING = 1  # Used to describe what is in this file, the line is also mined for a name.
-DOC = 2 # API referend
-COMMENT = 3
+
+# Used to describe what is in this file, the first line is also
+# mined for a name.
+HEADING = 1  
+DOC = 2  # API referend.
+COMMENT = 3  # Misc comments.
+
 
 def find_comments(file_path):
     """
@@ -49,7 +52,7 @@ def find_comments(file_path):
                         comments.append((current_type, comment))
                     current_type = next_type
                     comment = ""
-                    if current_type == COMMENT:
+                    if current_type != HEADING:
                         comment = line
 
             elif appending_to_comment:
@@ -59,7 +62,6 @@ def find_comments(file_path):
                     comment += line
     if comment:
         comments.append((current_type, comment))
-    print(heading, comments)
     return heading, comments
 
 
@@ -83,6 +85,7 @@ def find_all_comments(files):
         if heading and comments:
             documentation[region][heading] = comments 
     return [(region, documentation[region]) for region in reversed(regions)]
+
 
 def tag(tag, content, html_class="", html_id=""):
     """
@@ -137,20 +140,24 @@ def process_comment_section(lines):
             out += "<br>"
     return out.strip()
 
+
 def find_comment_title(comment):
     """
     Finds the title of a comment.
     """
     return comment[5:comment.index("\n")]
 
+
 def find_comment_id(section, comment):
     return strip_non_letters(section + find_comment_title(comment))
+
 
 def format_comment(section, comment):
     """
     Formats the code according to how a comment should be formatted.
     """
-    return tag("div", process_comment_section(comment.split("\n")[1:]),
+    title = find_comment_title(comment)
+    return tag("div", tag("h3", title) + process_comment_section(comment.split("\n")[1:]),
                "block comment",
                find_comment_id(section, comment))
 
@@ -160,19 +167,25 @@ def find_documentation_title(comment):
     Finds the title for this piece of documentation.
     """
     for line in comment.split("\n"): 
+        if "///*" in line:
+            potential_title = line[5:].strip()
+            if potential_title:
+                return potential_title
         for word in line.split(" "):
             if "(" in word:
-                return word[:word.index("(")]
+                return word[:word.index("(")].replace("*", "")
     return ":/"
+
 
 def find_documentation_id(section, comment):
     return strip_non_letters(section + find_documentation_title(comment))
+
 
 def format_documentation(section, comment):
     """
     Formants the code according to how a comment should be formatted.
     """
-    return tag("div", process_comment_section(comment.split("\n")),
+    return tag("div", process_comment_section(comment.split("\n")[1:]),
                "block doc",
                find_documentation_id(section, comment))
 
@@ -185,7 +198,8 @@ def format_heading(heading, comment):
 def has_content(region_headings):
     for heading in region_headings: 
         for comment_type, comment in region_headings[heading]:
-            return bool(comment)
+            if comment:
+                return True
     return False
 
 
@@ -236,9 +250,8 @@ def write_documentation(path, documentation):
                     f.write(output)
         f.write("</body></html>")
 
+
 if __name__ == "__main__":
-    print("?")
     all_files = search("core", "src/")
     documentation = find_all_comments(all_files)
     write_documentation("doc/doc.html", documentation)
-

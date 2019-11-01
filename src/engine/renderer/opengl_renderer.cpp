@@ -328,8 +328,8 @@ static void push_quad(Vec2 min, Vec2 max, Vec4 color) {
 
 static void push_line(Vec2 start, Vec2 end, Vec4 start_color, Vec4 end_color,
                       f32 thickness) {
-    Vec2 normal = rotate_ccw(start - end);
-    Vec2 offset = normal * thickness;
+    Vec2 normal = normalize(rotate_ccw(start - end));
+    Vec2 offset = normal * thickness * 0.5;
     Vertex verticies[] = {
         {start + offset, V2(0, 0), OPENGL_INVALID_SPRITE, start_color},
         {start - offset, V2(0, 0), OPENGL_INVALID_SPRITE, start_color},
@@ -343,6 +343,7 @@ static void push_line(Vec2 start, Vec2 end, Vec4 start_color, Vec4 end_color,
 }
 
 static void push_point(Vec2 point, Vec4 color, f32 size) {
+    size /= 2.0;
     push_quad(point - V2(size, size), point + V2(size, size), color);
 }
 

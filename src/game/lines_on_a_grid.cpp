@@ -45,7 +45,7 @@ void draw() {
         Renderer::push_line(V2(i, -n), V2(i, n), V4(0, 1, 0, 1));
         Renderer::push_line(V2(-n, i), V2(n, i), V4(1, 0, 0, 1));
     }
-    Renderer::push_point(V2(0, 0), V4(1, 0, 1, 1), 0.2);
+    Renderer::push_point(V2(0, 0), V4(1, 0, 1, 1));
     for (u32 i = 0; i < LEN(point_list); i++)
         Renderer::push_point(point_list[i], color_list[i], 0.01);
 

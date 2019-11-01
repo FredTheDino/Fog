@@ -319,10 +319,6 @@ void dump_asset_file(AssetFile *file, const char *out_path) {
                file_path.c_str());
         fprintf(source_file, "constexpr AssetID ASSET_%s = %lu;\n",
                 file_path.c_str(), i);
-        if (header->type == Asset::Type::TEXTURE) {
-            fprintf(source_file, "constexpr AssetID TEX_%s = %d;\n",
-                    file_path.c_str(), file->assets[i].image.id);
-        }
 
         write_to_file(output_file, header->file_path, header->file_path_length);
         header->file_path = (char *) (string_cur - string_begin);

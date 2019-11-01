@@ -53,6 +53,17 @@ Input::Mapping mapping = {};
 #error "No other platform layer than SDL supported."
 #endif
 
+///# The MAN
+// Something something something
+
+///*
+// This is some exported stuff!
+// Woah, this is pretty neat and flowy!
+void blarg();
+
+//// Doing stuff quickly!
+// Woah, a comment? So <i>cool</i>!
+
 #include <ctime>
 u64 Perf::highp_now() {
     timespec tp;
@@ -71,7 +82,7 @@ u64 Perf::highp_now() {
 #ifdef DEBUG
 bool show_perf = false;
 void setup_debug_keybindings() {
-    using namespaceInput;
+    using namespace Input;
 
     CHECK(add(K(ESCAPE), Player::P1, Name::QUIT),
           "Failed to create mapping");

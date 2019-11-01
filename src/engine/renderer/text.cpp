@@ -12,14 +12,15 @@ Vec2 messure_text(const char *string, f32 size, AssetID font_id) {
             length += font->glyphs[curr].advance + font->glyphs[curr].x_offset;
         }
     }
-    return V2(length * size, font->height * size);
+    return V2(length * size, size);
 }
 
 void draw_text(const char *string, f32 x, f32 y, f32 size, AssetID font_id,
                Vec4 color, f32 edge, bool border) {
     START_PERF(TEXT);
     Asset::Font *font = Asset::fetch_font(font_id);
-    ASSERT(font, "Cannot find font");
+    ASSERT(font, "Cannot find font, the \"id\" passed in should en with _FONT");
+    size /= font->height;
     if (font->monospace) {
         Asset::Font::Glyph std = font->glyphs['A'];
         while (*string) {

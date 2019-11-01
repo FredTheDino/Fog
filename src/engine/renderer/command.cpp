@@ -42,7 +42,6 @@ static void push_quad(Vec2 min, Vec2 max, Vec4 color) {
     Impl::push_quad(min, max, color);
 }
 
-// Queues up a line to be rendered to the screen.
 static void push_line(Vec2 start, Vec2 end, Vec4 start_color, Vec4 end_color,
                       f32 thickness) {
     Impl::push_line(start, end, start_color, end_color, thickness);
@@ -52,7 +51,6 @@ static void push_line(Vec2 start, Vec2 end, Vec4 color,
     Impl::push_line(start, end, color, color, thickness);
 }
 
-// Queues up a point to be rendered to the screen.
 static void push_point(Vec2 point, Vec4 color, f32 size) {
     Impl::push_point(point, color, size);
 }
@@ -67,6 +65,10 @@ static void push_sprite(Vec2 position, Vec2 dimension, AssetID texture,
 	push_quad(position - dimension * 0.5, uv_min, 
 			  position + dimension * 0.5, uv_max,
 			  image->id, color);
+}
+
+static void push_rectangle(Vec2 position, Vec2 dimension, Vec4 color) {
+    Impl::push_quad(position - dimension / 2.0, position + dimension / 2.0, color);
 }
 
 static void push_sdf_quad(Vec2 min, Vec2 max, Vec2 min_uv, Vec2 max_uv,
