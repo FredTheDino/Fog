@@ -55,16 +55,40 @@ static void push_point(Vec2 point, Vec4 color, f32 size) {
     Impl::push_point(point, color, size);
 }
 
-static void push_sprite(Vec2 position, Vec2 dimension, AssetID texture,
-						Vec2 uv_min, Vec2 uv_dimension, Vec4 color) {
-	Image *image = Asset::fetch_image(texture);
+// TODO(ed): It might be smart to seperate out the rotation
+// logic since it adds unnessecary complexity here.
+static void push_sprite(Vec2 position, Vec2 dimension, f32 angle,
+                        AssetID texture, Vec2 uv_min, Vec2 uv_dimension,
+                        Vec4 color) {
     Vec2 inv_dimension = {1.0f / (f32) OPENGL_TEXTURE_WIDTH,
                           1.0f / (f32) OPENGL_TEXTURE_HEIGHT};
     uv_min = hadamard(uv_min, inv_dimension); 
 	Vec2 uv_max = uv_min + hadamard(uv_dimension, inv_dimension);
-	push_quad(position - dimension * 0.5, uv_min, 
-			  position + dimension * 0.5, uv_max,
-			  image->id, color);
+
+    Image *image = Asset::fetch_image(texture);
+    Vec2 right = angle ? rotate(V2(1, 0), angle) : V2(1, 0);
+    Vec2 up = rotate_ccw(right);
+    right *= dimension.x * 0.5;
+    up *= dimension.y * 0.5;
+
+    struct {
+        Vec2 p;
+        Vec2 uv;
+    } coords[] = {
+        {position - right - up, uv_min},
+        {position + right - up, V2(uv_max.x, uv_min.y)},
+        {position + right + up, uv_max},
+        {position - right + up, V2(uv_min.x, uv_max.y)},
+    };
+
+    Impl::push_triangle(coords[0].p, coords[1].p, coords[2].p,
+                        coords[0].uv, coords[1].uv, coords[2].uv,
+                        color, color, color,
+                        image->id);
+    Impl::push_triangle(coords[0].p, coords[2].p, coords[3].p,
+                        coords[0].uv, coords[2].uv, coords[3].uv,
+                        color, color, color,
+                        image->id);
 }
 
 static void push_rectangle(Vec2 position, Vec2 dimension, Vec4 color) {

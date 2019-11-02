@@ -32,7 +32,7 @@ void update(f32 delta) {
     f32 delta_y = down(Player::P1, Name::UP) -
                   down(Player::P1, Name::DOWN);
     Renderer::global_camera.position.y -= delta_y * delta;
-    Renderer::global_camera.zoom = 2.0;
+    Renderer::global_camera.zoom = 1.0 / 3.0;
     if (mouse_pressed(0)) {
         LOG("Mouse{ x:%d, y:%d }", mouse_position().x, mouse_position().y);
     }
@@ -48,6 +48,10 @@ void draw() {
     Renderer::push_point(V2(0, 0), V4(1, 0, 1, 1));
     for (u32 i = 0; i < LEN(point_list); i++)
         Renderer::push_point(point_list[i], color_list[i], 0.01);
+    Renderer::push_sprite(V2(0, 0), V2(1, 1), ((int) floor(Logic::now())) % 4, 
+                          ASSET_DEBUG_TEST, V2(0, 0), V2(64, 64));
+    Renderer::push_sprite(V2(1, 0), V2(1, 1), 0,
+                          ASSET_DEBUG_TEST, V2(0, 0), V2(64, 64));
 
 }
 

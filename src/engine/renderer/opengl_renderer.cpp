@@ -326,6 +326,20 @@ static void push_quad(Vec2 min, Vec2 max, Vec4 color) {
     push_quad(min, V2(-1, -1), max, V2(-1, -1), OPENGL_INVALID_SPRITE, color);
 }
 
+// TODO(ed): Do you want to have different sprites per vertex? Could
+// be a cool effect...
+static void push_triangle(Vec2 p1, Vec2 p2, Vec2 p3,
+                          Vec2 uv1, Vec2 uv2, Vec2 uv3,
+                          Vec4 color1, Vec4 color2, Vec4 color3,
+                          f32 sprite) {
+    Vertex verticies[] = {
+        {p1, uv1, sprite, color1},
+        {p2, uv2, sprite, color2},
+        {p3, uv3, sprite, color3},
+    };
+    sprite_render_queue.push(LEN(verticies), verticies);
+}
+
 static void push_line(Vec2 start, Vec2 end, Vec4 start_color, Vec4 end_color,
                       f32 thickness) {
     Vec2 normal = normalize(rotate_ccw(start - end));

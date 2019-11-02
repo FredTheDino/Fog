@@ -19,7 +19,7 @@ static void clear();
 static void push_quad(Vec2 min, Vec2 min_uv, Vec2 max, Vec2 max_uv, int sprite,
                       Vec4 color = V4(1, 1, 1, 1));
 
-// Queus up a quad to render to the screen, ignoring texture coordinatees.
+// Queues up a quad to render to the screen, ignoring texture coordinates.
 static void push_quad(Vec2 min, Vec2 max, Vec4 color = V4(1, 1, 1, 1));
 
 // Pushes a quad that will be rendered using SDF.
@@ -28,16 +28,19 @@ static void push_sdf_quad(Vec2 min, Vec2 max, Vec2 min_uv, Vec2 max_uv,
                           bool border = false);
 
 ///*
-// Renders a sprite to the screen. The posisiton is the center if the sprite
-// and dimension is the total width of the sprite, both are given in world
-// coordinates, and the uv_min and uv_dimension are given in pixel-coordinates
-// of the texture. The color can be used to tint the sprite by a simple
-// multiply. The texture supplied has to be a loaded texture asset.
-static void push_sprite(Vec2 position, Vec2 dimension, AssetID texture,
-						Vec2 uv_min, Vec2 uv_dimension, Vec4 color = V4(1, 1, 1, 1));
+// Renders a rotated sprite to the screen. The position is the center if the
+// sprite and dimension is the total width of the sprite, both are given in
+// world coordinates, and the uv_min and uv_dimension are given in
+// pixel-coordinates of the texture. The color can be used to tint the sprite
+// by a simple multiply. The texture supplied has to be a loaded texture asset.
+// Angle is given in radians and is the rotation around the center point
+// of the sprite.
+static void push_sprite(Vec2 position, Vec2 dimension, f32 angle,
+                                AssetID texture, Vec2 uv_min, Vec2 uv_dimension,
+                                Vec4 color = V4(1, 1, 1, 1));
 
 ///*
-// Renders a rectangle to the screen. The posisiton is the center if the
+// Renders a rectangle to the screen. The position is the center if the
 // rectangle and the dimension is the total width of the rectangle, both are given
 // in world coordinates. The color will fill the rectangle.
 static void push_rectangle(Vec2 position, Vec2 dimension, Vec4 color=V4(1, 1, 1, 1));
