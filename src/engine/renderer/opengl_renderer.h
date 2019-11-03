@@ -89,7 +89,7 @@ struct RenderQueue {
     void clear();
 
     // Free all resources used by the queue.
-    void destory();
+    void destroy();
 };
 
 // Render state

@@ -205,7 +205,7 @@ void RenderQueue<T>::clear() {
 }
 
 template <typename T>
-void RenderQueue<T>::destory() {
+void RenderQueue<T>::destroy() {
     next_free = 0;
     u32 *buffers = arena->push<u32>(num_buffers);
     for (u32 i = 0; i < num_buffers; i++)

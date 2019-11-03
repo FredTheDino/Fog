@@ -57,15 +57,14 @@ void push_point(Vec2 point, Vec4 color, f32 size) {
 
 // TODO(ed): It might be smart to seperate out the rotation
 // logic since it adds unnessecary complexity here.
-void push_sprite(Vec2 position, Vec2 dimension, f32 angle,
-                        AssetID texture, Vec2 uv_min, Vec2 uv_dimension,
+void push_sprite(s32 slot, Vec2 position, Vec2 dimension, f32 angle,
+                        Vec2 uv_min, Vec2 uv_dimension,
                         Vec4 color) {
     Vec2 inv_dimension = {1.0f / (f32) OPENGL_TEXTURE_WIDTH,
                           1.0f / (f32) OPENGL_TEXTURE_HEIGHT};
     uv_min = hadamard(uv_min, inv_dimension); 
 	Vec2 uv_max = uv_min + hadamard(uv_dimension, inv_dimension);
 
-    Image *image = Asset::fetch_image(texture);
     Vec2 right = angle ? rotate(V2(1, 0), angle) : V2(1, 0);
     Vec2 up = rotate_ccw(right);
     right *= dimension.x * 0.5;
@@ -84,11 +83,17 @@ void push_sprite(Vec2 position, Vec2 dimension, f32 angle,
     Impl::push_triangle(coords[0].p, coords[1].p, coords[2].p,
                         coords[0].uv, coords[1].uv, coords[2].uv,
                         color, color, color,
-                        image->id);
+                        slot);
     Impl::push_triangle(coords[0].p, coords[2].p, coords[3].p,
                         coords[0].uv, coords[2].uv, coords[3].uv,
                         color, color, color,
-                        image->id);
+                        slot);
+}
+
+void push_sprite(Vec2 position, Vec2 dimension, f32 angle,
+                        AssetID asset, Vec2 uv_min, Vec2 uv_dimension,
+                        Vec4 color) {
+    push_sprite(Asset::fetch_image(asset)->id, position, dimension, angle, uv_min, uv_dimension, color);
 }
 
 void push_rectangle(Vec2 position, Vec2 dimension, Vec4 color) {

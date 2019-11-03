@@ -6,6 +6,8 @@ namespace Game {
 static Vec2 point_list[1000];
 static Vec4 color_list[1000];
 
+static Renderer::ParticleSystem system;
+
 void setup() {
     using namespace Input;
     add(K(a), Player::P1, Name::LEFT);
@@ -22,8 +24,9 @@ void setup() {
     Logic::add_callback(Logic::At::PRE_DRAW, callback, Logic::now(),
                         Logic::FOREVER, 0.5);
 
-    Renderer::Impl::set_window_size(1600, 900);
-    Renderer::Impl::set_fullscreen(true);
+    system = Renderer::create_particle_system(500, V2(0, 0));
+    system.one_color = true;
+    system.one_size = false;
 }
 
 // Main logic
@@ -39,6 +42,10 @@ void update(f32 delta) {
     if (mouse_pressed(0)) {
         LOG("Mouse{ x:%d, y:%d }", mouse_position().x, mouse_position().y);
     }
+
+    system.position = rotate(V2(3, 0), Logic::now());
+    system.spawn();
+    system.update(delta);
 }
 
 // Main draw
@@ -57,6 +64,8 @@ void draw() {
                           ASSET_DEBUG_TEST, V2(0, 0), V2(64, 64));
 
     Renderer::push_line(V2(-1, -1), V2(0, 1), V4(1, 1, 1, 1));
+
+    system.draw();
 }
 
 }  // namespace Game

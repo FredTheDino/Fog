@@ -36,6 +36,7 @@
 #include "platform/input.cpp"
 #include "renderer/command.cpp"
 #include "renderer/text.cpp"
+#include "renderer/particle_system.h"
 #include "asset/asset.cpp"
 #include "util/performance.cpp"
 
