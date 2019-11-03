@@ -118,7 +118,7 @@ void unlock_audio() {
 #define S16_TO_F32(S) ((f32) (S) / ((f32) 0xEFFF))
 
 void audio_callback(void* userdata, u8* stream, int len) {
-    static f32 time = 0.0;
+    f32 time = 0.0;
     AudioStruct *data = (AudioStruct *) userdata;
     f32 *output_stream = (f32*) stream;
     const f32 TIME_STEP = data->time_step;

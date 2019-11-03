@@ -26,6 +26,7 @@ namespace Asset {
 
 const u32 ASSET_ID_NO_ASSET = 0xFFFF;
 
+#pragma pack(push, 8) // Standard
 enum class Type {
     NONE,
     TEXTURE,
@@ -37,7 +38,6 @@ enum class Type {
     LEVEL
 };
 
-#pragma pack(4)
 struct FileHeader {
     u64 number_of_assets;
     u64 size_of_headers;
@@ -46,12 +46,6 @@ struct FileHeader {
 };
 
 struct Header {
-    static const char *string_list_base;
-
-    static void set_string_list_ptr(const char *string_list) {
-        string_list_base = string_list;
-    }
-
     // Relative pointer until "rebuild_pointers".
     Type type;
     char *file_path;
@@ -120,6 +114,8 @@ struct Data {
         Font font;
     };
 };
+
+#pragma pack(pop)
 
 ///*
 // Checks if the passed in "id" is mapped to an image,

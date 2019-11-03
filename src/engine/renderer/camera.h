@@ -1,6 +1,5 @@
 namespace Renderer {
 
-#pragma pack(4)
 
 ///# Camera
 // The camera is very usefull when you want to decide what the
@@ -9,12 +8,14 @@ namespace Renderer {
 ///* Camera struct
 // The camera struct is how a camera is controlled. This struct can
 // give you fine graind camera controll.
+#pragma pack(push, 1)
 struct Camera {
     Vec2 position;
     f32 zoom = 1.0;
     f32 aspect_ratio; // height / width
     f32 width, height;
 };
+#pragma pack(pop)
 
 Camera global_camera;
 

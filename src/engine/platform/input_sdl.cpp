@@ -2,11 +2,11 @@ namespace SDL {
 static bool running = true;
 
 #define K(key) (SDL::key_to_input_code((SDLK_##key)))
-static Input::InputCode key_to_input_code(s32 scancode) {
+Input::InputCode key_to_input_code(s32 scancode) {
     return scancode << 3 | 0b0001;
 }
 
-static void poll_events() {
+void poll_events() {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         switch (event.type) {

@@ -10,7 +10,7 @@ struct Program {
     operator bool() const { return id != ERROR().id; }
 };
 
-#pragma pack(1)
+#pragma pack(push, 1)
 struct Vertex {
     Vec2 position;
     Vec2 texture;
@@ -27,6 +27,7 @@ struct SdfVertex {
     f32  high;
     s32  border;
 };
+#pragma pack(pop)
 
 #define OPENGL_INVALID_SPRITE -1.0
 
@@ -94,15 +95,64 @@ struct RenderQueue {
 // Render state
 Program master_shader_program;
 Program font_shader_program;
+Program post_process_shader_program;
 
 RenderQueue<Vertex> sprite_render_queue;
 RenderQueue<SdfVertex> font_render_queue;
 
-GLuint texture;
+GLuint sprite_texture_array;
+
+GLuint screen_fbo;
+GLuint screen_rbo;
+// A quad that covers the entire screen.
+GLuint screen_quad_vao;
+GLuint screen_quad_vbo;
+GLuint screen_texture_location;
+
+unsigned int screen_texture;
+
 
 // OpenGL global variables
 SDL_Window *window;
 SDL_GLContext context;
+
+void set_window_position(int x, int y) {
+    SDL_SetWindowPosition(window, x, y);
+}
+
+Vec2 get_window_position() {
+    int x, y;
+    SDL_GetWindowPosition(window, &x, &y);
+    return V2(x, y);
+}
+
+void set_window_size(int w, int h) {
+    SDL_SetWindowSize(window, w, h);
+}
+
+Vec2 get_window_size() {
+    int x, y;
+    SDL_GetWindowSize(window, &x, &y);
+    return V2(x, y);
+}
+
+void set_window_title(const char *title) {
+    SDL_SetWindowTitle(window, title);
+}
+
+bool is_fullscreen = false;
+void set_fullscreen(bool fullscreen) {
+    is_fullscreen = fullscreen;
+    if (is_fullscreen) {
+        SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+    } else {
+        SDL_SetWindowFullscreen(window, 0);
+    }
+}
+
+void toggle_fullscreen() {
+    set_fullscreen(!is_fullscreen);
+}
 
 void GLAPIENTRY gl_debug_message(GLenum source, GLenum type, GLuint id,
                                  GLenum severity, GLsizei length,

@@ -3,8 +3,8 @@
 
 namespace Game {
 
-Vec2 point_list[1000];
-Vec4 color_list[1000];
+static Vec2 point_list[1000];
+static Vec4 color_list[1000];
 
 void setup() {
     using namespace Input;
@@ -13,7 +13,7 @@ void setup() {
     add(K(w), Player::P1, Name::UP);
     add(K(s), Player::P1, Name::DOWN);
 
-    const auto callback = [&point_list, &color_list]() {
+    const auto callback = []() {
         for (u32 i = 0; i < LEN(point_list); i++)
             point_list[i] = random_unit_vec2();
         for (u32 i = 0; i < LEN(color_list); i++)
@@ -21,6 +21,9 @@ void setup() {
     };
     Logic::add_callback(Logic::At::PRE_DRAW, callback, Logic::now(),
                         Logic::FOREVER, 0.5);
+
+    Renderer::Impl::set_window_size(1600, 900);
+    Renderer::Impl::set_fullscreen(true);
 }
 
 // Main logic
@@ -53,6 +56,7 @@ void draw() {
     Renderer::push_sprite(V2(1, 0), V2(1, 1), 0,
                           ASSET_DEBUG_TEST, V2(0, 0), V2(64, 64));
 
+    Renderer::push_line(V2(-1, -1), V2(0, 1), V4(1, 1, 1, 1));
 }
 
 }  // namespace Game

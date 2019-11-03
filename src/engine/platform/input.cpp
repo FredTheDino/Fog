@@ -1,6 +1,6 @@
 namespace Input {
 
-static Binding *find_binding(InputCode code) {
+Binding *find_binding(InputCode code) {
     s64 low = 0;
     s64 high = global_mapping.used_bindings;
     while (low <= high) {
@@ -18,7 +18,7 @@ static Binding *find_binding(InputCode code) {
     return nullptr;
 }
 
-static void insert(Binding binding) {
+void insert(Binding binding) {
     ASSERT(global_mapping.used_bindings < NUM_TOTAL_BINDINGS, "Too many bindings");
 
     Binding *it = global_mapping.bindings + global_mapping.used_bindings;
@@ -30,7 +30,7 @@ static void insert(Binding binding) {
     global_mapping.used_bindings += 1;
 }
 
-static bool add(InputCode code, Player player, Name name) {
+bool add(InputCode code, Player player, Name name) {
     Binding binding = {code, player, name, 0};
 
     // Check if there is a free binding.
@@ -56,7 +56,7 @@ static bool add(InputCode code, Player player, Name name) {
 // TODO(ed): This can be acchived with a time stamp and 2 bit
 // variables. But if you check more than each button every frame,
 // this saves performance.
-static void clear_input_for_frame() {
+void clear_input_for_frame() {
     for (u32 player = 0; player < (u32) Player::NUM; player++) {
         for (u32 button_id = 0; button_id < NUM_BINDINGS_PER_CONTROLLER;
              button_id++) {
@@ -73,7 +73,7 @@ static void clear_input_for_frame() {
     global_mapping.mouse.state[2] = clear_frame_flag(global_mapping.mouse.state[2]);
 }
 
-static bool activate(InputCode code, f32 value) {
+bool activate(InputCode code, f32 value) {
     Binding *binding = find_binding(code);
     if (!binding) return false;
     u32 index = binding->index();
@@ -99,7 +99,7 @@ static bool activate(InputCode code, f32 value) {
     }                      \
     }
 
-static bool triggered(Player player, Name name) {
+bool triggered(Player player, Name name) {
     BEGIN_BINDINGS_BLOCK {
         if ((u32) button.state & (u32) ButtonState::TRIGGERED) return true;
     }
@@ -107,7 +107,7 @@ static bool triggered(Player player, Name name) {
     return false;
 }
 
-static bool pressed(Player player, Name name) {
+bool pressed(Player player, Name name) {
     BEGIN_BINDINGS_BLOCK {
         if (button.state == ButtonState::PRESSED) return true;
     }
@@ -115,7 +115,7 @@ static bool pressed(Player player, Name name) {
     return false;
 }
 
-static bool released(Player player, Name name) {
+bool released(Player player, Name name) {
     BEGIN_BINDINGS_BLOCK {
         if (button.state == ButtonState::RELEASED) return true;
     }
@@ -123,7 +123,7 @@ static bool released(Player player, Name name) {
     return false;
 }
 
-static bool down(Player player, Name name) {
+bool down(Player player, Name name) {
     BEGIN_BINDINGS_BLOCK {
         if (button.is_down()) return true;
     }
@@ -131,7 +131,7 @@ static bool down(Player player, Name name) {
     return false;
 }
 
-static f32 value(Player player, Name name) {
+f32 value(Player player, Name name) {
     u32 num_down = 0;
     f32 value = 0;
     BEGIN_BINDINGS_BLOCK {
@@ -144,27 +144,27 @@ static f32 value(Player player, Name name) {
     return 0;
 }
 
-static Vec2 mouse_position() {
+Vec2 mouse_position() {
     return V2(global_mapping.mouse.x, global_mapping.mouse.y);
 }
 
-static Vec2 mouse_move() {
+Vec2 mouse_move() {
     return V2(global_mapping.mouse.move_x, global_mapping.mouse.move_y);
 }
 
-static bool mouse_triggered(u8 button) {
+bool mouse_triggered(u8 button) {
     return (u32)global_mapping.mouse.state[button] & (u32)ButtonState::TRIGGERED;
 }
 
-static bool mouse_pressed(u8 button) {
+bool mouse_pressed(u8 button) {
     return (u32)global_mapping.mouse.state[button] == (u32)ButtonState::PRESSED;
 }
 
-static bool mouse_released(u8 button) {
+bool mouse_released(u8 button) {
     return (u32)global_mapping.mouse.state[button] == (u32)ButtonState::RELEASED;
 }
 
-static bool mouse_down(u8 button) {
+bool mouse_down(u8 button) {
     return (u32)global_mapping.mouse.state[button] & (u32)ButtonState::DOWN;
 }
 

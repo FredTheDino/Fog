@@ -3,7 +3,7 @@ Vec2 messure_text(const char *string, f32 size, AssetID font_id) {
     ASSERT(font, "Cannot find font");
     f32 length = 0;
     if (font->monospace) {
-        while (*(string++)) length += font->glyphs['A'].advance;
+        while (*(string++)) length += font->glyphs[(u8) 'A'].advance;
     } else {
         u8 prev = '\0';
         while (*string) {
@@ -22,7 +22,7 @@ void draw_text(const char *string, f32 x, f32 y, f32 size, AssetID font_id,
     ASSERT(font, "Cannot find font, the \"id\" passed in should en with _FONT");
     size /= font->height;
     if (font->monospace) {
-        Asset::Font::Glyph std = font->glyphs['A'];
+        Asset::Font::Glyph std = font->glyphs[(u8) 'A'];
         while (*string) {
             u8 curr = *(string++);
             Asset::Font::Glyph glyph = font->glyphs[curr];

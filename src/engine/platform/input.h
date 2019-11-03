@@ -96,11 +96,11 @@ enum class ButtonState {
     TRIGGERED = 0b10,
 };
 
-static ButtonState clear_frame_flag(ButtonState state) {
+ButtonState clear_frame_flag(ButtonState state) {
     return (ButtonState)((u8)state & 0b01);
 }
 
-static ButtonState generate_from_down(bool down) {
+ButtonState generate_from_down(bool down) {
     return down ? ButtonState::PRESSED : ButtonState::DOWN;
 }
 
@@ -189,50 +189,50 @@ struct InputEvent {
 // code, the keycode, should be recived from calling K(DESIRED_KEY), DESIRED_KEY
 // should be lowercase letters for normal keys and UPPERCASE for special keys.
 // Player, yhe player that has this binding, can be P1, P2, P3, P4.
-static bool add(InputCode code, Player player, Name name);
+bool add(InputCode code, Player player, Name name);
 
 ///*
 // Returns true if the input button, stick or key was pressed or released this frame.
-static bool triggered(Player player, Name name);
+bool triggered(Player player, Name name);
 
 ///*
 // Returns true if the input button, stick or key was pressed this frame.
-static bool pressed(Player player, Name name);
+bool pressed(Player player, Name name);
 
 ///*
 // Returns true if the input button, stick or key was released this frame.
-static bool released(Player player, Name name);
+bool released(Player player, Name name);
 
 ///*
 // Returns true if the input button, stick or key is held down.
-static bool down(Player player, Name name);
+bool down(Player player, Name name);
 
 ///*
 // Returns the value of the input, useful for analog input.
-static f32 value(Player player, Name name);
+f32 value(Player player, Name name);
 
 ///*
 // Returns the screen coordinates in pixels for the mouse position.
-static Vec2 mouse_position();
+Vec2 mouse_position();
 
 ///*
 // Returns the movement of the mouse this frame, in pixels.
-static Vec2 mouse_move();
+Vec2 mouse_move();
 
 ///*
 // Returns true if the mouse button was pressed or released this frame.
-static bool mouse_triggered(u8 button);
+bool mouse_triggered(u8 button);
 
 ///*
 // Returns true if the mouse button was pressed this frame.
-static bool mouse_pressed(u8 button);
+bool mouse_pressed(u8 button);
 
 ///*
 // Returns true if the mouse button was released this frame.
-static bool mouse_released(u8 button);
+bool mouse_released(u8 button);
 
 ///*
 // Returns true if the mouse button is held down.
-static bool mouse_down(u8 button);
+bool mouse_down(u8 button);
 
 };  // namespace Input

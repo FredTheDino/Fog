@@ -56,7 +56,7 @@ static Program compile_shader_program_from_source(const char *source) {
         return Program::ERROR();
     }
 
-    unsigned int block = glGetUniformBlockIndex(shader, "Camera");   
+    unsigned int block = glGetUniformBlockIndex(shader, "Camera");
     glUniformBlockBinding(shader, block, GLSL_CAMERA_BLOCK);
 
     return shader;
@@ -214,17 +214,132 @@ void RenderQueue<T>::destory() {
     glDeleteBuffers(num_buffers, buffers);
 }
 
-static void resize_window(int width, int height) {
+void resize_window(int width, int height) {
     recalculate_global_aspect_ratio(width, height);
     glViewport(0, 0, width, height);
+
+    glBindTexture(GL_TEXTURE_2D, screen_texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
+            GL_UNSIGNED_BYTE, NULL);
+
+    glBindRenderbuffer(GL_RENDERBUFFER, screen_rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8,
+            width, height);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
 }
 
-static bool init(const char *title, int width, int height) {
+void rebuild_frame_buffers(int width, int height) {
+    glGenTextures(1, &screen_texture);
+    glBindTexture(GL_TEXTURE_2D, screen_texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
+            GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glGenFramebuffers(1, &screen_fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, screen_fbo);  
+    {
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                               GL_TEXTURE_2D, screen_texture, 0);
+
+        glGenRenderbuffers(1, &screen_rbo);
+        glBindRenderbuffer(GL_RENDERBUFFER, screen_rbo);
+        {
+            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8,
+                                  width, height);
+        }
+        glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
+                                  GL_RENDERBUFFER, screen_rbo);
+
+        if (glCheckFramebufferStatus(screen_fbo) != GL_FRAMEBUFFER_COMPLETE)
+            ERR("Incomplete framebuffer");
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void create_frame_buffers(int width, int height) {
+    glGenTextures(1, &screen_texture);
+    glBindTexture(GL_TEXTURE_2D, screen_texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
+            GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glGenFramebuffers(1, &screen_fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, screen_fbo);  
+    {
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                               GL_TEXTURE_2D, screen_texture, 0);
+
+        glGenRenderbuffers(1, &screen_rbo);
+        glBindRenderbuffer(GL_RENDERBUFFER, screen_rbo);
+        {
+            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8,
+                                  width, height);
+        }
+        glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
+                                  GL_RENDERBUFFER, screen_rbo);
+
+        if (glCheckFramebufferStatus(screen_fbo) != GL_FRAMEBUFFER_COMPLETE)
+            ERR("Incomplete framebuffer");
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    Vec4 quad_verticies[] = {
+        V4(-1, -1, 0, 0),
+        V4( 1, -1, 1, 0),
+        V4( 1,  1, 1, 1),
+
+        V4(-1, -1, 0, 0),
+        V4( 1,  1, 1, 1),
+        V4(-1,  1, 0, 1),
+    };
+
+    glGenVertexArrays(1, &screen_quad_vao);
+    glBindVertexArray(screen_quad_vao);
+
+    glGenBuffers(1, &screen_quad_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, screen_quad_vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quad_verticies), &quad_verticies,
+                 GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vec4),
+                          (void *) offsetof(Vec4, x));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vec4),
+                          (void *) offsetof(Vec4, z));
+    glBindVertexArray(0);
+}
+
+void render_post_processing() {
+    post_process_shader_program.bind();
+
+    glBindTexture(GL_TEXTURE_2D, screen_texture);
+    glActiveTexture(GL_TEXTURE1);
+    glUniform1i(screen_texture_location, 1);
+
+    glBindVertexArray(screen_quad_vao);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(0);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+bool init(const char *title, int width, int height) {
     if (SDL_Init(SDL_INIT_EVERYTHING)) {
         LOG("Failed to initalize SDL");
         return false;
     }
-    window = SDL_CreateWindow(title, 0, 0, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+    window = SDL_CreateWindow(title, 0, 0, width, height,
+                              SDL_WINDOW_OPENGL);
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
@@ -247,7 +362,7 @@ static bool init(const char *title, int width, int height) {
 
     glGenBuffers(1, &ubo_camera);
     glBindBuffer(GL_UNIFORM_BUFFER, ubo_camera);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(Camera), NULL, GL_STATIC_DRAW);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(Camera), NULL, GL_STREAM_DRAW);
     glBindBufferBase(GL_UNIFORM_BUFFER, GLSL_CAMERA_BLOCK, ubo_camera);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
@@ -262,11 +377,19 @@ static bool init(const char *title, int width, int height) {
     font_shader_program = compile_shader_program_from_source(source);
     ASSERT(font_shader_program, "Failed to compile shader");
 
+    ASSERT(source = Util::dump_file("res/post_process_shader.glsl"),
+           "Failed to read file.");
+    post_process_shader_program = compile_shader_program_from_source(source);
+    ASSERT(post_process_shader_program, "Failed to compile shader");
+    screen_texture_location = glGetUniformLocation(post_process_shader_program.id,
+                                               "screen_sampler");
+    create_frame_buffers(width, height);
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
+    glGenTextures(1, &sprite_texture_array);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, sprite_texture_array);
 
     glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RGBA8, OPENGL_TEXTURE_WIDTH,
                    OPENGL_TEXTURE_HEIGHT, OPENGL_TEXTURE_DEPTH);
@@ -283,11 +406,11 @@ static bool init(const char *title, int width, int height) {
     return true;
 }
 
-static void push_verticies(u32 num_verticies, Vertex *verticies) {
+void push_verticies(u32 num_verticies, Vertex *verticies) {
     sprite_render_queue.push(num_verticies, verticies);
 }
 
-static void push_sdf_quad(Vec2 min, Vec2 max, Vec2 min_uv, Vec2 max_uv,
+void push_sdf_quad(Vec2 min, Vec2 max, Vec2 min_uv, Vec2 max_uv,
                           f32 sprite, Vec4 color, f32 low, f32 high,
                           bool border) {
     SdfVertex verticies[] = {
@@ -308,7 +431,7 @@ static void push_sdf_quad(Vec2 min, Vec2 max, Vec2 min_uv, Vec2 max_uv,
     font_render_queue.push(LEN(verticies), verticies);
 }
 
-static void push_quad(Vec2 min, Vec2 min_uv, Vec2 max, Vec2 max_uv,
+void push_quad(Vec2 min, Vec2 min_uv, Vec2 max, Vec2 max_uv,
                       f32 sprite, Vec4 color) {
     Vertex verticies[] = {
         {V2(min.x, min.y), V2(min_uv.x, max_uv.y), sprite, color},
@@ -322,13 +445,13 @@ static void push_quad(Vec2 min, Vec2 min_uv, Vec2 max, Vec2 max_uv,
     sprite_render_queue.push(LEN(verticies), verticies);
 }
 
-static void push_quad(Vec2 min, Vec2 max, Vec4 color) {
+void push_quad(Vec2 min, Vec2 max, Vec4 color) {
     push_quad(min, V2(-1, -1), max, V2(-1, -1), OPENGL_INVALID_SPRITE, color);
 }
 
 // TODO(ed): Do you want to have different sprites per vertex? Could
 // be a cool effect...
-static void push_triangle(Vec2 p1, Vec2 p2, Vec2 p3,
+void push_triangle(Vec2 p1, Vec2 p2, Vec2 p3,
                           Vec2 uv1, Vec2 uv2, Vec2 uv3,
                           Vec4 color1, Vec4 color2, Vec4 color3,
                           f32 sprite) {
@@ -340,7 +463,7 @@ static void push_triangle(Vec2 p1, Vec2 p2, Vec2 p3,
     sprite_render_queue.push(LEN(verticies), verticies);
 }
 
-static void push_line(Vec2 start, Vec2 end, Vec4 start_color, Vec4 end_color,
+void push_line(Vec2 start, Vec2 end, Vec4 start_color, Vec4 end_color,
                       f32 thickness) {
     Vec2 normal = normalize(rotate_ccw(start - end));
     Vec2 offset = normal * thickness * 0.5;
@@ -356,7 +479,7 @@ static void push_line(Vec2 start, Vec2 end, Vec4 start_color, Vec4 end_color,
     sprite_render_queue.push(LEN(verticies), verticies);
 }
 
-static void push_point(Vec2 point, Vec4 color, f32 size) {
+void push_point(Vec2 point, Vec4 color, f32 size) {
     size /= 2.0;
     push_quad(point - V2(size, size), point + V2(size, size), color);
 }
@@ -365,7 +488,7 @@ struct StoredImage {
     u32 width, height;
 };
 
-static u32 upload_texture(const Image *image, s32 index) {
+u32 upload_texture(const Image *image, s32 index) {
     ASSERT(0 <= index && index <= OPENGL_TEXTURE_DEPTH, "Invalid index.");
     ASSERT(0 < image->components && image->components < 5,
            "Invalid number of components");
@@ -395,20 +518,34 @@ static u32 upload_texture(const Image *image, s32 index) {
     return index;
 }
 
-static void clear() { glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT); }
+void clear() { glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT); }
 
-static void blit() {
+void blit() {
     glBindBuffer(GL_UNIFORM_BUFFER, ubo_camera);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Camera), &global_camera);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-    master_shader_program.bind();
-    sprite_render_queue.draw();
+    glBindFramebuffer(GL_FRAMEBUFFER, screen_fbo);  
+    {
+        glClearColor(0.3f, 0.1f, 0.2f, 1.0f);
+        clear();
 
-    font_shader_program.bind();
-    font_render_queue.draw();
+        master_shader_program.bind();
+        sprite_render_queue.draw();
+
+        font_shader_program.bind();
+        font_render_queue.draw();
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);  
+    glClearColor(0.1f, 0.3f, 0.2f, 1.0f);
+    clear();
+    render_post_processing();
+    // TODO(ed): This is where screen space reflections can be rendered.
+    // TODO(ed): Passing values is kinda tricky right now...
 
     SDL_GL_SwapWindow(window);
+
     font_render_queue.clear();
     sprite_render_queue.clear();
 }

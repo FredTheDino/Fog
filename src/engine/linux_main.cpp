@@ -69,7 +69,7 @@ u64 Perf::highp_now() {
 #endif
 
 #ifdef DEBUG
-bool show_perf = false;
+static bool show_perf = false;
 void setup_debug_keybindings() {
     using namespace Input;
 
@@ -78,7 +78,7 @@ void setup_debug_keybindings() {
     CHECK(add(K(F1), Player::P1, Name::DEBUG_PERF),
           "Failed to create mapping");
 
-    const auto debug_callback = [&show_perf]() {
+    const auto debug_callback = []() {
         if (pressed(Player::P1, Name::DEBUG_PERF))
             show_perf = !show_perf;
     };
@@ -142,6 +142,12 @@ int main(int argc, char **argv) {
         STOP_PERF(RENDER);
         STOP_PERF(MAIN);
     }
-
+    
+    __close_app_responsibly();
     return 0;
 }
+
+void __close_app_responsibly() {
+    Renderer::Impl::set_fullscreen(false);
+}
+

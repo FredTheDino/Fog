@@ -1,6 +1,6 @@
 namespace Logic {
 
-static bool init() {
+bool init() {
     logic_system.arena = Util::request_arena();
     for (s32 i = 0; i < At::COUNT; i++) {
         TimerBucket *bucket = logic_system.buckets + i;
@@ -9,12 +9,12 @@ static bool init() {
         for (s32 j = 0; j < TimerBucket::NUM_TIMERS - 1; j++) {
             bucket->timers[j].forward = j + 1;
         }
-        bucket->timers[TimerBucket::NUM_TIMERS].forward = TimerBucket::NONE;
+        bucket->timers[TimerBucket::NUM_TIMERS - 1].forward = TimerBucket::NONE;
     }
     return true;
 }
 
-static void frame(f32 time) {
+void frame(f32 time) {
     if (!logic_system.time) {
         logic_system.delta = 0;
         logic_system.time = time;
@@ -24,11 +24,11 @@ static void frame(f32 time) {
     logic_system.time = time;
 }
 
-static f32 now() {
+f32 now() {
     return logic_system.time;
 }
 
-static f32 delta() {
+f32 delta() {
     return logic_system.delta;
 }
 
@@ -85,7 +85,7 @@ Timer *TimerBucket::get_timer(LogicID id) {
     return nullptr;
 }
 
-static LogicID add_callback(At at, Callback callback, f32 start, f32 end,
+LogicID add_callback(At at, Callback callback, f32 start, f32 end,
                             f32 spacing) {
     ASSERT(start != FOREVER, "I'm sorry Dave, I can't let you do that.");
     Timer t = {0, 0, start, start, end, spacing, callback};
@@ -94,29 +94,29 @@ static LogicID add_callback(At at, Callback callback, f32 start, f32 end,
     return id;
 }
 
-static LogicID add_callback(At at, Function<void(f32, f32)> callback, f32 start,
+LogicID add_callback(At at, Function<void(f32, f32)> callback, f32 start,
                             f32 end, f32 spacing) {
     Callback f = [callback](f32 a, f32 b, f32 c) { callback(a, b); };
     return add_callback(at, f, start, end, spacing);
 }
 
-static LogicID add_callback(At at, Function<void(f32)> callback, f32 start,
+LogicID add_callback(At at, Function<void(f32)> callback, f32 start,
                             f32 end, f32 spacing) {
     Callback f = [callback](f32 a, f32 b, f32 c) { callback(a); };
     return add_callback(at, f, start, end, spacing);
 }
 
-static LogicID add_callback(At at, Function<void()> callback, f32 start,
+LogicID add_callback(At at, Function<void()> callback, f32 start,
                             f32 end, f32 spacing) {
     Callback f = [callback](f32 a, f32 b, f32 c) { callback(); };
     return add_callback(at, f, start, end, spacing);
 }
 
-static void remove_callback(LogicID id) {
+void remove_callback(LogicID id) {
     logic_system.buckets[id.at].remove_timer(id);
 }
 
-static void update_callback(LogicID id, Callback callback,
+void update_callback(LogicID id, Callback callback,
                             f32 start, f32 end, f32 spacing) {
     Timer *timer = logic_system.buckets[id.at].get_timer(id);
     CHECK(timer, "Failed to find timer");
@@ -127,25 +127,25 @@ static void update_callback(LogicID id, Callback callback,
     timer->callback = callback;
 }
 
-static void update_callback(LogicID id, Function<void(f32, f32)> callback, f32 start,
+void update_callback(LogicID id, Function<void(f32, f32)> callback, f32 start,
                             f32 end, f32 spacing) {
     Callback f = [callback](f32 a, f32 b, f32 c) { callback(a, b); };
     update_callback(id, f, start, end, spacing);
 }
 
-static void update_callback(LogicID id, Function<void(f32)> callback, f32 start,
+void update_callback(LogicID id, Function<void(f32)> callback, f32 start,
                             f32 end, f32 spacing) {
     Callback f = [callback](f32 a, f32 b, f32 c) { callback(a); };
     update_callback(id, f, start, end, spacing);
 }
 
-static void update_callback(LogicID id, Function<void()> callback, f32 start,
+void update_callback(LogicID id, Function<void()> callback, f32 start,
                             f32 end, f32 spacing) {
     Callback f = [callback](f32 a, f32 b, f32 c) { callback(); };
     update_callback(id, f, start, end, spacing);
 }
 
-static void call(At at) {
+void call(At at) {
     logic_system.buckets[at].update(logic_system.time, logic_system.delta);
 }
 };

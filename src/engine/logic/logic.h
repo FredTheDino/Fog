@@ -133,49 +133,49 @@ struct LogicSystem {
 // Adds a callback to the list of callbacks to be called, and
 // checks if the "start" time has passed before updating, stopping
 // all execution after the "end" has been reached.
-static LogicID add_callback(At at, Callback callback, f32 start = 0.0,
+LogicID add_callback(At at, Callback callback, f32 start = 0.0,
                             f32 end = ONCE, f32 spacing = 0.0);
 
-static LogicID add_callback(At at, Function<void(f32, f32)> callback,
+LogicID add_callback(At at, Function<void(f32, f32)> callback,
                             f32 start = 0.0, f32 end = ONCE, f32 spacing = 0.0);
-static LogicID add_callback(At at, Function<void(f32)> callback,
+LogicID add_callback(At at, Function<void(f32)> callback,
                             f32 start = 0.0, f32 end = ONCE, f32 spacing = 0.0);
-static LogicID add_callback(At at, Function<void()> callback, f32 start = 0.0,
+LogicID add_callback(At at, Function<void()> callback, f32 start = 0.0,
                             f32 end = ONCE, f32 spacing = 0.0);
 
 ///*
 // Replaces a callback with another one, thus removing one and replacing
 // the old one with the new callback.
-static void update_callback(LogicID id, Callback callback, f32 start, f32 end,
+void update_callback(LogicID id, Callback callback, f32 start, f32 end,
                             f32 spacing);
 
-static void update_callback(LogicID at, Function<void(f32, f32)> callback,
+void update_callback(LogicID at, Function<void(f32, f32)> callback,
                                f32 start = 0.0, f32 end = ONCE,
                                f32 spacing = 0.0);
-static void update_callback(LogicID at, Function<void(f32)> callback,
+void update_callback(LogicID at, Function<void(f32)> callback,
                                f32 start = 0.0, f32 end = ONCE,
                                f32 spacing = 0.0);
-static void update_callback(LogicID at, Function<void()> callback,
+void update_callback(LogicID at, Function<void()> callback,
                                f32 start = 0.0, f32 end = ONCE,
                                f32 spacing = 0.0);
 
 ///*
 // Stops a callback from being called, making sure it is never updated again.
-static void remove_callback(LogicID id);
+void remove_callback(LogicID id);
 
 ///*
 // Returns the current time.
-static f32 now();
+f32 now();
 
 ///*
 // Returns the time since the last frame.
-static f32 delta();
+f32 delta();
 
 // Updates the internal clock.
-static void frame(f32 time);
+void frame(f32 time);
 
 // Calls the callbacks at the time "at".
-static void call(At at);
+void call(At at);
 
 }  // namespace Logic
 

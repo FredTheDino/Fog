@@ -55,7 +55,7 @@ struct AssetFile {
     std::vector<Asset::Data> assets;
 };
 
-static std::unordered_map<std::string, Asset::Type> valid_endings;
+std::unordered_map<std::string, Asset::Type> valid_endings;
 
 // Generate a source file containing IDs to the source code.
 
@@ -415,3 +415,5 @@ int main(int nargs, char **vargs) {
 
     dump_asset_file(&file, out_path);
 }
+
+void __close_app_responsibly() {}

@@ -16,7 +16,7 @@ namespace Impl {
 
 using Impl::Vertex;
 
-static bool init(const char *title, int width, int height) {
+bool init(const char *title, int width, int height) {
     return Impl::init(title, width, height);
 }
 
@@ -27,37 +27,37 @@ static bool init(const char *title, int width, int height) {
 // has to be pushed.
 
 // Clear the screen and prepare for rendering.
-static void clear() { Impl::clear(); }
+void clear() { Impl::clear(); }
 
 // Push a group of verticies.
-static void push_verticies(u32 num_verticies, Vertex *verticies) {}
+void push_verticies(u32 num_verticies, Vertex *verticies) {}
 
 // Queues up a quad to render to the screen.
-static void push_quad(Vec2 min, Vec2 min_uv, Vec2 max, Vec2 max_uv,
+void push_quad(Vec2 min, Vec2 min_uv, Vec2 max, Vec2 max_uv,
                       int sprite, Vec4 color) {
     Impl::push_quad(min, min_uv, max, max_uv, sprite, color);
 }
 
-static void push_quad(Vec2 min, Vec2 max, Vec4 color) {
+void push_quad(Vec2 min, Vec2 max, Vec4 color) {
     Impl::push_quad(min, max, color);
 }
 
-static void push_line(Vec2 start, Vec2 end, Vec4 start_color, Vec4 end_color,
+void push_line(Vec2 start, Vec2 end, Vec4 start_color, Vec4 end_color,
                       f32 thickness) {
     Impl::push_line(start, end, start_color, end_color, thickness);
 }
-static void push_line(Vec2 start, Vec2 end, Vec4 color,
+void push_line(Vec2 start, Vec2 end, Vec4 color,
                       f32 thickness) {
     Impl::push_line(start, end, color, color, thickness);
 }
 
-static void push_point(Vec2 point, Vec4 color, f32 size) {
+void push_point(Vec2 point, Vec4 color, f32 size) {
     Impl::push_point(point, color, size);
 }
 
 // TODO(ed): It might be smart to seperate out the rotation
 // logic since it adds unnessecary complexity here.
-static void push_sprite(Vec2 position, Vec2 dimension, f32 angle,
+void push_sprite(Vec2 position, Vec2 dimension, f32 angle,
                         AssetID texture, Vec2 uv_min, Vec2 uv_dimension,
                         Vec4 color) {
     Vec2 inv_dimension = {1.0f / (f32) OPENGL_TEXTURE_WIDTH,
@@ -91,11 +91,11 @@ static void push_sprite(Vec2 position, Vec2 dimension, f32 angle,
                         image->id);
 }
 
-static void push_rectangle(Vec2 position, Vec2 dimension, Vec4 color) {
+void push_rectangle(Vec2 position, Vec2 dimension, Vec4 color) {
     Impl::push_quad(position - dimension / 2.0, position + dimension / 2.0, color);
 }
 
-static void push_sdf_quad(Vec2 min, Vec2 max, Vec2 min_uv, Vec2 max_uv,
+void push_sdf_quad(Vec2 min, Vec2 max, Vec2 min_uv, Vec2 max_uv,
                           int sprite, Vec4 color, f32 low, f32 high,
                           bool border) {
     Impl::push_sdf_quad(min, max, min_uv, max_uv, sprite, color, low, high,
@@ -103,15 +103,49 @@ static void push_sdf_quad(Vec2 min, Vec2 max, Vec2 min_uv, Vec2 max_uv,
 }
 
 // Upload a texture to a specific slot on the GPU.
-static u32 upload_texture(Image image, s32 index) {
+u32 upload_texture(Image image, s32 index) {
     return Impl::upload_texture(&image, index);
 }
 
-static u32 upload_texture(Image *image, s32 index) {
+u32 upload_texture(Image *image, s32 index) {
     return Impl::upload_texture(image, index);
 }
 
 // Draw all rendered pixels to the screen.
-static void blit() { Impl::blit(); }
+void blit() { Impl::blit(); }
+
+void set_window_position(int x, int y) {
+    Impl::set_window_position(x, y);
+}
+
+Vec2 get_window_position() {
+    return Impl::get_window_position();
+}
+
+void set_window_size(int w, int h) {
+    Impl::set_window_size(w, h);
+}
+
+Vec2 get_window_size() {
+    return Impl::get_window_size();
+}
+
+void set_window_title(const char *title) {
+    return Impl::set_window_title(title);
+}
+
+void set_fullscreen(bool fullscreen) {
+    return Impl::set_fullscreen(fullscreen);
+}
+
+void toggle_fullscreen() {
+    return Impl::toggle_fullscreen();
+}
+
+bool is_fullscreen() {
+    return Impl::is_fullscreen;
+}
+
+
 }  // namespace Renderer
 
