@@ -20,6 +20,7 @@
 #include "platform/input.h"
 #include "renderer/command.h"
 #include "renderer/camera.h"
+#include "renderer/particle_system.h"
 #include "logic/logic.h"
 #include "logic/logic.cpp"
 #define OPENGL_RENDERER
@@ -36,7 +37,7 @@
 #include "platform/input.cpp"
 #include "renderer/command.cpp"
 #include "renderer/text.cpp"
-#include "renderer/particle_system.h"
+#include "renderer/particle_system.cpp"
 #include "asset/asset.cpp"
 #include "util/performance.cpp"
 

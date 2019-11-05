@@ -92,6 +92,46 @@ article {
 
 }
 
+table, table * {
+    border: 0px;
+    padding: 0px;
+    margin: 0px;
+}
+
+table.member-table {
+    width: 100%;
+}
+
+table.member-table td:nth-child(1) {
+    padding-left: 1em;
+}
+
+table.member-table td:nth-child(3) {
+    padding-right: 1em;
+}
+
+table.member-table tr:nth-child(2n) {
+    background-color: rgba(0, 0, 1, 0.1);
+}
+
+table.member-table * {
+    padding: 0.2em;
+    height: 3em;
+}
+
+table.member-table th {
+    padding-top: 0.4em;
+    padding-bottom: 0.4em;
+    background-color: #000; /* Cool orange color */
+    color: #f80; /* Cool orange color */
+}
+
+table.member-table td:nth-child(2n) {
+    text-align: center;
+    font-family: monospace;
+    font-size: 1.2em;
+}
+
 [indent] {
     color: rgba(0, 0, 0, 0);
 }

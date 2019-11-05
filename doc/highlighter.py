@@ -1,3 +1,4 @@
+# TODO(ed): Don't write static colors, add a style instead.
 TYPE_COLOR = "#f80"
 TYPE_STRINGS = {
     "static", "void", "Vec2", "Vec3", "Vec4", "f32", "LogicID",

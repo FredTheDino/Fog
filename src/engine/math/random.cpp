@@ -40,7 +40,6 @@ u32 random_int() {
 }
 
 f32 random_real(f32 low, f32 high) {
-    // ASSERT(low < high, "Invalid random range");
     return ((f32) xorwow() * RANDOM_INV) * (high - low) + low;
 }
 
