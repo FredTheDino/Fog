@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stb_image.h>
 
+bool debug_view_is_on();
+
 #define STBI_ONLY_PNG
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -17,12 +19,13 @@
 #include "util/types.h"
 #include "util/memory.h"
 #include "util/performance.h"
+#include "util/block_list.h"
 #include "platform/input.h"
 #include "renderer/command.h"
 #include "renderer/camera.h"
 #include "renderer/particle_system.h"
 #include "logic/logic.h"
-#include "logic/logic.cpp"
+#include "logic/block_physics.h"
 #define OPENGL_RENDERER
 #define OPENGL_TEXTURE_WIDTH 512
 #define OPENGL_TEXTURE_HEIGHT 512
@@ -40,6 +43,8 @@
 #include "renderer/particle_system.cpp"
 #include "asset/asset.cpp"
 #include "util/performance.cpp"
+#include "logic/logic.cpp"
+#include "logic/block_physics.cpp"
 
 #include "platform/mixer.h"
 #include "platform/mixer.cpp"
@@ -72,6 +77,7 @@ u64 Perf::highp_now() {
 
 #ifdef DEBUG
 static bool show_perf = false;
+static bool debug_view = false;
 void setup_debug_keybindings() {
     using namespace Input;
 
@@ -80,17 +86,29 @@ void setup_debug_keybindings() {
     CHECK(add(K(F1), Player::P1, Name::DEBUG_PERF),
           "Failed to create mapping");
 
+    CHECK(add(K(F2), Player::P1, Name::DEBUG_VIEW),
+          "Failed to create mapping");
+
     const auto debug_callback = []() {
         if (pressed(Player::P1, Name::DEBUG_PERF))
             show_perf = !show_perf;
+        if (pressed(Player::P1, Name::DEBUG_VIEW))
+            debug_view = !debug_view;
     };
     Logic::add_callback(Logic::At::PRE_UPDATE, debug_callback, Logic::now(),
                         Logic::FOREVER);
 }
 
+bool debug_view_is_on() {
+    return debug_view;
+}
+
 #define SETUP_DEBUG_KEYBINDINGS setup_debug_keybindings()
 #else
 constexpr bool show_perf = false;
+constexpr bool debug_view_is_on() {
+    return false;
+}
 #define SETUP_DEBUG_KEYBINDINGS
 #endif
 
@@ -105,6 +123,8 @@ int main(int argc, char **argv) {
             "Failed to initalize audio mixer");
     Asset::load("data.fog");
     ASSERT(Logic::init(), "Failed to initalize logic system");
+
+    ASSERT(Physics::init(), "Failed to intalize physics");
 
     SETUP_DEBUG_KEYBINDINGS;
 

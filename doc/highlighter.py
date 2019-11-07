@@ -7,30 +7,51 @@ TYPE_STRINGS = {
     "AssetID", "Mapping", "InputCode", "Player", "Name"
 }
 
+def is_type(string):
+    global TYPE_STRINGS
+    if string in TYPE_STRINGS:
+        return True
+    if string[0].isupper() and any(map(lambda c: c.islower(), string)):
+        return True
+
 MACRO_COLOR = "#0cc"
 MACRO_STRINGS = {
     "LOG_MSG", "CLAMP", "LERP", "ABS", "ABS_MAX", "MAX", "SIGN",
     "SIGN_NO_ZERO", "ABS_MIN", "MIN", "IN_RANGE", "SQ", "MOD"
 }
 
-NUMBER_COLOR = "#c8c"
+def is_macro(string):
+    global MACRO_STRINGS
+    if ":" in string:
+        return False
+    if string in MACRO_STRINGS:
+        return True
+    if all(map(lambda c: c.isupper() or c == "_", string)):
+        return True
+    return False
 
+def is_constant(string):
+    last = string.split(":")[-1]
+    return all(map(lambda c: c.isupper() or c == "_", last))
+
+STRING_COLOR = "#cc8"
+NUMBER_COLOR = "#c8c"
 SPLIT_SEPS = set(" ,;()\n")
 
 def highlight_code(line):
     """ Adds orange color to words marked to be highlighted """
     def highlight(word):
-        if word in TYPE_STRINGS:
-            return color_html(word, TYPE_COLOR)
-        if word in MACRO_STRINGS:
+        if is_macro(word):
             return color_html(word, MACRO_COLOR)
+        if is_type(word):
+            return color_html(word, TYPE_COLOR)
         if is_number(word):
             return color_html(word, NUMBER_COLOR)
+        if is_string(word):
+            return color_html(word, STRING_COLOR)
         return word
 
-
     return "".join([highlight(w) + s for w, s in zip(*split_all(line, SPLIT_SEPS))])
-
 
 def color_html(string, color):
     """ Wrap a string in a span with color specified as style. """
@@ -77,7 +98,15 @@ def split_all(string, sep):
 
     return words, splits
 
+def is_string(string):
+    """ Return whether or not a string is a... string """
+    return string.startswith("\"") and string.endswith("\"")
 
 def is_number(string):
     """ Return whether or not a string is a number """
-    return string.lstrip("-").replace(".", "", 1).isdigit()
+    if string.startswith("0x"):
+        return all(s.lower() in "0123456789abcdef" for s in string[2:])
+    if string.startswith("0b"):
+        return all(s in "01" for s in string[2:])
+    else:
+        return string.lstrip("-").replace(".", "", 1).isdigit()

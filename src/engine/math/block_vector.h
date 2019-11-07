@@ -139,6 +139,10 @@ real angle(Vec2 p) {
     return angle;
 }
 
+real look_at(Vec2 from, Vec2 to) {
+    return angle(to - from);
+}
+
 struct Vec3 {
     union {
         struct {
@@ -350,6 +354,11 @@ Vec2 rotate(Vec2 p, real angle);
 ///*
 // Returns the angle of "p" relative to the x-axis.
 real angle(Vec2 p);
+
+///*
+// Returns the angle of the vector going form 
+// point p to point
+real look_at(Vec2 from, Vec2 to);
 
 ///*
 // Constructs a new Vec2, can be used as default argument.

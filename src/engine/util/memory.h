@@ -54,6 +54,27 @@ void return_arean(MemoryArena *arena);
 template <typename T>
 T *request_temporary_memory(u64 num = 1);
 
+///*
+// Like malloc, but a little bit more C++.
+//
+// Note that "num" is the number of elemnts to
+// allocate.
+template <typename T>
+T *push_memory(u32 num = 1);
+
+///*
+// Like realloc, but a little bit more C++.
+//
+// Note that "num" is the number of elemnts to
+// allocate.
+template <typename T>
+T *resize_memory(T *data, u32 num);
+
+///*
+// Like free but, not.
+template <typename T>
+void pop_memory(T *data);
+
 // TODO(ed): We could do system allocations here, it
 // would be faster, but a tad less portable.
 constexpr u64 TOTAL_MEMORY_BUDGET = 1 << 29;  // ~0.5GB

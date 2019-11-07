@@ -86,4 +86,29 @@ void MemoryArena::clear() {
 
 void MemoryArena::pop() { return_arean(this); }
 
+// TODO(ed):
+// I know these are just wrappers for malloc
+// and free, but they add an easy place to see
+// if memory is potentially leaked, and are intended
+// for use in the engine. Preferably they would be
+// replaced some time later.
+
+template <typename T>
+T *push_memory(u32 num) {
+    return (T *) malloc(sizeof(T) * num);
+}
+
+template <typename T>
+T *resize_memory(T *data, u32 num) {
+    return (T *) realloc(data, sizeof(T) * num);
+}
+
+template <typename T>
+void pop_memory(T *data) {
+    free(data);
+}
+
+
+
+
 }  // namespace Util

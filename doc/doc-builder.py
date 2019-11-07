@@ -125,27 +125,31 @@ def process_comment_section(lines):
             in_comment = True
             if out:
                 out += "</p>"
-            out += "<p class='text'>"
+            out += "<p>"
         if in_comment and not line.startswith("//"):
             in_comment = False
             out += "</p>"
             out += "<p class='code'>"
         if in_comment:
-            out += " " + line.replace("//", "").strip()
+            to_append = " " + line.replace("//", "").strip()
+            if to_append:
+                out += to_append
+            else:
+                out += "</p><p>"
         else:
             indent = len(line) - len(line.lstrip())
             out += "<span indent=\"{}\"></span>".format("#" * indent)
             safe_code = line.replace("<", "&lt;").replace(">", "&gt;").lstrip()
             out += highlight_code(safe_code)
             out += "<br>"
-    return out.strip()
+    return out.replace("<p></p>", "").strip()
 
 
 def find_comment_title(comment):
     """
     Finds the title of a comment.
     """
-    return comment[5:comment.index("\n")]
+    return comment[5:comment.index("\n")].capitalize()
 
 
 def find_comment_id(section, comment):
@@ -192,7 +196,8 @@ def format_documentation(section, comment):
     """
     Formants the code according to how a comment should be formatted.
     """
-    return tag("div", process_comment_section(comment.split("\n")[1:]),
+    title = find_documentation_title(comment)
+    return tag("div", tag("h3", title) + process_comment_section(comment.split("\n")[1:]),
                "block doc",
                find_documentation_id(section, comment))
 

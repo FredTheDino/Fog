@@ -66,3 +66,11 @@ Renderer::draw_text("Hello World!", 0, 0, 1, ASSET_MONACO_FONT);
 // This will render "Hello World!" at (0, 0) with the height being 1 unit
 // in world coordinates.
 
+//// Creating and using a particle system
+// A particle system is a simple way to handle a lot of
+// particles, they are not automatic but are sufficently
+// complicated to be usable.
+Renderer::ParticleSystem particle_system = Renderer::create_particle_system(500, V2(0, 0));
+// This creates a particle system at origo, that can hold at most
+// 500 particles emitted at once.
+

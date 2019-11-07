@@ -83,6 +83,7 @@ enum class Name {
     QUIT,
 
     DEBUG_PERF,
+    DEBUG_VIEW,
 
     COUNT, // Don't write anything after this.
 };
