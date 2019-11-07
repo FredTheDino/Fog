@@ -100,7 +100,6 @@ struct Font {
     f32 height;
     const s64 num_glyphs = 256;
     s64 num_kernings;
-    bool monospace = false;
 
     Glyph *glyphs;
     Kerning *kernings;

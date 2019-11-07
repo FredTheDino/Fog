@@ -15,6 +15,7 @@ void __debug_log(const char* type, const char* file, int line,
     fprintf(stderr, "%s @ %d (%s) [%s]:\n-- ", file, line, func, type);
 #endif
     vfprintf(stderr, fmt, args);
+    va_end(args);
     fprintf(stderr, "\n");
 }
 

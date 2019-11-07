@@ -153,19 +153,19 @@ Vec2 mouse_move() {
 }
 
 bool mouse_triggered(u8 button) {
-    return (u32)global_mapping.mouse.state[button] & (u32)ButtonState::TRIGGERED;
+    return (u32) global_mapping.mouse.state[button] & (u32) ButtonState::TRIGGERED;
 }
 
 bool mouse_pressed(u8 button) {
-    return (u32)global_mapping.mouse.state[button] == (u32)ButtonState::PRESSED;
+    return (u32) global_mapping.mouse.state[button] == (u32) ButtonState::PRESSED;
 }
 
 bool mouse_released(u8 button) {
-    return (u32)global_mapping.mouse.state[button] == (u32)ButtonState::RELEASED;
+    return (u32) global_mapping.mouse.state[button] == (u32) ButtonState::RELEASED;
 }
 
 bool mouse_down(u8 button) {
-    return (u32)global_mapping.mouse.state[button] & (u32)ButtonState::DOWN;
+    return (u32) global_mapping.mouse.state[button] & (u32) ButtonState::DOWN;
 }
 
 #undef BEGIN_BINDINGS_BLOCK

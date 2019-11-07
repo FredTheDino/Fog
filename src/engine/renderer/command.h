@@ -49,7 +49,7 @@ void push_rectangle(Vec2 position, Vec2 dimension, Vec4 color=V4(1, 1, 1, 1));
 // Renders a line to the screen. The coordinates are supplied in world
 // coordinates.
 void push_line(Vec2 start, Vec2 end, Vec4 start_color, Vec4 end_color,
-                      f32 thickness = 0.01);
+                      f32 thickness = 0.02);
 void push_line(Vec2 start, Vec2 end, Vec4 color, f32 thickness = 0.01);
 
 ///*

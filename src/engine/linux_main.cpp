@@ -49,10 +49,6 @@ bool debug_view_is_on();
 #include "platform/mixer.h"
 #include "platform/mixer.cpp"
 
-
-// TODO(ed): Better place for this.
-Input::Mapping mapping = {};
-
 #ifdef SDL
 // TODO(ed): Better job of abstracting out SDL.
 #include "platform/input_sdl.cpp"

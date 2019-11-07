@@ -24,8 +24,6 @@ struct Vec2;
 struct Vec3;
 struct Vec4;
 
-#define FLOAT_EQ_MARGIN 0.0000001
-
 struct Vec2i {
     union {
         struct {

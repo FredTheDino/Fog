@@ -61,8 +61,11 @@ void update(f32 delta) {
     a.position = -Renderer::global_camera.position;
     a.rotation += delta;
     Renderer::global_camera.zoom = 1.0 / 2.0;
-    if (mouse_pressed(0)) {
-        LOG("Mouse{ x:%d, y:%d }", mouse_position().x, mouse_position().y);
+    if (mouse_down(0)) {
+        char *string = Util::format("Mouse{ x:%0.f, y:%0.f }",
+                                    mouse_position().x,
+                                    mouse_position().y);
+        Renderer::draw_text(string, -1, 0, 0.05, ASSET_MONACO_FONT);
     }
 
     system.position = rotate(V2(3, 0), Logic::now());

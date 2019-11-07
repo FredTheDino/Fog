@@ -1,13 +1,41 @@
 namespace Util {
 
+///# Misc utility
+// Here are some usefull and wierd functions that can
+// help with a lot of other stuff, but aren't nessecarily
+// the best way to do things.
+
 //
 // Utility
 //
+// NOTE(ed): These functions aren't really recomended
+// for usage... If you're in a spot they might help though.
 
 bool str_eq(const char *a, const char *b) {
-    while (*a && *b && *(a++) == *(b++)) { /* Empty */
-    }
+    while (*a && *b && *(a++) == *(b++)) { /* Empty */ }
     return *a == *b;
+}
+
+///*
+// Formats a string according to the passed in
+// format string (see printf for more info). Memory
+// is allocated using the frame allocator so it is
+// valid for two frames and does not require freeing.
+char *format(const char *fmt, ...);
+
+char *format(const char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+
+    char c;
+    int size = vsnprintf(&c, 1, fmt, args);
+    ASSERT(size > 0, "Failed to print format string");
+    va_end(args);
+    char *buffer = request_temporary_memory<char>(++size);
+    va_start(args, fmt);
+    vsnprintf(buffer, size, fmt, args);
+    va_end(args);
+    return buffer;
 }
 
 // Returns the whole contents of the file as

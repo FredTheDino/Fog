@@ -1,8 +1,10 @@
+namespace Renderer {
+
 Vec2 messure_text(const char *string, f32 size, AssetID font_id) {
     Asset::Font *font = Asset::fetch_font(font_id);
     ASSERT(font, "Cannot find font");
     f32 length = 0;
-    if (font->monospace) {
+    if (!font->num_kernings) {
         while (*(string++)) length += font->glyphs[(u8) 'A'].advance;
     } else {
         u8 prev = '\0';
@@ -21,7 +23,7 @@ void draw_text(const char *string, f32 x, f32 y, f32 size, AssetID font_id,
     Asset::Font *font = Asset::fetch_font(font_id);
     ASSERT(font, "Cannot find font, the \"id\" passed in should en with _FONT");
     size /= font->height;
-    if (font->monospace) {
+    if (!font->num_kernings) {
         Asset::Font::Glyph std = font->glyphs[(u8) 'A'];
         while (*string) {
             u8 curr = *(string++);
@@ -58,4 +60,6 @@ void draw_text(const char *string, f32 x, f32 y, f32 size, AssetID font_id,
         }
     }
     STOP_PERF(TEXT);
+}
+
 }

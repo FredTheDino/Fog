@@ -1,3 +1,6 @@
+
+namespace Renderer {
+
 ///# Text
 // Drawing text can be quite usefull, and is simple to do using
 // the supplied API. One thing to remember is that text is allways
@@ -17,3 +20,4 @@ void draw_text(const char *string, f32 x, f32 y, f32 size, AssetID font_id,
                Vec4 color = V4(1, 1, 1, 1), f32 edge = 0.2,
                bool border = false);
 
+}

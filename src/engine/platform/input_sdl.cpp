@@ -35,19 +35,18 @@ void poll_events() {
                 Input::ButtonState state = 
                     event.type == SDL_MOUSEBUTTONDOWN ? 
                     Input::ButtonState::PRESSED : Input::ButtonState::RELEASED;
-                if (event.button.button == SDL_BUTTON_LEFT) {
-                    mapping.mouse.state[0] = state;
-                } else if (event.button.button == SDL_BUTTON_MIDDLE) {
-                    mapping.mouse.state[1] = state;
-                } else if (event.button.button == SDL_BUTTON_RIGHT) {
-                    mapping.mouse.state[2] = state;
-                }
+                if (event.button.button == SDL_BUTTON_LEFT)
+                    Input::global_mapping.mouse.state[0] = state;
+                else if (event.button.button == SDL_BUTTON_MIDDLE)
+                    Input::global_mapping.mouse.state[1] = state;
+                else if (event.button.button == SDL_BUTTON_RIGHT)
+                    Input::global_mapping.mouse.state[2] = state;
             } break;
             case (SDL_MOUSEMOTION):
-                mapping.mouse.x = event.motion.x;
-                mapping.mouse.y = event.motion.y;
-                mapping.mouse.move_x += event.motion.xrel;
-                mapping.mouse.move_y += event.motion.yrel;
+                Input::global_mapping.mouse.x = event.motion.x;
+                Input::global_mapping.mouse.y = event.motion.y;
+                Input::global_mapping.mouse.move_x += event.motion.xrel;
+                Input::global_mapping.mouse.move_y += event.motion.yrel;
                 break;
             default:
                 break;

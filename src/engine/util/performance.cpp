@@ -45,9 +45,8 @@ void _stop_perf_clock(MarkerID id) {
 void report() {
     f64 frame_time = clocks[MAIN].last_time;
     AssetID font = ASSET_MONACO_FONT;
-    Asset::fetch_font(font)->monospace = true;
     const f32 font_size = 40 / (f32) Renderer::global_camera.width;
-    f32 height = messure_text("A", font_size, font).y;
+    f32 height = Renderer::messure_text("A", font_size, font).y;
     Vec4 color = V4(1, 1, 1, 1);
     f32 edge = 0.20;
     const int buffer_size = 256;
@@ -56,12 +55,12 @@ void report() {
 
     snprintf(buffer, buffer_size, "=== PERFORMANCE ===");
     y -= height;
-    draw_text(buffer, -1, y, font_size, font, color, edge, true);
+    Renderer::draw_text(buffer, -1, y, font_size, font, color, edge, true);
 
     snprintf(buffer, buffer_size, " %-8s: %5s %9s %9s %9s",
             "NAME", "C", "T/TOT", "T/C", "Avg. T/C");
     y -= height;
-    draw_text(buffer, -1, y, font_size, font, color, edge, true);
+    Renderer::draw_text(buffer, -1, y, font_size, font, color, edge, true);
 
     for (u64 i = 0; i < NUMBER_OF_MARKERS; i++) {
         Clock *clock = clocks + i;
@@ -71,7 +70,7 @@ void report() {
                 clock->last_time / clock->last_count,
                 clock->total_time / clock->total_count);
         y -= height;
-        draw_text(buffer, -1, y, font_size, font, color, edge, true);
+        Renderer::draw_text(buffer, -1, y, font_size, font, color, edge, true);
     }
 }
 

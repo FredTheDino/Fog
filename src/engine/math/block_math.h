@@ -66,7 +66,7 @@ typedef f32 real;  // Type used in vectors.
 
 #define SIGN(n) (((n) < 0) ? -1 : ((n) > 0) ? 1 : 0)
 
-#define IN_RANGE(l, h, v) ((l) < (v) && (v) < (h))
+#define IN_RANGE(l, h, v) ((l) <= (v) && (v) <= (h))
 
 #define ABS(n) ((n) < 0 ? -(n) : (n))
 
@@ -74,12 +74,37 @@ typedef f32 real;  // Type used in vectors.
 
 #define SQ(a) ((a) * (a))
 
+#define FLOAT_EQ_MARGIN 0.0000001
+
+#define EQ(a, b) (ABS((a) - (b)) < FLOAT_EQ_MARGIN
+
 #define LEN(a) (sizeof(a) / sizeof(a[0]))
 
 #include "block_vector.h"
 #include "block_quaternion.h"
 #include "block_matrix.h"
 #include "block_transform.h"
+
+///*
+// Returns true if q lies in the bounding box
+// p1, p2.
+bool inside(Vec2 p1, Vec2 p2, Vec2 q);
+
+bool inside(Vec2 p1, Vec2 p2, Vec2 q) {
+    Vec2 min = V2(MIN(p1.x, p2.x), MIN(p1.y, p2.y));
+    Vec2 max = V2(MAX(p1.x, p2.x), MAX(p1.y, p2.y));
+    return min.x <= q.x && min.y <= q.y && q.x <= max.x && q.y <= max.y;
+}
+
+///*
+// Finds the winding direction of the triangle given.
+// = 0 - Colinear
+// < 0 - Clockwise
+// > 0 - Counter Clockwise
+float winding_direction(Vec2 p1, Vec2 p2, Vec2 p3) {
+    return (p2.y - p1.y) * (p3.x - p2.x) - 
+           (p2.x - p1.x) * (p3.y - p2.y); 
+}
 
 #include "random.h"
 #include "random.cpp"
@@ -130,6 +155,10 @@ ABS(n)
 // a mod b, where a and b are allowed to be a float. Not as fast as the built
 // in "%" operator.
 MOD(a, b)
+
+///*
+// Returns true if a and b are close enough to be considerd equal.
+EQ(a, b)
 
 ///*
 // Squares "a" by multiplying it by itself.
