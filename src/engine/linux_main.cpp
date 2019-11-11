@@ -63,7 +63,7 @@ u64 Perf::highp_now() {
     return (tp.tv_sec * 1000000000 + tp.tv_nsec) / 1000;
 }
 
-#include "../game/lines_on_a_grid.cpp"
+#include "../game/game_main.cpp"
 #ifndef FOG_GAME
 #   error "No game found"
 //

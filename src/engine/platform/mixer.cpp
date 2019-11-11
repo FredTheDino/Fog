@@ -99,7 +99,7 @@ void stop_sound(AudioID id) {
     SoundSource *source = audio_struct.sources + id.slot;
     CHECK(source->gen == id.gen, "Invalid AudioID, the handle is outdated");
     if (source->gen == id.gen) {
-        audio_struct.free_sources[++audio_struct.num_free_sources] = id.slot;
+        audio_struct.free_sources[audio_struct.num_free_sources++] = id.slot;
         source->gain = 0.0;
     } else {
         ERR("Invalid removal of AudioID that does not exist");
@@ -169,12 +169,12 @@ void audio_callback(void* userdata, u8* stream, int len) {
             Sound *sound = Asset::fetch_sound(source->source);
             source->sample += sound->sample_rate * source->pitch * TIME_STEP;
             u64 index = source->sample;
-            if (index == sound->num_samples) {
+            if (index >= sound->num_samples) {
                 if (source->looping) {
                     index = 0;
                     source->sample = 0;
                 } else {
-                    data->free_sources[++data->num_free_sources] = source_id;
+                    data->free_sources[data->num_free_sources++] = source_id;
                     source->gain = 0.0;
                     continue;
                 }
