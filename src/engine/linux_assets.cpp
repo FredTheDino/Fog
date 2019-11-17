@@ -97,8 +97,12 @@ void load_texture(AssetFile *file, Asset::Header *header) {
     u8 *buffer = stbi_load(header->file_path, &w, &h, &c, 0);
     if (w > 512 || h > 512) {
         printf("Cannot load %s, because it is too large.\n", header->file_path);
+        return;
     }
-    if (!buffer) return;
+    if (!buffer) {
+        printf("Failed to load image %s", header->file_path);
+        return;
+    }
     Image image = {buffer, (u32) w, (u32) h, (u8) c, id++};
     header->asset_size = sizeof(Asset::Data) + w * h * c * sizeof(u8);
     Asset::Data asset = {image};
@@ -213,6 +217,7 @@ void load_shader(AssetFile *file, Asset::Header *header) {
 }
 
 void load_atlas(AssetFile *file, Asset::Header *header) {
+    printf("Trying to load atlas, but code is not implemented\n");
     // TODO:
 }
 
@@ -255,7 +260,7 @@ void load_sound(AssetFile *file, Asset::Header *header) {
             fseek(wav_file, chunk.size, SEEK_CUR);
         }
     }
-    // TODO: Fill out struct Sound and seralize it.
+
     Sound sound;
     sound.data = data;
     sound.size = size;
@@ -282,7 +287,7 @@ void process_asset(AssetFile *file, const std::string *path) {
         case (Asset::Type::FONT):    load_font(file, &header);    break;
         case (Asset::Type::SOUND):   load_sound(file, &header);   break;
         case (Asset::Type::SHADER):  load_shader(file, &header);  break;
-        case (Asset::Type::ATLAS): //load_atlas(file, header);    break;
+        case (Asset::Type::ATLAS):   load_atlas(file, &header);   break;
         default:
             printf("!!!! Unhandled asset, unkown type: %s, %d\n", path->c_str(),
                    (int) header.type);
@@ -295,6 +300,61 @@ size_t write_to_file(FILE *stream, const T *ptr, size_t num = 1) {
     auto write = fwrite(ptr, sizeof(T), num, stream);
     ASSERT(write == num, "Failed to read from asset file");
     return write * sizeof(T);
+}
+
+char *copy_string(char *str, u32 size) {
+    char *ptr = str;
+    char *out = (char *) malloc(size);
+    char *copy = out;
+    while (*ptr) *(copy++) = *(ptr++);
+    *copy = '\0';
+    return out;
+}
+
+void replace_all(char *str, char find, char replace) {
+    for (; *str; ++str) {
+        if (*str == find) 
+            *str = replace;
+    }
+}
+
+void make_uppercase(char *str) {
+    for (; *str; str++) {
+        if ('a' <= *str && *str <= 'z') {
+            *str += 'A' - 'a';
+        }
+    }
+}
+
+void strip_file_ending(char *str) {
+    
+    s32 last_dot = -1;
+    char *ptr = str;
+    for (s32 index = 0; ptr[index]; index++) {
+        if (ptr[index] == '.') 
+            last_dot = index;
+    }
+    if (last_dot != -1)
+        str[last_dot] = '\0';
+}
+
+void append(char *str, const char *postfix) {
+    while (*(str++)) /* NO-OP */;
+    while (*(postfix)) *(str++) = *(postfix++);
+}
+
+char *asset_name_from_file(char *path, Asset::Type type) {
+    const u32 begining = 4;
+    path += begining;  // Strip begining
+    const u32 len = strlen(path) + (type == Asset::Type::FONT) * 5;
+    char *name = copy_string(path, len);
+    strip_file_ending(name);
+    replace_all(name, '/', '_');
+    replace_all(name, '-', '_');
+    make_uppercase(name);
+    if (type == Asset::Type::FONT) 
+        append(name, "_FONT");
+    return name;
 }
 
 void dump_asset_file(AssetFile *file, const char *out_path) {
@@ -310,22 +370,13 @@ void dump_asset_file(AssetFile *file, const char *out_path) {
     u64 string_cur = string_begin;
     for (u64 i = 0; i < file->asset_headers.size(); i++) {
         auto *header = &file->asset_headers[i];
-        std::string file_path(header->file_path);
-        while (true) {
-            size_t begin = file_path.find_first_of('/');
-            if (begin == std::string::npos) break;
-            file_path[begin] = '_';
-        }
-        size_t end = file_path.find_last_of('.');
-        for (auto &c : file_path) c = toupper(c);
-        file_path = file_path.substr(4, end - 4);  // Len of "res/"
-        if (header->type == Asset::Type::FONT) {
-            file_path += "_FONT";
-        }
+        const char *asset_name = asset_name_from_file(header->file_path, header->type);
+
+
         printf("\tFound asset: %s -> %s\n", header->file_path,
-               file_path.c_str());
+               asset_name);
         fprintf(source_file, "constexpr AssetID ASSET_%s = %lu;\n",
-                file_path.c_str(), i);
+                asset_name, i);
 
         write_to_file(output_file, header->file_path, header->file_path_length);
         header->file_path = (char *) (string_cur - string_begin);
@@ -406,7 +457,7 @@ int main(int nargs, char **vargs) {
     // Config files? Is this a good idea?
     valid_endings[".cfg"] = Asset::Type::CONFIG;
 
-    printf("\n\t=== ASSET FINDING ===\n");
+    printf("\n\t=== FINDING ===\n");
 
     // TODO(ed): Some form of compression on this data
     // would make it a lot less space savy
@@ -421,7 +472,7 @@ int main(int nargs, char **vargs) {
         }
     }
 
-    printf("\t=== ASSET WRITING ===\n");
+    printf("\t=== WRITING ===\n");
 
     dump_asset_file(&file, out_path);
 }
