@@ -116,6 +116,10 @@ u32 upload_texture(Image *image, s32 index) {
     return Impl::upload_texture(image, index);
 }
 
+void upload_shader(AssetID asset, char *source) {
+    Impl::upload_shader(asset, source);
+}
+
 // Draw all rendered pixels to the screen.
 void blit() { Impl::blit(); }
 

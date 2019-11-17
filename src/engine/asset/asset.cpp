@@ -85,9 +85,10 @@ bool load(const char *file_path) {
         switch (header.type) {
         case Type::TEXTURE: {
             u64 size = asset_ptr->image.size();
-            asset_ptr->image.data = system.arena->push<u8>(size);
+            asset_ptr->image.data = Util::push_memory<u8>(size);
             read_from_file<u8>(file, asset_ptr->image.data, size);
             Renderer::upload_texture(asset_ptr->image, asset_ptr->image.id);
+            Util::pop_memory(asset_ptr->image.data);
         } break;
         case Type::FONT: {
             asset_ptr->font.glyphs =
@@ -104,6 +105,15 @@ bool load(const char *file_path) {
         case Type::SOUND: {
             asset_ptr->sound.data = system.arena->push<u8>(asset_ptr->sound.size);
             read_from_file<u8>(file, asset_ptr->sound.data, asset_ptr->sound.size);
+        } break;
+        case Type::SHADER: {
+            fseek(file, header.offset, SEEK_SET);
+            u64 size = header.asset_size;
+            char *src = Util::push_memory<char>(size);
+            read_from_file<char>(file, src, size);
+
+            Renderer::upload_shader(header.asset_id, src);
+            Util::pop_memory(src);
         } break;
         default:
             ERR("UNKOWN ASSET TYPE %d", header.type);

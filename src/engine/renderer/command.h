@@ -61,6 +61,9 @@ void push_point(Vec2 point, Vec4 color, f32 size = 0.015);
 u32 upload_texture(Image image, s32 index);
 u32 upload_texture(Image *image, s32 index);
 
+// Uloads a shader to the GPU, this call copies the source.
+void upload_shader(AssetID asset, char *source);
+
 ///*
 // Sets the position of the window, relative to the
 // top left corner.

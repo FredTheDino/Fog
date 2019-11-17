@@ -198,6 +198,20 @@ void load_font(AssetFile *file, Asset::Header *header) {
     add_asset_to_file(file, header, &asset);
 }
 
+void load_shader(AssetFile *file, Asset::Header *header) {
+    FILE *shader_file = fopen(header->file_path, "rb");
+    fseek(shader_file, 0, SEEK_END);
+    long size = ftell(shader_file) + 1;
+    rewind(shader_file);
+
+    header->asset_size = size;
+    Asset::Data asset = {.shader_source = (char *) malloc(size)};
+    fread(asset.shader_source, 1, size, shader_file);
+    asset.shader_source[size - 1] = '\0';
+
+    add_asset_to_file(file, header, &asset);
+}
+
 void load_atlas(AssetFile *file, Asset::Header *header) {
     // TODO:
 }
@@ -264,18 +278,11 @@ void process_asset(AssetFile *file, const std::string *path) {
 
     Asset::Header header = get_asset_header(path, type);
     switch (header.type) {
-        case (Asset::Type::TEXTURE):
-            load_texture(file, &header);
-            break;
-        case (Asset::Type::FONT):
-            load_font(file, &header);
-            break;
-        case (Asset::Type::SOUND):
-            load_sound(file, &header);
-            break;
-        case (Asset::Type::ATLAS):
-            // load_atlas(file, header);
-            // break;
+        case (Asset::Type::TEXTURE): load_texture(file, &header); break;
+        case (Asset::Type::FONT):    load_font(file, &header);    break;
+        case (Asset::Type::SOUND):   load_sound(file, &header);   break;
+        case (Asset::Type::SHADER):  load_shader(file, &header);  break;
+        case (Asset::Type::ATLAS): //load_atlas(file, header);    break;
         default:
             printf("!!!! Unhandled asset, unkown type: %s, %d\n", path->c_str(),
                    (int) header.type);
@@ -392,6 +399,9 @@ int main(int nargs, char **vargs) {
     valid_endings[".wav"] = Asset::Type::SOUND;
     // TODO(ed): This might be nice to have
     // valid_endings[".ogg"] = Asset::Type::SOUND;
+    
+    // Shader
+    valid_endings[".glsl"] = Asset::Type::SHADER;
 
     // Config files? Is this a good idea?
     valid_endings[".cfg"] = Asset::Type::CONFIG;

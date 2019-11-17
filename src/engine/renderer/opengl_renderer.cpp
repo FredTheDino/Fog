@@ -366,23 +366,6 @@ bool init(const char *title, int width, int height) {
     glBindBufferBase(GL_UNIFORM_BUFFER, GLSL_CAMERA_BLOCK, ubo_camera);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-    const char *source;
-    ASSERT(source = Util::dump_file("res/master_shader.glsl"),
-           "Failed to read file.");
-    master_shader_program = compile_shader_program_from_source(source);
-    ASSERT(master_shader_program, "Failed to compile shader");
-
-    ASSERT(source = Util::dump_file("res/font_shader.glsl"),
-           "Failed to read file.");
-    font_shader_program = compile_shader_program_from_source(source);
-    ASSERT(font_shader_program, "Failed to compile shader");
-
-    ASSERT(source = Util::dump_file("res/post_process_shader.glsl"),
-           "Failed to read file.");
-    post_process_shader_program = compile_shader_program_from_source(source);
-    ASSERT(post_process_shader_program, "Failed to compile shader");
-    screen_texture_location = glGetUniformLocation(post_process_shader_program.id,
-                                               "screen_sampler");
     create_frame_buffers(width, height);
 
     glEnable(GL_BLEND);
@@ -516,6 +499,27 @@ u32 upload_texture(const Image *image, s32 index) {
     glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, index, image->width,
                     image->height, 1, data_format, GL_UNSIGNED_BYTE, image->data);
     return index;
+}
+
+void upload_shader(AssetID asset, const char *source) {
+    switch (asset) {
+        case ASSET_MASTER_SHADER:
+            master_shader_program = compile_shader_program_from_source(source);
+            ASSERT(master_shader_program, "Failed to compile shader");
+            break;
+        case ASSET_FONT_SHADER:
+            font_shader_program = compile_shader_program_from_source(source);
+            ASSERT(font_shader_program, "Failed to compile shader");
+            break;
+        case ASSET_POST_PROCESS_SHADER:
+            post_process_shader_program = compile_shader_program_from_source(source);
+            ASSERT(post_process_shader_program, "Failed to compile shader");
+            screen_texture_location = glGetUniformLocation(
+                post_process_shader_program.id, "screen_sampler");
+            break;
+        default:
+            ERR("Invalid asset passed as shader (%d)", asset);
+    }
 }
 
 void clear() { glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT); }
