@@ -340,6 +340,7 @@ void strip_file_ending(char *str) {
 
 void append(char *str, const char *postfix) {
     while (*(str++)) /* NO-OP */;
+    str--;
     while (*(postfix)) *(str++) = *(postfix++);
 }
 
@@ -371,12 +372,11 @@ void dump_asset_file(AssetFile *file, const char *out_path) {
     for (u64 i = 0; i < file->asset_headers.size(); i++) {
         auto *header = &file->asset_headers[i];
         const char *asset_name = asset_name_from_file(header->file_path, header->type);
-
-
         printf("\tFound asset: %s -> %s\n", header->file_path,
                asset_name);
         fprintf(source_file, "constexpr AssetID ASSET_%s = %lu;\n",
                 asset_name, i);
+        free((void *) asset_name);
 
         write_to_file(output_file, header->file_path, header->file_path_length);
         header->file_path = (char *) (string_cur - string_begin);
