@@ -77,18 +77,18 @@ static bool debug_view = false;
 void setup_debug_keybindings() {
     using namespace Input;
 
-    CHECK(add(K(ESCAPE), Player::P1, Name::QUIT),
+    CHECK(add(K(ESCAPE), Name::QUIT),
           "Failed to create mapping");
-    CHECK(add(K(F1), Player::P1, Name::DEBUG_PERF),
+    CHECK(add(K(F1), Name::DEBUG_PERF),
           "Failed to create mapping");
 
-    CHECK(add(K(F2), Player::P1, Name::DEBUG_VIEW),
+    CHECK(add(K(F2), Name::DEBUG_VIEW),
           "Failed to create mapping");
 
     const auto debug_callback = []() {
-        if (pressed(Player::P1, Name::DEBUG_PERF))
+        if (pressed(Name::DEBUG_PERF))
             show_perf = !show_perf;
-        if (pressed(Player::P1, Name::DEBUG_VIEW))
+        if (pressed(Name::DEBUG_VIEW))
             debug_view = !debug_view;
     };
     Logic::add_callback(Logic::At::PRE_UPDATE, debug_callback, Logic::now(),
@@ -138,7 +138,7 @@ int main(int argc, char **argv) {
         STOP_PERF(INPUT);
         SDL::poll_events();
 
-        if (value(Player::ANY, Name::QUIT))
+        if (value(Name::QUIT, Player::ANY))
             SDL::running = false;
 
         Logic::call(Logic::At::PRE_UPDATE);

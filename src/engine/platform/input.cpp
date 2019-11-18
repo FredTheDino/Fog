@@ -30,7 +30,7 @@ void insert(Binding binding) {
     global_mapping.used_bindings += 1;
 }
 
-bool add(InputCode code, Player player, Name name) {
+bool add(InputCode code, Name name, Player player) {
     Binding binding = {code, player, name, 0};
 
     // Check if there is a free binding.
@@ -99,7 +99,7 @@ bool activate(InputCode code, f32 value) {
     }                      \
     }
 
-bool triggered(Player player, Name name) {
+bool triggered(Name name, Player player) {
     BEGIN_BINDINGS_BLOCK {
         if ((u32) button.state & (u32) ButtonState::TRIGGERED) return true;
     }
@@ -107,7 +107,7 @@ bool triggered(Player player, Name name) {
     return false;
 }
 
-bool pressed(Player player, Name name) {
+bool pressed(Name name, Player player) {
     BEGIN_BINDINGS_BLOCK {
         if (button.state == ButtonState::PRESSED) return true;
     }
@@ -115,7 +115,7 @@ bool pressed(Player player, Name name) {
     return false;
 }
 
-bool released(Player player, Name name) {
+bool released(Name name, Player player) {
     BEGIN_BINDINGS_BLOCK {
         if (button.state == ButtonState::RELEASED) return true;
     }
@@ -123,7 +123,7 @@ bool released(Player player, Name name) {
     return false;
 }
 
-bool down(Player player, Name name) {
+bool down(Name name, Player player) {
     BEGIN_BINDINGS_BLOCK {
         if (button.is_down()) return true;
     }
@@ -131,7 +131,7 @@ bool down(Player player, Name name) {
     return false;
 }
 
-f32 value(Player player, Name name) {
+f32 value(Name name, Player player) {
     u32 num_down = 0;
     f32 value = 0;
     BEGIN_BINDINGS_BLOCK {

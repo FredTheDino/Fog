@@ -14,10 +14,10 @@ Physics::Body a, b;
 
 void setup() {
     using namespace Input;
-    add(K(a), Player::P1, Name::LEFT);
-    add(K(d), Player::P1, Name::RIGHT);
-    add(K(w), Player::P1, Name::UP);
-    add(K(s), Player::P1, Name::DOWN);
+    add(K(a), Name::LEFT);
+    add(K(d), Name::RIGHT);
+    add(K(w), Name::UP);
+    add(K(s), Name::DOWN);
 
     const auto callback = []() {
         for (u32 i = 0; i < LEN(point_list); i++)
@@ -52,11 +52,11 @@ void setup() {
 // Main logic
 void update(f32 delta) {
     using namespace Input;
-    f32 delta_x = down(Player::P1, Name::RIGHT) -
-                  down(Player::P1, Name::LEFT);
+    f32 delta_x = down(Name::RIGHT) -
+                  down(Name::LEFT);
     Renderer::global_camera.position.x -= delta_x * delta;
-    f32 delta_y = down(Player::P1, Name::UP) -
-                  down(Player::P1, Name::DOWN);
+    f32 delta_y = down(Name::UP) -
+                  down(Name::DOWN);
     Renderer::global_camera.position.y -= delta_y * delta;
     a.position = -Renderer::global_camera.position;
     a.rotation += delta;

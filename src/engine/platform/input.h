@@ -190,27 +190,27 @@ struct InputEvent {
 // code, the keycode, should be recived from calling K(DESIRED_KEY), DESIRED_KEY
 // should be lowercase letters for normal keys and UPPERCASE for special keys.
 // Player, yhe player that has this binding, can be P1, P2, P3, P4.
-bool add(InputCode code, Player player, Name name);
+bool add(InputCode code, Name name, Player player=Player::P1);
 
 ///*
 // Returns true if the input button, stick or key was pressed or released this frame.
-bool triggered(Player player, Name name);
+bool triggered(Name name, Player player=Player::P1);
 
 ///*
 // Returns true if the input button, stick or key was pressed this frame.
-bool pressed(Player player, Name name);
+bool pressed(Name name, Player player=Player::P1);
 
 ///*
 // Returns true if the input button, stick or key was released this frame.
-bool released(Player player, Name name);
+bool released(Name name, Player player=Player::P1);
 
 ///*
 // Returns true if the input button, stick or key is held down.
-bool down(Player player, Name name);
+bool down(Name name, Player player=Player::P1);
 
 ///*
 // Returns the value of the input, useful for analog input.
-f32 value(Player player, Name name);
+f32 value(Name name, Player player=Player::P1);
 
 ///*
 // Returns the screen coordinates in pixels for the mouse position.
