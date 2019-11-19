@@ -73,21 +73,6 @@ namespace Input {
 // "/src/engine/platform/input.h". Adding a new name should be done before
 // the "COUNT" element.
 
-enum class Name {
-    NONE = 0,
-
-    LEFT,
-    RIGHT,
-    UP,
-    DOWN,
-    QUIT,
-
-    DEBUG_PERF,
-    DEBUG_VIEW,
-
-    COUNT, // Don't write anything after this.
-};
-
 enum class ButtonState {
     RELEASED = 0b10,
     UP = 0b00,

@@ -12,6 +12,7 @@ bool debug_view_is_on();
 
 #include "asset/asset.h"
 #include "../fog_assets.cpp"
+#include "../game/game_includes.h"
 
 #include "renderer/text.h"
 
@@ -26,12 +27,6 @@ bool debug_view_is_on();
 #include "renderer/particle_system.h"
 #include "logic/logic.h"
 #include "logic/block_physics.h"
-#define OPENGL_RENDERER
-#define OPENGL_TEXTURE_WIDTH 512
-#define OPENGL_TEXTURE_HEIGHT 512
-// NOTE(ed): Chose 256 b.c required by the OpenGL 3.0 spec to be valid.
-#define OPENGL_TEXTURE_DEPTH 256
-#define SDL
 
 #include "math.h"
 
@@ -66,9 +61,6 @@ u64 Perf::highp_now() {
 #include "../game/game_main.cpp"
 #ifndef FOG_GAME
 #   error "No game found"
-//
-// To make a game, create the functions:
-//
 #endif
 
 #ifdef DEBUG

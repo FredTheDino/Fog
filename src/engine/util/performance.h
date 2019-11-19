@@ -5,15 +5,6 @@ namespace Perf {
 // metrics. But getting it up and running can be a bit tricky, you have to add
 // your own maker to the Perf::MarkerID in the "src/engine/util/performance.h".
 
-enum MarkerID {
-    MAIN,
-    INPUT,
-    RENDER,
-    TEXT,
-
-    NUMBER_OF_MARKERS
-};
-
 struct Clock {
     const char *name;
     bool active;
