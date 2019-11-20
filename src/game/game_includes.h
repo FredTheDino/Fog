@@ -20,6 +20,7 @@ namespace Input {
 
         DEBUG_PERF,
         DEBUG_VIEW,
+        DEBUG_VALUES,
 
         COUNT, // Don't write anything after this.
     };

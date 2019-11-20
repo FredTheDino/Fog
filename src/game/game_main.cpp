@@ -49,6 +49,10 @@ void setup() {
 
 }
 
+bool a_boolean;
+float a_float;
+int a_int;
+
 // Main logic
 void update(f32 delta) {
     using namespace Input;
@@ -67,6 +71,10 @@ void update(f32 delta) {
                                     mouse_position().y);
         Renderer::draw_text(string, -1, 0, 0.05, ASSET_MONACO_FONT);
     }
+
+    Util::debug_value("A boolean", &a_boolean);
+    Util::debug_value("A float", &a_float);
+    Util::debug_value("A int", &a_int);
 
     system.position = rotate(V2(3, 0), Logic::now());
     system.spawn();

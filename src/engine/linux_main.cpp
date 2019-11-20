@@ -3,6 +3,7 @@
 #include <stb_image.h>
 
 bool debug_view_is_on();
+bool debug_values_are_on();
 
 #define STBI_ONLY_PNG
 #define STB_IMAGE_IMPLEMENTATION
@@ -30,8 +31,10 @@ bool debug_view_is_on();
 
 #include "math.h"
 
+#include "util/font_settings.h"
 #include "util/io.cpp"
 #include "util/memory.cpp"
+#include "util/debug_values.h"
 #include "platform/input.cpp"
 #include "renderer/command.cpp"
 #include "renderer/text.cpp"
@@ -66,6 +69,7 @@ u64 Perf::highp_now() {
 #ifdef DEBUG
 static bool show_perf = false;
 static bool debug_view = false;
+static bool show_debug_values = true;
 void setup_debug_keybindings() {
     using namespace Input;
 
@@ -77,11 +81,16 @@ void setup_debug_keybindings() {
     CHECK(add(K(F2), Name::DEBUG_VIEW),
           "Failed to create mapping");
 
+    CHECK(add(K(F3), Name::DEBUG_VALUES),
+          "Failed to create mapping");
+
     const auto debug_callback = []() {
         if (pressed(Name::DEBUG_PERF))
             show_perf = !show_perf;
         if (pressed(Name::DEBUG_VIEW))
             debug_view = !debug_view;
+        if (pressed(Name::DEBUG_VALUES))
+            show_debug_values = !show_debug_values;
     };
     Logic::add_callback(Logic::At::PRE_UPDATE, debug_callback, Logic::now(),
                         Logic::FOREVER);
@@ -91,9 +100,20 @@ bool debug_view_is_on() {
     return debug_view;
 }
 
+bool debug_values_are_on() {
+    return show_debug_values;
+}
+
+
 #define SETUP_DEBUG_KEYBINDINGS setup_debug_keybindings()
 #else
 constexpr bool show_perf = false;
+constexpr bool show_debug_values = false;
+
+constexpr bool debug_values_are_on() {
+    return false;
+}
+
 constexpr bool debug_view_is_on() {
     return false;
 }
@@ -123,6 +143,7 @@ int main(int argc, char **argv) {
 
         if (show_perf)
             Perf::report();
+        Util::debug_values_clear();
         Perf::clear();
         START_PERF(MAIN);
         START_PERF(INPUT);
