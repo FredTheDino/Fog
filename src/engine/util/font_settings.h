@@ -21,9 +21,13 @@ namespace Util {
         return Renderer::global_camera.aspect_ratio + debug_line_height() / 2.0;
     }
 
-    void debug_text(const char *text, f32 y, u32 color_code = 0) {
+    void debug_text(const char *text, f32 x, f32 y, u32 color_code = 0) {
         ASSERT(color_code < LEN(DEBUG_COLORS), "Invalid color code!");
-        Renderer::draw_text(text, -1, y, debug_font_size(), DEBUG_FONT,
+        Renderer::draw_text(text, x, y, debug_font_size(), DEBUG_FONT,
                             DEBUG_COLORS[color_code], DEBUG_EDGE, true);
+    }
+
+    void debug_text(const char *text, f32 y, u32 color_code = 0) {
+        debug_text(text, -1, y, color_code);
     }
 };

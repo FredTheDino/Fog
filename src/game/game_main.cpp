@@ -47,6 +47,8 @@ void setup() {
     b = Physics::create_body(square, 1, 1);
     destroy_list(&points);
 
+    Renderer::global_camera.zoom = 1.0 / 2.0;
+
 }
 
 bool a_boolean;
@@ -64,7 +66,6 @@ void update(f32 delta) {
     Renderer::global_camera.position.y -= delta_y * delta;
     a.position = -Renderer::global_camera.position;
     a.rotation += delta;
-    Renderer::global_camera.zoom = 1.0 / 2.0;
     if (mouse_down(0)) {
         char *string = Util::format("Mouse{ x:%0.f, y:%0.f }",
                                     mouse_position().x,
@@ -72,9 +73,13 @@ void update(f32 delta) {
         Renderer::draw_text(string, -1, 0, 0.05, ASSET_MONACO_FONT);
     }
 
-    Util::debug_value("A boolean", &a_boolean);
-    Util::debug_value("A float", &a_float);
-    Util::debug_value("A int", &a_int);
+
+    static bool show_camera_controls = true;
+    if (Util::begin_tweak_section("Camera controls", &show_camera_controls)) {
+        Util::tweak("zoom", &Renderer::global_camera.zoom);
+        Util::tweak("position", &Renderer::global_camera.position);
+    }
+    Util::end_tweak_section(&show_camera_controls);
 
     system.position = rotate(V2(3, 0), Logic::now());
     system.spawn();

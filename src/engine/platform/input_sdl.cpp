@@ -47,6 +47,28 @@ void poll_events() {
                 Input::global_mapping.mouse.y = event.motion.y;
                 Input::global_mapping.mouse.move_x += event.motion.xrel;
                 Input::global_mapping.mouse.move_y += event.motion.yrel;
+#if MOUSE_WARP_IF_CLICKED
+                if (Input::mouse_down(0)) {
+                    const int SAFE_BORDER = 1;
+                    const int WARP_BORDER = 3;
+                    if (event.motion.x <= SAFE_BORDER)
+                        SDL_WarpMouseInWindow(Renderer::Impl::window,
+                                              Renderer::global_camera.width - WARP_BORDER,
+                                              event.motion.y);
+                    if (event.motion.y <= SAFE_BORDER)
+                        SDL_WarpMouseInWindow(Renderer::Impl::window,
+                                              event.motion.x,
+                                              Renderer::global_camera.height - WARP_BORDER);
+                    if (event.motion.x >= Renderer::global_camera.width - SAFE_BORDER)
+                        SDL_WarpMouseInWindow(Renderer::Impl::window,
+                                              WARP_BORDER,
+                                              event.motion.y);
+                    if (event.motion.y >= Renderer::global_camera.height - SAFE_BORDER)
+                        SDL_WarpMouseInWindow(Renderer::Impl::window,
+                                              event.motion.x,
+                                              WARP_BORDER);
+                }
+#endif
                 break;
             default:
                 break;

@@ -7,6 +7,10 @@
 #define OPENGL_TEXTURE_DEPTH 256
 #define SDL
 
+// If the mouse should warp around the screen allowing you to continue scrolling
+// values when tweaking.
+#define MOUSE_WARP_IF_CLICKED 1
+
 // The possible inputs
 namespace Input {
     enum class Name {

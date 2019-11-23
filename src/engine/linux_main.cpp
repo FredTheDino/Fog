@@ -34,7 +34,7 @@ bool debug_values_are_on();
 #include "util/font_settings.h"
 #include "util/io.cpp"
 #include "util/memory.cpp"
-#include "util/debug_values.h"
+#include "util/tweak_values.h"
 #include "platform/input.cpp"
 #include "renderer/command.cpp"
 #include "renderer/text.cpp"
