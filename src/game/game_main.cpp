@@ -19,6 +19,11 @@ void setup() {
     add(K(w), Name::UP);
     add(K(s), Name::DOWN);
 
+    add(K(a), Name::UP);
+    add(K(d), Name::DOWN);
+    add(K(w), Name::RIGHT);
+    add(K(s), Name::LEFT);
+
     const auto callback = []() {
         for (u32 i = 0; i < LEN(point_list); i++)
             point_list[i] = random_unit_vec2();

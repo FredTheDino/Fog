@@ -1,6 +1,6 @@
 namespace Input {
 
-Binding *find_binding(InputCode code) {
+Binding *find_first_binding(InputCode code) {
     s64 low = 0;
     s64 high = global_mapping.used_bindings;
     while (low <= high) {
@@ -8,12 +8,15 @@ Binding *find_binding(InputCode code) {
         if (cur < 0 || global_mapping.used_bindings < cur)
             break;
         auto cur_code = global_mapping.bindings[cur].code;
-        if (cur_code > code)
+        if (cur_code > code) {
             high = cur - 1;
-        else if (cur_code < code)
+        } else if (cur_code < code) {
             low = cur + 1;
-        else
+        } else {
+            // TODO(ed): This can maybe be better?
+            while (global_mapping.bindings[(cur - 1)] == code) cur--;
             return global_mapping.bindings + cur;
+        }
     }
     return nullptr;
 }
@@ -73,15 +76,15 @@ void clear_input_for_frame() {
     global_mapping.mouse.state[2] = clear_frame_flag(global_mapping.mouse.state[2]);
 }
 
-bool activate(InputCode code, f32 value) {
-    Binding *binding = find_binding(code);
-    if (!binding) return false;
-    u32 index = binding->index();
-    ASSERT(0 <= index && index < NUM_BINDINGS_PER_CONTROLLER, "Invalid index");
-    u32 player = binding->playerID();
-    ASSERT(0 <= (u32) player && player < (u32) Player::NUM, "Invalid player");
-    global_mapping.buttons[player][index].set(value);
-    return true;
+void activate(InputCode code, f32 value) {
+    for (Binding *binding = find_first_binding(code);
+         binding && (*binding) == code; binding++) {
+        u32 index = binding->index();
+        ASSERT(0 <= index && index < NUM_BINDINGS_PER_CONTROLLER, "Invalid index");
+        u32 player = binding->playerID();
+        ASSERT(0 <= (u32) player && player < (u32) Player::NUM, "Invalid player");
+        global_mapping.buttons[player][index].set(value);
+    }
 }
 
 // TODO(ed): down, released, pressed, triggered
