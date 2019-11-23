@@ -18,6 +18,7 @@ bool debug_values_are_on();
 #include "renderer/text.h"
 
 #include "util/debug.cpp"
+#include "util/tweak_values.h"
 #include "util/types.h"
 #include "util/memory.h"
 #include "util/performance.h"
@@ -34,13 +35,13 @@ bool debug_values_are_on();
 #include "util/font_settings.h"
 #include "util/io.cpp"
 #include "util/memory.cpp"
-#include "util/tweak_values.h"
 #include "platform/input.cpp"
 #include "renderer/command.cpp"
 #include "renderer/text.cpp"
 #include "renderer/particle_system.cpp"
 #include "asset/asset.cpp"
 #include "util/performance.cpp"
+#include "util/tweak_values.cpp"
 #include "logic/logic.cpp"
 #include "logic/block_physics.cpp"
 
@@ -143,7 +144,7 @@ int main(int argc, char **argv) {
 
         if (show_perf)
             Perf::report();
-        Util::debug_values_clear();
+        Util::clear_tweak_values();
         Perf::clear();
         START_PERF(MAIN);
         START_PERF(INPUT);
