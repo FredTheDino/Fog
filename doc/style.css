@@ -9,6 +9,7 @@ nav {
     left: 0;
     top: 0;
     width: 30%;
+    max-width: 13em;
     height: 100%;
     overflow-x: hidden;
     overflow-y: scroll;
@@ -69,9 +70,10 @@ nav>ul>li>ul>li>ul a::before {
 }
 
 article {
-    position: relative;
-    left: calc(31%);
-    width: calc(100% - 32%);
+    position: absolute;
+    right: 0;
+    min-width: 65%;
+    width: calc(100% - 17em);
 }
 
 .block {
