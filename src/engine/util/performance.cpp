@@ -50,8 +50,7 @@ void report() {
     f32 y = Util::debug_top_of_screen();
     f32 dy = Util::debug_line_height();
 
-    snprintf(buffer, buffer_size, "=== PERFORMANCE ===");
-    Util::debug_text(buffer, y -= dy);
+    Util::debug_text("=== PERFORMANCE ===", y -= dy);
 
     snprintf(buffer, buffer_size,
             " %-8s: %5s %9s %9s %9s",
@@ -67,6 +66,12 @@ void report() {
                 clock->total_time / clock->total_count);
         Util::debug_text(buffer, y -= dy);
     }
+    y -= dy;
+
+    Util::debug_text("=== MEMORY ===", y -= dy);
+    snprintf(buffer, buffer_size, " %-8s: %5d", 
+             "FREE ARENAS", Util::global_memory.num_free_regions);
+    Util::debug_text(buffer, y -= dy);
 }
 
 }  // namespace Perf
