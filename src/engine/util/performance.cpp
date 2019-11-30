@@ -69,7 +69,7 @@ void report() {
     y -= dy;
 
     Util::debug_text("=== MEMORY ===", y -= dy);
-    snprintf(buffer, buffer_size, " %-8s: %5d", 
+    snprintf(buffer, buffer_size, " %-8s: %5ld", 
              "FREE ARENAS", Util::global_memory.num_free_regions);
     Util::debug_text(buffer, y -= dy);
 }

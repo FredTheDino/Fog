@@ -75,6 +75,10 @@ T *resize_memory(T *data, u32 num);
 template <typename T>
 void pop_memory(T *data);
 
+///*
+// Copies the memory from one pointer to the other.
+void copy_bytes(void *from, void *to, u64 size);
+
 // TODO(ed): We could do system allocations here, it
 // would be faster, but a tad less portable.
 constexpr u64 TOTAL_MEMORY_BUDGET = 1 << 29;  // ~0.5GB

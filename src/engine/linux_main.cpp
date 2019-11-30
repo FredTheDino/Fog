@@ -10,6 +10,7 @@ bool debug_values_are_on();
 #include <stb_image.h>
 
 #include "math/block_math.h"
+#include "util/mapmacro.h"
 
 #include "asset/asset.h"
 #include "../fog_assets.cpp"
@@ -28,6 +29,7 @@ bool debug_values_are_on();
 #include "renderer/camera.h"
 #include "renderer/particle_system.h"
 #include "logic/logic.h"
+#include "logic/entity.h"
 #include "logic/block_physics.h"
 
 #include "math.h"
@@ -43,6 +45,7 @@ bool debug_values_are_on();
 #include "util/performance.cpp"
 #include "util/tweak_values.cpp"
 #include "logic/logic.cpp"
+#include "logic/entity.cpp"
 #include "logic/block_physics.cpp"
 
 #include "platform/mixer.h"

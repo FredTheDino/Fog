@@ -108,7 +108,10 @@ void pop_memory(T *data) {
     free(data);
 }
 
-
-
+void copy_bytes(void *from, void *to, u64 size) {
+    u8 *_to = (u8 *) to;
+    u8 *_from = (u8 *) from;
+    while(size--) *(_to++) = *(_from++);
+}
 
 }  // namespace Util
