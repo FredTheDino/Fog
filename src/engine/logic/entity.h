@@ -1,13 +1,8 @@
 #include <typeindex>
+#include <type_traits>
+
 
 namespace Logic {
-
-    enum class EntityType {
-        BASE,
-        A_TYPE,
-
-        NUM_ENTITY_TYPES,
-    };
 
     struct EntityID {
         u32 id;
@@ -29,6 +24,7 @@ namespace Logic {
 
         u64 num_fields;
         EField *fields;
+        bool registered;
 
         const char *show();
     };
@@ -37,17 +33,27 @@ namespace Logic {
         u64 hash;
         const char *name;
         u64 size;
-        void (*default_init)(void *); // A way to make it by default
     };
+
+    EMeta _fog_global_entity_list[(u32) EntityType::NUM_ENTITY_TYPES];
+
+#include "entity_macros.h"
 
     struct Entity {
         EntityID id;
-        virtual Logic::EntityType type() = 0;
+        // A generic function for validating the data, override this
+        // if you want to empose some sort of data verification.
+        virtual void validate_data() {};
 
+        // Called when the entity is updated.
         virtual void update(f32 delta) = 0;
+        // Called when the entity is drawn.
         virtual void draw() = 0;
+
+        REGISTER_NO_FIELDS(BASE, Entity);
     };
 
-
-    
+    ///*
+    //Fetch the meta data for the specific type.
+    EMeta meta_data_for(EntityType type);
 };

@@ -140,6 +140,7 @@ int main(int argc, char **argv) {
 
     SETUP_DEBUG_KEYBINDINGS;
 
+    Game::entity_registration();
     Logic::frame(SDL_GetTicks() / 1000.0f);
     Game::setup();
     while (SDL::running) {

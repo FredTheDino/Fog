@@ -43,4 +43,14 @@ namespace Perf {
 }
 
 
+// This is where you add a new entity
+namespace Logic {
+    enum class EntityType {
+        BASE,
+        A_TYPE,
+
+        NUM_ENTITY_TYPES, // Don't write anything after this.
+    };
+}
+
 

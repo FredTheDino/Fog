@@ -12,6 +12,16 @@ Physics::ShapeID square;
 
 Physics::Body a, b;
 
+struct A : public Logic::Entity {
+    int b;
+    int a;
+    REGISTER_FIELDS(A_TYPE, A, a, b)
+};
+
+void entity_registration() {
+    REGISTER_ENTITY(A);
+}
+
 void setup() {
     using namespace Input;
     add(K(a), Name::LEFT);
@@ -54,6 +64,16 @@ void setup() {
 
     Renderer::global_camera.zoom = 1.0 / 2.0;
 
+    {
+        auto a = Logic::meta_data_for(A::st_type());
+        for (int i = 0; i < a.num_fields; i++) {
+            LOG("%d, %s", i, a.fields[i].name);
+        }
+    }
+    {
+        auto a = GEN_TYPE_INFO(s32);
+        LOG("%d, %s, %d", a.hash, a.name, a.size);
+    }
 }
 
 bool a_boolean;
