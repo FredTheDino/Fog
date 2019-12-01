@@ -74,6 +74,13 @@ T *MemoryArena::push(u64 count) {
     return (T *) region;
 }
 
+template <typename T>
+T *MemoryArena::push(T type) {
+    T* copy = push<T>(1);
+    copy_bytes(&type, copy, sizeof(T));
+    return copy;
+}
+
 void MemoryArena::clear() {
     // TODO(ed): Should do boundry checking here.
     while (next) {

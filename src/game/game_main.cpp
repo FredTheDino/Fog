@@ -66,12 +66,12 @@ void setup() {
 
     {
         auto a = Logic::meta_data_for(A::st_type());
-        for (int i = 0; i < a.num_fields; i++) {
+        for (u32 i = 0; i < a.num_fields; i++) {
             LOG("%d, %s", i, a.fields[i].name);
         }
     }
     {
-        auto a = GEN_TYPE_INFO(s32);
+        auto a = *Logic::fetch_type<s32>();
         LOG("%d, %s, %d", a.hash, a.name, a.size);
     }
 }

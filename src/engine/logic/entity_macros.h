@@ -1,19 +1,13 @@
 // Included in the logic namespace, extracted out of the file to make it
 // more readable.
 
-ETypeInfo generate_type_info(u64 hash, const char *name, u64 size) {
-    return {hash, name, size};
-}
-#define GEN_TYPE_INFO(T, ...)                                              \
-    Logic::generate_type_info(typeid(T).hash_code(), typeid(T).name(), sizeof(T), \
-                       ##__VA_ARGS__)
-
 EMeta::EField generate_field_info(const char *name, u64 offset, u64 hash) {
     return { name, offset, hash};
 }
 
 template <class T, class M> M _fog_member_type(M T:: *);
 
+// TODO(ed): Document this... Like a lot...
 #define GET_FIELD_TYPE(Base, field) decltype(Logic::_fog_member_type(&Base::field))
 
 #define GEN_FIELD_INFO(E, f, ...)                                        \
@@ -24,10 +18,10 @@ template <class T, class M> M _fog_member_type(M T:: *);
 #define EXPAND_FIELDS_EXPORT(member) GEN_FIELD_INFO(self, member),
 
 // TODO(ed): Maybe make this neater? Is there a way to detect if you passed
-// variadic arguments?
+// variadic arguments? Would be great if this was one macro...
 #define REGISTER_FIELDS(EnumType, SelfType, ...)                              \
-    virtual Logic::EntityType type() { return Logic::EntityType::EnumType; }  \
-    static constexpr Logic::EntityType st_type() {                            \
+    virtual Logic::EntityType type() override { return Logic::EntityType::EnumType; }  \
+    static constexpr Logic::EntityType st_type() {                   \
         return Logic::EntityType::EnumType;                                   \
     }                                                                         \
     static Logic::EMeta _fog_generate_meta() {                                \
@@ -41,14 +35,14 @@ template <class T, class M> M _fog_member_type(M T:: *);
                 LEN(_fog_fields), _fog_fields_mem, true};                     \
     }
 
-#define REGISTER_NO_FIELDS(EnumType, SelfType)                              \
-    virtual Logic::EntityType type() { return Logic::EntityType::EnumType; }  \
-    static constexpr Logic::EntityType st_type() {                            \
+#define REGISTER_NO_FIELDS(EnumType, SelfType)                                \
+    virtual Logic::EntityType type() override { return Logic::EntityType::EnumType; }  \
+    static constexpr Logic::EntityType st_type() {                   \
         return Logic::EntityType::EnumType;                                   \
     }                                                                         \
     static Logic::EMeta _fog_generate_meta() {                                \
-        return {Logic::EntityType::EnumType, typeid(SelfType).hash_code(),    \
-                0, nullptr, true};                     \
+        return {Logic::EntityType::EnumType, typeid(SelfType).hash_code(), 0, \
+                nullptr, true};                                               \
     }
 
 // TODO(ed): For serialization, we need to store the size of the entity,
@@ -63,4 +57,8 @@ template <class T, class M> M _fog_member_type(M T:: *);
         Logic::_fog_global_entity_list[(u32) T::st_type()] =               \
             T::_fog_generate_meta();                                        \
     } while (false);
+
+
+#define REGISTER_TYPE(Type, ...) \
+    Logic::register_type({typeid(Type).hash_code(), "\"" #Type "\"", sizeof(Type), ##__VA_ARGS__})
 

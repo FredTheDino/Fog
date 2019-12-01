@@ -21,6 +21,9 @@ struct MemoryArena {
     template <typename T>
     T *push(u64 count = 1);
 
+    template <typename T>
+    T *push(T arg);
+
     // Deallocate the ENTIRE BLOCK
     void pop();
 

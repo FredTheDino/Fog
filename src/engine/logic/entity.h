@@ -29,11 +29,34 @@ namespace Logic {
         const char *show();
     };
 
+    typedef void (*ShowFunc)(void *);
+
     struct ETypeInfo {
         u64 hash;
         const char *name;
         u64 size;
+        ShowFunc show;
+        ETypeInfo *next;
     };
+
+    struct TypeTable {
+        static constexpr u64 NUM_SLOTS = 1 << 8;
+        ETypeInfo data[NUM_SLOTS] = {};
+        Util::MemoryArena *arena;   
+    } _fog_global_type_table;
+
+    // Adds a new type to the type table, for showing and stuff like that.
+    void register_type(ETypeInfo info);
+
+    // Fetches the information from the hash table.
+    template <typename T>
+    const ETypeInfo *fetch_type();
+    const ETypeInfo *fetch_type(u64 hash);
+
+    // Checks if there is information about this type.
+    template <typename T>
+    bool contains_type();
+    bool contains_type(u64 hash);
 
     EMeta _fog_global_entity_list[(u32) EntityType::NUM_ENTITY_TYPES];
 
@@ -50,7 +73,19 @@ namespace Logic {
         // Called when the entity is drawn.
         virtual void draw() = 0;
 
-        REGISTER_NO_FIELDS(BASE, Entity);
+        virtual EntityType type() { return EntityType::BASE; }
+
+        static constexpr EntityType st_type() { return EntityType::BASE; }
+
+        static Logic::EMeta _fog_generate_meta() {
+            return {
+                Logic::EntityType::BASE,
+                typeid(EntityType).hash_code(),
+                0,
+                nullptr,
+                true
+            };
+        }
     };
 
     ///*
