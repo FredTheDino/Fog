@@ -29,7 +29,8 @@ namespace Logic {
         const char *show();
     };
 
-    typedef void (*ShowFunc)(void *);
+    // Write to the string buffer the type info.
+    typedef void (*ShowFunc)(char *, void *);
 
     struct ETypeInfo {
         u64 hash;
@@ -76,18 +77,15 @@ namespace Logic {
         // Called when the entity is drawn.
         virtual void draw() = 0;
 
+        // Prints out the enitty.
+        const char *show();
+
+        // What the macro generates.
+        virtual const char *type_name() { return "BASE"; }
         virtual EntityType type() { return EntityType::BASE; }
-
-        static constexpr EntityType st_type() { return EntityType::BASE; }
-
+        static constexpr Logic::EntityType st_type() { return EntityType::BASE; }
         static Logic::EMeta _fog_generate_meta() {
-            return {
-                Logic::EntityType::BASE,
-                typeid(EntityType).hash_code(),
-                0,
-                nullptr,
-                true
-            };
+                return {EntityType::BASE, typeid(Entity).hash_code(), 0, nullptr, true};
         }
     };
 

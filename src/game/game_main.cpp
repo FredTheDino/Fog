@@ -13,14 +13,25 @@ Physics::ShapeID square;
 Physics::Body a, b;
 
 struct A : public Logic::Entity {
-    int b;
+
+    virtual void update(f32 delta) {};
+    virtual void draw() {};
+
     int a;
-    REGISTER_FIELDS(A_TYPE, A, a, b)
+    int b;
+    int c;
+    int *d;
+    double q;
+    REGISTER_FIELDS(A_TYPE, A, a, b, c, d, q)
 };
 
+void show_int(char *buffer, void *info) {
+    Util::format_inplace(buffer, "%d", *((int *) info));
+}
+
 void entity_registration() {
-    REGISTER_TYPE(int);
-    REGISTER_TYPE(s32);
+    REGISTER_TYPE(int, show_int);
+    REGISTER_TYPE(int *);
 
     REGISTER_ENTITY(A);
 }
@@ -74,9 +85,10 @@ void setup() {
         }
     }
     {
-        auto a = Logic::fetch_type<s32>();
-        ASSERT(a, "Failed to fetch type info!");
-        LOG("%d, %s, %d", a->hash, a->name, a->size);
+        A some_entity = {};
+        some_entity.a = 1;
+        some_entity.b = 1;
+        LOG("%s", some_entity.show());
     }
 }
 

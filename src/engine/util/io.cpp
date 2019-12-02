@@ -38,6 +38,20 @@ char *format(const char *fmt, ...) {
     return buffer;
 }
 
+///*
+// Formats a string according to the passed in
+// format string (see printf for more info). The
+// result is written to the "out" buffer.
+void format_inplace(char *out, const char *fmt, ...);
+
+void format_inplace(char *out, const char *fmt, ...) {
+    // TODO(ed): This needs some error checking..
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(out, 20, fmt, args);
+    va_end(args);
+}
+
 // Returns the whole contents of the file as
 // as a string, that is valid for |FRAME_LAG_FOR_MEMORY|
 // frames.

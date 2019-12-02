@@ -2,7 +2,7 @@
 // more readable.
 
 EMeta::EField generate_field_info(const char *name, u64 offset, u64 hash) {
-    return { name, offset, hash};
+    return {name, offset, hash};
 }
 
 template <class T, class M> M _fog_member_type(M T:: *);
@@ -11,7 +11,7 @@ template <class T, class M> M _fog_member_type(M T:: *);
 #define GET_FIELD_TYPE(Base, field) decltype(Logic::_fog_member_type(&Base::field))
 
 #define GEN_FIELD_INFO(E, f, ...)                                        \
-    Logic::generate_field_info("\"" #f "\"", offsetof(E, f),             \
+    Logic::generate_field_info("" #f "", offsetof(E, f),             \
                                typeid(GET_FIELD_TYPE(E, f)).hash_code(), \
                                ##__VA_ARGS__)
 
@@ -19,9 +19,13 @@ template <class T, class M> M _fog_member_type(M T:: *);
 
 // TODO(ed): Maybe make this neater? Is there a way to detect if you passed
 // variadic arguments? Would be great if this was one macro...
+
 #define REGISTER_FIELDS(EnumType, SelfType, ...)                              \
-    virtual Logic::EntityType type() override { return Logic::EntityType::EnumType; }  \
-    static constexpr Logic::EntityType st_type() {                   \
+    virtual const char *type_name() override { return #EnumType; }            \
+    virtual Logic::EntityType type() override {                               \
+        return Logic::EntityType::EnumType;                                   \
+    }                                                                         \
+    static constexpr Logic::EntityType st_type() {                            \
         return Logic::EntityType::EnumType;                                   \
     }                                                                         \
     static Logic::EMeta _fog_generate_meta() {                                \
@@ -36,8 +40,11 @@ template <class T, class M> M _fog_member_type(M T:: *);
     }
 
 #define REGISTER_NO_FIELDS(EnumType, SelfType)                                \
-    virtual Logic::EntityType type() override { return Logic::EntityType::EnumType; }  \
-    static constexpr Logic::EntityType st_type() {                   \
+    virtual const char *type_name() override { return #EnumType; }            \
+    virtual Logic::EntityType type() override {                               \
+        return Logic::EntityType::EnumType;                                   \
+    }                                                                         \
+    static constexpr Logic::EntityType st_type() {                            \
         return Logic::EntityType::EnumType;                                   \
     }                                                                         \
     static Logic::EMeta _fog_generate_meta() {                                \
@@ -51,7 +58,7 @@ template <class T, class M> M _fog_member_type(M T:: *);
 #define REGISTER_ENTITY(T)                                                 \
     do {                                                                   \
         static_assert(std::is_base_of<Logic::Entity, T>(),                        \
-                      "Cannot register non-entity compoent");               \
+                      "Cannot register non-entity component");               \
         ASSERT(!Logic::_fog_global_entity_list[(u32) T::st_type()].registered, \
                    "Trying to register same entity type multiple times");  \
         Logic::_fog_global_entity_list[(u32) T::st_type()] =               \
