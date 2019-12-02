@@ -60,5 +60,5 @@ template <class T, class M> M _fog_member_type(M T:: *);
 
 
 #define REGISTER_TYPE(Type, ...) \
-    Logic::register_type({typeid(Type).hash_code(), "\"" #Type "\"", sizeof(Type), ##__VA_ARGS__})
+    Logic::register_type({typeid(Type).hash_code(), "" #Type "", sizeof(Type), ##__VA_ARGS__})
 

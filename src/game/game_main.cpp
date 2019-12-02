@@ -19,6 +19,9 @@ struct A : public Logic::Entity {
 };
 
 void entity_registration() {
+    REGISTER_TYPE(int);
+    REGISTER_TYPE(s32);
+
     REGISTER_ENTITY(A);
 }
 
@@ -71,8 +74,9 @@ void setup() {
         }
     }
     {
-        auto a = *Logic::fetch_type<s32>();
-        LOG("%d, %s, %d", a.hash, a.name, a.size);
+        auto a = Logic::fetch_type<s32>();
+        ASSERT(a, "Failed to fetch type info!");
+        LOG("%d, %s, %d", a->hash, a->name, a->size);
     }
 }
 

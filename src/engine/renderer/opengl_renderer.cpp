@@ -493,9 +493,11 @@ u32 upload_texture(const Image *image, s32 index) {
             UNREACHABLE;
             return 0;
     }
+#if FOG_VERBOSE // A verbose warning, usually just noise.
     CHECK(image->width == OPENGL_TEXTURE_WIDTH &&
               image->height == OPENGL_TEXTURE_HEIGHT,
           "Not using the entire texture 'slice'.");
+#endif
     glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, index, image->width,
                     image->height, 1, data_format, GL_UNSIGNED_BYTE, image->data);
     return index;

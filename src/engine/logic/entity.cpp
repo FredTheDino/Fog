@@ -1,10 +1,16 @@
 namespace Logic {
+
+    bool init_entity() {
+        _fog_global_type_table.arena = Util::request_arena();
+        return true;
+    }
+
     EMeta meta_data_for(EntityType type) {
         return _fog_global_entity_list[(u32) type];
     }
 
     template <typename T>
-    bool contains_type(u64 hash) {
+    bool contains_type() {
         return fetch_type(typeid(T).hash_code());
     }
 
@@ -14,19 +20,18 @@ namespace Logic {
 
     void register_type(ETypeInfo info) {
         // TODO(ed): Write this... Too tired..
-        ETypeInfo *first = _fog_global_type_table.data + (info.hash % TypeTable::NUM_SLOTS);
-#if 0 // Wrong...
-        ETypeInfo **current = &first;
-        while (*current && (*current)->name) {
-            if ((*current)->hash == info.hash && Util::str_eq((*current)->name, info.name)) {
-                ERR("TYPE COL: \"%s\" =?= \"%s\"", (*current)->name, info.name);
-                return;
-            }
+        ETypeInfo **current = _fog_global_type_table.data + (info.hash % TypeTable::NUM_SLOTS);
+
+        while (*current) {
+            if ((*current)->hash == info.hash)
+                ERR("Type hash collision '%s' '%s', "
+                    "adding the same type twice?",
+                    info.name, (*current)->name);
             current = &(*current)->next;
         }
+
         info.next = nullptr;
         *current = _fog_global_type_table.arena->push(info);
-#endif
     }
 
     template <typename T>
@@ -35,11 +40,11 @@ namespace Logic {
     }
 
     const ETypeInfo *fetch_type(u64 hash) {
-        ETypeInfo *current = _fog_global_type_table.data + (hash % TypeTable::NUM_SLOTS);
+        ETypeInfo *current = _fog_global_type_table.data[hash % TypeTable::NUM_SLOTS];
         while (current) {
             if (current->hash == hash) return current;
             current = current->next;
         }
-        return nullptr;
+        return current;
     }
 };
