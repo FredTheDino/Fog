@@ -1,6 +1,8 @@
 // Tell the engine that this is loaded
 #define FOG_GAME
 
+#include <vector>
+
 namespace Game {
 
 static Vec2 point_list[1000];
@@ -19,11 +21,15 @@ struct A : public Logic::Entity {
 
     int a;
     int b;
-    int c;
-    int *d;
-    double q;
-    REGISTER_FIELDS(A_TYPE, A, a, b, c, d, q)
+    REGISTER_FIELDS(A_TYPE, A, a, b)
 };
+
+void show_buffer(char *buffer, void *tmp) {
+    std::vector<int> *vec = (std::vector<int> *) tmp;
+    buffer += Util::format_inplace(buffer, "(%d) ", vec->size());
+    for (int v : *vec)
+        buffer += Util::format_inplace(buffer, "%d ", v);
+}
 
 void show_int(char *buffer, void *info) {
     Util::format_inplace(buffer, "%d", *((int *) info));
@@ -32,6 +38,7 @@ void show_int(char *buffer, void *info) {
 void entity_registration() {
     REGISTER_TYPE(int, show_int);
     REGISTER_TYPE(int *);
+    REGISTER_TYPE(std::vector<int>, show_buffer);
 
     REGISTER_ENTITY(A);
 }

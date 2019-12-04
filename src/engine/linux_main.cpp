@@ -66,6 +66,7 @@ u64 Perf::highp_now() {
 }
 
 #include "../game/game_main.cpp"
+#include "../editor/editor_main.cpp"
 #ifndef FOG_GAME
 #   error "No game found"
 #endif
@@ -124,6 +125,30 @@ constexpr bool debug_view_is_on() {
 #define SETUP_DEBUG_KEYBINDINGS
 #endif
 
+void setup() {
+#ifdef FOG_EDITOR
+    Editor::setup();
+#else
+    Game::setup();
+#endif
+}
+
+void update() {
+#ifdef FOG_EDITOR
+    Editor::update(Logic::delta());
+#else
+    Game::update(Logic::delta());
+#endif
+}
+
+void draw() {
+#ifdef FOG_EDITOR
+    Editor::draw();
+#else
+    Game::draw();
+#endif
+}
+
 int main(int argc, char **argv) {
     using namespace Input;
     init_random();
@@ -143,7 +168,7 @@ int main(int argc, char **argv) {
     ASSERT(Logic::init_entity(), "Failed to initalize entites");
     Game::entity_registration();
     Logic::frame(SDL_GetTicks() / 1000.0f);
-    Game::setup();
+    setup();
     while (SDL::running) {
         Logic::frame(SDL_GetTicks() / 1000.0f);
 
@@ -162,7 +187,7 @@ int main(int argc, char **argv) {
 
         Logic::call(Logic::At::PRE_UPDATE);
         // User defined
-        Game::update(Logic::delta());
+        update();
         Logic::call(Logic::At::POST_UPDATE);
 
         Mixer::audio_struct.position = Renderer::global_camera.position;
@@ -172,7 +197,7 @@ int main(int argc, char **argv) {
 
         Logic::call(Logic::At::PRE_DRAW);
         // User defined
-        Game::draw();
+        draw();
         Logic::call(Logic::At::POST_DRAW);
 
         Renderer::blit();
