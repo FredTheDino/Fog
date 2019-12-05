@@ -26,6 +26,8 @@ namespace Input {
         DEBUG_VIEW,
         DEBUG_VALUES,
 
+        EDIT_MUL_SEL,
+
         COUNT, // Don't write anything after this.
     };
 }

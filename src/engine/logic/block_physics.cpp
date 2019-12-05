@@ -142,6 +142,14 @@ void debug_draw_body(Body *body) {
     }
 }
 
+bool point_in_box(Vec2 p, Vec2 center, Vec2 dim, f32 rotation) {
+    // TODO(ed): Remove double sin, cos calculations.
+    p = rotate(p, -rotation);
+    center = rotate(center, -rotation);
+    Vec2 delta = (p - center);
+    return ABS(delta.x) < ABS(dim.x * 0.5) && ABS(delta.y) < ABS(dim.y * 0.5);
+}
+
 void integrate(Body *body, f32 delta) {
 	body->acceleration += body->force * body->inverse_mass;
 	body->velocity += body->acceleration * delta;
@@ -300,104 +308,6 @@ Overlap reversed(Overlap overlap)
 	};
 }
 
-#if 0
-void update_world(f32 delta)
-{
-	global_world.overlaps.clear();
-	for (u32 i = 0; i < global_world.limits.length; i++) {
-		Limit *limit = global_world.limits + i;
-		Body *body = get_body_ptr(limit->owner);
-        // TODO(ed): This can be made smarter, namely
-        // in linear time, is we had two lists...
-        // :o
-		if (!body) {
-			global_world.limits.remove(i);
-			i--;
-			recalculate_highest();
-			continue;
-		}
-
-		integrate(body, delta);
-		*limit = project_body(*body, global_world.sorting_axis);
-	}
-
-	// Sort the list, a stable insertion sort
-    // since the list should already be sorted.
-	for (u32 i = 1; i < global_world.limits.length; i++) {
-		for (u32 j = i; 0 < j; j--) {
-			Limit a = global_world.limits[j - 0];
-			Limit b = global_world.limits[j - 1];
-			if (b.lower < a.lower)
-				break;
-			global_world.limits[j - 0] = b;
-			global_world.limits[j - 1] = a;
-		}
-	}
-
-	// Collision detection and resolution.
-	for (u32 i = 0; i < global_world.limits.length; i++)
-	{
-		Limit outer = global_world.limits[i];
-		for (u32 j = i + 1; j < global_world.limits.length; j++)
-		{
-			Limit inner = global_world.limits[j];
-			if ((outer.layer & inner.layer) == 0)
-				break;
-			if (outer.upper < inner.lower)
-				break;
-			Body *a = get_body_ptr(outer.owner);
-			Body *b = get_body_ptr(inner.owner);
-
-			if (!a) break;
-			if (!b) continue;
-
-			if (a->trigger == true && b->trigger == true)
-				continue;
-			if (a->inverse_mass == 0 && b->inverse_mass == 0)
-				continue;
-
-			Overlap overlap = check_bodies(a, b, delta);
-			if (!overlap.is_valid)
-				continue; // Not a collision
-			global_world.overlaps.append(overlap);
-
-		}
-	}
-	
-    // Solve collisions.
-	for (u32 i = 0; i < global_world.overlaps.length; i++) {
-		Overlap overlap = global_world.overlaps[i];
-		Body *a = get_body_ptr(overlap.a);
-		Body *b = get_body_ptr(overlap.b);
-
-		bool solved = false;
-		if (a->overlap)
-			solved |= a->overlap(a, b, overlap);
-		if (b->overlap)
-			solved |= b->overlap(b, a, reversed(overlap));
-
-		if (!solved)
-			solve(overlap, delta);
-	}
-
-#if 0
-    // Copy state back to the entity.
-	for (u32 i = 0; i < global_world.bodies.length; i++) {
-		Body body = global_world.bodies[i];
-		if (body.owner.pos != (s32) i) continue;
-	}
-#endif
-
-	// Reset the bodies.
-	for (u32 i = 0; i < global_world.limits.length; i++) {
-		Limit *limit = global_world.limits + i;
-		Body *body = get_body_ptr(limit->owner);
-		if (!body) continue;
-		body->acceleration = {};
-		body->force = {};
-	}
-}
-#endif
 }
 
 

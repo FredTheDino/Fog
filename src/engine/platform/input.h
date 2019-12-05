@@ -206,6 +206,20 @@ Vec2 mouse_position();
 Vec2 mouse_move();
 
 ///*
+// Converts screen coordinates to world coordinates.
+Vec2 screen_to_world(Vec2 p);
+
+///*
+// The position of the mouse in world coordinated,
+// taken into account the current camera transform.
+Vec2 world_mouse_position();
+
+///*
+// The movement of the mouse in world coordinated,
+// taken into account the current camera transform.
+Vec2 world_mouse_move();
+
+///*
 // Returns true if the mouse button was pressed or released this frame.
 bool mouse_triggered(u8 button);
 

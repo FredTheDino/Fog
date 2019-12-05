@@ -142,6 +142,11 @@ Overlap check_overlap(Body *body_a, Body *body_b);
 
 
 ///*
+// Check if the point "p" lies in the specified box.
+bool point_in_box(Vec2 p, Vec2 center, Vec2 radius, f32 rotation);
+
+
+///*
 // Move the body forward by for delta-time, and solves the
 // new position using the current velocity and acceleration.
 void integrate(Body *body, f32 delta);

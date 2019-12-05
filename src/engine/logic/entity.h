@@ -72,6 +72,10 @@ namespace Logic {
         // if you want to empose some sort of data verification.
         virtual void validate_data() {};
 
+        Vec2 position;
+        Vec2 scale;
+        f32  rotation;
+
         // Called when the entity is updated.
         virtual void update(f32 delta) = 0;
         // Called when the entity is drawn.

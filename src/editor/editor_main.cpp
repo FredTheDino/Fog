@@ -57,24 +57,87 @@ void entity_registration() {
     REGISTER_TYPE(f64 *, show_f64_ptr);
 }
 
-void setup() {
-    using namespace Input;
-    add(K(a), Name::LEFT);
-    add(K(d), Name::RIGHT);
-    add(K(w), Name::UP);
-    add(K(s), Name::DOWN);
+using namespace Logic;
+struct MyEnt : public Entity {
+    void update(f32 delta) override {
+    }
 
-    Renderer::global_camera.zoom = 1.0 / 2.0;
+    void draw() override {
+        Renderer::push_sprite(position, scale, rotation,
+                ASSET_DEBUG_TEST,
+                LERP(V2(0, 0), value, V2(100, 100)), V2(64, 64));
+    }
+
+    f32 value;
+};
+
+Vec2 press_pos;
+Vec2 start_pos;
+
+Util::MemoryArena *editor_arean;
+Util::List<Entity *> entities;
+Util::List<Entity *> selected;
+
+using namespace Input;
+void setup() {
+    add(K(LSHIFT), Name::EDIT_MUL_SEL);
+
+    editor_arean = Util::request_arena();
+    selected = Util::create_list<Entity *>(50);
+    entities = Util::create_list<Entity *>(100);
+    for (s32 i = 0; i < 50; i++) {
+        MyEnt e;
+        e.position = random_unit_vec2();
+        e.scale = random_unit_vec2();
+        e.rotation = random_real();
+        e.value = random_real();
+        entities.append(editor_arean->push(e));
+    }
 }
 
 // Main logic
+bool overlap = false;
+Vec2 old_delta = V2(0, 0);
 void update(f32 delta) {
+    Renderer::global_camera.zoom = 1.0 / 2.0;
+
+    if (Input::down(Name::EDIT_MUL_SEL) || selected.length == 0) {
+        if (Input::mouse_pressed(0)) {
+            Vec2 mouse_pos = Input::world_mouse_position();
+            LOG("%d", entities.length);
+            for (u32 i = entities.length - 1; 0 < i; i--) {
+                Entity *e = entities[i];
+                if (Physics::point_in_box(mouse_pos, e->position, e->scale, e->rotation)) {
+                    selected.append(e);
+                    press_pos = mouse_pos;
+                    start_pos = e->position;
+                    break;
+                }
+            }
+        }
+    } else {
+        if (Input::mouse_down(0) || Input::mouse_pressed(0)) {
+            Vec2 mouse_pos = Input::world_mouse_position();
+            Vec2 delta = mouse_pos - press_pos;
+            Vec2 delta_delta = delta - old_delta; 
+            old_delta = delta;
+            for (u32 i = 0; i < selected.length; i++) {
+                Entity *e = selected[i];
+                e->position += delta_delta;
+            }
+            Renderer::push_line(press_pos, mouse_pos, V4(1, 1, 0, 1));
+        } else {
+            old_delta = V2(0, 0);
+            selected.clear();
+        }
+    }
 }
 
 // Main draw
 void draw() {
-    Renderer::push_sprite(V2(0, 0), V2(1, 1), ((int) floor(Logic::now())) % 4, 
-                          ASSET_DEBUG_TEST, V2(0, 0), V2(64, 64));
+    for (u32 i = 0; i < entities.length; i++) {
+        entities[i]->draw();
+    }
 }
 
 }  // namespace Game
