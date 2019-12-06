@@ -157,6 +157,14 @@ Vec2 screen_to_world(Vec2 p) {
     return result;
 }
 
+Vec2 scale_screen_to_world(Vec2 p) {
+    const f32 scale_factor = 1.0 / Renderer::global_camera.zoom;
+    Vec2 result = hadamard(p, V2( 2 * scale_factor / Renderer::global_camera.width,
+                                  2 * scale_factor / Renderer::global_camera.height));
+    result.y *= -1;
+    return result;
+}
+
 Vec2 world_mouse_position() {
     return screen_to_world(mouse_position());
 }
@@ -166,7 +174,7 @@ Vec2 mouse_position() {
 }
 
 Vec2 world_mouse_move() {
-    return screen_to_world(mouse_move());
+    return scale_screen_to_world(mouse_move());
 }
 
 Vec2 mouse_move() {

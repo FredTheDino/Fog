@@ -61,6 +61,12 @@ struct List
 		data[length - 1] = element;
 	}
 
+    T pop() {
+        ASSERT(length, "Cannot pop element from empty list");
+        T element = data[length--];
+        return element;
+    }
+
 	T get(u32 i)
 	{
 		ASSERT(initalized, "Trying to use uninitalized list");
@@ -78,6 +84,18 @@ struct List
 		ASSERT(initalized, "Trying to use uninitalized list");
 		return data[i] = element;
 	}
+
+    s32 index(T element) {
+        for (u32 i = 0; i < length; i++) {
+            if (element == data[i])
+                return i;
+        }
+        return -1;
+    }
+
+    bool contains(T element) {
+        return index(element) != -1;
+    }
 
 	void insert(u32 i, T element)
 	{
@@ -98,6 +116,16 @@ struct List
 			data[i] = data[i + 1];
 
 		length--;
+		return element;
+	}
+
+	T remove_fast(u32 i)
+	{
+		ASSERT(initalized, "Trying to use uninitalized list");
+        ASSERT(i < length, "Invalid length");
+        if (i == (length - 1)) return pop();
+		T element = data[i];
+		data[i] = pop();
 		return element;
 	}
 

@@ -26,7 +26,11 @@ namespace Input {
         DEBUG_VIEW,
         DEBUG_VALUES,
 
-        EDIT_MUL_SEL,
+        EDIT_MOVE_MODE,
+        EDIT_SCALE_MODE,
+
+        EDIT_SELECT_MODE,
+        EDIT_SELECT_ALL,
 
         COUNT, // Don't write anything after this.
     };
