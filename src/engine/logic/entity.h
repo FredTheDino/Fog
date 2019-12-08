@@ -5,8 +5,12 @@
 namespace Logic {
 
     struct EntityID {
-        u32 id;
+        s32 slot;
         u32 gen;
+
+        bool operator== (const EntityID &other) const {
+            return slot == other.slot && gen == other.gen;
+        }
     };
 
     struct EMeta {
@@ -93,7 +97,79 @@ namespace Logic {
         }
     };
 
+    struct EntitySystem {
+        Util::MemoryArena *memory;
+        s32 next_free;
+        Util::List<Entity *> entities;
+
+        s32 max_entity;
+        u32 num_entities;
+        u32 num_removed;
+        u32 defrag_limit;
+    } _fog_es;
+
     ///*
     //Fetch the meta data for the specific type.
     EMeta meta_data_for(EntityType type);
+
+
+    ///*
+    // Adds an entity to the ES, a copy is made to insert it
+    // and a unique id is returned.
+    template<typename T>
+    EntityID add_entity(T entity);
+
+    ///*
+    // Tries to fetch an entity from the ES, and returns a pointer
+    // to it. If the ID is invalid a nullptr is returned.
+    Entity *fetch_entity(EntityID id);
+
+    ///*
+    // Returns true if the entity is reachable and still alive.
+    bool valid_entity(EntityID id);
+
+    ///*
+    // Frees the resources of an entity from the ES to be used
+    // later on.
+    bool remove_entity(EntityID id);
+
+    ///*
+    // The function type for mapping over entities.
+    //
+    // A return value of true means to break the loop.
+    // A return value of false means to continue the loop.
+    typedef Function<bool(Entity *)> MapFunc;
+
+    ///*
+    // Applies the the function f to each entity that matches
+    // the supplied type in the ES.
+    //
+    // Note: This is kinda slow, it will probably always
+    // be faster to take out the ones you want to edit
+    // if you know where they are, but this is a good
+    // way to take out all entities of a type if you
+    // want them in a list.
+    void for_entity_of_type(EntityType type, MapFunc f);
+
+    ///*
+    // Applies the map function to each entity in the ES.
+    //
+    // Note: This is kinda slow, it will probably always
+    // be faster to take out the ones you want to edit
+    // if you know where they are.
+    void for_entity(MapFunc f);
+
+    ///*
+    // Returns the first entity in the system of the specified
+    // type. Returns an invalid id if it fails.
+    EntityID fetch_first_of_type(EntityType type);
+
+    // Updates all valid entities.
+    void update_es();
+    
+    // Draws all valid entities.
+    void draw_es();
+
+    // Restructures the memory to remove potential holes in the allocation.
+    void defragment_entity_memory();
 };

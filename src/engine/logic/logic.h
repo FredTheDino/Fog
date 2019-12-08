@@ -1,6 +1,6 @@
 // TODO(ed): This is a typedef, it would be nice to implement
 // my own version so I don't have to rely on heap
-// allocations during runtime.
+// allocations during runtime, it's a tad heavy-weight TBH.
 #include <functional>
 #define Function std::function
 

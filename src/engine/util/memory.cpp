@@ -116,6 +116,7 @@ void pop_memory(T *data) {
 }
 
 void copy_bytes(void *from, void *to, u64 size) {
+    // TODO(ed): memcpy might be like... A lot faster..
     u8 *_to = (u8 *) to;
     u8 *_from = (u8 *) from;
     while(size--) *(_to++) = *(_from++);

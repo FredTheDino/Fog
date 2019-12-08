@@ -49,8 +49,8 @@ void poll_events() {
                 Input::global_mapping.mouse.move_y += event.motion.yrel;
 #if MOUSE_WARP_IF_CLICKED
                 if (Input::mouse_down(0)) {
-                    const int SAFE_BORDER = 1;
-                    const int WARP_BORDER = 3;
+                    const int SAFE_BORDER = 2;
+                    const int WARP_BORDER = 4;
                     if (event.motion.x <= SAFE_BORDER)
                         SDL_WarpMouseInWindow(Renderer::Impl::window,
                                               Renderer::global_camera.width - WARP_BORDER,

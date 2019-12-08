@@ -188,6 +188,7 @@ int main(int argc, char **argv) {
         Logic::call(Logic::At::PRE_UPDATE);
         // User defined
         update();
+        Logic::update_es();
         Logic::call(Logic::At::POST_UPDATE);
 
         Mixer::audio_struct.position = Renderer::global_camera.position;
@@ -198,10 +199,14 @@ int main(int argc, char **argv) {
         Logic::call(Logic::At::PRE_DRAW);
         // User defined
         draw();
+        Logic::draw_es();
         Logic::call(Logic::At::POST_DRAW);
 
         Renderer::blit();
         STOP_PERF(RENDER);
+
+        Logic::defragment_entity_memory();
+
         STOP_PERF(MAIN);
     }
     

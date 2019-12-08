@@ -96,7 +96,27 @@ void tweak(const char *name, s32 *value) {
             global_tweak.pixels_per_unit;
         *value += upper - lower;
     }
-    
+}
+
+void tweak(const char *name, u32 *value) {
+    if (!debug_values_are_on()) return;
+    const char *buffer = Util::format(" %s: %u", name, *value);
+    debug_value_logic(name, buffer);
+
+    if (name == global_tweak.hot) {
+        f32 current_x = Input::mouse_position().x;
+        s32 upper = (current_x - global_tweak.click_pos.x) /
+                    global_tweak.pixels_per_unit;
+        s32 lower =
+            (current_x - Input::mouse_move().x - global_tweak.click_pos.x) /
+            global_tweak.pixels_per_unit;
+        s32 delta = upper - lower;
+        if ((s32) *value < -delta) {
+            *value = 0;
+        } else {
+            *value += delta;
+        }
+    }
 }
 
 void tweak(const char *name, Vec2 *value) {

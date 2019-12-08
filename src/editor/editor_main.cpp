@@ -102,6 +102,63 @@ Util::MemoryArena *editor_arean;
 Util::List<Entity *> entities;
 Util::List<Entity *> selected;
 
+struct EditorTransform {
+    // TODO(ed): Entity ID
+    Vec2 position;
+    Vec2 scale;
+    f32 rotation;
+
+    EditorTransform create(Entity *e) {
+        EditorTransform result = {
+            e->position,
+            e->scale,
+            e->rotation,
+        };
+        return result;
+    }
+
+    // TODO(ed): Is this a good idea?
+    void apply(Entity *e) {
+        e->position += position;
+        e->scale = hadamard(e->scale, scale);
+        e->rotation += rotation;
+    }
+
+    // TODO(ed): Is this a good idea?
+    void revert(Entity *e) {
+        e->position -= position;
+        e->scale = hadamard(e->scale, inverse(scale));
+        e->rotation -= rotation;
+    }
+
+    void set(Entity *e) {
+        e->position = position;
+        e->scale = scale;
+        e->rotation = rotation;
+    }
+};
+
+EditorTransform identity_transform() {
+    return { V2(0, 0), V2(1.0, 1.0), 0.0 };
+}
+
+Util::List<EditorTransform> edits;
+
+bool is_selected(Entity *e) {
+    return selected.contains(e);
+}
+
+void select(Entity *e) {
+    edits.append(identity_transform());
+    selected.append(e);
+}
+
+void deselect(Entity *e) {
+    s32 index = selected.index(e);
+    edits.remove_fast(index);
+    selected.remove_fast(index);
+}
+
 using namespace Input;
 editorMode mode_funcs[(u32) EditorMode::NUM_MODES] = {
     [(u32) EditorMode::SELECT_MODE] = [](bool clean, f32 delta) {
@@ -111,9 +168,10 @@ editorMode mode_funcs[(u32) EditorMode::NUM_MODES] = {
                 Entity *e = entities[i];
                 if (Physics::point_in_box(mouse_pos, e->position,
                                           e->scale, e->rotation)) {
-                    s32 index = selected.index(e);
-                    if (index == -1) selected.append(e);
-                    else selected.remove_fast(index);
+                    if (is_selected(e))
+                        deselect(e);
+                    else
+                        select(e);
                     break;
                 }
             }
@@ -121,9 +179,10 @@ editorMode mode_funcs[(u32) EditorMode::NUM_MODES] = {
         if (Input::pressed(Name::EDIT_SELECT_ALL)) {
             if (selected.length) {
                 selected.clear();
+                edits.clear();
             } else {
                 for (u32 i = entities.length - 1; 0 < i; i--) {
-                    selected.append(entities[i]);
+                    select(entities[i]);
                 }
             }
         }
@@ -131,34 +190,24 @@ editorMode mode_funcs[(u32) EditorMode::NUM_MODES] = {
 
     [(u32) EditorMode::MOVE_MODE] = [](bool clean, f32 delta) {
         Vec2 move = Input::world_mouse_move();
-        for (u32 i = 0; i < selected.length; i++) {
-            selected[i]->position += move;
+        for (u32 i = 0; i < edits.length; i++) {
+            edits[i].position += move;
         }
     },
 
     [(u32) EditorMode::SCALE_MODE] = [](bool clean, f32 delta) {
-        static Vec2 center;
         static f32 current_scale;
         static f32 previous_scale;
-        static f32 normalization;
         Vec2 mouse_pos = Input::world_mouse_position();
         if (clean) {
             current_scale = 1.0;
             previous_scale = 1.0;
-            for (u32 i = 0; i < selected.length; i++) {
-                center += selected[i]->position;
-            }
-            center /= selected.length;
-            normalization = 1.0 / length(mouse_pos - center);
         }
-        Renderer::push_point(center, V4(0, 1, 0, 1), 0.05);
         current_scale += Input::world_mouse_move().x;
         f32 update_by = current_scale / previous_scale;
         previous_scale = current_scale;
-        for (u32 i = 0; i < selected.length; i++) {
-            Entity *e = selected[i];
-            e->position += (e->position - center) * current_scale - (e->position - center) * previous_scale;
-            e->scale *= update_by;
+        for (u32 i = 0; i < edits.length; i++) {
+            edits[i].scale *= update_by;
         }
     },
 };
@@ -166,12 +215,14 @@ editorMode mode_funcs[(u32) EditorMode::NUM_MODES] = {
 void setup() {
     add(K(g), Name::EDIT_MOVE_MODE);
     add(K(s), Name::EDIT_SCALE_MODE);
-    add(K(ESCAPE), Name::EDIT_SELECT_MODE);
+    add(K(ESCAPE), Name::EDIT_ABORT);
+    add(K(SPACE), Name::EDIT_DO);
 
     add(K(a), Name::EDIT_SELECT_ALL);
 
     editor_arean = Util::request_arena();
     selected = Util::create_list<Entity *>(50);
+    edits = Util::create_list<EditorTransform>(50);
     entities = Util::create_list<Entity *>(100);
     for (s32 i = 0; i < 50; i++) {
         MyEnt e;
@@ -192,15 +243,32 @@ void update(f32 delta) {
     if (selected.length == 0)
         current_mode = EditorMode::SELECT_MODE;
     static EditorMode last_mode = EditorMode::SELECT_MODE;
-    mode_funcs[(u32) current_mode](last_mode != current_mode, delta);
+    bool new_state = false;
+
+    if (last_mode != current_mode) {
+        new_state = true;
+        // Apply the edits
+        for (u32 i = 0; i < edits.length; i++) {
+            edits[i].apply(selected[i]);
+        }
+        // TODO, copy the entities or copy the edits,
+        // havn't decided.
+        edits.clear();
+    }
+    mode_funcs[(u32) current_mode](new_state, delta);
     last_mode = current_mode;
 
     if (Input::pressed(Name::EDIT_MOVE_MODE))
         current_mode = EditorMode::MOVE_MODE;
     if (Input::pressed(Name::EDIT_SCALE_MODE))
         current_mode = EditorMode::SCALE_MODE;
-    if (Input::pressed(Name::EDIT_SELECT_MODE))
+    if (Input::pressed(Name::EDIT_ABORT)) {
+        edits.clear();
         current_mode = EditorMode::SELECT_MODE;
+    }
+    if (Input::pressed(Name::EDIT_DO)) {
+        current_mode = EditorMode::SELECT_MODE;
+    }
 }
 
 // Main draw
@@ -208,9 +276,13 @@ void draw() {
     for (u32 i = 0; i < entities.length; i++) {
         Entity *e = entities[i];
         if (selected.contains(e)) {
+            edits[i].apply(e);
             selected_draw(e);
+            e->draw();
+            edits[i].revert(e);
+        } else {
+            e->draw();
         }
-        e->draw();
     }
 }
 

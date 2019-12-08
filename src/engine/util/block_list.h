@@ -122,7 +122,7 @@ struct List
 	T remove_fast(u32 i)
 	{
 		ASSERT(initalized, "Trying to use uninitalized list");
-        ASSERT(i < length, "Invalid length");
+        ASSERT(i < length, "Invalid index, list is too short.");
         if (i == (length - 1)) return pop();
 		T element = data[i];
 		data[i] = pop();

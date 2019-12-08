@@ -29,8 +29,9 @@ namespace Input {
         EDIT_MOVE_MODE,
         EDIT_SCALE_MODE,
 
-        EDIT_SELECT_MODE,
+        EDIT_ABORT,
         EDIT_SELECT_ALL,
+        EDIT_DO,
 
         COUNT, // Don't write anything after this.
     };
@@ -44,6 +45,10 @@ namespace Perf {
         RENDER,
         TEXT,
 
+        ENTITY_UPDATE,
+        ENTITY_DRAW,
+        ENTITY_DEFRAG,
+
         NUMBER_OF_MARKERS, // Don't write anything after this.
     };
 }
@@ -54,6 +59,7 @@ namespace Logic {
     enum class EntityType {
         BASE,
         A_TYPE,
+        MY_ENT,
 
         NUM_ENTITY_TYPES, // Don't write anything after this.
     };

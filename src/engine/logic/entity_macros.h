@@ -63,6 +63,7 @@ template <class T, class M> M _fog_member_type(M T:: *);
                    "Trying to register same entity type multiple times");  \
         Logic::_fog_global_entity_list[(u32) T::st_type()] =               \
             T::_fog_generate_meta();                                        \
+        REGISTER_TYPE(T);\
     } while (false);
 
 
