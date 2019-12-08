@@ -135,7 +135,7 @@ void setup() {
 
 void update() {
 #ifdef FOG_EDITOR
-    Editor::update(Logic::delta());
+    Editor::update();
 #else
     Game::update(Logic::delta());
 #endif

@@ -28,10 +28,12 @@ struct MyEnt : public Logic::Entity {
     void draw() override {
         Renderer::push_sprite(layer, position, scale, rotation,
                 ASSET_DEBUG_TEST,
-                LERP(V2(0, 0), 0, V2(100, 100)), V2(64, 64));
+                LERP(V2(0, 0), value, V2(100, 100)), V2(64, 64));
     }
 
-    REGISTER_NO_FIELDS(MY_ENT, MyEnt)
+    f32 value;
+
+    REGISTER_FIELDS(MY_ENT, MyEnt, value)
 };
 
 void show_buffer(char *buffer, void *tmp) {
