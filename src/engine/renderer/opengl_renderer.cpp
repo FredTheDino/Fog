@@ -391,11 +391,9 @@ bool init(const char *title, int width, int height) {
     return true;
 }
 
-#define STR_HELPER(x) #x
-#define STR(x) STR_HELPER(x)
-#define LAYER_CHECK(L)                         \
+#define LAYER_CHECK(L)                          \
     ASSERT(0 <= (L) && (L) < OPENGL_NUM_LAYERS, \
-           "Invalid layer, should be between 0 and " STR(OPENGL_NUM_LAYERS));
+           "Invalid layer, should be between 0 and OPENGL_NUM_LAYERS");
 void push_verticies(u32 layer, u32 num_verticies, Vertex *verticies) {
     LAYER_CHECK(layer);
     sprite_render_queues[layer].push(num_verticies, verticies);

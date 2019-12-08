@@ -19,9 +19,15 @@ void __debug_log(const char* type, const char* file, int line,
     fprintf(stderr, "\n");
 }
 
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
+
+#define EXPAND_HELPER(x) #x
+#define EXPAND(x) EXPAND_HELPER(x)
+
 void __close_app_responsibly();
 #define HALT_AND_CATCH_FIRE do { __close_app_responsibly(); exit(-1); } while (false)
-#define ASSERT(expr, msg) __assert(__FILE__, __LINE__, "" #expr "" ": " #msg, expr)
+#define ASSERT(expr, msg) __assert(__FILE__, __LINE__, "" STR(expr) "" ": " msg, expr)
 
 void __assert_failed() {HALT_AND_CATCH_FIRE;}
 void __assert(const char* file, int line, const char* expr,
