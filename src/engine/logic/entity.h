@@ -79,6 +79,7 @@ namespace Logic {
         Vec2 position;
         Vec2 scale;
         f32  rotation;
+        u32 layer;
 
         // Called when the entity is updated.
         virtual void update(f32 delta) = 0;

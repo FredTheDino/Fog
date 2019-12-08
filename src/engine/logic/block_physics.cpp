@@ -127,8 +127,8 @@ void debug_draw_body(Body *body) {
 				body->rotation);
 		u += body->position;
 
-        Renderer::push_point(v, V4(0.1f, 0.2f, 0.7f, 1.0f));
-        Renderer::push_line(u, v, V4(0.7f, 0.2f, 0.1f, 1.0f));
+        Renderer::push_point(MAX_LAYER, v, V4(0.1f, 0.2f, 0.7f, 1.0f));
+        Renderer::push_line(MAX_LAYER, u, v, V4(0.7f, 0.2f, 0.1f, 1.0f));
 	}
 
 	Vec2 middle = body->position + body->offset;
@@ -137,7 +137,7 @@ void debug_draw_body(Body *body) {
         Vec2 normal = normalize(rotate(hadamard(shape.normals[i],
                                                 inverse(body->scale)),
                             body->rotation)) * 0.5;
-        Renderer::push_line(middle - normal, middle + normal,
+        Renderer::push_line(MAX_LAYER, middle - normal, middle + normal,
                             V4(0.2f, 0.7f, 0.1f, 1.0f));
     }
 }
@@ -192,7 +192,7 @@ Overlap check_overlap(Body *body_a, Body *body_b) {
 				axis_b = rotate(normal, rotation);
 				normal = rotate(normal, body_a->rotation);
 				if (debug_view_is_on())
-                    Renderer::push_line(body_a->position, body_a->position + normal,
+                    Renderer::push_line(MAX_LAYER, body_a->position, body_a->position + normal,
                                         V4(0.6, 0.0, 0.3, 1.0));
 			} else {
 				f32 rotation = body_b->rotation - body_a->rotation;
@@ -200,7 +200,7 @@ Overlap check_overlap(Body *body_a, Body *body_b) {
 				axis_b = normal;
 				normal = rotate(normal, body_b->rotation);
 				if (debug_view_is_on())
-					Renderer::push_line(body_b->position, body_b->position + normal,
+					Renderer::push_line(MAX_LAYER, body_b->position, body_b->position + normal,
                                         V4(0.0, 0.6, 0.3, 1.0));
 			}
 
@@ -227,17 +227,17 @@ Overlap check_overlap(Body *body_a, Body *body_b) {
 				Vec2 a1, a2;
 				a1 = body_a->position + normal * limit_a.lower;
 				a2 = body_a->position + normal * limit_a.upper;
-                Renderer::push_line(a1, a2, V4(1, 0, 1, 1));
+                Renderer::push_line(MAX_LAYER, a1, a2, V4(1, 0, 1, 1));
 
 				Vec2 b1, b2;
 				b1 = body_b->position + normal * limit_b.lower;
 				b2 = body_b->position + normal * limit_b.upper;
-                Renderer::push_line(b1, b2, V4(0, 1, 1, 1));
+                Renderer::push_line(MAX_LAYER, b1, b2, V4(0, 1, 1, 1));
 
 				//debug_line(body_a->position, body_a->position + axis_a);
 				//debug_line(body_b->position, body_b->position + axis_b);
 				Vec4 color = depth > 0 ? V4(1, 1, 0, 1) : V4(1, 0, 0, 1);
-                Renderer::push_line(center, center + normal * depth, color);
+                Renderer::push_line(MAX_LAYER, center, center + normal * depth, color);
 			}
 
 			if (depth < 0)
@@ -254,7 +254,7 @@ Overlap check_overlap(Body *body_a, Body *body_b) {
 	}
 
 	if (debug_view_is_on())
-		Renderer::push_line(center, center + overlap.normal * overlap.depth,
+		Renderer::push_line(MAX_LAYER, center, center + overlap.normal * overlap.depth,
                             V4(0, 1, 0, 1));
 
 	if (dot(overlap.normal, relative_position) < 0) {

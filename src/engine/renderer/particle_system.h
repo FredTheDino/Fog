@@ -35,7 +35,7 @@ struct Particle {
 
     void update(f32 delta);
 
-    void render(Vec2 origin, s32 slot, Vec2 uv_min, Vec2 uv_dim);
+    void render(u32 layer, Vec2 origin, s32 slot, Vec2 uv_min, Vec2 uv_dim);
 };
 
 struct ParticleSystem {
@@ -58,6 +58,7 @@ struct ParticleSystem {
 
     static const u32 MAX_NUM_SUB_SPRITES = 32;
     u32 num_sub_sprites;
+    u32 layer;
     SubSprite sub_sprites[MAX_NUM_SUB_SPRITES];
 
     
@@ -135,7 +136,7 @@ struct ParticleSystem {
 // <p>
 // position is the position of the particle system in world space.
 // </p>
-ParticleSystem create_particle_system(u32 num_particles, Vec2 position);
+ParticleSystem create_particle_system(u32 layer, u32 num_particles, Vec2 position);
 
 ///*
 // Destroys the particle system and returns the resources to the

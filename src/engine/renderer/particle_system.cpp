@@ -14,9 +14,10 @@ void Particle::update(f32 delta) {
     rotation += angular_velocity * delta;
 }
 
-void Particle::render(Vec2 origin, s32 slot, Vec2 uv_min, Vec2 uv_dim) {
+void Particle::render(u32 layer, Vec2 origin, s32 slot, Vec2 uv_min, Vec2 uv_dim) {
     if (dead()) return;
     Renderer::push_sprite(
+        layer,
         slot,
         position + origin,
         dim * LERP(spawn_size, progress, die_size),
@@ -105,9 +106,9 @@ void ParticleSystem::draw() {
         i %= max_num_particles;
         if (num_sub_sprites) {
             SubSprite sprite = sub_sprites[particles[i].sprite];
-            particles[i].render(p, sprite.texture, sprite.min, sprite.dim);
+            particles[i].render(layer, p, sprite.texture, sprite.min, sprite.dim);
         } else {
-            particles[i].render(p, -1, V2(0, 0), V2(0, 0));
+            particles[i].render(layer, p, -1, V2(0, 0), V2(0, 0));
         }
     } while ((i = (i + 1) % max_num_particles) != tail);
 }
@@ -122,7 +123,7 @@ void ParticleSystem::add_sprite(AssetID texture, u32 u, u32 v, u32 w, u32 h){
     sub_sprites[num_sub_sprites++] = sub_sprite;
 }
 
-ParticleSystem create_particle_system(u32 num_particles, Vec2 position) {
+ParticleSystem create_particle_system(u32 layer, u32 num_particles, Vec2 position) {
     Util::MemoryArena *arena = Util::request_arena();
     Particle *particles = arena->push<Particle>(num_particles);
     for (u32 i = 0; i < num_particles; i++) {
@@ -131,6 +132,7 @@ ParticleSystem create_particle_system(u32 num_particles, Vec2 position) {
     ParticleSystem particle_system = {arena, 0, 1};
     particle_system.max_num_particles = num_particles;
     particle_system.particles = particles;
+    particle_system.layer = layer;
 
     particle_system.relative = false;
     particle_system.one_color = true;

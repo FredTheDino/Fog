@@ -115,7 +115,7 @@ namespace Logic {
             id.gen = 0;
         }
 
-        if (_fog_es.entities.capacity <= id.slot) {
+        if ((s32) _fog_es.entities.capacity <= id.slot) {
             // TODO(ed): Is this a good size?
             _fog_es.entities.resize(id.slot * 2);
         }

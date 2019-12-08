@@ -5,6 +5,8 @@
 #define OPENGL_TEXTURE_WIDTH 512
 #define OPENGL_TEXTURE_HEIGHT 512
 #define OPENGL_TEXTURE_DEPTH 256
+#define OPENGL_NUM_LAYERS 16
+#define MAX_LAYER (OPENGL_NUM_LAYERS - 1)
 #define SDL
 
 // If the mouse should warp around the screen allowing you to continue scrolling

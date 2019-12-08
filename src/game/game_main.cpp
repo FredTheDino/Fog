@@ -5,9 +5,6 @@
 
 namespace Game {
 
-static Vec2 point_list[1000];
-static Vec4 color_list[1000];
-
 static Renderer::ParticleSystem system;
 
 Physics::ShapeID square;
@@ -18,12 +15,10 @@ struct A : public Logic::Entity {
 
     virtual void update(f32 delta) {};
     virtual void draw() {
-        Renderer::push_point(position, V4(0, 0, 0, 1), 0.1);
+        Renderer::push_point(layer, position, V4(0, 0, 0, 1), 0.1);
     };
 
-    int a;
-    int b;
-    REGISTER_FIELDS(A_TYPE, A, a, b)
+    REGISTER_NO_FIELDS(A_TYPE, A)
 };
 
 struct MyEnt : public Logic::Entity {
@@ -31,7 +26,7 @@ struct MyEnt : public Logic::Entity {
     }
 
     void draw() override {
-        Renderer::push_sprite(position, scale, rotation,
+        Renderer::push_sprite(layer, position, scale, rotation,
                 ASSET_DEBUG_TEST,
                 LERP(V2(0, 0), 0, V2(100, 100)), V2(64, 64));
     }

@@ -65,7 +65,7 @@ void selected_draw(Logic::Entity *e) {
         e->position + rotate(hadamard(e->scale, V2(-0.5,  0.5)), e->rotation),
     };
     for (u32 i = 0; i < LEN(corners); i++) {
-        Renderer::push_line(corners[i], corners[(i + 1) % LEN(corners)],
+        Renderer::push_line(MAX_LAYER, corners[i], corners[(i + 1) % LEN(corners)],
                 V4(1, 1, 0, 0.1), 0.02);
     }
 }
@@ -76,7 +76,7 @@ struct MyEnt : public Entity {
     }
 
     void draw() override {
-        Renderer::push_sprite(position, scale, rotation,
+        Renderer::push_sprite(layer, position, scale, rotation,
                 ASSET_DEBUG_TEST,
                 LERP(V2(0, 0), value, V2(100, 100)), V2(64, 64));
     }

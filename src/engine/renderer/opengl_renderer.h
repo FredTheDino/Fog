@@ -97,7 +97,7 @@ Program master_shader_program;
 Program font_shader_program;
 Program post_process_shader_program;
 
-RenderQueue<Vertex> sprite_render_queue;
+RenderQueue<Vertex> sprite_render_queues[OPENGL_NUM_LAYERS];
 RenderQueue<SdfVertex> font_render_queue;
 
 GLuint sprite_texture_array;

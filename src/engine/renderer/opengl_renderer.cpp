@@ -357,7 +357,9 @@ bool init(const char *title, int width, int height) {
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(gl_debug_message, 0);
 
-    sprite_render_queue.create(512);
+    for (u32 i = 0; i < OPENGL_NUM_LAYERS; i++) {
+        sprite_render_queues[i].create(512);
+    }
     font_render_queue.create(256);
 
     glGenBuffers(1, &ubo_camera);
@@ -389,8 +391,14 @@ bool init(const char *title, int width, int height) {
     return true;
 }
 
-void push_verticies(u32 num_verticies, Vertex *verticies) {
-    sprite_render_queue.push(num_verticies, verticies);
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
+#define LAYER_CHECK(L)                         \
+    ASSERT(0 <= (L) && (L) < OPENGL_NUM_LAYERS, \
+           "Invalid layer, should be between 0 and " STR(OPENGL_NUM_LAYERS));
+void push_verticies(u32 layer, u32 num_verticies, Vertex *verticies) {
+    LAYER_CHECK(layer);
+    sprite_render_queues[layer].push(num_verticies, verticies);
 }
 
 void push_sdf_quad(Vec2 min, Vec2 max, Vec2 min_uv, Vec2 max_uv,
@@ -414,8 +422,9 @@ void push_sdf_quad(Vec2 min, Vec2 max, Vec2 min_uv, Vec2 max_uv,
     font_render_queue.push(LEN(verticies), verticies);
 }
 
-void push_quad(Vec2 min, Vec2 min_uv, Vec2 max, Vec2 max_uv,
+void push_quad(u32 layer, Vec2 min, Vec2 min_uv, Vec2 max, Vec2 max_uv,
                       f32 sprite, Vec4 color) {
+    LAYER_CHECK(layer);
     Vertex verticies[] = {
         {V2(min.x, min.y), V2(min_uv.x, max_uv.y), sprite, color},
         {V2(max.x, min.y), V2(max_uv.x, max_uv.y), sprite, color},
@@ -425,29 +434,32 @@ void push_quad(Vec2 min, Vec2 min_uv, Vec2 max, Vec2 max_uv,
         {V2(max.x, max.y), V2(max_uv.x, min_uv.y), sprite, color},
         {V2(min.x, max.y), V2(min_uv.x, min_uv.y), sprite, color},
     };
-    sprite_render_queue.push(LEN(verticies), verticies);
+    sprite_render_queues[layer].push(LEN(verticies), verticies);
 }
 
-void push_quad(Vec2 min, Vec2 max, Vec4 color) {
-    push_quad(min, V2(-1, -1), max, V2(-1, -1), OPENGL_INVALID_SPRITE, color);
+void push_quad(u32 layer, Vec2 min, Vec2 max, Vec4 color) {
+    LAYER_CHECK(layer);
+    push_quad(layer, min, V2(-1, -1), max, V2(-1, -1), OPENGL_INVALID_SPRITE, color);
 }
 
 // TODO(ed): Do you want to have different sprites per vertex? Could
 // be a cool effect...
-void push_triangle(Vec2 p1, Vec2 p2, Vec2 p3,
+void push_triangle(u32 layer, Vec2 p1, Vec2 p2, Vec2 p3,
                           Vec2 uv1, Vec2 uv2, Vec2 uv3,
                           Vec4 color1, Vec4 color2, Vec4 color3,
                           f32 sprite) {
+    LAYER_CHECK(layer);
     Vertex verticies[] = {
         {p1, uv1, sprite, color1},
         {p2, uv2, sprite, color2},
         {p3, uv3, sprite, color3},
     };
-    sprite_render_queue.push(LEN(verticies), verticies);
+    sprite_render_queues[layer].push(LEN(verticies), verticies);
 }
 
-void push_line(Vec2 start, Vec2 end, Vec4 start_color, Vec4 end_color,
+void push_line(u32 layer, Vec2 start, Vec2 end, Vec4 start_color, Vec4 end_color,
                       f32 thickness) {
+    LAYER_CHECK(layer);
     Vec2 normal = normalize(rotate_ccw(start - end));
     Vec2 offset = normal * thickness * 0.5;
     Vertex verticies[] = {
@@ -459,12 +471,13 @@ void push_line(Vec2 start, Vec2 end, Vec4 start_color, Vec4 end_color,
         {end - offset, V2(0, 0), OPENGL_INVALID_SPRITE, end_color},
         {end + offset, V2(0, 0), OPENGL_INVALID_SPRITE, end_color},
     };
-    sprite_render_queue.push(LEN(verticies), verticies);
+    sprite_render_queues[layer].push(LEN(verticies), verticies);
 }
 
-void push_point(Vec2 point, Vec4 color, f32 size) {
+void push_point(u32 layer, Vec2 point, Vec4 color, f32 size) {
+    LAYER_CHECK(layer);
     size /= 2.0;
-    push_quad(point - V2(size, size), point + V2(size, size), color);
+    push_quad(layer, point - V2(size, size), point + V2(size, size), color);
 }
 
 struct StoredImage {
@@ -537,7 +550,8 @@ void blit() {
         clear();
 
         master_shader_program.bind();
-        sprite_render_queue.draw();
+        for (u32 layer = 0; layer < OPENGL_NUM_LAYERS; layer++)
+            sprite_render_queues[layer].draw();
 
         font_shader_program.bind();
         font_render_queue.draw();
@@ -553,42 +567,7 @@ void blit() {
     SDL_GL_SwapWindow(window);
 
     font_render_queue.clear();
-    sprite_render_queue.clear();
+    for (u32 layer = 0; layer < OPENGL_NUM_LAYERS; layer++)
+        sprite_render_queues[layer].clear();
 }
 
-// Asset (Abstract base class)
-//      - Texture:
-//          - Sprite Cheat (Is this the only usecase?)
-//              - Meta information like where each sprite is
-//              - How do I find a specific sprite?
-//          - Textures?
-//      - Shaders:
-//          - Abstract base class
-//          - Slightly different
-//          - What are the use cases? Do I send values?
-//      - Animations?
-//          - Specify timing and ID
-//          - How does this work with the textures
-//      - Sounds
-//          - 2D and 3D
-//      - Levels
-//          - Where and how to place things
-//          - How do you refer to assets?
-//      - Entities?
-//          - A way to specify how it acts?
-//          - Some form of ID
-//          - Should tie into Levels, somehow.
-//          - Maybe they are more like prefabs?
-//          - Only interesting in the entity file,
-//          - But then all entities need to be parseable
-//      - Meta
-//          - Global state variables
-//          - Maybe same thing as levels
-//          - Specify asset info, name for each asset?
-//          - Compiled into the engine?
-//          - Would be quick load times
-//       - Scripts
-//          - Lua integration?
-//          - Custom visual language?
-//              - How will I serialize it?
-//          - Pros over C++?
