@@ -225,7 +225,7 @@ void setup() {
     edits = Util::create_list<EditorTransform>(50);
     entities = Util::create_list<Entity *>(100);
     for (s32 i = 0; i < 50; i++) {
-        MyEnt e;
+        MyEnt e = {};
         e.position = random_unit_vec2();
         e.scale = random_unit_vec2();
         e.rotation = random_real();
