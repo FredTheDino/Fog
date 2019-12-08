@@ -11,7 +11,15 @@ namespace Logic {
         bool operator== (const EntityID &other) const {
             return slot == other.slot && gen == other.gen;
         }
+
+        operator bool() const {
+            return slot > 0;
+        }
     };
+
+    EntityID invalid_id() {
+        return {-1, 0};
+    }
 
     struct EMeta {
         // Meta info about class
@@ -79,7 +87,7 @@ namespace Logic {
         Vec2 position;
         Vec2 scale;
         f32  rotation;
-        u32 layer;
+        s32 layer;
 
         // Called when the entity is updated.
         virtual void update(f32 delta) = 0;

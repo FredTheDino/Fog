@@ -68,6 +68,7 @@ void setup() {
     Renderer::global_camera.zoom = 1.0 / 2.0;
 
     global_editor.selected = Util::create_list<Logic::EntityID>(50);
+    global_editor.edits = Util::create_list<EditorEdit>(50);
 
     for (u32 i = 0; i < 50; i++) {
         Game::MyEnt e = {};
@@ -81,22 +82,46 @@ void setup() {
 void select_func(bool clean) {
     const Vec2 mouse_pos = Input::world_mouse_position();
     if (Input::mouse_pressed(0)) {
-        LOG("Doing it!");
-        Logic::EntityID selected = {};
-        selected.slot = -1;
-        auto find_click = [&selected, mouse_pos](Logic::Entity *e) {
+        Logic::EntityID selected = Logic::invalid_id();
+        s32 layer = 0;
+        auto find_click = [&layer, &selected, mouse_pos](Logic::Entity *e) {
+            if (e->layer < layer && selected) return false;
             if (Physics::point_in_box(mouse_pos, e->position, e->scale,
                                       e->rotation)) {
+                layer = e->layer;
                 selected = e->id;
-                return true;
             }
             return false;
         };
         Logic::for_entity(Function(find_click));
-        if (selected.slot != -1) {
-            LOG("PRESSED: %d %d", selected.slot, selected.gen);
-            global_editor.selected.append(selected);
+        if (selected) {
+            s32 index = global_editor.selected.index(selected);
+            if (index == -1)
+                global_editor.selected.append(selected);
+            else
+                global_editor.selected.remove_fast(index);
         }
+    }
+}
+
+void move_func(bool clean) {
+    if (clean) {
+        global_editor.delta_vec2 = {};
+        global_editor.edits.resize(global_editor.selected.length);
+        global_editor.edits.clear();
+        for (u32 i = 0; i < global_editor.selected.length; i++) {
+            Logic::Entity *e = Logic::fetch_entity(global_editor.selected[i]);
+            EditorEdit edit = MAKE_EDIT(e, position);
+            global_editor.edits.append(edit);
+        }
+    }
+    Vec2 delta = Input::world_mouse_move();
+    for (u32 i = 0; i < global_editor.edits.length; i++) {
+        EditorEdit *edit = global_editor.edits + i;
+        ADD_EDIT(edit, delta);
+        Logic::Entity *entity = Logic::fetch_entity(global_editor.selected[i]);
+        ASSERT(entity, "Invalid entity id in asset select");
+        edit->apply(entity);
     }
 }
 
@@ -126,7 +151,7 @@ void update() {
 // Main draw
 void draw() {
     for (u32 i = 0; i < global_editor.selected.length; i++) {
-        Logic::Entity *e = Logic::fetch_entity(global_editor.selected[i]);       
+        Logic::Entity *e = Logic::fetch_entity(global_editor.selected[i]);
         if (e)
             draw_outline(e);
     }

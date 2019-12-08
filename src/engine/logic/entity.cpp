@@ -131,7 +131,7 @@ namespace Logic {
     Entity *fetch_entity(EntityID id) {
         if (id.slot >= 0) {
             Entity *entity = _fog_es.entities[id.slot];
-            if (id == entity->id) return entity;
+            if (entity && id == entity->id) return entity;
         }
         return nullptr;
     }

@@ -64,8 +64,62 @@ void entity_registration() {
 
 void draw_outline(Logic::Entity *e);
 
+
+struct EditorEdit {
+    Logic::EntityID target;
+    u64 hash; // TODO(ed): Do I need this?
+    u16 offset;
+
+    struct BinaryBlob {
+        u8 data[8];
+    };
+
+    u8 size;
+    BinaryBlob before;
+    BinaryBlob after;
+
+    void apply(Logic::Entity *e) {
+        u8 *type_ignorer = (u8 *) e;
+        Util::copy_bytes((void *) &after, type_ignorer + offset, size);
+    }
+
+    void revert(Logic::Entity *e) {
+        u8 *type_ignorer = (u8 *) e;
+        Util::copy_bytes((void *) &before, type_ignorer + offset, size);
+    }
+};
+
+EditorEdit::BinaryBlob _copy_field(void *field, u8 size) {
+    EditorEdit::BinaryBlob target;
+    Util::copy_bytes(field, target.data, size);
+    return target;
+}
+
+#define MAKE_EDIT(ENT, field)                         \
+    {                                                 \
+        (ENT)->id, \
+        (u64) typeid((ENT)->field).hash_code(),\
+        (u16) offsetof(std::remove_reference<decltype(*(ENT))>::type, field), \
+        sizeof((ENT)->field), \
+        _copy_field(&(ENT)->field, sizeof((ENT)->field)), \
+        _copy_field(&(ENT)->field, sizeof((ENT)->field)), \
+    }
+
+#define SET_EDIT(edit, new_val) \
+    if (edit->size) { \
+        ASSERT(typeid(new_val).hash_code() == edit->hash, "Types doesn't match"); \
+        edit->after = _copy_field(&new_val, sizeof(new_val)); \
+    }
+
+#define ADD_EDIT(edit, new_val) \
+    if (edit->size) { \
+        ASSERT(typeid(new_val).hash_code() == edit->hash, "Types doesn't match"); \
+        *((decltype(new_val) *) &edit->after) += new_val; \
+    }
+
 struct EditorState {
     Util::List<Logic::EntityID> selected;
+    Util::List<EditorEdit> edits;
 
     union {
         f32 delta_f32;
@@ -84,8 +138,7 @@ enum class EditorMode {
 };
 
 void select_func(bool clean);
-
-void move_func(bool clean) { }
+void move_func(bool clean);
 void scale_func(bool clean) { }
 void rotate_func(bool clean) { }
 
