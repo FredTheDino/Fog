@@ -90,6 +90,7 @@ struct EditorEdit {
 };
 
 EditorEdit::BinaryBlob _copy_field(void *field, u8 size) {
+    ASSERT(size <= sizeof(EditorEdit::BinaryBlob), "Cannot store a field of this size");
     EditorEdit::BinaryBlob target;
     Util::copy_bytes(field, target.data, size);
     return target;

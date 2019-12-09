@@ -62,6 +62,7 @@ void setup() {
     add(K(s), Name::EDIT_SCALE_MODE);
     add(K(ESCAPE), Name::EDIT_ABORT);
     add(K(SPACE), Name::EDIT_DO);
+    start_text_input();
 
     add(K(a), Name::EDIT_SELECT_ALL);
 
@@ -128,6 +129,10 @@ void move_func(bool clean) {
 // Main logic
 void update() {
     Util::tweak("zoom", &Renderer::global_camera.zoom);
+
+    static char text[32] = {};
+    if (Input::edit_string(text, 32))
+        LOG("%s", text);
 
     // if (selected.length == 0)
     //     current_mode = EditorMode::SELECT_MODE;
