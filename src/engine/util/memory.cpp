@@ -37,6 +37,11 @@ T *request_temporary_memory(u64 num) {
     return FRAME_MEMORY[CURRENT_MEMORY]->push<T>(num);
 }
 
+template <typename T>
+T *temporary_push(T t) {
+    return FRAME_MEMORY[CURRENT_MEMORY]->push(t);
+}
+
 MemoryArena *request_arena(bool only_one) {
     ASSERT(global_memory.free_regions, "No more memory");
     ASSERT(global_memory.num_free_regions, "No more memory");

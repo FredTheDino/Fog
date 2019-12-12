@@ -13,7 +13,7 @@ namespace Logic {
         }
 
         operator bool() const {
-            return slot > 0;
+            return slot >= 0;
         }
     };
 
@@ -74,7 +74,8 @@ namespace Logic {
     bool contains_type();
     bool contains_type(u64 hash);
 
-    EMeta _fog_global_entity_list[(u32) EntityType::NUM_ENTITY_TYPES];
+    constexpr u32 _NUM_ENTITY_TYPES = (u32) EntityType::NUM_ENTITY_TYPES;
+    EMeta _fog_global_entity_list[_NUM_ENTITY_TYPES];
 
 #include "entity_macros.h"
 
@@ -106,6 +107,10 @@ namespace Logic {
         }
     };
 
+    typedef Entity *(*EConstructFunc)();
+    EConstructFunc _fog_global_entity_construction_func[_NUM_ENTITY_TYPES];
+
+
     struct EntitySystem {
         Util::MemoryArena *memory;
         s32 next_free;
@@ -121,12 +126,23 @@ namespace Logic {
     //Fetch the meta data for the specific type.
     EMeta meta_data_for(EntityType type);
 
+    ///*
+    // Constructs an empty entity of a specific type,
+    // this will probably not be usefull since it does
+    // the same thing as "MyEntity my = {}" except it
+    // can be called using the type.
+    Entity *entity_from_type(EntityType type);
 
     ///*
     // Adds an entity to the ES, a copy is made to insert it
     // and a unique id is returned.
     template<typename T>
     EntityID add_entity(T entity);
+
+    ///*
+    // Adds an entity to the ES, copies the entity from the
+    // pointer.
+    EntityID add_entity_ptr(Entity *entity);
 
     ///*
     // Tries to fetch an entity from the ES, and returns a pointer

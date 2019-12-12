@@ -52,15 +52,13 @@ template <class T, class M> M _fog_member_type(M T:: *);
                 nullptr, true};                                               \
     }
 
-// TODO(ed): For serialization, we need to store the size of the entity,
-// this needs to be stored in something that's akin to a hashmap, and hopefully
-// we don't get collisions... That would be really bad...
 #define REGISTER_ENTITY(T)                                                 \
     do {                                                                   \
         static_assert(std::is_base_of<Logic::Entity, T>(),                        \
                       "Cannot register non-entity component");               \
         ASSERT(!Logic::_fog_global_entity_list[(u32) T::st_type()].registered, \
                    "Trying to register same entity type multiple times");  \
+        Logic::_fog_global_entity_construction_func[(u32) T::st_type()] = []() -> Logic::Entity *{ T t = {}; return (Logic::Entity *) Util::temporary_push(t); }; \
         Logic::_fog_global_entity_list[(u32) T::st_type()] =               \
             T::_fog_generate_meta();                                        \
         REGISTER_TYPE(T);\

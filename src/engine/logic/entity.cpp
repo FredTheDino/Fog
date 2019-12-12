@@ -55,7 +55,15 @@ namespace Logic {
     }
 
     EMeta meta_data_for(EntityType type) {
+        ASSERT((u32) type < (u32) EntityType::NUM_ENTITY_TYPES, "Invalid type");
+        EMeta meta = _fog_global_entity_list[(u32) type];
+        ASSERT(meta.registered, "Entity is not registerd.");
         return _fog_global_entity_list[(u32) type];
+    }
+
+    Entity *entity_from_type(EntityType type) {
+        meta_data_for(type);
+        return _fog_global_entity_construction_func[(u32) type]();
     }
 
     template <typename T>
@@ -88,6 +96,10 @@ namespace Logic {
         return fetch_type(typeid(T).hash_code());
     }
 
+    const ETypeInfo *fetch_entity_type(EntityType type) {
+        return fetch_type(meta_data_for(type).hash);
+    }
+
     const ETypeInfo *fetch_type(u64 hash) {
         ETypeInfo *current = _fog_global_type_table.data[hash % TypeTable::NUM_SLOTS];
         while (current) {
@@ -99,12 +111,8 @@ namespace Logic {
 
 
     // ES
-    template<typename T>
-    EntityID add_entity(T entity) {
-        static_assert(std::is_base_of<Entity, T>(),
-                      "You supplied a class that isn't based on Logic::Entity");
+    EntityID generate_entity_id() {
         EntityID id;
-
         _fog_es.num_entities++;
         if (_fog_es.next_free < 0) {
             // Reusing
@@ -121,10 +129,30 @@ namespace Logic {
         }
 
         id.gen++;
-        entity.id = id;
-        // TODO(ed): This causes memory fragmentation...
-        _fog_es.entities[id.slot] = (Entity *) _fog_es.memory->push(entity);
+
         _fog_es.max_entity = MAX(id.slot, _fog_es.max_entity);
+        return id;
+    }
+
+    template<typename T>
+    EntityID add_entity(T entity) {
+        static_assert(std::is_base_of<Entity, T>(),
+                      "You supplied a class that isn't based on Logic::Entity");
+        EntityID id = generate_entity_id();
+        entity.id = id;
+        _fog_es.entities[id.slot] = _fog_es.memory->push(entity);
+        return id;
+    }
+
+    EntityID add_entity_ptr(Entity *entity) {
+        EntityID id = generate_entity_id();
+        entity->id = id;
+
+        u32 size = Logic::fetch_entity_type(entity->type())->size;
+        Entity *copy = (Entity *) _fog_es.memory->push<u8>(size);
+        Util::copy_bytes(entity, copy, size);
+        _fog_es.entities[id.slot] = entity;
+
         return id;
     }
 
