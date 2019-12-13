@@ -61,9 +61,9 @@ namespace Logic {
         return _fog_global_entity_list[(u32) type];
     }
 
-    Entity *entity_from_type(EntityType type) {
+    void *_entity_vtable(EntityType type) {
         meta_data_for(type);
-        return _fog_global_entity_construction_func[(u32) type]();
+        return _fog_global_entity_vtable[(u32) type]();
     }
 
     template <typename T>

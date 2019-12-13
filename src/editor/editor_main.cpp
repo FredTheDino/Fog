@@ -68,11 +68,16 @@ size_t read_from_file(FILE *stream, T *ptr, size_t num=1) {
 Logic::Entity *read_entity(FILE *stream) {
     Logic::EntityType type;
     read_from_file(stream, &type);
-    LOG("%d", type);
+    ASSERT(offsetof(Logic::Entity, id) != 0,
+           "Invalid entity structure, cannot find vtable_ptr");
     u32 size = Logic::fetch_entity_type(type)->size;
-    u8 *e_ptr = (u8 *) Logic::entity_from_type(type);
-    ASSERT(read_from_file(stream, e_ptr, size) == size, "Failed to read!");
-    return (Logic::Entity *) e_ptr;
+
+    u8 *entity_ptr = Util::request_temporary_memory<u8>(size);
+    ASSERT(read_from_file(stream, entity_ptr, size) == size, "Failed to read!");
+
+    void **entity_vtable_ptr = ((void **) entity_ptr);
+    *entity_vtable_ptr = Logic::_entity_vtable(type);
+    return (Logic::Entity *) entity_ptr;
 }
 
 template <typename T>
@@ -108,6 +113,8 @@ void setup() {
     add(K(ESCAPE), Name::EDIT_ABORT);
     add(K(SPACE), Name::EDIT_DO);
     // start_text_input();
+
+    LOG("%d", offsetof(Logic::Entity, id));
 
     add(K(a), Name::EDIT_SELECT_ALL);
 

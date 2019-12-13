@@ -107,8 +107,8 @@ namespace Logic {
         }
     };
 
-    typedef Entity *(*EConstructFunc)();
-    EConstructFunc _fog_global_entity_construction_func[_NUM_ENTITY_TYPES];
+    typedef void *(*EVtableFunc)();
+    EVtableFunc _fog_global_entity_vtable[_NUM_ENTITY_TYPES];
 
 
     struct EntitySystem {
@@ -126,12 +126,8 @@ namespace Logic {
     //Fetch the meta data for the specific type.
     EMeta meta_data_for(EntityType type);
 
-    ///*
-    // Constructs an empty entity of a specific type,
-    // this will probably not be usefull since it does
-    // the same thing as "MyEntity my = {}" except it
-    // can be called using the type.
-    Entity *entity_from_type(EntityType type);
+    // Returns the address to the vtable of the type.
+    void *_entity_vtable(EntityType type);
 
     ///*
     // Adds an entity to the ES, a copy is made to insert it

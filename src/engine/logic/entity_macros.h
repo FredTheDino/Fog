@@ -58,7 +58,7 @@ template <class T, class M> M _fog_member_type(M T:: *);
                       "Cannot register non-entity component");               \
         ASSERT(!Logic::_fog_global_entity_list[(u32) T::st_type()].registered, \
                    "Trying to register same entity type multiple times");  \
-        Logic::_fog_global_entity_construction_func[(u32) T::st_type()] = []() -> Logic::Entity *{ T t = {}; return (Logic::Entity *) Util::temporary_push(t); }; \
+        Logic::_fog_global_entity_vtable[(u32) T::st_type()] = []() -> void *{ T t = {}; return *((void **) &t); }; \
         Logic::_fog_global_entity_list[(u32) T::st_type()] =               \
             T::_fog_generate_meta();                                        \
         REGISTER_TYPE(T);\
