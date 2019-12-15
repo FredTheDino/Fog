@@ -79,10 +79,6 @@ bool utf8_is_first_char(const char *c) {
 bool utf8_insert_glyph(char *to, const char *from, u32 length) {
     const u32 glyph_size = utf8_size(from);
     if (glyph_size > length) return false;
-
-    u32 n = *((u32 *) from);
-    LOG("%x %d", n, glyph_size);
-
     for (u32 i = 0; i < glyph_size; i++)
         to[i] = from[i];
     return true;

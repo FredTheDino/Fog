@@ -54,7 +54,6 @@ void poll_events() {
                 Input::activate(code, value);
             } break;
             case (SDL_TEXTINPUT): {
-                LOG("%s", event.text.text);
                 Input::type_text(event.text.text);
             } break;
             case (SDL_MOUSEBUTTONDOWN):

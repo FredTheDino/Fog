@@ -92,7 +92,6 @@ void type_text(const char *string) {
         const u32 size_left = global_mapping.text_length - global_mapping.TEXT_LENGTH;
         if (Util::utf8_insert_glyph(global_mapping.text + global_mapping.text_length,
                               string, size_left)) {
-            LOG("%s %s", global_mapping.text, string);
             const u32 size = Util::utf8_size(string);
             global_mapping.text_length += size;
             string += size;

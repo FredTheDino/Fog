@@ -90,7 +90,6 @@ size_t write_to_file(FILE *stream, const T *ptr, size_t num=1) {
 void write_entity(FILE *stream, Logic::Entity *e) {
     // SUPER UNSAFE
     Logic::EntityType type = e->type();
-    LOG("%d", type);
     ASSERT(write_to_file(stream, &type) == sizeof(type), "Failed to write type!");
     size_t size = Logic::fetch_entity_type(type)->size;
     ASSERT(write_to_file<u8>(stream, (u8 *) e, size) == size, "Failed to entity!");
@@ -113,8 +112,6 @@ void setup() {
     add(K(ESCAPE), Name::EDIT_ABORT);
     add(K(SPACE), Name::EDIT_DO);
     // start_text_input();
-
-    LOG("%d", offsetof(Logic::Entity, id));
 
     add(K(a), Name::EDIT_SELECT_ALL);
 
@@ -139,10 +136,8 @@ void select_func(bool clean) {
         s32 layer = 0;
         auto find_click = [&layer, &selected, mouse_pos](Logic::Entity *e) {
             if (e->layer < layer && selected) return false;
-            LOG("WAHOO!");
             if (Physics::point_in_box(mouse_pos, e->position, e->scale,
                                       e->rotation)) {
-                LOG("DID IT!");
                 layer = e->layer;
                 selected = e->id;
             }
@@ -195,10 +190,6 @@ void update() {
         first = false;
     }
 
-    static char text[32] = {};
-    if (Input::edit_string(text, 32))
-        LOG("%s", text);
-
     // if (selected.length == 0)
     //     current_mode = EditorMode::SELECT_MODE;
     static EditorMode last_mode = EditorMode::SELECT_MODE;
@@ -217,7 +208,6 @@ void update() {
         current_mode = EditorMode::SCALE_MODE;
     if (current_mode != EditorMode::SELECT_MODE) {
         if (pressed(Name::EDIT_ABORT)) {
-            LOG("ABORT");
             for (u32 i = 0; i < global_editor.edits.length; i++) {
                 EditorEdit edit = global_editor.edits[i];
                 Logic::Entity *e = Logic::fetch_entity(edit.target);
