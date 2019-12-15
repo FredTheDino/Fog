@@ -17,45 +17,6 @@ void draw_outline(Logic::Entity *e) {
     }
 }
 
-// TODO(ed): Fix stuff bellow here...
-#if 0
-struct EditorTransform {
-    // TODO(ed): Entity ID
-    Vec2 position;
-    Vec2 scale;
-    f32 rotation;
-
-    EditorTransform create(Entity *e) {
-        EditorTransform result = {
-            e->position,
-            e->scale,
-            e->rotation,
-        };
-        return result;
-    }
-
-    // TODO(ed): Is this a good idea?
-    void apply(Entity *e) {
-        e->position += position;
-        e->scale = hadamard(e->scale, scale);
-        e->rotation += rotation;
-    }
-
-    // TODO(ed): Is this a good idea?
-    void revert(Entity *e) {
-        e->position -= position;
-        e->scale = hadamard(e->scale, inverse(scale));
-        e->rotation -= rotation;
-    }
-
-    void set(Entity *e) {
-        e->position = position;
-        e->scale = scale;
-        e->rotation = rotation;
-    }
-};
-#endif
-
 const char *FILE_NAME = "test.ent";
 
 template <typename T>
@@ -80,6 +41,15 @@ Logic::Entity *read_entity(FILE *stream) {
     return (Logic::Entity *) entity_ptr;
 }
 
+void load_entities(FILE *stream) {
+    u32 num;
+    read_from_file(stream, &num);
+    for (u32 i = 0; i < num; i++) {
+        Logic::Entity *entity = read_entity(stream);
+        Logic::add_entity_ptr(entity);
+    }
+}
+
 template <typename T>
 size_t write_to_file(FILE *stream, const T *ptr, size_t num=1) {
     auto write = fwrite(ptr, sizeof(T), num, stream);
@@ -97,6 +67,8 @@ void write_entity(FILE *stream, Logic::Entity *e) {
 
 void write_entities_to_file(const char *filename) {
     FILE *f = fopen(filename, "w");
+    u32 num = Logic::_fog_es.num_entities;
+    write_to_file(f, &num);
     auto write_to_file = [f](Logic::Entity *e) {
         write_entity(f, e);
         return false;
@@ -183,8 +155,7 @@ void update() {
     if (first) {
         FILE *f = fopen(FILE_NAME, "r");
         if (f) {
-            Logic::Entity *e = read_entity(f);
-            Logic::add_entity_ptr(e);
+            load_entities(f);
             fclose(f);
         }
         first = false;
