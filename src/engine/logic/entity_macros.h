@@ -1,6 +1,7 @@
 // Included in the logic namespace, extracted out of the file to make it
 // more readable.
 
+template <typename T>
 EMeta::EField generate_field_info(const char *name, u64 offset, u64 hash) {
     return {name, offset, hash};
 }
@@ -10,10 +11,10 @@ template <class T, class M> M _fog_member_type(M T:: *);
 // TODO(ed): Document this... Like a lot...
 #define GET_FIELD_TYPE(Base, field) decltype(Logic::_fog_member_type(&Base::field))
 
-#define GEN_FIELD_INFO(E, f, ...)                                        \
-    Logic::generate_field_info("" #f "", offsetof(E, f),             \
-                               typeid(GET_FIELD_TYPE(E, f)).hash_code(), \
-                               ##__VA_ARGS__)
+#define GEN_FIELD_INFO(E, f, ...)                                           \
+    Logic::generate_field_info<GET_FIELD_TYPE(E, f)>(                       \
+        "" #f "", offsetof(E, f), typeid(GET_FIELD_TYPE(E, f)).hash_code(), \
+        ##__VA_ARGS__)
 
 #define EXPAND_FIELDS_EXPORT(member) GEN_FIELD_INFO(self, member),
 
@@ -35,21 +36,29 @@ template <class T, class M> M _fog_member_type(M T:: *);
         Logic::EMeta::EField *_fog_fields_mem =                               \
             Util::push_memory<Logic::EMeta::EField>(LEN(_fog_fields));        \
         Util::copy_bytes(&_fog_fields, _fog_fields_mem, sizeof(_fog_fields)); \
-        return {Logic::EntityType::EnumType, typeid(SelfType).hash_code(),    \
-                LEN(_fog_fields), _fog_fields_mem, true};                     \
+        return {Logic::EntityType::EnumType,                                  \
+                typeid(SelfType).hash_code(),                                 \
+                sizeof(self),                                                 \
+                LEN(_fog_fields),                                             \
+                _fog_fields_mem,                                              \
+                true};                                                        \
     }
 
-#define REGISTER_NO_FIELDS(EnumType, SelfType)                                \
-    virtual const char *type_name() override { return #EnumType; }            \
-    virtual Logic::EntityType type() override {                               \
-        return Logic::EntityType::EnumType;                                   \
-    }                                                                         \
-    static constexpr Logic::EntityType st_type() {                            \
-        return Logic::EntityType::EnumType;                                   \
-    }                                                                         \
-    static Logic::EMeta _fog_generate_meta() {                                \
-        return {Logic::EntityType::EnumType, typeid(SelfType).hash_code(), 0, \
-                nullptr, true};                                               \
+#define REGISTER_NO_FIELDS(EnumType, SelfType)                     \
+    virtual const char *type_name() override { return #EnumType; } \
+    virtual Logic::EntityType type() override {                    \
+        return Logic::EntityType::EnumType;                        \
+    }                                                              \
+    static constexpr Logic::EntityType st_type() {                 \
+        return Logic::EntityType::EnumType;                        \
+    }                                                              \
+    static Logic::EMeta _fog_generate_meta() {                     \
+        return {Logic::EntityType::EnumType,                       \
+                typeid(SelfType).hash_code(),                      \
+                sizeof(SelfType),                                  \
+                0,                                                 \
+                nullptr,                                           \
+                true};                                             \
     }
 
 #define REGISTER_ENTITY(T)                                                 \

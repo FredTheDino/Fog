@@ -22,8 +22,7 @@ struct A : public Logic::Entity {
 };
 
 struct MyEnt : public Logic::Entity {
-    void update(f32 delta) override {
-    }
+    void update(f32 delta) override {}
 
     void draw() override {
         Renderer::push_sprite(layer, position, scale, rotation,
@@ -32,8 +31,9 @@ struct MyEnt : public Logic::Entity {
     }
 
     f32 value;
+    f32 blarg;
 
-    REGISTER_FIELDS(MY_ENT, MyEnt, value)
+    REGISTER_FIELDS(MY_ENT, MyEnt, value, blarg, position, scale)
 };
 
 void show_buffer(char *buffer, void *tmp) {
@@ -48,8 +48,6 @@ void show_int(char *buffer, void *info) {
 }
 
 void entity_registration() {
-    REGISTER_TYPE(int, show_int);
-    REGISTER_TYPE(int *);
     REGISTER_TYPE(std::vector<int>, show_buffer);
 
     REGISTER_ENTITY(A);

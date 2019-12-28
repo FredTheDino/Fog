@@ -1,6 +1,7 @@
 // Tell the engine that this is loaded
 
 #include "editor_main.h"
+#include "entity_io.cpp"
 
 namespace Editor {
 
@@ -18,64 +19,6 @@ void draw_outline(Logic::Entity *e) {
 }
 
 const char *FILE_NAME = "test.ent";
-
-template <typename T>
-size_t read_from_file(FILE *stream, T *ptr, size_t num=1) {
-    auto read = fread(ptr, sizeof(T), num, stream);
-    ASSERT(read == num, "Failed to read from asset file");
-    return read * sizeof(T);
-}
-
-Logic::Entity *read_entity(FILE *stream) {
-    Logic::EntityType type;
-    read_from_file(stream, &type);
-    ASSERT(offsetof(Logic::Entity, id) != 0,
-           "Invalid entity structure, cannot find vtable_ptr");
-    u32 size = Logic::fetch_entity_type(type)->size;
-
-    u8 *entity_ptr = Util::request_temporary_memory<u8>(size);
-    ASSERT(read_from_file(stream, entity_ptr, size) == size, "Failed to read!");
-
-    void **entity_vtable_ptr = ((void **) entity_ptr);
-    *entity_vtable_ptr = Logic::_entity_vtable(type);
-    return (Logic::Entity *) entity_ptr;
-}
-
-void load_entities(FILE *stream) {
-    u32 num;
-    read_from_file(stream, &num);
-    for (u32 i = 0; i < num; i++) {
-        Logic::Entity *entity = read_entity(stream);
-        Logic::add_entity_ptr(entity);
-    }
-}
-
-template <typename T>
-size_t write_to_file(FILE *stream, const T *ptr, size_t num=1) {
-    auto write = fwrite(ptr, sizeof(T), num, stream);
-    ASSERT(write == num, "Failed to write to asset file");
-    return write * sizeof(T);
-}
-
-void write_entity(FILE *stream, Logic::Entity *e) {
-    // SUPER UNSAFE
-    Logic::EntityType type = e->type();
-    ASSERT(write_to_file(stream, &type) == sizeof(type), "Failed to write type!");
-    size_t size = Logic::fetch_entity_type(type)->size;
-    ASSERT(write_to_file<u8>(stream, (u8 *) e, size) == size, "Failed to entity!");
-}
-
-void write_entities_to_file(const char *filename) {
-    FILE *f = fopen(filename, "w");
-    u32 num = Logic::_fog_es.num_entities;
-    write_to_file(f, &num);
-    auto write_to_file = [f](Logic::Entity *e) {
-        write_entity(f, e);
-        return false;
-    };
-    Logic::for_entity(write_to_file);
-    fclose(f);
-}
 
 void setup() {
     using namespace Input;

@@ -25,6 +25,7 @@ namespace Logic {
         // Meta info about class
         EntityType type_enum;
         u64 hash; // Looks up in the ETypeInfo table.
+        u64 size;
 
         // Meta info about each field
         struct EField {
@@ -103,7 +104,12 @@ namespace Logic {
         virtual EntityType type() { return EntityType::BASE; }
         static constexpr Logic::EntityType st_type() { return EntityType::BASE; }
         static Logic::EMeta _fog_generate_meta() {
-                return {EntityType::BASE, typeid(Entity).hash_code(), 0, nullptr, true};
+            return {EntityType::BASE,
+                    typeid(Entity).hash_code(),
+                    sizeof(Entity),
+                    0,
+                    nullptr,
+                    true};
         }
     };
 

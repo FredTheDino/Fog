@@ -166,6 +166,7 @@ int main(int argc, char **argv) {
     SETUP_DEBUG_KEYBINDINGS;
 
     ASSERT(Logic::init_entity(), "Failed to initalize entites");
+    Editor::entity_registration();
     Game::entity_registration();
     Logic::frame(SDL_GetTicks() / 1000.0f);
     setup();

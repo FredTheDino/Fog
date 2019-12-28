@@ -76,8 +76,8 @@ namespace Logic {
     }
 
     void register_type(ETypeInfo info) {
-        // TODO(ed): Write this... Too tired..
-        ETypeInfo **current = _fog_global_type_table.data + (info.hash % TypeTable::NUM_SLOTS);
+        ETypeInfo **current =
+            _fog_global_type_table.data + (info.hash % TypeTable::NUM_SLOTS);
 
         while (*current) {
             if ((*current)->hash == info.hash)
@@ -106,6 +106,7 @@ namespace Logic {
             if (current->hash == hash) return current;
             current = current->next;
         }
+        ERR("Invalid entity query %llu", hash);
         return current;
     }
 

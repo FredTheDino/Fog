@@ -16,6 +16,12 @@ bool str_eq(const char *a, const char *b) {
     return *a == *b;
 }
 
+u32 str_len(const char *str) {
+    u32 len = 0;
+    while (str[len]) ++len;
+    return len + 1; // Include the null terminator.
+}
+
 ///*
 // Formats a string according to the passed in
 // format string (see printf for more info). Memory

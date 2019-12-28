@@ -32,6 +32,21 @@ DEF_SHOW_FUNC(LOGs64, s64)
 
 DEF_SHOW_FUNC("%f", f64)
 
+void show_vec2t(char *buffer, void *info) {
+    Vec2 *data = (Vec2 *) info;
+    Util::format_inplace(buffer, "%f, %f", data->x, data->y);
+}
+
+void show_vec3t(char *buffer, void *info) {
+    Vec3 *data = (Vec3 *) info;
+    Util::format_inplace(buffer, "%f, %f, %f", data->x, data->y, data->z);
+}
+
+void show_vec4t(char *buffer, void *info) {
+    Vec4 *data = (Vec4 *) info;
+    Util::format_inplace(buffer, "%f, %f, %f, %f", data->x, data->y, data->z, data->w);
+}
+
 void entity_registration() {
     REGISTER_TYPE(u8, show_u8);
     REGISTER_TYPE(s8, show_s8);
@@ -56,6 +71,10 @@ void entity_registration() {
 
     REGISTER_TYPE(f32 *, show_f64_ptr);
     REGISTER_TYPE(f64 *, show_f64_ptr);
+
+    REGISTER_TYPE(Vec2, show_vec2t);
+    REGISTER_TYPE(Vec3, show_vec3t);
+    REGISTER_TYPE(Vec4, show_vec4t);
 }
 
 //
