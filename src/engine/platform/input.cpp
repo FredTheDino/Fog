@@ -69,6 +69,7 @@ void clear_input_for_frame() {
     }
 
     // Reset mouse frame
+    global_mapping.mouse.depth = 0;
     global_mapping.mouse.move_x = 0;
     global_mapping.mouse.move_y = 0;
     global_mapping.mouse.state[0] = clear_frame_flag(global_mapping.mouse.state[0]);
@@ -262,4 +263,14 @@ bool mouse_down(u8 button) {
 
 #undef BEGIN_BINDINGS_BLOCK
 #undef END_BINDINGS_BLOCK
+
+u32 mouse_depth() {
+    return global_mapping.mouse.depth;
+}
+
+void eat_mouse() {
+    global_mapping.mouse.depth++;
+}
+
+
 };  // namespace Input

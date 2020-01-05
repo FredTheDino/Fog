@@ -12,8 +12,10 @@ namespace Util {
 // for usage... If you're in a spot they might help though.
 
 bool str_eq(const char *a, const char *b) {
-    while (*a && *b && *(a++) == *(b++)) { /* Empty */ }
-    return *a == *b;
+    while (*a && *b && *(a++) == *(b++)) {
+        if (*a == '\0' && *b == '\0') return true;
+    }
+    return false;
 }
 
 u32 str_len(const char *str) {

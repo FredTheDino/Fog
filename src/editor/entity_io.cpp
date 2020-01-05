@@ -50,15 +50,15 @@ Logic::Entity *read_entity(FILE *stream) {
         s32 field_index = match_fields(type, name, sizes[2]);
         if (field_index < 0) {
             if (field_index == -1) {
-                ERR("Cannot find field with the name %s. (%s %s::%s)",
+                ERR("Cannot find field with the name \"%s\". (%s %s::%s)",
                     name, type, Logic::fetch_type(meta.hash)->name, name);
             }
             if (field_index == -2) {
-                ERR("Types don't match for field %s. (%s %s::%s)",
+                ERR("Types don't match for field \"%s\". (%s %s::%s)",
                     name, type, Logic::fetch_type(meta.hash)->name, name);
             }
             if (field_index == -3) {
-                ERR("Sizes of the type dosn't match for field %s. (%s %s::%s)",
+                ERR("Sizes of the type doesn't match for field \"%s\". (%s %s::%s)",
                     name, type, Logic::fetch_type(meta.hash)->name, name);
             }
             // Skipp it

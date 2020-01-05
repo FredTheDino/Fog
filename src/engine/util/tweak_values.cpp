@@ -43,6 +43,9 @@ void debug_value_logic(const char *name, const char *buffer) {
     else 
         color = 0;
 
+    if (color)
+        Input::eat_mouse();
+
     debug_text(buffer, -1 + global_tweak.indentation * height, global_tweak.yoffset -= height, color);
 }
 

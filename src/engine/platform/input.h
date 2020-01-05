@@ -157,6 +157,7 @@ struct Mapping {
         ButtonState state[3];
         s32 x, y;
         s32 move_x, move_y;
+        u32 depth;
 
         //TODO(er): Add moved
     };
@@ -202,7 +203,7 @@ bool edit_string(char *text, u32 max_length);
 // Register a new mapping to the input system.<br>
 // code, the keycode, should be recived from calling K(DESIRED_KEY), DESIRED_KEY
 // should be lowercase letters for normal keys and UPPERCASE for special keys.
-// Player, yhe player that has this binding, can be P1, P2, P3, P4.
+// Player, the player that has this binding, can be P1, P2, P3, P4.
 bool add(InputCode code, Name name, Player player=Player::P1);
 
 ///*
@@ -251,6 +252,17 @@ Vec2 world_mouse_position();
 // The movement of the mouse in world coordinated,
 // taken into account the current camera transform.
 Vec2 world_mouse_move();
+
+///*
+// Returns the depth of the mouse press, this far. Should increase
+// when interacting with gui elements.
+//
+// Usefull when things can be placed "behind" other things.
+u32 mouse_depth();
+
+///*
+// Increases the mouse depth.
+void eat_mouse();
 
 ///*
 // Returns true if the mouse button was pressed or released this frame.

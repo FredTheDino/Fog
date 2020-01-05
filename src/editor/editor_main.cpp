@@ -102,7 +102,7 @@ void set_entity_field(Logic::Entity *e, const char *name, u64 size, void *value)
         Util::copy_bytes(value, addrs, size);
         return;
     }
-    LOG("Failed to find field %s", name);
+    ERR("Failed to find field %s", name);
 }
 
 // Main logic
@@ -127,7 +127,6 @@ void update() {
     if (new_state) {
         global_editor.edits.clear();
     }
-    mode_funcs[(u32) current_mode](new_state);
     if (current_mode == EditorMode::SELECT_MODE && global_editor.selected.length) {
         // TODO(ed): Shows all properties on the first entity, maybe extend this to
         // filter out the properties which are shared on all entities.
@@ -151,6 +150,8 @@ void update() {
         end_tweak_section(&show);
     }
     last_mode = current_mode;
+    if (Input::mouse_depth() == 0)
+        mode_funcs[(u32) current_mode](new_state);
 
     using namespace Input;
     if (pressed(Name::EDIT_MOVE_MODE))
