@@ -7,21 +7,6 @@ size_t read_from_file(FILE *stream, T *ptr, size_t num=1) {
     return read * sizeof(T);
 }
 
-// File format:
-// num entities,
-// Entity {
-//     num fields
-//     Field {
-//         type size, name size, data size,
-//         *type, <- probs max 64
-//         *name, <- Probs max 64
-//         *data, <- Allready allocated
-//     }
-// }
-// .
-// .
-// .
-
 constexpr u32 MAXIMUM_NAME_LENGTH = 64;
 Logic::Entity *read_entity(FILE *stream) {
     Logic::EntityType type;
