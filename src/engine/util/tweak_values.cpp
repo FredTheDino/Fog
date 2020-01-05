@@ -64,26 +64,47 @@ void end_tweak_section(bool *active) {
     global_tweak.indentation -= *active;
 }
 
-void tweak(const char *name, bool *value) {
-    if (!debug_values_are_on()) return;
+bool auto_tweak(const char *name, void *value, u64 hash) {
+    if (!debug_values_are_on()) return false;
+#define CHECK_TYPE(t) \
+    if (hash == typeid(t).hash_code()) { return tweak(name, (t *) value); }
+    CHECK_TYPE(bool);
+    CHECK_TYPE(f32);
+    CHECK_TYPE(s32);
+    CHECK_TYPE(u32);
+    CHECK_TYPE(Vec2);
+    const char *buffer = Util::format(" %s: ???", name);
+    debug_value_logic(name, buffer);
+    return false;
+}
+
+bool tweak(const char *name, bool *value) {
+    if (!debug_values_are_on()) return false;
     const char *buffer = Util::format(" %s: %s", name, *value ? "true" : "false");
     debug_value_logic(name, buffer);
 
-    if (name == global_tweak.active && Input::mouse_pressed(0))
+    if (name == global_tweak.active && Input::mouse_pressed(0)) {
         *value = !*value;
+        return true;
+    }
+    return false;
 }
 
-void tweak(const char *name, f32 *value) {
-    if (!debug_values_are_on()) return;
+bool tweak(const char *name, f32 *value) {
+    if (!debug_values_are_on()) return false;
     const char *buffer = Util::format(" %s: %.4f", name, *value);
     debug_value_logic(name, buffer);
 
-    if (name == global_tweak.hot)
-        *value += Input::mouse_move().x / global_tweak.pixels_per_unit / 7.0;
+    if (name == global_tweak.hot) {
+        f32 delta = Input::mouse_move().x / global_tweak.pixels_per_unit / 7.0;
+        *value += delta;
+        return delta != 0;
+    }
+    return false;
 }
 
-void tweak(const char *name, s32 *value) {
-    if (!debug_values_are_on()) return;
+bool tweak(const char *name, s32 *value) {
+    if (!debug_values_are_on()) return false;
     const char *buffer = Util::format(" %s: %d", name, *value);
     debug_value_logic(name, buffer);
 
@@ -94,12 +115,15 @@ void tweak(const char *name, s32 *value) {
         s32 lower =
             (current_x - Input::mouse_move().x - global_tweak.click_pos.x) /
             global_tweak.pixels_per_unit;
-        *value += upper - lower;
+        s32 delta = upper - lower;
+        *value += delta;
+        return delta != 0;
     }
+    return false;
 }
 
-void tweak(const char *name, u32 *value) {
-    if (!debug_values_are_on()) return;
+bool tweak(const char *name, u32 *value) {
+    if (!debug_values_are_on()) return false;
     const char *buffer = Util::format(" %s: %u", name, *value);
     debug_value_logic(name, buffer);
 
@@ -116,17 +140,22 @@ void tweak(const char *name, u32 *value) {
         } else {
             *value += delta;
         }
+        return delta != 0;
     }
+    return true;
 }
 
-void tweak(const char *name, Vec2 *value) {
-    if (!debug_values_are_on()) return;
+bool tweak(const char *name, Vec2 *value) {
+    if (!debug_values_are_on()) return false;
     const char *buffer = Util::format(" %s: %.4f, %.4f", name, value->x, value->y);
     debug_value_logic(name, buffer);
 
-    if (name == global_tweak.hot)
-        *value += hadamard(V2(1, -1), Input::mouse_move() / global_tweak.pixels_per_unit / 7.0);
-
+    if (name == global_tweak.hot) {
+        Vec2 delta = hadamard(V2(1, -1), Input::mouse_move() / global_tweak.pixels_per_unit / 7.0);
+        *value += delta;
+        return delta.x != 0 || delta.y != 0;
+    }
+    return false;
 }
 
 };

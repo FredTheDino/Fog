@@ -32,6 +32,7 @@ namespace Logic {
             const char *name;
             u64 offset;
             u64 hash; // Looks up in the ETypeInfo table.
+            // TODO(ed): Constraints need to work better...
             void (*constraint)(void *); // Templates might solve this?
         };
 

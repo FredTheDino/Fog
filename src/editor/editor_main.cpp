@@ -18,6 +18,7 @@ void draw_outline(Logic::Entity *e) {
     }
 }
 
+// TODO(ed): Commandline arguments
 const char *FILE_NAME = "test.ent";
 
 void setup() {
@@ -90,9 +91,23 @@ void move_func(bool clean) {
     }
 }
 
+void set_entity_field(Logic::Entity *e, const char *name, u64 size, void *value) {
+    Logic::EMeta meta = Logic::meta_data_for(e->type());
+    for (u32 i = 0; i < meta.num_fields; i++) {
+        auto *field = meta.fields + i;
+        if (!Util::str_eq(field->name, name)) continue;
+        auto *meta = Logic::fetch_type(field->hash); 
+        if (meta->size != size) break;
+        u8 *addrs = ((u8 *) e) + field->offset;
+        Util::copy_bytes(value, addrs, size);
+        return;
+    }
+    LOG("Failed to find field %s", name);
+}
+
 // Main logic
 void update() {
-    Util::tweak("zoom", &Renderer::global_camera.zoom);
+    // Util::tweak("zoom", &Renderer::global_camera.zoom);
 
     static bool first = true;
     if (first) {
@@ -113,6 +128,28 @@ void update() {
         global_editor.edits.clear();
     }
     mode_funcs[(u32) current_mode](new_state);
+    if (current_mode == EditorMode::SELECT_MODE && global_editor.selected.length) {
+        // TODO(ed): Shows all properties on the first entity, maybe extend this to
+        // filter out the properties which are shared on all entities.
+        using namespace Logic;
+        using namespace Util;
+        static bool show = true;
+        if (begin_tweak_section("Tweaks", &show)) {
+            Entity *source = fetch_entity(global_editor.selected[0]);
+            EMeta meta = meta_data_for(source->type());
+            for (u32 i = 0; i < meta.num_fields; i++) {
+                auto *field = meta.fields + i;
+                u8 *addr = (u8 *) source + field->offset;
+                if (auto_tweak(field->name, (void *) addr, field->hash)) {
+                    for (u32 i = 0; i < global_editor.selected.length; i++) {
+                        Entity *e = fetch_entity(global_editor.selected[i]);
+                        set_entity_field(e, field->name, fetch_type(field->hash)->size, (void *) addr);
+                    }
+                }
+            }
+        }
+        end_tweak_section(&show);
+    }
     last_mode = current_mode;
 
     using namespace Input;
@@ -139,10 +176,10 @@ void update() {
 
 // Main draw
 void draw() {
+    using namespace Logic;
     for (u32 i = 0; i < global_editor.selected.length; i++) {
-        Logic::Entity *e = Logic::fetch_entity(global_editor.selected[i]);
-        if (e)
-            draw_outline(e);
+        Entity *e = fetch_entity(global_editor.selected[i]);
+        if (e) draw_outline(e);
     }
 }
 }  // namespace Game
