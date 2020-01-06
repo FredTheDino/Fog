@@ -1,5 +1,7 @@
 namespace Editor {
 
+///#
+
 //
 // A bunch of meta data helpers.
 //
@@ -161,8 +163,19 @@ enum class EditorMode {
 void select_func(bool clean);
 void select_box_func(bool clean);
 void move_func(bool clean);
-void scale_func(bool clean) { }
-void rotate_func(bool clean) { }
+void scale_func(bool clean) {
+    /*
+     * TODO(ed): How should this work? I was thinking, scale outwards from the
+     * center point of all selected entities. But maybe it's more intuative
+     * with the "scale them all relative to each other" approach.
+     */
+}
+void rotate_func(bool clean) {
+    /*
+     * TODO(ed): How should this work? I was thinking it rotates all selected
+     * elements relative to the center, but I don't know.
+     */
+}
 
 
 typedef void (*EditorModeFunc)(bool clean);

@@ -15,7 +15,7 @@ void draw_outline(Logic::Entity *e, Vec4 color) {
     for (u32 i = 0; i < LEN(corners); i++) {
         Vec2 a = corners[i];
         Vec2 b = corners[(i + 1) % LEN(corners)];
-        Renderer::push_line(MAX_LAYER, a, b, color, 0.02);
+        Renderer::push_line(MAX_LAYER + 1, a, b, color, 0.02);
     }
 }
 
