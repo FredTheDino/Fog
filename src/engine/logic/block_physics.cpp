@@ -142,11 +142,16 @@ void debug_draw_body(Body *body) {
     }
 }
 
+bool point_in_box(Vec2 p, Vec2 min, Vec2 max) {
+    return min.x < p.x && p.x < max.x &&
+           min.y < p.y && p.y < max.y;
+}
+
 bool point_in_box(Vec2 p, Vec2 center, Vec2 dim, f32 rotation) {
     // TODO(ed): Remove double sin, cos calculations.
     p = rotate(p, -rotation);
     center = rotate(center, -rotation);
-    Vec2 delta = (p - center);
+    Vec2 delta = p - center;
     return ABS(delta.x) < ABS(dim.x * 0.5) && ABS(delta.y) < ABS(dim.y * 0.5);
 }
 

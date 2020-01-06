@@ -5,7 +5,7 @@
 
 namespace Editor {
 
-void draw_outline(Logic::Entity *e) {
+void draw_outline(Logic::Entity *e, Vec4 color) {
     Vec2 corners[] = {
         e->position + rotate(hadamard(e->scale, V2( 0.5,  0.5)), e->rotation),
         e->position + rotate(hadamard(e->scale, V2( 0.5, -0.5)), e->rotation),
@@ -13,8 +13,9 @@ void draw_outline(Logic::Entity *e) {
         e->position + rotate(hadamard(e->scale, V2(-0.5,  0.5)), e->rotation),
     };
     for (u32 i = 0; i < LEN(corners); i++) {
-        Renderer::push_line(MAX_LAYER, corners[i], corners[(i + 1) % LEN(corners)],
-                V4(1, 1, 0, 0.1), 0.02);
+        Vec2 a = corners[i];
+        Vec2 b = corners[(i + 1) % LEN(corners)];
+        Renderer::push_line(MAX_LAYER, a, b, color, 0.02);
     }
 }
 
@@ -24,6 +25,7 @@ const char *FILE_NAME = "test.ent";
 void setup() {
     using namespace Input;
     add(K(g), Name::EDIT_MOVE_MODE);
+    add(K(b), Name::EDIT_SELECT_BOX);
     add(K(s), Name::EDIT_SCALE_MODE);
     add(K(ESCAPE), Name::EDIT_ABORT);
     add(K(SPACE), Name::EDIT_DO);
@@ -68,6 +70,37 @@ void select_func(bool clean) {
                 global_editor.selected.remove_fast(index);
         }
     }
+}
+
+Vec2 box_begin;
+void select_box_func(bool clean) {
+    const Vec2 mouse_pos = Input::world_mouse_position();
+    if (clean) {
+        box_begin = mouse_pos;
+    }
+    Vec2 box_min = V2(MIN(box_begin.x, mouse_pos.x), MIN(box_begin.y, mouse_pos.y));
+    Vec2 box_max = V2(MAX(box_begin.x, mouse_pos.x), MAX(box_begin.y, mouse_pos.y));
+    global_editor.selected.clear();
+    auto find_click = [box_min, box_max](Logic::Entity *e) {
+        Renderer::push_point(MAX_LAYER + 1, e->position, {0.5, 0.5, 0.0, 0.1}, 0.02);
+        if (Physics::point_in_box(e->position, box_min, box_max)) {
+            global_editor.selected.append(e->id);
+        }
+        return false;
+    };
+    Logic::for_entity(Function(find_click));
+
+    f32 lx = box_min.x;
+    f32 ly = box_min.y;
+
+    f32 hx = box_max.x;
+    f32 hy = box_max.y;
+
+    constexpr Vec4 color = {0.3, 0.2, 0.4, 0.1};
+    Renderer::push_line(MAX_LAYER + 1, V2(lx, ly), V2(lx, hy), color, 0.01);
+    Renderer::push_line(MAX_LAYER + 1, V2(lx, hy), V2(hx, hy), color, 0.01);
+    Renderer::push_line(MAX_LAYER + 1, V2(hx, hy), V2(hx, ly), color, 0.01);
+    Renderer::push_line(MAX_LAYER + 1, V2(hx, ly), V2(lx, ly), color, 0.01);
 }
 
 void move_func(bool clean) {
@@ -158,6 +191,24 @@ void update() {
         current_mode = EditorMode::MOVE_MODE;
     if (pressed(Name::EDIT_SCALE_MODE))
         current_mode = EditorMode::SCALE_MODE;
+
+    if (current_mode == EditorMode::SELECT_MODE) {
+        if (pressed(Name::EDIT_SELECT_BOX)) {
+            current_mode = EditorMode::SELECT_BOX_MODE;
+        }
+        if (pressed(Name::EDIT_SELECT_ALL)) {
+            if (global_editor.selected.length) {
+                global_editor.selected.clear();
+            } else {
+                auto select = [](Logic::Entity *e) -> bool {
+                    global_editor.selected.append(e->id);
+                    return false;
+                };
+                Logic::for_entity(Function(select));
+            }
+        }
+    }
+
     if (current_mode != EditorMode::SELECT_MODE) {
         if (pressed(Name::EDIT_ABORT)) {
             for (u32 i = 0; i < global_editor.edits.length; i++) {

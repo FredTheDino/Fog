@@ -81,7 +81,7 @@ void entity_registration() {
 // Editor stuff
 //
 
-void draw_outline(Logic::Entity *e);
+void draw_outline(Logic::Entity *e, Vec4 color=V4(1, 1, 0, 0.1));
 
 
 struct EditorEdit {
@@ -149,6 +149,7 @@ struct EditorState {
 
 enum class EditorMode {
     SELECT_MODE,
+    SELECT_BOX_MODE,
 
     MOVE_MODE,
     SCALE_MODE,
@@ -158,6 +159,7 @@ enum class EditorMode {
 };
 
 void select_func(bool clean);
+void select_box_func(bool clean);
 void move_func(bool clean);
 void scale_func(bool clean) { }
 void rotate_func(bool clean) { }
@@ -168,10 +170,12 @@ typedef void (*EditorModeFunc)(bool clean);
 #define ID(id) (u32) EditorMode::id
 EditorModeFunc mode_funcs[(u32) EditorMode::NUM_MODES] = {
     [ID(SELECT_MODE)] = select_func,
+    [ID(SELECT_BOX_MODE)] = select_box_func,
     [ID(MOVE_MODE)] = move_func,
     [ID(SCALE_MODE)] = scale_func,
     [ID(ROTATE_MODE)] = rotate_func,
 };
+#undef ID
 
 EditorMode current_mode = EditorMode::SELECT_MODE;
 
