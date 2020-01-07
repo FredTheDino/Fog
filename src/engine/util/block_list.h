@@ -63,8 +63,7 @@ struct List
 
     T pop() {
         ASSERT(length, "Cannot pop element from empty list");
-        T element = data[length--];
-        return element;
+        return data[--length];
     }
 
 	T get(u32 i)
@@ -111,6 +110,7 @@ struct List
 	T remove(u32 i)
 	{
 		ASSERT(initalized, "Trying to use uninitalized list");
+        ASSERT(i < length, "Invalid index, list is too short.");
 		T element = data[i];
 		for (;i < length - 1; i++)
 			data[i] = data[i + 1];
@@ -123,7 +123,6 @@ struct List
 	{
 		ASSERT(initalized, "Trying to use uninitalized list");
         ASSERT(i < length, "Invalid index, list is too short.");
-        if (i == (length - 1)) return pop();
 		T element = data[i];
 		data[i] = pop();
 		return element;

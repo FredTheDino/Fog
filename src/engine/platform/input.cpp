@@ -69,6 +69,7 @@ void clear_input_for_frame() {
     }
 
     // Reset mouse frame
+    global_mapping.mouse.depth = 0;
     global_mapping.mouse.move_x = 0;
     global_mapping.mouse.move_y = 0;
     global_mapping.mouse.state[0] = clear_frame_flag(global_mapping.mouse.state[0]);
@@ -87,20 +88,83 @@ void activate(InputCode code, f32 value) {
     }
 }
 
-// TODO(ed): down, released, pressed, triggered
+void type_text(const char *string) {
+    while (*string) {
+        const u32 size_left = global_mapping.text_length - global_mapping.TEXT_LENGTH;
+        if (Util::utf8_insert_glyph(global_mapping.text + global_mapping.text_length,
+                              string, size_left)) {
+            const u32 size = Util::utf8_size(string);
+            global_mapping.text_length += size;
+            string += size;
+        } else {
+            break;
+        }
+    }
+}
+
+bool edit_string(char *text, u32 max_length) {
+    if (!global_mapping.text_length) return false;
+    u32 text_left = max_length;
+    char *cursor = text;
+    while (*cursor) { cursor++; text_left--; }
+    char *edits = global_mapping.text;
+    while (edits < global_mapping.text + global_mapping.text_length) {
+        const u32 glyph_size = Util::utf8_size(edits);
+        if (*edits == '\b') {
+            if (cursor != text) {
+                if (Util::utf8_is_first_char(cursor)) {
+                    do {
+                        cursor--;
+                        max_length++;
+                    } while (!Util::utf8_is_first_char(cursor) && text < cursor);
+                } else {
+                    if (cursor != text) {
+                        cursor--;
+                        max_length++;
+                    }
+                }
+            }
+        } else {
+            if (Util::utf8_insert_glyph(cursor, edits, max_length)) {
+                cursor += glyph_size;
+                max_length -= glyph_size;
+            }
+        }
+        edits += glyph_size;
+    }
+    *cursor = '\0';
+    return true;
+}
 
 #define BEGIN_BINDINGS_BLOCK                                 \
+    if (global_mapping.text_input) return false;               \
     for (u32 p = 0; p < (u32) Player::NUM; p++) {            \
         Player p_mask = Player(1 << p);                      \
         if (!is(player, p_mask)) continue;                   \
         Binding binding = {0, p_mask, name, 0};              \
         for (u32 i = 0; i < NUM_ALTERNATIVE_BINDINGS; i++) { \
             binding.binding_id = i;                          \
-            auto button = global_mapping.get(binding);             \
+            auto button = global_mapping.get(binding);       \
             if (!button.is_used()) continue;
 #define END_BINDINGS_BLOCK \
     }                      \
     }
+
+bool super_pressed(Name name, Player player) {
+    // TODO(ed): This can be better if we have a defer macro...
+    bool remember = global_mapping.text_input;
+    global_mapping.text_input = false;
+    BEGIN_BINDINGS_BLOCK {
+        if ((u32) button.state & (u32) ButtonState::TRIGGERED) {
+            global_mapping.text_input = remember;
+            return true;
+        }
+    }
+    END_BINDINGS_BLOCK
+    global_mapping.text_input = remember;
+    return false;
+}
+
 
 bool triggered(Name name, Player player) {
     BEGIN_BINDINGS_BLOCK {
@@ -199,4 +263,14 @@ bool mouse_down(u8 button) {
 
 #undef BEGIN_BINDINGS_BLOCK
 #undef END_BINDINGS_BLOCK
+
+u32 mouse_depth() {
+    return global_mapping.mouse.depth;
+}
+
+void eat_mouse() {
+    global_mapping.mouse.depth++;
+}
+
+
 };  // namespace Input

@@ -157,9 +157,16 @@ struct Mapping {
         ButtonState state[3];
         s32 x, y;
         s32 move_x, move_y;
+        u32 depth;
 
         //TODO(er): Add moved
     };
+
+    bool text_input;
+
+    static const u32 TEXT_LENGTH = 32;
+    u32 text_length;
+    char text[TEXT_LENGTH];
 
     VirtualMouse mouse;
 } global_mapping;
@@ -170,11 +177,33 @@ struct InputEvent {
     f32 value;
 };
 
+///*
+// Switches the input to use text input, this disables
+// the state of the input and makes starts listening to
+// text input.
+void start_text_input();
+
+///*
+// Stop listening for the text input re-enable the input
+// to work like it normally does.
+void stop_text_input();
+
+// Types the text to the buffer of text held to the end of the frame.
+void type_text(const char *string);
+
+// TODO(ed): Make this take in a cursor aswell... It will be great.
+///*
+// Applies the edits made to the string that
+// is supplied. "max_length" is the maximum allocated
+// length of the string. Returns true if the length
+// is changed.
+bool edit_string(char *text, u32 max_length);
+
 //*
 // Register a new mapping to the input system.<br>
 // code, the keycode, should be recived from calling K(DESIRED_KEY), DESIRED_KEY
 // should be lowercase letters for normal keys and UPPERCASE for special keys.
-// Player, yhe player that has this binding, can be P1, P2, P3, P4.
+// Player, the player that has this binding, can be P1, P2, P3, P4.
 bool add(InputCode code, Name name, Player player=Player::P1);
 
 ///*
@@ -198,6 +227,11 @@ bool down(Name name, Player player=Player::P1);
 f32 value(Name name, Player player=Player::P1);
 
 ///*
+// Ignores if the input is enabled or not and returns if the button
+// is pressed. Do not use this as a stand in for normal input.
+bool super_pressed(Name name, Player player=Player::P1);
+
+///*
 // Returns the screen coordinates in pixels for the mouse position.
 Vec2 mouse_position();
 
@@ -218,6 +252,17 @@ Vec2 world_mouse_position();
 // The movement of the mouse in world coordinated,
 // taken into account the current camera transform.
 Vec2 world_mouse_move();
+
+///*
+// Returns the depth of the mouse press, this far. Should increase
+// when interacting with gui elements.
+//
+// Usefull when things can be placed "behind" other things.
+u32 mouse_depth();
+
+///*
+// Increases the mouse depth.
+void eat_mouse();
 
 ///*
 // Returns true if the mouse button was pressed or released this frame.

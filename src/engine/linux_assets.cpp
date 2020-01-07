@@ -298,7 +298,7 @@ void process_asset(AssetFile *file, const std::string *path) {
 template <typename T>
 size_t write_to_file(FILE *stream, const T *ptr, size_t num = 1) {
     auto write = fwrite(ptr, sizeof(T), num, stream);
-    ASSERT(write == num, "Failed to read from asset file");
+    ASSERT(write == num, "Failed to write to asset file");
     return write * sizeof(T);
 }
 

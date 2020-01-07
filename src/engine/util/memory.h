@@ -58,6 +58,12 @@ template <typename T>
 T *request_temporary_memory(u64 num = 1);
 
 ///*
+// Takes a object on the stack and pushes it to the temporary
+// heap.
+template <typename T>
+T *temporary_push(T t);
+
+///*
 // Like malloc, but a little bit more C++.
 //
 // Note that "num" is the number of elemnts to

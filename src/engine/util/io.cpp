@@ -12,8 +12,16 @@ namespace Util {
 // for usage... If you're in a spot they might help though.
 
 bool str_eq(const char *a, const char *b) {
-    while (*a && *b && *(a++) == *(b++)) { /* Empty */ }
-    return *a == *b;
+    while (*a && *b && *(a++) == *(b++)) {
+        if (*a == '\0' && *b == '\0') return true;
+    }
+    return false;
+}
+
+u32 str_len(const char *str) {
+    u32 len = 0;
+    while (str[len]) ++len;
+    return len + 1; // Include the null terminator.
 }
 
 ///*
@@ -55,6 +63,42 @@ u32 format_inplace(char *out, const char *fmt, ...) {
     return written;
 }
 
+///*
+// Returns the byte size of a UTF-8 glyph.
+u8 utf8_size(const char *c) {
+    if ((*c & 0b10000000) == 0) return 1;
+    if ((*c & 0b11100000) == 0b11000000) return 2;
+    if ((*c & 0b11110000) == 0b11100000) return 3;
+    if ((*c & 0b11111000) == 0b11110000) return 4;
+    ERR("Invalid codepoint");
+    return 0;
+}
+
+///*
+// Returns if the character pointed to is the first in
+// a UTF-8 char.
+bool utf8_is_first_char(const char *c) {
+    return (*c & 0b11000000) != 0b10000000;
+}
+
+///*
+// Inserts the unicode glyph "from" into "to". The length
+// is the length of the "to" string.
+bool utf8_insert_glyph(char *to, const char *from, u32 length) {
+    const u32 glyph_size = utf8_size(from);
+    if (glyph_size > length) return false;
+    for (u32 i = 0; i < glyph_size; i++)
+        to[i] = from[i];
+    return true;
+}
+
+///*
+// Advances the char pointer to the next
+// unicode character.
+char *utf8_advance(char *c) {
+    return c + utf8_size(c);
+}
+
 // Returns the whole contents of the file as
 // as a string, that is valid for |FRAME_LAG_FOR_MEMORY|
 // frames.
@@ -71,17 +115,6 @@ String dump_file(const char *file_path) {
     buffer[file_size] = '\0';
     fclose(file);
     return {buffer, file_size};
-}
-
-Image load_png(const char *file_path) {
-    String file = dump_file(file_path);
-    if (!file) return {};
-    int x, y, c;
-    u8 *image = stbi_load_from_memory((const u8 *) file.data, file.length, &x,
-                                      &y, &c, 0);
-    CHECK(x == OPENGL_TEXTURE_WIDTH && y == OPENGL_TEXTURE_HEIGHT,
-          "Loading texture of incorrect dimensions");
-    return {image, (u32) x, (u32) y, (u8) c};
 }
 
 }  // namespace Util

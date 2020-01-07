@@ -142,8 +142,11 @@ Overlap check_overlap(Body *body_a, Body *body_b);
 
 
 ///*
-// Check if the point "p" lies in the specified box.
+// Check if the point "p" lies in the specified box. The box
+// can be specified using either a min/max or a center, radius
+// and rotation.
 bool point_in_box(Vec2 p, Vec2 center, Vec2 radius, f32 rotation);
+bool point_in_box(Vec2 p, Vec2 min, Vec2 max);
 
 
 ///*

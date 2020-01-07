@@ -11,18 +11,28 @@ namespace Logic {
         bool operator== (const EntityID &other) const {
             return slot == other.slot && gen == other.gen;
         }
+
+        operator bool() const {
+            return slot >= 0;
+        }
     };
+
+    EntityID invalid_id() {
+        return {-1, 0};
+    }
 
     struct EMeta {
         // Meta info about class
         EntityType type_enum;
         u64 hash; // Looks up in the ETypeInfo table.
+        u64 size;
 
         // Meta info about each field
         struct EField {
             const char *name;
             u64 offset;
             u64 hash; // Looks up in the ETypeInfo table.
+            // TODO(ed): Constraints need to work better...
             void (*constraint)(void *); // Templates might solve this?
         };
 
@@ -66,7 +76,8 @@ namespace Logic {
     bool contains_type();
     bool contains_type(u64 hash);
 
-    EMeta _fog_global_entity_list[(u32) EntityType::NUM_ENTITY_TYPES];
+    constexpr u32 _NUM_ENTITY_TYPES = (u32) EntityType::NUM_ENTITY_TYPES;
+    EMeta _fog_global_entity_list[_NUM_ENTITY_TYPES];
 
 #include "entity_macros.h"
 
@@ -79,7 +90,7 @@ namespace Logic {
         Vec2 position;
         Vec2 scale;
         f32  rotation;
-        u32 layer;
+        s32 layer;
 
         // Called when the entity is updated.
         virtual void update(f32 delta) = 0;
@@ -94,9 +105,18 @@ namespace Logic {
         virtual EntityType type() { return EntityType::BASE; }
         static constexpr Logic::EntityType st_type() { return EntityType::BASE; }
         static Logic::EMeta _fog_generate_meta() {
-                return {EntityType::BASE, typeid(Entity).hash_code(), 0, nullptr, true};
+            return {EntityType::BASE,
+                    typeid(Entity).hash_code(),
+                    sizeof(Entity),
+                    0,
+                    nullptr,
+                    true};
         }
     };
+
+    typedef void *(*EVtableFunc)();
+    EVtableFunc _fog_global_entity_vtable[_NUM_ENTITY_TYPES];
+
 
     struct EntitySystem {
         Util::MemoryArena *memory;
@@ -113,12 +133,19 @@ namespace Logic {
     //Fetch the meta data for the specific type.
     EMeta meta_data_for(EntityType type);
 
+    // Returns the address to the vtable of the type.
+    void *_entity_vtable(EntityType type);
 
     ///*
     // Adds an entity to the ES, a copy is made to insert it
     // and a unique id is returned.
     template<typename T>
     EntityID add_entity(T entity);
+
+    ///*
+    // Adds an entity to the ES, copies the entity from the
+    // pointer.
+    EntityID add_entity_ptr(Entity *entity);
 
     ///*
     // Tries to fetch an entity from the ES, and returns a pointer

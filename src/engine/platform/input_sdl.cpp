@@ -1,3 +1,15 @@
+namespace Input {
+    void start_text_input() {
+        global_mapping.text_input = true;
+        SDL_StartTextInput();
+    }
+
+    void stop_text_input() {
+        global_mapping.text_input = false;
+        SDL_StopTextInput();
+    }
+}
+
 namespace SDL {
 static bool running = true;
 
@@ -6,8 +18,13 @@ Input::InputCode key_to_input_code(s32 scancode) {
     return scancode << 3 | 0b0001;
 }
 
+
 void poll_events() {
     SDL_Event event;
+
+    // Reset the text input
+    Input::global_mapping.text_length = 0;
+
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
             case (SDL_WINDOWEVENT):
@@ -25,10 +42,19 @@ void poll_events() {
                 break;
             case (SDL_KEYDOWN):
             case (SDL_KEYUP): {
+                if (Input::global_mapping.text_input) {
+                    // Special control sequences for text manipulatin.
+                    if (event.key.keysym.sym == SDLK_BACKSPACE) {
+                        Input::type_text("\b");
+                    }
+                }
                 if (event.key.repeat) break;
                 f32 value = event.key.type == SDL_KEYDOWN ? 1.0 : 0.0;
                 Input::InputCode code = key_to_input_code(event.key.keysym.sym);
                 Input::activate(code, value);
+            } break;
+            case (SDL_TEXTINPUT): {
+                Input::type_text(event.text.text);
             } break;
             case (SDL_MOUSEBUTTONDOWN):
             case (SDL_MOUSEBUTTONUP): {
