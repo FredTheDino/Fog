@@ -104,11 +104,13 @@ void update(f32 delta) {
 
 
     if (down(Name::DOWN)) {
+        auto thing = [](Logic::Entity *e) -> bool {
+            Logic::remove_entity(e->id);
+            return false;
+        };
+        std::function func = std::function<bool(Logic::Entity*)>(thing);
         Logic::for_entity_of_type(Logic::EntityType::MY_ENT,
-                                  Function([](Logic::Entity *e) {
-                                      Logic::remove_entity(e->id);
-                                      return false;
-                                  }));
+                                  func);
     }
 }
 

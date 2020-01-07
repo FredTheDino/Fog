@@ -27,10 +27,10 @@ void __debug_log(const char* type, const char* file, int line,
 
 void __close_app_responsibly();
 #define HALT_AND_CATCH_FIRE do { __close_app_responsibly(); exit(-1); } while (false)
-#define ASSERT(expr, msg) __assert(__FILE__, __LINE__, "" STR(expr) "" ": " msg, expr)
+#define ASSERT(expr, msg) _fog_assert(__FILE__, __LINE__, "" STR(expr) "" ": " msg, expr)
 
 void __assert_failed() {HALT_AND_CATCH_FIRE;}
-void __assert(const char* file, int line, const char* expr,
+void _fog_assert(const char* file, int line, const char* expr,
                      bool assumed) {
     if (assumed) return;
     __debug_log("!ASSERT!", file, line, "ASSERT", expr);
