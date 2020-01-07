@@ -25,16 +25,14 @@ struct MyEnt : public Logic::Entity {
     void update(f32 delta) override {}
 
     void draw() override {
-        Renderer::push_sprite(layer, position + V2(0, sin(Logic::now() * bounce)), scale, rotation,
+        Renderer::push_sprite(layer, position, scale, rotation,
                 ASSET_DEBUG_TEST,
                 LERP(V2(0, 0), value, V2(100, 100)), V2(64, 64));
     }
 
     f32 value;
-    f32 blarg;
-    f32 bounce;
 
-    REGISTER_FIELDS(MY_ENT, MyEnt, value, blarg, position, rotation, scale, bounce)
+    REGISTER_FIELDS(MY_ENT, MyEnt, position, rotation, scale, value)
 };
 
 void show_buffer(char *buffer, void *tmp) {
