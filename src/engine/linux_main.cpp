@@ -210,11 +210,11 @@ int main(int argc, char **argv) {
         STOP_PERF(MAIN);
     }
     
-    __close_app_responsibly();
+    _fog_close_app_responsibly();
     return 0;
 }
 
-void __close_app_responsibly() {
+void _fog_close_app_responsibly() {
     Renderer::Impl::set_fullscreen(false);
 }
 

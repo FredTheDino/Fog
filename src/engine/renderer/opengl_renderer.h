@@ -158,7 +158,7 @@ void GLAPIENTRY gl_debug_message(GLenum source, GLenum type, GLuint id,
                                  GLenum severity, GLsizei length,
                                  const GLchar *message, const void *userParam) {
 #ifdef FOG_VERBOSE
-    __debug_log((type == GL_DEBUG_TYPE_ERROR ? "GL ERROR" : "GL"), __FILE__,
+    _fog_debug_log((type == GL_DEBUG_TYPE_ERROR ? "GL ERROR" : "GL"), __FILE__,
                 __LINE__, "type: 0x%x, severity: 0x%x\n\"%s\"",
                 type, severity, message);
 #endif
