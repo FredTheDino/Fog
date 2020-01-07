@@ -341,13 +341,17 @@ void strip_file_ending(char *str) {
 void append(char *str, const char *postfix) {
     while (*(str++)) /* NO-OP */;
     str--;
-    while (*(postfix)) *(str++) = *(postfix++);
+    while (*postfix)
+      *(str++) = *(postfix++);
+    *str = '\0';
 }
 
 char *asset_name_from_file(char *path, Asset::Type type) {
-    const u32 begining = 4;
-    path += begining;  // Strip begining
-    const u32 len = strlen(path) + (type == Asset::Type::FONT) * 5;
+    u32 start = 3;
+    while (path[start] == '/')
+        start++;
+    path += start;  // Strip leading "res[/]+"
+    const u32 len = strlen(path) + (type == Asset::Type::FONT) * 5 + 1;
     char *name = copy_string(path, len);
     strip_file_ending(name);
     replace_all(name, '/', '_');
@@ -477,4 +481,4 @@ int main(int nargs, char **vargs) {
     dump_asset_file(&file, out_path);
 }
 
-void __close_app_responsibly() {}
+void _fog_close_app_responsibly() {}

@@ -2,9 +2,9 @@
 #include <stdlib.h>
 // Debug functions
 // TODO(ed): It might be possible to remove the _MSG, 
-#define LOG(fmt, ...) __debug_log("LOG", __FILE__, __LINE__, __func__, fmt, ##__VA_ARGS__)
-#define ERR(fmt, ...) __debug_log("ERR", __FILE__, __LINE__, __func__, fmt, ##__VA_ARGS__)
-void __debug_log(const char* type, const char* file, int line,
+#define LOG(fmt, ...) _fog_debug_log("LOG", __FILE__, __LINE__, __func__, fmt, ##__VA_ARGS__)
+#define ERR(fmt, ...) _fog_debug_log("ERR", __FILE__, __LINE__, __func__, fmt, ##__VA_ARGS__)
+void _fog_debug_log(const char* type, const char* file, int line,
                         const char *func, const char* fmt, ...) {
     // TODO: Log file with timestamps?
     va_list args;
@@ -25,26 +25,26 @@ void __debug_log(const char* type, const char* file, int line,
 #define EXPAND_HELPER(x) #x
 #define EXPAND(x) EXPAND_HELPER(x)
 
-void __close_app_responsibly();
-#define HALT_AND_CATCH_FIRE do { __close_app_responsibly(); exit(-1); } while (false)
-#define ASSERT(expr, msg) __assert(__FILE__, __LINE__, "" STR(expr) "" ": " msg, expr)
+void _fog_close_app_responsibly();
+#define HALT_AND_CATCH_FIRE do { _fog_close_app_responsibly(); exit(-1); } while (false)
+#define ASSERT(expr, msg) _fog_assert(__FILE__, __LINE__, "" STR(expr) "" ": " msg, expr)
 
-void __assert_failed() {HALT_AND_CATCH_FIRE;}
-void __assert(const char* file, int line, const char* expr,
+void _fog_assert_failed() {HALT_AND_CATCH_FIRE;}
+void _fog_assert(const char* file, int line, const char* expr,
                      bool assumed) {
     if (assumed) return;
-    __debug_log("!ASSERT!", file, line, "ASSERT", expr);
-    __assert_failed();
+    _fog_debug_log("!ASSERT!", file, line, "ASSERT", expr);
+    _fog_assert_failed();
 }
 #define UNREACHABLE                                \
-    __debug_log("UNREACHABLE", __FILE__, __LINE__, \
+    _fog_debug_log("UNREACHABLE", __FILE__, __LINE__, \
                 __func__, "Reached unreachable code");       \
     HALT_AND_CATCH_FIRE;
 
-#define CHECK(expr, msg) __check(__FILE__, __LINE__, "" #expr "" ": " #msg, expr)
-void __check(const char* file, int line, const char* expr,
+#define CHECK(expr, msg) _fog_check(__FILE__, __LINE__, "" #expr "" ": " #msg, expr)
+void _fog_check(const char* file, int line, const char* expr,
                     bool assumed) {
     if (assumed) return;
-    __debug_log("?CHECK?", file, line, "CHECK", expr);
+    _fog_debug_log("?CHECK?", file, line, "CHECK", expr);
 }
 

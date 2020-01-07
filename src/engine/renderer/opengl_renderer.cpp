@@ -343,6 +343,7 @@ bool init(const char *title, int width, int height) {
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
     context = SDL_GL_CreateContext(window);
 
@@ -355,7 +356,7 @@ bool init(const char *title, int width, int height) {
     SDL::window_callback = resize_window;
     SDL_GL_SetSwapInterval(1);
     glEnable(GL_DEBUG_OUTPUT);
-    glDebugMessageCallback(gl_debug_message, 0);
+    //glDebugMessageCallback(gl_debug_message, 0);
 
     for (u32 i = 0; i < OPENGL_NUM_LAYERS; i++) {
         sprite_render_queues[i].create(512);
