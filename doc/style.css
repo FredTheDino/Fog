@@ -76,6 +76,18 @@ article {
     width: calc(100% - 17em);
 }
 
+.note {
+    background-color: blue;
+    color: white;
+    padding-left: 2px;
+    padding-right: 2px;
+    font-weight: bold;
+}
+
+.note:before {
+    content: "NOTE:";
+}
+
 .block {
     margin: 1.0em;
     padding: 1.0em;
