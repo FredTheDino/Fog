@@ -342,7 +342,7 @@ void append(char *str, const char *postfix) {
     while (*(str++)) /* NO-OP */;
     str--;
     while (*postfix)
-      *(str++) = *(postfix++);
+        *(str++) = *(postfix++);
     *str = '\0';
 }
 
@@ -350,7 +350,7 @@ char *asset_name_from_file(char *path, Asset::Type type) {
     u32 start = 3;
     while (path[start] == '/')
         start++;
-    path += start;  // Strip leading "res[/]+"
+    path += start; // Strip leading "res\/*"
     const u32 len = strlen(path) + (type == Asset::Type::FONT) * 5 + 1;
     char *name = copy_string(path, len);
     strip_file_ending(name);
