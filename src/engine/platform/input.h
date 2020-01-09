@@ -204,7 +204,7 @@ bool edit_string(char *text, u32 max_length);
 // code, the keycode, should be recived from calling K(DESIRED_KEY), DESIRED_KEY
 // should be lowercase letters for normal keys and UPPERCASE for special keys.
 // Player, the player that has this binding, can be P1, P2, P3, P4.
-bool add(InputCode code, Name name, Player player=Player::ANY);
+bool add(InputCode code, Name name, Player player=Player::P1);
 
 ///*
 // Returns true if the input button, stick or key was pressed or released this frame.
