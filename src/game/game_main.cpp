@@ -31,13 +31,12 @@ struct Paddle : public Logic::Entity {
             using namespace Input;
             if (down(Name::UP, player)) {
                 position += V2(0, 10) * delta;
-                body.position = position;
             }
             if (down(Name::DOWN, player)) {
                 position += V2(0, -10) * delta;
-                body.position = position;
             }
         }
+        body.position = position;
     }
 
     void draw() override {
@@ -50,31 +49,28 @@ struct Paddle : public Logic::Entity {
     REGISTER_FIELDS(PADDLE, Paddle, position);
 };
 
-/*
 struct Ball : public Logic::Entity {
     f32 dx, dy;
+    Physics::Body body;
     
+    Ball() {
+        body = Physics::create_body(ball_shape);
+    }
+
     void update(f32 delta) override {
         position += V2(dx, dy) * delta;
+        body.position = position;
     }
 
     void draw() override {
         Renderer::push_rectangle(layer, position, V2(0.5, 0.5));
         if (debug) {
-            Physics::Body body = get_body();
             Physics::debug_draw_body(&body);
         }
     }
 
-    Physics::Body get_body() {
-        Physics::Body body = Physics::create_body(ball_shape);
-        body.position = position;
-        return body;
-    }
-
     REGISTER_FIELDS(BALL, Ball, position, dx, dy);
 };
-*/
 
 void show_buffer(char *buffer, void *tmp) {
     std::vector<int> *vec = (std::vector<int> *) tmp;
@@ -90,6 +86,9 @@ void show_int(char *buffer, void *info) {
 void entity_registration() {
     REGISTER_TYPE(std::vector<int>, show_buffer);
 }
+
+std::vector<Paddle *> paddles = {};
+Ball ball;
 
 void setup() {
     using namespace Input;
@@ -125,6 +124,7 @@ void setup() {
     paddle.controllable = true;
     paddle.player = Player::P1;
     Logic::add_entity(paddle);
+    paddles.push_back(&paddle);
 
     Paddle paddle2 = {};
     paddle2.layer = 0;
@@ -132,15 +132,14 @@ void setup() {
     paddle2.controllable = true;
     paddle2.player = Player::P2;
     Logic::add_entity(paddle2);
+    paddles.push_back(&paddle2);
 
-    /*
-    Ball ball = {};
+    ball = {};
     ball.layer = 0;
     ball.position = V2(-2, 0);
     ball.dx = 5.0;
     ball.dy = 0.0;
     Logic::add_entity(ball);
-    */
 
     Renderer::global_camera.zoom = 0.05;
 }
@@ -170,6 +169,15 @@ void update(f32 delta) {
     if (pressed(Name::RIGHT)) {
         Renderer::global_camera.position += V2(1, 0);
     }
+
+    /*
+    // Collisions
+    for (Paddle *paddle: paddles) {
+        if (Physics::check_overlap(&(paddle->body), &(ball.body))) {
+            LOG("waho");
+        }
+    }
+    */
 
     /*
     if (down(Name::DOWN)) {
