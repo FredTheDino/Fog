@@ -13,7 +13,12 @@ Physics::ShapeID ball_shape;
 
 struct Paddle : public Logic::Entity {
     Player player = Player::ANY;
+    Physics::Body body;
     bool controllable = false;
+
+    Paddle() {
+        body = Physics::create_body(paddle_shape);
+    }
 
     void update(f32 delta) override {
         static bool show_paddle_controls = true;
@@ -26,9 +31,11 @@ struct Paddle : public Logic::Entity {
             using namespace Input;
             if (down(Name::UP, player)) {
                 position += V2(0, 10) * delta;
+                body.position = position;
             }
             if (down(Name::DOWN, player)) {
                 position += V2(0, -10) * delta;
+                body.position = position;
             }
         }
     }
@@ -36,20 +43,14 @@ struct Paddle : public Logic::Entity {
     void draw() override {
         Renderer::push_rectangle(layer, position, V2(1, 5));
         if (debug) {
-            Physics::Body body = get_body();
             Physics::debug_draw_body(&body);
         }
-    }
-
-    Physics::Body get_body() {
-        Physics::Body body = Physics::create_body(paddle_shape);
-        body.position = position;
-        return body;
     }
 
     REGISTER_FIELDS(PADDLE, Paddle, position);
 };
 
+/*
 struct Ball : public Logic::Entity {
     f32 dx, dy;
     
@@ -73,6 +74,7 @@ struct Ball : public Logic::Entity {
 
     REGISTER_FIELDS(BALL, Ball, position, dx, dy);
 };
+*/
 
 void show_buffer(char *buffer, void *tmp) {
     std::vector<int> *vec = (std::vector<int> *) tmp;
@@ -179,7 +181,7 @@ void update(f32 delta) {
         Logic::for_entity_of_type(Logic::EntityType::MY_ENT,
                                   func);
     }
-   */
+    */
 }
 
 // Main draw
