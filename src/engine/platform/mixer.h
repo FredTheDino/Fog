@@ -6,7 +6,7 @@ namespace Mixer {
 // and playing sound. Behind the scenes there are a lot
 // of threads and other mishaps that are hidden behind a simpler
 // interface. This makes some of the functions non-trivial
-// even though they seam simple, and most things can fail in 
+// even though they seam simple, and most things can fail in
 // spectacular ways depending on the OS. But most of the OS
 // specific code should be limited to this submodule.
 
@@ -29,7 +29,7 @@ struct AudioID {
 // go a long way to create cool atmospheres.
 
 // TODO(ed): The instrument playing API needs some
-// work, it might be good to move to an approach where 
+// work, it might be good to move to an approach where
 // bars are queried for by the audio thread.
 const f32 NEXT_TONE = 1.0594630943593;
 const f32 BASE_TONE = 440;

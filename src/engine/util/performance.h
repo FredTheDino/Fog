@@ -41,7 +41,7 @@ void report();
 // Note that you should not start the same maker multiple times
 // without stopping them.
 START_PERF(marker)
-    
+
 ///*
 // Tells the performance clock that this is the end
 // of this block, accumulating it to the other results.

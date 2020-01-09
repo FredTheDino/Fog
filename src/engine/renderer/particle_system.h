@@ -10,7 +10,7 @@ namespace Renderer {
 // TODO(ed): Direction and speen instead of random vec.
 struct Particle {
     f32 progress;
-   
+
     f32 inv_alive_time;
     f32 rotation;
     f32 angular_velocity;
@@ -44,7 +44,7 @@ struct ParticleSystem {
     struct Span {
         // TODO(ed): Maybe add different kinds of randomizations.
         f32 min, max;
-          
+
         f32 random() {
             return random_real(min, max);
         }
@@ -61,7 +61,7 @@ struct ParticleSystem {
     u32 layer;
     SubSprite sub_sprites[MAX_NUM_SUB_SPRITES];
 
-    
+
     // Utility
     u32 head;
     u32 tail;
@@ -123,7 +123,7 @@ struct ParticleSystem {
 ///*
 // <p>
 // Generates a new particle system for general usage. Note that
-// other properties are set after the system is created. They can 
+// other properties are set after the system is created. They can
 // be changed whenever you want.
 // </p>
 //
@@ -152,7 +152,7 @@ void destroy_particle_system(ParticleSystem *system);
 // displayed.
 // </p>
 // <p>
-// The options are set after a particle system is created 
+// The options are set after a particle system is created
 // using the initialization function.
 // </p>
 struct ParticleSystem;
@@ -219,7 +219,7 @@ void ParticleSystem::spawn();
 ///*
 // Updates the particle system, and progresses the particles by one time step.
 void ParticleSystem::update(f32 delta);
-    
+
 ///*
 // Draws the particle system to the screen.
 void ParticleSystem::draw();

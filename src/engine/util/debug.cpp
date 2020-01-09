@@ -1,7 +1,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 // Debug functions
-// TODO(ed): It might be possible to remove the _MSG, 
+// TODO(ed): It might be possible to remove the _MSG,
 #define LOG(fmt, ...) _fog_debug_log("LOG", __FILE__, __LINE__, __func__, fmt, ##__VA_ARGS__)
 #define ERR(fmt, ...) _fog_debug_log("ERR", __FILE__, __LINE__, __func__, fmt, ##__VA_ARGS__)
 void _fog_debug_log(const char* type, const char* file, int line,

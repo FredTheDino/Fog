@@ -129,7 +129,7 @@ void set_entity_field(Logic::Entity *e, const char *name, u64 size, void *value)
     for (u32 i = 0; i < meta.num_fields; i++) {
         auto *field = meta.fields + i;
         if (!Util::str_eq(field->name, name)) continue;
-        auto *meta = Logic::fetch_type(field->hash); 
+        auto *meta = Logic::fetch_type(field->hash);
         if (meta->size != size) break;
         u8 *addrs = ((u8 *) e) + field->offset;
         Util::copy_bytes(value, addrs, size);

@@ -45,7 +45,7 @@
 Renderer::push_sprite(V2(0, 0), V2(1, 1), V2(32, 32), V2(16, 16), ASSET_MY_SPRITE);
 // <p>
 // This will draw a sprite with a center position of (0, 0) and where each side
-// is 1 unit long in world coordinates. The sprite will be the sub-image of 
+// is 1 unit long in world coordinates. The sprite will be the sub-image of
 // the supplied image, using the region made by the in the rectangle starting
 // at (32, 32) and going (16, 16) in pixel coordinates.
 // <p>

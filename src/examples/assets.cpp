@@ -3,7 +3,7 @@
 
 //// Loading a new asset
 // <p>
-// Place the desired asset in the "res" folder, make sure it's 
+// Place the desired asset in the "res" folder, make sure it's
 // a compatible type for the engine, and rebuild the project.
 // The "src/fog_assets.cpp" file has now been updated and the
 // new constant can be used where "AssetID"s are asked for.

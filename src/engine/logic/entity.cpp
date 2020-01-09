@@ -176,7 +176,7 @@ namespace Logic {
         _fog_es.num_removed++;
 
         s32 slot = entity->id.slot;
-        entity->id.slot = _fog_es.next_free;          
+        entity->id.slot = _fog_es.next_free;
         _fog_es.next_free = -slot - 1;
 
         if (slot == _fog_es.max_entity) {

@@ -32,7 +32,7 @@
 // ol' <span style="text_decoration: underline;">& #47</span> can't fix.
 // </p>
 // <p>
-// Also note that this isn't a heavy duty utility, it basically 
+// Also note that this isn't a heavy duty utility, it basically
 // just keeps running, no matter what you put in. And troubleshooting
 // the parser will probably not be an ideal situation.
 // </p>

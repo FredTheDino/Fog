@@ -210,7 +210,7 @@ int main(int argc, char **argv) {
 
         STOP_PERF(MAIN);
     }
-    
+
     _fog_close_app_responsibly();
     return 0;
 }

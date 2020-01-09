@@ -80,7 +80,7 @@ void center_body(Body *body)
 	body->offset = hadamard(body->offset, body->scale);
 }
 
-Limit project_shape(Shape shape, Vec2 axis, 
+Limit project_shape(Shape shape, Vec2 axis,
 		Vec2 scale=V2(1, 1), Vec2 offset=V2(0, 0))
 {
 	Limit limit = {};
@@ -108,7 +108,7 @@ Body create_body(ShapeID shape_id, f32 mass, u32 layer, f32 bounce,
 		body.inverse_mass = 0.0f;
 	else
 		body.inverse_mass = 1.0f / mass;
-    
+
     return body;
 }
 
@@ -119,11 +119,11 @@ void debug_draw_body(Body *body) {
 		u32 v_i = i;
 		u32 u_i = (i + 1) % shape.points.length;
 		Vec2 v = rotate(
-				hadamard(shape.points[v_i], body->scale) + body->offset, 
+				hadamard(shape.points[v_i], body->scale) + body->offset,
 				body->rotation);
 		v += body->position;
 		Vec2 u = rotate(
-				hadamard(shape.points[u_i], body->scale) + body->offset, 
+				hadamard(shape.points[u_i], body->scale) + body->offset,
 				body->rotation);
 		u += body->position;
 
@@ -169,7 +169,7 @@ void integrate(Body *body, f32 delta) {
 
 Overlap check_overlap(Body *body_a, Body *body_b) {
 	// NOTE: If I find that dragging along a surface is jagged,
-	// we could try having weighted directions and add a little bit 
+	// we could try having weighted directions and add a little bit
 	// of weight to the ones along the closing velocity. It might
 	// help. I don't know.
 
@@ -277,7 +277,7 @@ void solve(Overlap overlap)
     Body *b = overlap.b;
 
 	f32 total_mass = 1.0f / (a->inverse_mass + b->inverse_mass);
-	
+
 	// Position
 	Vec2 relative_position = (a->position + a->offset) - (b->position + b->offset);
 	Vec2 position_direction = normalize(relative_position);
@@ -300,15 +300,15 @@ void solve(Overlap overlap)
 	b->velocity += normal * normal_force * b->inverse_mass;
 }
 
-// Flip the overlap and give the overlap seen from 
+// Flip the overlap and give the overlap seen from
 // the other colliding body.
 Overlap reversed(Overlap overlap)
 {
 	return {
-		overlap.b, 
-		overlap.a, 
-		overlap.depth, 
-		-overlap.normal, 
+		overlap.b,
+		overlap.a,
+		overlap.depth,
+		-overlap.normal,
 		overlap.is_valid
 	};
 }

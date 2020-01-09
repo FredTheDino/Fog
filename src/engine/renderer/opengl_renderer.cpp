@@ -238,7 +238,7 @@ void rebuild_frame_buffers(int width, int height) {
     glBindTexture(GL_TEXTURE_2D, 0);
 
     glGenFramebuffers(1, &screen_fbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, screen_fbo);  
+    glBindFramebuffer(GL_FRAMEBUFFER, screen_fbo);
     {
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                                GL_TEXTURE_2D, screen_texture, 0);
@@ -270,7 +270,7 @@ void create_frame_buffers(int width, int height) {
     glBindTexture(GL_TEXTURE_2D, 0);
 
     glGenFramebuffers(1, &screen_fbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, screen_fbo);  
+    glBindFramebuffer(GL_FRAMEBUFFER, screen_fbo);
     {
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                                GL_TEXTURE_2D, screen_texture, 0);
@@ -543,7 +543,7 @@ void blit() {
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Camera), &global_camera);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, screen_fbo);  
+    glBindFramebuffer(GL_FRAMEBUFFER, screen_fbo);
     {
         glClearColor(0.3f, 0.1f, 0.2f, 1.0f);
         clear();
@@ -556,7 +556,7 @@ void blit() {
         font_render_queue.draw();
     }
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);  
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClearColor(0.1f, 0.3f, 0.2f, 1.0f);
     clear();
     render_post_processing();

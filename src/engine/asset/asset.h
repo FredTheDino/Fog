@@ -134,7 +134,7 @@ Font *fetch_font(AssetID id);
 
 };  // namespace Asset
 
-// The file format: 
+// The file format:
 //
 // Number of Assets,
 // Size of String list,
