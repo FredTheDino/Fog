@@ -118,7 +118,7 @@ void move_func(bool clean) {
     for (u32 i = 0; i < global_editor.edits.length; i++) {
         EditorEdit *edit = global_editor.edits + i;
         ADD_EDIT(edit, delta);
-        Logic::Entity *entity = Logic::fetch_entity(global_editor.selected[i]);
+        Logic::Entity *entity = Logic::fetch_entity(edit->target);
         ASSERT(entity, "Invalid entity id in asset select");
         edit->apply(entity);
     }
@@ -162,11 +162,23 @@ void update() {
     }
     if (current_mode == EditorMode::SELECT_MODE && global_editor.selected.length) {
         // TODO(ed): Shows all properties on the first entity, maybe extend this to
-        // filter out the properties which are shared on all entities.
+        // filter out the properties which are shared on all entities?
         using namespace Logic;
         using namespace Util;
         static bool show = true;
+        static bool tweaking = false;
+        // TODO(ed): It should set the values, right?
         if (begin_tweak_section("Tweaks", &show)) {
+            if (!tweaking) {
+                // TODO(ed): Break this out to a function
+                global_editor.edits.clear();
+                for (u32 i = 0; i < global_editor.selected.length; i++) {
+                    Logic::Entity *e = Logic::fetch_entity(global_editor.selected[i]);
+                    EditorEdit edit = MAKE_EDIT(e, position);
+                    global_editor.edits.append(edit);
+                }
+            }
+            tweaking = true;
             Entity *source = fetch_entity(global_editor.selected[0]);
             EMeta meta = meta_data_for(source->type());
             for (u32 i = 0; i < meta.num_fields; i++) {

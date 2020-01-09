@@ -88,7 +88,7 @@ void draw_outline(Logic::Entity *e, Vec4 color=V4(1, 1, 0, 0.1));
 
 struct EditorEdit {
     Logic::EntityID target;
-    u64 hash; // TODO(ed): Do I need this?
+    u64 hash;
     u16 offset;
 
     struct BinaryBlob {
@@ -100,13 +100,23 @@ struct EditorEdit {
     BinaryBlob after;
 
     void apply(Logic::Entity *e) {
+        ASSERT(e->id == target, "Trying to apply edit to different entity");
         u8 *type_ignorer = (u8 *) e;
         Util::copy_bytes((void *) &after, type_ignorer + offset, size);
     }
 
+    void apply() {
+        apply(fetch_entity(target));
+    }
+
     void revert(Logic::Entity *e) {
+        ASSERT(e->id == target, "Trying to apply edit to different entity");
         u8 *type_ignorer = (u8 *) e;
         Util::copy_bytes((void *) &before, type_ignorer + offset, size);
+    }
+
+    void revert() {
+        revert(fetch_entity(target));
     }
 };
 
