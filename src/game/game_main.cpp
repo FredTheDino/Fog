@@ -16,6 +16,12 @@ struct Paddle : public Logic::Entity {
     bool controllable = false;
 
     void update(f32 delta) override {
+        static bool show_paddle_controls = true;
+        if (Util::begin_tweak_section("Paddle controls", &show_paddle_controls)) {
+            Util::tweak("paddle position", &position);
+        }
+        Util::end_tweak_section(&show_paddle_controls);
+
         if (controllable) {
             using namespace Input;
             if (down(Name::UP, player)) {
@@ -95,14 +101,6 @@ void setup() {
     add(K(i), Name::UP,    Player::P2);
     add(K(k), Name::DOWN,  Player::P2);
 
-    Vec2 paddle_points[4] = {
-        V2(-0.5, -2.5),
-        V2( 0.5, -2.5),
-        V2(-0.5,  2.5),
-        V2( 0.5,  2.5),
-    };
-    paddle_shape = Physics::add_shape(LEN(paddle_points), paddle_points);
-
     Vec2 ball_points[4] = {
         V2(-0.25, -0.25),
         V2( 0.25, -0.25),
@@ -111,7 +109,14 @@ void setup() {
     };
     ball_shape = Physics::add_shape(LEN(ball_points), ball_points);
 
-    /*
+    Vec2 paddle_points[4] = {
+        V2(-0.5, -2.5),
+        V2( 0.5, -2.5),
+        V2(-0.5,  2.5),
+        V2( 0.5,  2.5),
+    };
+    paddle_shape = Physics::add_shape(LEN(paddle_points), paddle_points);
+
     Paddle paddle = {};
     paddle.layer = 0;
     paddle.position = V2(-10, 0);
@@ -125,14 +130,15 @@ void setup() {
     paddle2.controllable = true;
     paddle2.player = Player::P2;
     Logic::add_entity(paddle2);
-    */
 
+    /*
     Ball ball = {};
     ball.layer = 0;
     ball.position = V2(-2, 0);
     ball.dx = 5.0;
     ball.dy = 0.0;
     Logic::add_entity(ball);
+    */
 
     Renderer::global_camera.zoom = 0.05;
 }
@@ -155,6 +161,13 @@ void update(f32 delta) {
         Util::tweak("removed", &Logic::_fog_es.num_removed);
     }
     Util::end_tweak_section(&show_entity_system);
+
+    if (pressed(Name::LEFT)) {
+        Renderer::global_camera.position += V2(-1, 0);
+    }
+    if (pressed(Name::RIGHT)) {
+        Renderer::global_camera.position += V2(1, 0);
+    }
 
     /*
     if (down(Name::DOWN)) {
