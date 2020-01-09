@@ -20,19 +20,19 @@ typedef u32 Layer;
 typedef u32 ShapeID;
 
 struct Shape {
-	ShapeID id;
-	Vec2 center;
-	List<Vec2> normals;
-	List<Vec2> points;
+    ShapeID id;
+    Vec2 center;
+    List<Vec2> normals;
+    List<Vec2> points;
 };
 
 struct Body;
 
 struct Overlap {
     Body *a, *b;
-	f32 depth;
-	Vec2 normal; // Allways points towards a.
-	bool is_valid;
+    f32 depth;
+    Vec2 normal; // Allways points towards a.
+    bool is_valid;
 
     operator bool() const {
         return is_valid;
@@ -40,25 +40,25 @@ struct Overlap {
 };
 
 struct Body {
-	ShapeID shape;
-	Layer layer;
+    ShapeID shape;
+    Layer layer;
 
-	Vec2 offset;
+    Vec2 offset;
 
-	// This is just for static rotation. So the
-	// bodies can be oriented. No rotational forces
-	// are applied.
-	f32 rotation;
-	Vec2 position;
-	Vec2 scale;
+    // This is just for static rotation. So the
+    // bodies can be oriented. No rotational forces
+    // are applied.
+    f32 rotation;
+    Vec2 position;
+    Vec2 scale;
 
-	Vec2 velocity;
-	Vec2 acceleration;
-	Vec2 force;
+    Vec2 velocity;
+    Vec2 acceleration;
+    Vec2 force;
 
-	f32 inverse_mass;
-	f32 damping;
-	f32 bounce;
+    f32 inverse_mass;
+    f32 damping;
+    f32 bounce;
 };
 
 struct Limit {
@@ -94,9 +94,9 @@ ShapeID add_shape(List<Vec2> points);
 //    <tr><th width="150">Type</th><th width="50">Name</th><th>Description</th></tr>
 //    <tr><td>Body *</td><td>body_a</td><td>The first body of the collision, the normal points towards this body.</td>
 //    <tr><td>Body *</td><td>body_b</td><td>The second body of the collision, the normal points away from this body.</td>
-	f32 depth;
-	Vec2 normal; // Allways points towards a.
-	bool is_valid;
+    f32 depth;
+    Vec2 normal; // Allways points towards a.
+    bool is_valid;
 //    <tr><td>f32</td><td>depth</td><td>The depth of the collision</td>
 //    <tr><td>Vec2</td><td>normal</td><td>The vector pointing out of the face for this collision</td>
 //    <tr><td>bool</td><td>is_valid</td><td>If the collision is an actual collision, this is what is returned when the struct is cast to a bool.</td>

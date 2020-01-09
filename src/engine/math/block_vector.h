@@ -7,12 +7,12 @@
 // dimension of the vector.
 // Overloaded operators:
 // <ul>
-// 		<li>uniary -, negates the compoents of the vector</li>
-// 		<li>binary -, subtracts the components of the two vectors</li>
-// 		<li>binary +, adds the components the of two vectors</li>
-// 		<li>binary *, multiplies the vector by a scalar</li>
-// 		<li>binary /, divides the vector by a scalar</li>
-// 		<li>binary ==, Checks if the numbers are equal to a cirtain margin</li>
+//      <li>uniary -, negates the compoents of the vector</li>
+//      <li>binary -, subtracts the components of the two vectors</li>
+//      <li>binary +, adds the components the of two vectors</li>
+//      <li>binary *, multiplies the vector by a scalar</li>
+//      <li>binary /, divides the vector by a scalar</li>
+//      <li>binary ==, Checks if the numbers are equal to a cirtain margin</li>
 // </ul>
 
 
