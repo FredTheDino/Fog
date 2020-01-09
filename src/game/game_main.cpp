@@ -5,34 +5,67 @@
 
 namespace Game {
 
+const bool debug = true;
+
 static Renderer::ParticleSystem system;
+Physics::ShapeID paddle_shape;
+Physics::ShapeID ball_shape;
 
-Physics::ShapeID square;
+struct Paddle : public Logic::Entity {
+    Player player = Player::ANY;
+    bool controllable = false;
 
-Physics::Body a, b;
-
-struct A : public Logic::Entity {
-
-    virtual void update(f32 delta) {};
-    virtual void draw() {
-        Renderer::push_point(layer, position, V4(0, 0, 0, 1), 0.1);
-    };
-
-    REGISTER_NO_FIELDS(A_TYPE, A)
-};
-
-struct MyEnt : public Logic::Entity {
-    void update(f32 delta) override {}
-
-    void draw() override {
-        Renderer::push_sprite(layer, position, scale, rotation,
-                ASSET_DEBUG_TEST,
-                LERP(V2(0, 0), value, V2(100, 100)), V2(64, 64));
+    void update(f32 delta) override {
+        if (controllable) {
+            using namespace Input;
+            if (down(Name::UP, player)) {
+                position += V2(0, 10) * delta;
+            }
+            if (down(Name::DOWN, player)) {
+                position += V2(0, -10) * delta;
+            }
+        }
     }
 
-    f32 value;
+    void draw() override {
+        Renderer::push_rectangle(layer, position, V2(1, 5));
+        if (debug) {
+            Physics::Body body = get_body();
+            Physics::debug_draw_body(&body);
+        }
+    }
 
-    REGISTER_FIELDS(MY_ENT, MyEnt, position, rotation, scale, value)
+    Physics::Body get_body() {
+        Physics::Body body = Physics::create_body(paddle_shape);
+        body.position = position;
+        return body;
+    }
+
+    REGISTER_FIELDS(PADDLE, Paddle, position);
+};
+
+struct Ball : public Logic::Entity {
+    f32 dx, dy;
+    
+    void update(f32 delta) override {
+        position += V2(dx, dy) * delta;
+    }
+
+    void draw() override {
+        Renderer::push_rectangle(layer, position, V2(0.5, 0.5));
+        if (debug) {
+            Physics::Body body = get_body();
+            Physics::debug_draw_body(&body);
+        }
+    }
+
+    Physics::Body get_body() {
+        Physics::Body body = Physics::create_body(ball_shape);
+        body.position = position;
+        return body;
+    }
+
+    REGISTER_FIELDS(BALL, Ball, position, dx, dy);
 };
 
 void show_buffer(char *buffer, void *tmp) {
@@ -48,23 +81,61 @@ void show_int(char *buffer, void *info) {
 
 void entity_registration() {
     REGISTER_TYPE(std::vector<int>, show_buffer);
-
-    REGISTER_ENTITY(A);
-    REGISTER_ENTITY(MyEnt);
 }
 
 void setup() {
     using namespace Input;
-    add(K(a), Name::LEFT);
-    add(K(d), Name::RIGHT);
-    add(K(w), Name::UP);
-    add(K(s), Name::DOWN);
+    add(K(a), Name::LEFT,  Player::P1);
+    add(K(d), Name::RIGHT, Player::P1);
+    add(K(w), Name::UP,    Player::P1);
+    add(K(s), Name::DOWN,  Player::P1);
 
+    add(K(j), Name::LEFT,  Player::P2);
+    add(K(l), Name::RIGHT, Player::P2);
+    add(K(i), Name::UP,    Player::P2);
+    add(K(k), Name::DOWN,  Player::P2);
+
+    Vec2 paddle_points[4] = {
+        V2(-0.5, -2.5),
+        V2( 0.5, -2.5),
+        V2(-0.5,  2.5),
+        V2( 0.5,  2.5),
+    };
+    paddle_shape = Physics::add_shape(LEN(paddle_points), paddle_points);
+
+    Vec2 ball_points[4] = {
+        V2(-0.25, -0.25),
+        V2( 0.25, -0.25),
+        V2(-0.25,  0.25),
+        V2( 0.25,  0.25),
+    };
+    ball_shape = Physics::add_shape(LEN(ball_points), ball_points);
+
+    /*
+    Paddle paddle = {};
+    paddle.layer = 0;
+    paddle.position = V2(-10, 0);
+    paddle.controllable = true;
+    paddle.player = Player::P1;
+    Logic::add_entity(paddle);
+
+    Paddle paddle2 = {};
+    paddle2.layer = 0;
+    paddle2.position = V2(10, 0);
+    paddle2.controllable = true;
+    paddle2.player = Player::P2;
+    Logic::add_entity(paddle2);
+    */
+
+    Ball ball = {};
+    ball.layer = 0;
+    ball.position = V2(-2, 0);
+    ball.dx = 5.0;
+    ball.dy = 0.0;
+    Logic::add_entity(ball);
+
+    Renderer::global_camera.zoom = 0.05;
 }
-
-bool a_boolean;
-float a_float;
-int a_int;
 
 // Main logic
 void update(f32 delta) {
@@ -76,7 +147,7 @@ void update(f32 delta) {
     }
     Util::end_tweak_section(&show_camera_controls);
 
-    static bool show_entity_system = true;
+    static bool show_entity_system = false;
     if (Util::begin_tweak_section("Entity system", &show_entity_system)) {
         Util::tweak("next_free", &Logic::_fog_es.next_free);
         Util::tweak("entity", &Logic::_fog_es.max_entity);
@@ -85,23 +156,7 @@ void update(f32 delta) {
     }
     Util::end_tweak_section(&show_entity_system);
 
-
-    if (down(Name::UP)) {
-        MyEnt e = {};
-        e.position = random_unit_vec2() * 0.4;
-        e.scale = {0.5, 0.5};
-        auto id = Logic::add_entity(e);
-        LOG("%d %d", id.slot, id.gen);
-    }
-
-    if (down(Name::LEFT)) {
-        A e = {};
-        e.position = random_unit_vec2();
-        auto id = Logic::add_entity(e);
-        LOG("%d %d", id.slot, id.gen);
-    }
-
-
+    /*
     if (down(Name::DOWN)) {
         auto thing = [](Logic::Entity *e) -> bool {
             Logic::remove_entity(e->id);
@@ -111,6 +166,7 @@ void update(f32 delta) {
         Logic::for_entity_of_type(Logic::EntityType::MY_ENT,
                                   func);
     }
+   */
 }
 
 // Main draw

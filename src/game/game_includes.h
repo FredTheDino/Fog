@@ -61,8 +61,8 @@ namespace Perf {
 namespace Logic {
     enum class EntityType {
         BASE,
-        A_TYPE,
-        MY_ENT,
+        PADDLE,
+        BALL,
 
         NUM_ENTITY_TYPES, // Don't write anything after this.
     };
