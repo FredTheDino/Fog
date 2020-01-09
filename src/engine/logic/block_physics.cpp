@@ -58,8 +58,9 @@ ShapeID add_shape(u32 points_length, Vec2 *points) {
         continue;
     }
 
+    shape.id = global_shape_list.length;
     global_shape_list.append(shape);
-    return global_shape_list.length - 1;
+    return shape.id;
 }
 
 ShapeID add_shape(List<Vec2> points) {
