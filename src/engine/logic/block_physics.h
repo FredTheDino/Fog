@@ -45,7 +45,7 @@ struct Body {
 
 	Vec2 offset;
 
-	// This is just for static rotation. So the 
+	// This is just for static rotation. So the
 	// bodies can be oriented. No rotational forces
 	// are applied.
 	f32 rotation;
@@ -67,7 +67,7 @@ struct Limit {
 
 List<Shape> global_shape_list;
 
-// 
+//
 // World
 //
 
@@ -77,7 +77,7 @@ bool init();
 // Clean up after the world.
 void destroy();
 
-///* 
+///*
 // Tell the physics engine about a new shape that can be used,
 // ID's are passed when asked about a shape, the infromation is
 // generated from the points you pass in to a more optimal format
@@ -123,11 +123,11 @@ ShapeID add_shape(List<Vec2> points);
 //    <tr><td>f32</td><td>bounce</td><td>When solving a collison, this decides how elastic the collison should be.</td>
 // </table>
 
-///* 
+///*
 // Create a new body that can be simulated, collideded with
 // and solved for. The mass, bounce and damping are only interesting
 // if you are integrating the body or solving the overlapps.
-Body create_body(ShapeID shape_id, f32 mass = 1.0f, u32 layer=0xFFFFFFFF, 
+Body create_body(ShapeID shape_id, f32 mass = 1.0f, u32 layer=0xFFFFFFFF,
                  f32 bounce = 0.1f, f32 damping = 0.1f);
 
 ///*

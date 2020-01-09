@@ -58,8 +58,8 @@ void poll_events() {
             } break;
             case (SDL_MOUSEBUTTONDOWN):
             case (SDL_MOUSEBUTTONUP): {
-                Input::ButtonState state = 
-                    event.type == SDL_MOUSEBUTTONDOWN ? 
+                Input::ButtonState state =
+                    event.type == SDL_MOUSEBUTTONDOWN ?
                     Input::ButtonState::PRESSED : Input::ButtonState::RELEASED;
                 if (event.button.button == SDL_BUTTON_LEFT)
                     Input::global_mapping.mouse.state[0] = state;

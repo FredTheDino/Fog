@@ -1,6 +1,6 @@
 void init_random() {
     // Generated random numbers from random.org.
-    // 
+    //
     // This makes it deterministic, which you might
     // not want.
     random_state.a = 398973565;

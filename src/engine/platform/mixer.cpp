@@ -203,7 +203,7 @@ void audio_callback(void* userdata, u8* stream, int len) {
                 } else {
                     UNREACHABLE;
                 }
-                
+
                 // Distance blending
                 left_sample  += sample * source->gain;
                 right_sample += sample * source->gain;
@@ -242,7 +242,7 @@ bool init() {
         ERR("%s", SDL_GetError());
         return false;
     }
-    
+
     SDL_PauseAudioDevice(audio_struct.dev, 0);
     return true;
 }

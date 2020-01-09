@@ -40,7 +40,7 @@ void debug_value_logic(const char *name, const char *buffer) {
         color = 2;
     else if (global_tweak.active == name)
         color = 1;
-    else 
+    else
         color = 0;
 
     if (color)

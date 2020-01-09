@@ -4,7 +4,7 @@
 // All vectors work in a similar way. You can access each component
 // seperately (x, y, z, w) depending on the dimension of the vector,
 // or using the _[n], where n is a number lessthan or equal to the
-// dimension of the vector. 
+// dimension of the vector.
 // Overloaded operators:
 // <ul>
 // 		<li>uniary -, negates the compoents of the vector</li>
@@ -354,7 +354,7 @@ Vec2 rotate(Vec2 p, real angle);
 real angle(Vec2 p);
 
 ///*
-// Returns the angle of the vector going form 
+// Returns the angle of the vector going form
 // point p to point
 real look_at(Vec2 from, Vec2 to);
 

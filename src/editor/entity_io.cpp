@@ -21,7 +21,7 @@ Logic::Entity *read_entity(FILE *stream) {
         for (u32 i = 0; i < meta.num_fields; i++) {
             auto *field = meta.fields + i;
             if (!Util::str_eq(field->name, name)) continue;
-            auto *meta = Logic::fetch_type(field->hash); 
+            auto *meta = Logic::fetch_type(field->hash);
             if (meta->size != size) return -3;
             if (!Util::str_eq(meta->name, type)) return -2;
             return i;

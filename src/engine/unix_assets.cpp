@@ -313,7 +313,7 @@ char *copy_string(char *str, u32 size) {
 
 void replace_all(char *str, char find, char replace) {
     for (; *str; ++str) {
-        if (*str == find) 
+        if (*str == find)
             *str = replace;
     }
 }
@@ -327,11 +327,11 @@ void make_uppercase(char *str) {
 }
 
 void strip_file_ending(char *str) {
-    
+
     s32 last_dot = -1;
     char *ptr = str;
     for (s32 index = 0; ptr[index]; index++) {
-        if (ptr[index] == '.') 
+        if (ptr[index] == '.')
             last_dot = index;
     }
     if (last_dot != -1)
@@ -357,7 +357,7 @@ char *asset_name_from_file(char *path, Asset::Type type) {
     replace_all(name, '/', '_');
     replace_all(name, '-', '_');
     make_uppercase(name);
-    if (type == Asset::Type::FONT) 
+    if (type == Asset::Type::FONT)
         append(name, "_FONT");
     return name;
 }
@@ -454,7 +454,7 @@ int main(int nargs, char **vargs) {
     valid_endings[".wav"] = Asset::Type::SOUND;
     // TODO(ed): This might be nice to have
     // valid_endings[".ogg"] = Asset::Type::SOUND;
-    
+
     // Shader
     valid_endings[".glsl"] = Asset::Type::SHADER;
 

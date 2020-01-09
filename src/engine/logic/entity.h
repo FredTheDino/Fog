@@ -106,7 +106,7 @@ struct ETypeInfo {
 struct TypeTable {
     static constexpr u64 NUM_SLOTS = 1 << 8;
     ETypeInfo *data[NUM_SLOTS] = {};
-    Util::MemoryArena *arena;   
+    Util::MemoryArena *arena;
 } _fog_global_type_table;
 
 // Initalizes the entities.
