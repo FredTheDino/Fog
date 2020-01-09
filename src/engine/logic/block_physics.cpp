@@ -68,9 +68,9 @@ ShapeID add_shape(List<Vec2> points) {
 
 Shape find_shape(ShapeID id)
 {
-	ASSERT(id < (u32) global_shape_list.length, "Invalid id");
+	ASSERT(id < (u32) global_shape_list.length, "Invalid id, shape does not exist.");
 	Shape shape = global_shape_list[id];
-    ASSERT(id == shape.id, "Failed even though it shouldn't");
+    ASSERT(id == shape.id, "You have passed in a stale shape ID, this shape doesn't exist.");
     return shape;
 }
 
