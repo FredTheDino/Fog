@@ -170,14 +170,12 @@ void update(f32 delta) {
         Renderer::global_camera.position += V2(1, 0);
     }
 
-    /*
     // Collisions
     for (Paddle *paddle: paddles) {
         if (Physics::check_overlap(&(paddle->body), &(ball.body))) {
             LOG("waho");
         }
     }
-    */
 
     /*
     if (down(Name::DOWN)) {
