@@ -28,7 +28,7 @@ struct Ball : public Logic::Entity {
     }
 
     void draw() override {
-        Renderer::push_rectangle(layer, position, V2(0.5, 0.5));
+        //Renderer::push_rectangle(layer, position, V2(0.5, 0.5));
         if (GAME_DEBUG) {
             Physics::debug_draw_body(&body);
         }
@@ -59,7 +59,7 @@ struct Paddle : public Logic::Entity {
     }
 
     void draw() override {
-        Renderer::push_rectangle(layer, position, V2(1, 5));
+        //Renderer::push_rectangle(layer, position, V2(1, 5));
         if (GAME_DEBUG) {
             Physics::debug_draw_body(&body);
         }
@@ -83,6 +83,8 @@ void entity_registration() {
 }
 
 void setup() {
+    Renderer::set_window_size(1000, 1000);
+
     using namespace Input;
     add(K(a), Name::LEFT,  Player::P1);
     add(K(d), Name::RIGHT, Player::P1);
@@ -127,7 +129,7 @@ void setup() {
     Ball ball= {};
     ball.layer = 0;
     ball.position = V2(-2, 0);
-    ball.dx = 5.0;
+    ball.dx = 10.0;
     ball.dy = 0.0;
     ball_id = Logic::add_entity(ball);
 
@@ -145,19 +147,18 @@ void update(f32 delta) {
         Util::tweak("position", &Renderer::global_camera.position);
     }
     Util::end_tweak_section(&show_camera_controls);
-
-    for (Logic::EntityID paddle_id: paddles) {
-        Ball *ball = (Ball *) Logic::fetch_entity(ball_id);
-        Paddle *paddle = (Paddle *) Logic::fetch_entity(paddle_id);
-        if (Physics::check_overlap(&(paddle->body), &(ball->body))) {
-            collisions++;
-            LOG("collision %d", collisions);
-        }
-    }
 }
 
 // Main draw
 void draw() {
+    for (Logic::EntityID paddle_id: paddles) {
+        Paddle *paddle = (Paddle *) Logic::fetch_entity(paddle_id);
+        Ball   *ball   =   (Ball *) Logic::fetch_entity(ball_id);
+        if (Physics::check_overlap(&paddle->body, &ball->body)) {
+            ball->dx *= 0;
+            break;
+        }
+    }
 }
 
 }  // namespace Game
