@@ -87,7 +87,7 @@ void entity_registration() {
     REGISTER_TYPE(std::vector<int>, show_buffer);
 }
 
-std::vector<Paddle *> paddles = {};
+std::vector<Paddle> paddles = {};
 Ball ball;
 
 void setup() {
@@ -124,7 +124,7 @@ void setup() {
     paddle.controllable = true;
     paddle.player = Player::P1;
     Logic::add_entity(paddle);
-    paddles.push_back(&paddle);
+    paddles.push_back(paddle);
 
     Paddle paddle2 = {};
     paddle2.layer = 0;
@@ -132,7 +132,7 @@ void setup() {
     paddle2.controllable = true;
     paddle2.player = Player::P2;
     Logic::add_entity(paddle2);
-    paddles.push_back(&paddle2);
+    paddles.push_back(paddle2);
 
     ball = {};
     ball.layer = 0;
@@ -171,8 +171,8 @@ void update(f32 delta) {
     }
 
     // Collisions
-    for (Paddle *paddle: paddles) {
-        if (Physics::check_overlap(&(paddle->body), &(ball.body))) {
+    for (Paddle paddle: paddles) {
+        if (Physics::check_overlap(&(paddle.body), &(ball.body))) {
             LOG("waho");
         }
     }
