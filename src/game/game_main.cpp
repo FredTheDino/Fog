@@ -12,6 +12,8 @@ Physics::ShapeID paddle_shape;
 Physics::ShapeID ball_shape;
 
 std::vector<Logic::EntityID> paddles = {};
+u8 points1 = 0;
+u8 points2 = 0;
 Logic::EntityID ball_id;
 
 struct Ball : public Logic::Entity {
@@ -147,19 +149,42 @@ void update(f32 delta) {
         Util::tweak("position", &Renderer::global_camera.position);
     }
     Util::end_tweak_section(&show_camera_controls);
-}
 
-// Main draw
-void draw() {
+    Ball *ball = (Ball *) Logic::fetch_entity(ball_id);  // feels inefficient to do this every frame but I guess it's just a pointer...
     for (Logic::EntityID paddle_id: paddles) {
         Paddle *paddle = (Paddle *) Logic::fetch_entity(paddle_id);
-        Ball   *ball   =   (Ball *) Logic::fetch_entity(ball_id);
         if (Physics::check_overlap(&paddle->body, &ball->body)) {
             ball->dx *= -1;
             ball->dy = random_real(-5.0, 5.0);
             break;
         }
     }
+
+    //TODO(GS) construct borders with Vec2, draw them, use inside() to check ball pos and generate paddle position programmatically
+    // (But for now, do it dirty)
+    bool point = false;
+    if (ball->position.x >  12.0) {
+        points1++;
+        point = true;
+    }
+    if (ball->position.x < -12.0) {
+        points2++;
+        point = true;
+    }
+    if (point) {
+        ball->position.x = 0;
+        ball->position.y = 0;
+        ball->dx *= -1;
+        ball->dy = 0;
+    }
+}
+
+// Main draw
+void draw() {
+    char *str_points1 = Util::format("%d", points1);
+    Renderer::draw_text(str_points1, -0.8, 0, 0.1, ASSET_DROID_SANS_FONT);
+    char *str_points2 = Util::format("%d", points2);
+    Renderer::draw_text(str_points2,  0.8, 0, 0.1, ASSET_DROID_SANS_FONT);
 }
 
 }  // namespace Game
