@@ -14,6 +14,7 @@ Physics::ShapeID ball_shape;
 struct Paddle : public Logic::Entity {
     Player player = Player::ANY;
     Physics::Body body;
+    Logic::EntityID id;
     bool controllable = false;
 
     Paddle() {
@@ -21,12 +22,6 @@ struct Paddle : public Logic::Entity {
     }
 
     void update(f32 delta) override {
-        static bool show_paddle_controls = true;
-        if (Util::begin_tweak_section("Paddle controls", &show_paddle_controls)) {
-            Util::tweak("paddle position", &position);
-        }
-        Util::end_tweak_section(&show_paddle_controls);
-
         if (controllable) {
             using namespace Input;
             if (down(Name::UP, player)) {
@@ -49,27 +44,24 @@ struct Paddle : public Logic::Entity {
     REGISTER_FIELDS(PADDLE, Paddle, position);
 };
 
-Physics::Body ball_body_global;
-
 struct Ball : public Logic::Entity {
     f32 dx, dy;
-    Physics::Body ball_body_struct;
+    Physics::Body body;
+    //Logic::EntityID id;
 
     Ball() {
-        ball_body_global = Physics::create_body(ball_shape);
-        ball_body_struct = Physics::create_body(ball_shape);
+        body = Physics::create_body(ball_shape);
     }
 
     void update(f32 delta) override {
         position += V2(dx, dy) * delta;
-        ball_body_global.position = position;
-        ball_body_struct.position = position;
+        body.position = position;
     }
 
     void draw() override {
         Renderer::push_rectangle(layer, position, V2(0.5, 0.5));
         if (GAME_DEBUG) {
-            Physics::debug_draw_body(&ball_body_global);  // both _global and _struct works here
+            Physics::debug_draw_body(&body);
         }
     }
 
@@ -127,7 +119,7 @@ void setup() {
     paddle.position = V2(-10, 0);
     paddle.controllable = true;
     paddle.player = Player::P1;
-    Logic::add_entity(paddle);
+    /*paddle.id = */Logic::add_entity(paddle);
     paddles.push_back(paddle);
 
     Paddle paddle2 = {};
@@ -135,7 +127,7 @@ void setup() {
     paddle2.position = V2(10, 0);
     paddle2.controllable = true;
     paddle2.player = Player::P2;
-    Logic::add_entity(paddle2);
+    /*paddle2.id = */Logic::add_entity(paddle2);
     paddles.push_back(paddle2);
 
     ball = {};
@@ -143,7 +135,7 @@ void setup() {
     ball.position = V2(-2, 0);
     ball.dx = 5.0;
     ball.dy = 0.0;
-    Logic::add_entity(ball);
+    /*ball.id = */Logic::add_entity(ball);
 
     Renderer::global_camera.zoom = 0.05;
 }
@@ -158,10 +150,29 @@ void update(f32 delta) {
     }
     Util::end_tweak_section(&show_camera_controls);
 
-    // Collisions
-    Physics::Body ball_body_struct = ball.ball_body_struct;
-    LOG("BALL GLOBAL (%f, %f)", ball_body_global.position.x, ball_body_global.position.y);
-    LOG("BALL STRUCT (%f, %f)", ball_body_struct.position.x, ball_body_struct.position.y);
+    // I'd rather have (Ball *ball) and (std::vector<Paddle *> paddles) as
+    // globals and then do something like
+    //
+    // for (Paddle *paddle: paddles) {
+    //     if (Physics::check_overlap(paddle->body, ball->body)) {
+    //         // ...
+    //     }
+    // }
+    //
+    // instead of
+    //
+    // for (Paddle paddle: paddles) {
+    //     if (Physics::check_overlap(((Paddle *) Logic::fetch_entity(paddle.id))->body, ((Ball *) Logic::fetch_entity(ball.id)))) {
+    //         // ...
+    //     }
+    // }
+    //
+    // since Logic::fetch_entity always returns the same pointer anyway.
+
+    /*
+    LOG("BALL: (%f, %f)", (((Ball *) Logic::fetch_entity(ball.id))->body.position.x),
+                          (((Ball *) Logic::fetch_entity(ball.id))->body.position.y));
+    */
 
     /*
     if (down(Name::DOWN)) {
