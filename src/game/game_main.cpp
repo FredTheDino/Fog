@@ -11,43 +11,11 @@ static Renderer::ParticleSystem system;
 Physics::ShapeID paddle_shape;
 Physics::ShapeID ball_shape;
 
-struct Paddle : public Logic::Entity {
-    Player player = Player::ANY;
-    Physics::Body body;
-    Logic::EntityID id;
-    bool controllable = false;
-
-    Paddle() {
-        body = Physics::create_body(paddle_shape);
-    }
-
-    void update(f32 delta) override {
-        if (controllable) {
-            using namespace Input;
-            if (down(Name::UP, player)) {
-                position += V2(0, 10) * delta;
-            }
-            if (down(Name::DOWN, player)) {
-                position += V2(0, -10) * delta;
-            }
-        }
-        body.position = position;
-    }
-
-    void draw() override {
-        Renderer::push_rectangle(layer, position, V2(1, 5));
-        if (GAME_DEBUG) {
-            Physics::debug_draw_body(&body);
-        }
-    }
-
-    REGISTER_FIELDS(PADDLE, Paddle, position);
-};
+Logic::EntityID ball_id;
 
 struct Ball : public Logic::Entity {
     f32 dx, dy;
     Physics::Body body;
-    //Logic::EntityID id;
 
     Ball() {
         body = Physics::create_body(ball_shape);
@@ -68,6 +36,42 @@ struct Ball : public Logic::Entity {
     REGISTER_FIELDS(BALL, Ball, position, dx, dy);
 };
 
+struct Paddle : public Logic::Entity {
+    Player player = Player::ANY;
+    Physics::Body body;
+    bool controllable = false;
+
+    Paddle() {
+        body = Physics::create_body(paddle_shape);
+    }
+
+    void update(f32 delta) override {
+        if (controllable) {
+            using namespace Input;
+            if (down(Name::UP, player)) {
+                position += V2(0, 10) * delta;
+            }
+            if (down(Name::DOWN, player)) {
+                position += V2(0, -10) * delta;
+            }
+        }
+        body.position = position;
+
+        Ball *ball = (Ball *) fetch_entity(ball_id);
+        if (Physics::check_overlap(&ball->body, &body))
+            LOG("Overlap");
+    }
+
+    void draw() override {
+        Renderer::push_rectangle(layer, position, V2(1, 5));
+        if (GAME_DEBUG) {
+            Physics::debug_draw_body(&body);
+        }
+    }
+
+    REGISTER_FIELDS(PADDLE, Paddle, position);
+};
+
 void show_buffer(char *buffer, void *tmp) {
     std::vector<int> *vec = (std::vector<int> *) tmp;
     buffer += Util::format_inplace(buffer, "(%d) ", vec->size());
@@ -82,9 +86,6 @@ void show_int(char *buffer, void *info) {
 void entity_registration() {
     REGISTER_TYPE(std::vector<int>, show_buffer);
 }
-
-std::vector<Paddle> paddles = {};
-Ball ball;
 
 void setup() {
     using namespace Input;
@@ -119,76 +120,29 @@ void setup() {
     paddle.position = V2(-10, 0);
     paddle.controllable = true;
     paddle.player = Player::P1;
-    /*paddle.id = */Logic::add_entity(paddle);
-    paddles.push_back(paddle);
+    Logic::add_entity(paddle);
 
     Paddle paddle2 = {};
     paddle2.layer = 0;
     paddle2.position = V2(10, 0);
     paddle2.controllable = true;
     paddle2.player = Player::P2;
-    /*paddle2.id = */Logic::add_entity(paddle2);
-    paddles.push_back(paddle2);
+    Logic::add_entity(paddle2);
 
-    ball = {};
+    Ball ball = {};
     ball.layer = 0;
     ball.position = V2(-2, 0);
     ball.dx = 5.0;
     ball.dy = 0.0;
-    /*ball.id = */Logic::add_entity(ball);
+    ball_id = Logic::add_entity(ball);
 
     Renderer::global_camera.zoom = 0.05;
 }
 
 // Main logic
-void update(f32 delta) {
-    using namespace Input;
-    static bool show_camera_controls = true;
-    if (Util::begin_tweak_section("Camera controls", &show_camera_controls)) {
-        Util::tweak("zoom", &Renderer::global_camera.zoom);
-        Util::tweak("position", &Renderer::global_camera.position);
-    }
-    Util::end_tweak_section(&show_camera_controls);
-
-    // I'd rather have (Ball *ball) and (std::vector<Paddle *> paddles) as
-    // globals and then do something like
-    //
-    // for (Paddle *paddle: paddles) {
-    //     if (Physics::check_overlap(paddle->body, ball->body)) {
-    //         // ...
-    //     }
-    // }
-    //
-    // instead of
-    //
-    // for (Paddle paddle: paddles) {
-    //     if (Physics::check_overlap(((Paddle *) Logic::fetch_entity(paddle.id))->body, ((Ball *) Logic::fetch_entity(ball.id)))) {
-    //         // ...
-    //     }
-    // }
-    //
-    // since Logic::fetch_entity always returns the same pointer anyway.
-
-    /*
-    LOG("BALL: (%f, %f)", (((Ball *) Logic::fetch_entity(ball.id))->body.position.x),
-                          (((Ball *) Logic::fetch_entity(ball.id))->body.position.y));
-    */
-
-    /*
-    if (down(Name::DOWN)) {
-        auto thing = [](Logic::Entity *e) -> bool {
-            Logic::remove_entity(e->id);
-            return false;
-        };
-        std::function func = std::function<bool(Logic::Entity*)>(thing);
-        Logic::for_entity_of_type(Logic::EntityType::MY_ENT,
-                                  func);
-    }
-    */
-}
+void update(f32 delta) {}
 
 // Main draw
-void draw() {
-}
+void draw() {}
 
 }  // namespace Game
