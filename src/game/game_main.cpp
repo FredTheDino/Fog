@@ -49,24 +49,27 @@ struct Paddle : public Logic::Entity {
     REGISTER_FIELDS(PADDLE, Paddle, position);
 };
 
+Physics::Body ball_body_global;
+
 struct Ball : public Logic::Entity {
     f32 dx, dy;
-    Physics::Body body;
-    
+    Physics::Body ball_body_struct;
+
     Ball() {
-        body = Physics::create_body(ball_shape);
+        ball_body_global = Physics::create_body(ball_shape);
+        ball_body_struct = Physics::create_body(ball_shape);
     }
 
     void update(f32 delta) override {
-        LOG("%f, %f", dx, dy);
         position += V2(dx, dy) * delta;
-        body.position = position;
+        ball_body_global.position = position;
+        ball_body_struct.position = position;
     }
 
     void draw() override {
         Renderer::push_rectangle(layer, position, V2(0.5, 0.5));
         if (GAME_DEBUG) {
-            Physics::debug_draw_body(&body);
+            Physics::debug_draw_body(&ball_body_global);  // both _global and _struct works here
         }
     }
 
@@ -156,11 +159,9 @@ void update(f32 delta) {
     Util::end_tweak_section(&show_camera_controls);
 
     // Collisions
-    for (Paddle paddle: paddles) {
-        if (Physics::check_overlap(&(paddle.body), &(ball.body))) {
-            LOG("waho");
-        }
-    }
+    Physics::Body ball_body_struct = ball.ball_body_struct;
+    LOG("BALL GLOBAL (%f, %f)", ball_body_global.position.x, ball_body_global.position.y);
+    LOG("BALL STRUCT (%f, %f)", ball_body_struct.position.x, ball_body_struct.position.y);
 
     /*
     if (down(Name::DOWN)) {
