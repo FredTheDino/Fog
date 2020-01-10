@@ -5,7 +5,7 @@
 
 namespace Game {
 
-const bool debug = true;
+const bool GAME_DEBUG = true;
 
 static Renderer::ParticleSystem system;
 Physics::ShapeID paddle_shape;
@@ -41,7 +41,7 @@ struct Paddle : public Logic::Entity {
 
     void draw() override {
         Renderer::push_rectangle(layer, position, V2(1, 5));
-        if (debug) {
+        if (GAME_DEBUG) {
             Physics::debug_draw_body(&body);
         }
     }
@@ -58,13 +58,14 @@ struct Ball : public Logic::Entity {
     }
 
     void update(f32 delta) override {
+        LOG("%f, %f", dx, dy);
         position += V2(dx, dy) * delta;
         body.position = position;
     }
 
     void draw() override {
         Renderer::push_rectangle(layer, position, V2(0.5, 0.5));
-        if (debug) {
+        if (GAME_DEBUG) {
             Physics::debug_draw_body(&body);
         }
     }
@@ -102,7 +103,7 @@ void setup() {
     add(K(i), Name::UP,    Player::P2);
     add(K(k), Name::DOWN,  Player::P2);
 
-    Vec2 ball_points[4] = {
+    Vec2 ball_points[] = {
         V2(-0.25, -0.25),
         V2( 0.25, -0.25),
         V2(-0.25,  0.25),
@@ -110,7 +111,7 @@ void setup() {
     };
     ball_shape = Physics::add_shape(LEN(ball_points), ball_points);
 
-    Vec2 paddle_points[4] = {
+    Vec2 paddle_points[] = {
         V2(-0.5, -2.5),
         V2( 0.5, -2.5),
         V2(-0.5,  2.5),
@@ -153,22 +154,6 @@ void update(f32 delta) {
         Util::tweak("position", &Renderer::global_camera.position);
     }
     Util::end_tweak_section(&show_camera_controls);
-
-    static bool show_entity_system = false;
-    if (Util::begin_tweak_section("Entity system", &show_entity_system)) {
-        Util::tweak("next_free", &Logic::_fog_es.next_free);
-        Util::tweak("entity", &Logic::_fog_es.max_entity);
-        Util::tweak("entities", &Logic::_fog_es.num_entities);
-        Util::tweak("removed", &Logic::_fog_es.num_removed);
-    }
-    Util::end_tweak_section(&show_entity_system);
-
-    if (pressed(Name::LEFT)) {
-        Renderer::global_camera.position += V2(-1, 0);
-    }
-    if (pressed(Name::RIGHT)) {
-        Renderer::global_camera.position += V2(1, 0);
-    }
 
     // Collisions
     for (Paddle paddle: paddles) {
