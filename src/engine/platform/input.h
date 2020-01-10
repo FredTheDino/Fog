@@ -199,7 +199,7 @@ void type_text(const char *string);
 // is changed.
 bool edit_string(char *text, u32 max_length);
 
-//*
+///* add
 // Register a new mapping to the input system.<br>
 // code, the keycode, should be recived from calling K(DESIRED_KEY), DESIRED_KEY
 // should be lowercase letters for normal keys and UPPERCASE for special keys.
@@ -208,28 +208,28 @@ bool add(InputCode code, Name name, Player player=Player::P1);
 
 ///*
 // Returns true if the input button, stick or key was pressed or released this frame.
-bool triggered(Name name, Player player=Player::P1);
+bool triggered(Name name, Player player=Player::ANY);
 
 ///*
 // Returns true if the input button, stick or key was pressed this frame.
-bool pressed(Name name, Player player=Player::P1);
+bool pressed(Name name, Player player=Player::ANY);
 
 ///*
 // Returns true if the input button, stick or key was released this frame.
-bool released(Name name, Player player=Player::P1);
+bool released(Name name, Player player=Player::ANY);
 
 ///*
 // Returns true if the input button, stick or key is held down.
-bool down(Name name, Player player=Player::P1);
+bool down(Name name, Player player=Player::ANY);
 
 ///*
 // Returns the value of the input, useful for analog input.
-f32 value(Name name, Player player=Player::P1);
+f32 value(Name name, Player player=Player::ANY);
 
 ///*
 // Ignores if the input is enabled or not and returns if the button
 // is pressed. Do not use this as a stand in for normal input.
-bool super_pressed(Name name, Player player=Player::P1);
+bool super_pressed(Name name, Player player=Player::ANY);
 
 ///*
 // Returns the screen coordinates in pixels for the mouse position.

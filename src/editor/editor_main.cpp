@@ -63,6 +63,7 @@ void select_func(bool clean) {
             }
             return false;
         };
+        /*
         Logic::for_entity(Function(find_click));
         if (selected) {
             s32 index = global_editor.selected.index(selected);
@@ -71,6 +72,7 @@ void select_func(bool clean) {
             else
                 global_editor.selected.remove_fast(index);
         }
+        */
     }
 }
 
@@ -90,7 +92,7 @@ void select_box_func(bool clean) {
         }
         return false;
     };
-    Logic::for_entity(Function(find_click));
+    //Logic::for_entity(Function(find_click));
 
     f32 lx = box_min.x;
     f32 ly = box_min.y;
@@ -206,7 +208,7 @@ void update() {
                     global_editor.selected.append(e->id);
                     return false;
                 };
-                Logic::for_entity(Function(select));
+                //Logic::for_entity(Function(select));
             }
         }
     }
