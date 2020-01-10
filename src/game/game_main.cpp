@@ -28,7 +28,7 @@ struct Ball : public Logic::Entity {
     }
 
     void draw() override {
-        //Renderer::push_rectangle(layer, position, V2(0.5, 0.5));
+        Renderer::push_rectangle(layer, position, V2(0.5, 0.5));
         if (GAME_DEBUG) {
             Physics::debug_draw_body(&body);
         }
@@ -59,7 +59,7 @@ struct Paddle : public Logic::Entity {
     }
 
     void draw() override {
-        //Renderer::push_rectangle(layer, position, V2(1, 5));
+        Renderer::push_rectangle(layer, position, V2(1, 5));
         if (GAME_DEBUG) {
             Physics::debug_draw_body(&body);
         }
@@ -155,7 +155,8 @@ void draw() {
         Paddle *paddle = (Paddle *) Logic::fetch_entity(paddle_id);
         Ball   *ball   =   (Ball *) Logic::fetch_entity(ball_id);
         if (Physics::check_overlap(&paddle->body, &ball->body)) {
-            ball->dx *= 0;
+            ball->dx *= -1;
+            ball->dy = random_real(-5.0, 5.0);
             break;
         }
     }
