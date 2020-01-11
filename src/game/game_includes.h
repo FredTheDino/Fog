@@ -28,11 +28,15 @@ namespace Input {
         DEBUG_VIEW,
         DEBUG_VALUES,
 
+        EDIT_UI_DOWN,
+        EDIT_UI_UP,
+
         EDIT_MOVE_MODE,
         EDIT_SCALE_MODE,
 
         EDIT_ABORT,
         EDIT_UNDO,
+        EDIT_ADD,
         EDIT_SELECT_ALL,
         EDIT_SELECT_BOX,
         EDIT_DO,

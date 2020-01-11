@@ -126,7 +126,7 @@ bool contains_type();
 bool contains_type(u64 hash);
 
 constexpr u32 _NUM_ENTITY_TYPES = (u32) EntityType::NUM_ENTITY_TYPES;
-EMeta _fog_global_entity_list[_NUM_ENTITY_TYPES];
+EMeta _fog_global_entity_list[_NUM_ENTITY_TYPES] = {};
 
 #include "entity_macros.h"
 

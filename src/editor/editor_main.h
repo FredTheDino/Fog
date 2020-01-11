@@ -160,6 +160,7 @@ struct EditorState {
     EditNode *history = nullptr;
 
     union {
+        u32 active_element;
         f32 delta_f32;
         Vec2 delta_vec2;
     };
@@ -169,6 +170,8 @@ enum class EditorMode {
     SELECT_MODE,
     SELECT_BOX_MODE,
 
+    ADD_MODE,
+
     MOVE_MODE,
     SCALE_MODE,
     ROTATE_MODE,
@@ -177,12 +180,15 @@ enum class EditorMode {
 };
 
 void setup_edits();
-void save_edits();
+void apply_edits();
 
-void undo();
+void undo_edits();
 
 void select_func(bool clean);
 void select_box_func(bool clean);
+
+void add_func(bool clean);
+
 void move_func(bool clean);
 void scale_func(bool clean) {
     /*
@@ -205,6 +211,9 @@ typedef void (*EditorModeFunc)(bool clean);
 EditorModeFunc mode_funcs[(u32) EditorMode::NUM_MODES] = {
     [ID(SELECT_MODE)] = select_func,
     [ID(SELECT_BOX_MODE)] = select_box_func,
+
+    [ID(ADD_MODE)] = add_func,
+
     [ID(MOVE_MODE)] = move_func,
     [ID(SCALE_MODE)] = scale_func,
     [ID(ROTATE_MODE)] = rotate_func,

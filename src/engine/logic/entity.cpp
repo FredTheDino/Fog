@@ -68,11 +68,16 @@ namespace Logic {
 
     template <typename T>
     bool contains_type() {
-        return fetch_type(typeid(T).hash_code());
+        return contains_type(typeid(T).hash_code());
     }
 
     bool contains_type(u64 hash) {
-        return fetch_type(hash);
+        ETypeInfo *current = _fog_global_type_table.data[hash % TypeTable::NUM_SLOTS];
+        while (current) {
+            if (current->hash == hash) return true;
+            current = current->next;
+        }
+        return false;
     }
 
     void register_type(ETypeInfo info) {

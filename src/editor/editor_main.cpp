@@ -45,7 +45,7 @@ void setup_edits() {
 // TODO(ed): Commandline arguments
 const char *FILE_NAME = "test.ent";
 
-void save_edits() {
+void apply_edits() {
     for (u32 i = 0; i < global_editor.edits.length; i++) {
         global_editor.edits[i].apply();
     }
@@ -55,23 +55,30 @@ void save_edits() {
         global_editor.history,
     };
     global_editor.history = next;
-    // TODO(ed): Have a better inital capacity.
+    // TODO(ed): Have a better initial capacity.
     global_editor.edits = Util::create_list<EditorEdit>(52);
 
     write_entities_to_file(FILE_NAME);
     LOG("Save stuff??");
 }
 
-void undo() {
+void undo_edits() {
     current_mode = EditorMode::SELECT_MODE;
-    for (u32 i = 0; i < global_editor.edits.length; i++) {
+
+    for (u32 i = 0; i < global_editor.edits.length; i++)
         global_editor.edits[i].revert();
-    }
+    
     EditorState::EditNode *node = global_editor.history;
     if (!node) return;
+    // TODO(ed): This deallocation here, it doesn't allow
+    // redo:s... But I guess those are overkill, aye?
     Util::destroy_list(&global_editor.edits);
     global_editor.history = node->next;
     global_editor.edits = node->edits;
+
+    for (u32 i = 0; i < global_editor.edits.length; i++)
+        global_editor.edits[i].revert();
+
     Util::pop_memory(node);
 }
 
@@ -81,8 +88,15 @@ void setup() {
     add(K(b), Name::EDIT_SELECT_BOX);
     add(K(s), Name::EDIT_SCALE_MODE);
     add(K(ESCAPE), Name::EDIT_ABORT);
+    add(K(i), Name::EDIT_ADD);
     add(K(SPACE), Name::EDIT_DO);
     add(K(u), Name::EDIT_UNDO);
+
+    add(K(DOWN), Name::EDIT_UI_DOWN);
+    add(K(j), Name::EDIT_UI_DOWN);
+    add(K(UP), Name::EDIT_UI_UP);
+    add(K(k), Name::EDIT_UI_UP);
+
     // start_text_input();
 
     add(K(a), Name::EDIT_SELECT_ALL);
@@ -157,6 +171,42 @@ void select_box_func(bool clean) {
     Renderer::push_line(MAX_LAYER + 1, V2(hx, ly), V2(lx, ly), color, 0.01);
 }
 
+void add_func(bool clean) {
+    struct TypeEntry {
+        const char *name;
+        Logic::EMeta *type;
+    };
+    static Util::List<TypeEntry> entity_types = Util::create_list<TypeEntry>(1);
+    
+    if (clean) {
+        global_editor.active_element = 0;
+        for (u32 i = 0; i < Logic::_NUM_ENTITY_TYPES; i++) {
+            auto *type = Logic::_fog_global_entity_list + i;
+            if (type->hash) {
+                entity_types.append({
+                        Logic::fetch_type(type->hash)->name,
+                        type,
+                });
+            }
+        }
+    }
+
+    if (Input::pressed(Input::Name::EDIT_UI_DOWN))
+        global_editor.active_element += 1;
+
+    if (Input::pressed(Input::Name::EDIT_UI_UP))
+        global_editor.active_element -= 1;
+
+    global_editor.active_element %= entity_types.length;
+
+    for (u32 i = 0; i < entity_types.length; i++) {
+        Vec4 color = global_editor.active_element == i ?
+                     V4(0, 1, 0, 1) : V4(1, 0, 0, 1);
+        TypeEntry entry = entity_types[i];
+        Renderer::draw_text(entry.name, -0.5, i * 0.1, 0.1, ASSET_MONACO_FONT, color);
+    }
+}
+
 void move_func(bool clean) {
     if (clean) {
         global_editor.delta_vec2 = {};
@@ -182,14 +232,12 @@ void set_entity_field(EditorEdit *edit, const char *name, u64 size, void *value)
 
         ASSERT(size <= sizeof(EditorEdit::BinaryBlob), "Too large field!");
         if (field->offset != edit->offset) {
-            // Initalization, it's kinda awkward to have it here
-            // TBH.
+            // Initalization, it's kinda awkward to have it here TBH.
             edit->offset = field->offset;
             edit->hash = meta->hash;
             edit->size = size;
             u8 *addrs = ((u8 *) e) + field->offset;
             Util::copy_bytes(addrs, edit->before.data, size);
-            LOG("Init!");
         }
 
         Util::copy_bytes(value, edit->after.data, size);
@@ -252,7 +300,7 @@ void update() {
 
         if (tweaking && !active) {
             tweaking = false;
-            save_edits();
+            apply_edits();
         }
         tweaking = active;
 
@@ -264,9 +312,11 @@ void update() {
 
     using namespace Input;
     if (pressed(Name::EDIT_UNDO))
-        undo();
+        undo_edits();
     if (pressed(Name::EDIT_MOVE_MODE))
         current_mode = EditorMode::MOVE_MODE;
+    if (pressed(Name::EDIT_ADD))
+        current_mode = EditorMode::ADD_MODE;
     if (pressed(Name::EDIT_SCALE_MODE))
         current_mode = EditorMode::SCALE_MODE;
 
@@ -298,7 +348,7 @@ void update() {
             current_mode = EditorMode::SELECT_MODE;
         }
         if (pressed(Name::EDIT_DO)) {
-            save_edits();
+            apply_edits();
             current_mode = EditorMode::SELECT_MODE;
         }
     }
