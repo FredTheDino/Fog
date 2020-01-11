@@ -86,6 +86,7 @@ void entity_registration() {
 
 void setup() {
     Renderer::set_window_size(1000, 1000);
+    system = Renderer::create_particle_system(0, 500, V2(0, 0));
 
     using namespace Input;
     add(K(a), Name::LEFT,  Player::P1);
@@ -142,6 +143,8 @@ u32 collisions;
 
 // Main logic
 void update(f32 delta) {
+    system.update(delta);
+
     using namespace Input;
     static bool show_camera_controls = true;
     if (Util::begin_tweak_section("Camera controls", &show_camera_controls)) {
@@ -156,6 +159,12 @@ void update(f32 delta) {
         if (Physics::check_overlap(&paddle->body, &ball->body)) {
             ball->dx *= -1;
             ball->dy = random_real(-5.0, 5.0);
+
+            for (int i = 0; i < 5; i++) {
+                system.position_x = { ball->body.position.x, ball->body.position.x };
+                system.position_y = { ball->body.position.y, ball->body.position.y };
+                system.spawn();
+            }
             break;
         }
     }
@@ -181,6 +190,8 @@ void update(f32 delta) {
 
 // Main draw
 void draw() {
+    system.draw();
+
     char *str_points1 = Util::format("%d", points1);
     Renderer::draw_text(str_points1, -0.8, 0, 0.1, ASSET_DROID_SANS_FONT);
     char *str_points2 = Util::format("%d", points2);
