@@ -180,6 +180,7 @@ void update(f32 delta) {
         points2++;
         point = true;
     }
+    if (! IN_RANGE(-12.0, 12.0, ball->position.y)) ball->dy *= -1;
     if (point) {
         ball->position.x = 0;
         ball->position.y = 0;
