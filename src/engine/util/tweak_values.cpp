@@ -88,9 +88,8 @@ bool tweak(const char *name, bool *value) {
 
     if (name == global_tweak.active && Input::mouse_pressed(0)) {
         *value = !*value;
-        return true;
     }
-    return false;
+    return name == global_tweak.hot;
 }
 
 bool tweak(const char *name, f32 *value) {
@@ -101,9 +100,8 @@ bool tweak(const char *name, f32 *value) {
     if (name == global_tweak.hot) {
         f32 delta = Input::mouse_move().x / global_tweak.pixels_per_unit / 7.0;
         *value += delta;
-        return delta != 0;
     }
-    return false;
+    return name == global_tweak.hot;
 }
 
 bool tweak(const char *name, s32 *value) {
@@ -120,9 +118,8 @@ bool tweak(const char *name, s32 *value) {
             global_tweak.pixels_per_unit;
         s32 delta = upper - lower;
         *value += delta;
-        return delta != 0;
     }
-    return false;
+    return name == global_tweak.hot;
 }
 
 bool tweak(const char *name, u32 *value) {
@@ -143,9 +140,8 @@ bool tweak(const char *name, u32 *value) {
         } else {
             *value += delta;
         }
-        return delta != 0;
     }
-    return true;
+    return name == global_tweak.hot;
 }
 
 bool tweak(const char *name, Vec2 *value) {
@@ -156,9 +152,8 @@ bool tweak(const char *name, Vec2 *value) {
     if (name == global_tweak.hot) {
         Vec2 delta = hadamard(V2(1, -1), Input::mouse_move() / global_tweak.pixels_per_unit / 7.0);
         *value += delta;
-        return delta.x != 0 || delta.y != 0;
     }
-    return false;
+    return name == global_tweak.hot;
 }
 
 };

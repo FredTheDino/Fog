@@ -36,8 +36,8 @@ void end_tweak_section(bool *active);
 // building the game in debug mode and pressing <F3>. These
 // values can then be tweaked however you want.
 //
-// If the values are changed, "true" is returned, if the values
-// stay the same "false" is returned.
+// If the values are hot, "true" is returned, if the values
+// are cold "false" is returned. (Hot means it is potentially edited)
 //
 // A cool trick to remember is that the code can verify the values and for
 // example clamp them in a range efter the use has manipulated them.

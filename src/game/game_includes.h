@@ -32,6 +32,7 @@ namespace Input {
         EDIT_SCALE_MODE,
 
         EDIT_ABORT,
+        EDIT_UNDO,
         EDIT_SELECT_ALL,
         EDIT_SELECT_BOX,
         EDIT_DO,

@@ -19,8 +19,61 @@ void draw_outline(Logic::Entity *e, Vec4 color) {
     }
 }
 
+#define SETUP_EDITS(field)                                                     \
+    do {                                                                       \
+        if (global_editor.edits.length) continue; \
+        global_editor.edits.resize(global_editor.selected.length);             \
+        global_editor.edits.clear();                                           \
+        for (u32 i = 0; i < global_editor.selected.length; i++) {              \
+            Logic::Entity *e = Logic::fetch_entity(global_editor.selected[i]); \
+            EditorEdit edit = MAKE_EDIT(e, field);                             \
+            global_editor.edits.append(edit);                                  \
+        }                                                                      \
+    } while (false);
+
+void setup_edits() {
+    if (global_editor.edits.length) return;
+    global_editor.edits.resize(global_editor.selected.length);
+    global_editor.edits.clear();
+    for (u32 i = 0; i < global_editor.selected.length; i++) {
+        Logic::Entity *e = Logic::fetch_entity(global_editor.selected[i]);
+        EditorEdit edit = MAKE_EDIT(e, id);
+        global_editor.edits.append(edit);
+    }
+}
+
 // TODO(ed): Commandline arguments
 const char *FILE_NAME = "test.ent";
+
+void save_edits() {
+    for (u32 i = 0; i < global_editor.edits.length; i++) {
+        global_editor.edits[i].apply();
+    }
+    EditorState::EditNode *next = Util::push_memory<EditorState::EditNode>();
+    *next = {
+        global_editor.edits,
+        global_editor.history,
+    };
+    global_editor.history = next;
+    // TODO(ed): Have a better inital capacity.
+    global_editor.edits = Util::create_list<EditorEdit>(52);
+
+    write_entities_to_file(FILE_NAME);
+    LOG("Save stuff??");
+}
+
+void undo() {
+    current_mode = EditorMode::SELECT_MODE;
+    for (u32 i = 0; i < global_editor.edits.length; i++) {
+        global_editor.edits[i].revert();
+    }
+    EditorState::EditNode *node = global_editor.history;
+    if (!node) return;
+    Util::destroy_list(&global_editor.edits);
+    global_editor.history = node->next;
+    global_editor.edits = node->edits;
+    Util::pop_memory(node);
+}
 
 void setup() {
     using namespace Input;
@@ -29,6 +82,7 @@ void setup() {
     add(K(s), Name::EDIT_SCALE_MODE);
     add(K(ESCAPE), Name::EDIT_ABORT);
     add(K(SPACE), Name::EDIT_DO);
+    add(K(u), Name::EDIT_UNDO);
     // start_text_input();
 
     add(K(a), Name::EDIT_SELECT_ALL);
@@ -106,33 +160,39 @@ void select_box_func(bool clean) {
 void move_func(bool clean) {
     if (clean) {
         global_editor.delta_vec2 = {};
-        global_editor.edits.resize(global_editor.selected.length);
-        global_editor.edits.clear();
-        for (u32 i = 0; i < global_editor.selected.length; i++) {
-            Logic::Entity *e = Logic::fetch_entity(global_editor.selected[i]);
-            EditorEdit edit = MAKE_EDIT(e, position);
-            global_editor.edits.append(edit);
-        }
+        SETUP_EDITS(position);
     }
     Vec2 delta = Input::world_mouse_move();
     for (u32 i = 0; i < global_editor.edits.length; i++) {
         EditorEdit *edit = global_editor.edits + i;
         ADD_EDIT(edit, delta);
-        Logic::Entity *entity = Logic::fetch_entity(edit->target);
-        ASSERT(entity, "Invalid entity id in asset select");
-        edit->apply(entity);
+        edit->apply();
     }
 }
 
-void set_entity_field(Logic::Entity *e, const char *name, u64 size, void *value) {
+void set_entity_field(EditorEdit *edit, const char *name, u64 size, void *value) {
+    Logic::Entity *e = Logic::fetch_entity(edit->target);
+    ASSERT(e, "Invalid entity id");
     Logic::EMeta meta = Logic::meta_data_for(e->type());
     for (u32 i = 0; i < meta.num_fields; i++) {
         auto *field = meta.fields + i;
         if (!Util::str_eq(field->name, name)) continue;
         auto *meta = Logic::fetch_type(field->hash);
         if (meta->size != size) break;
-        u8 *addrs = ((u8 *) e) + field->offset;
-        Util::copy_bytes(value, addrs, size);
+
+        ASSERT(size <= sizeof(EditorEdit::BinaryBlob), "Too large field!");
+        if (field->offset != edit->offset) {
+            // Initalization, it's kinda awkward to have it here
+            // TBH.
+            edit->offset = field->offset;
+            edit->hash = meta->hash;
+            edit->size = size;
+            u8 *addrs = ((u8 *) e) + field->offset;
+            Util::copy_bytes(addrs, edit->before.data, size);
+            LOG("Init!");
+        }
+
+        Util::copy_bytes(value, edit->after.data, size);
         return;
     }
     ERR("Failed to find field %s", name);
@@ -167,31 +227,35 @@ void update() {
         using namespace Util;
         static bool show = true;
         static bool tweaking = false;
+        bool active = false;
         // TODO(ed): It should set the values, right?
         if (begin_tweak_section("Tweaks", &show)) {
-            if (!tweaking) {
-                // TODO(ed): Break this out to a function
-                global_editor.edits.clear();
-                for (u32 i = 0; i < global_editor.selected.length; i++) {
-                    Logic::Entity *e = Logic::fetch_entity(global_editor.selected[i]);
-                    EditorEdit edit = MAKE_EDIT(e, position);
-                    global_editor.edits.append(edit);
-                }
-            }
-            tweaking = true;
+            if (!tweaking)
+                setup_edits();
             Entity *source = fetch_entity(global_editor.selected[0]);
             EMeta meta = meta_data_for(source->type());
             for (u32 i = 0; i < meta.num_fields; i++) {
                 auto *field = meta.fields + i;
                 u8 *addr = (u8 *) source + field->offset;
                 if (auto_tweak(field->name, (void *) addr, field->hash)) {
-                    for (u32 i = 0; i < global_editor.selected.length; i++) {
-                        Entity *e = fetch_entity(global_editor.selected[i]);
-                        set_entity_field(e, field->name, fetch_type(field->hash)->size, (void *) addr);
+                    active = true;
+                    for (u32 i = 0; i < global_editor.edits.length; i++) {
+                        EditorEdit *edit = global_editor.edits + i;
+                        auto size = fetch_type(field->hash)->size;
+                        set_entity_field(edit, field->name, size, (void *) addr);
+                        edit->apply();
                     }
+                    break;
                 }
             }
         }
+
+        if (tweaking && !active) {
+            tweaking = false;
+            save_edits();
+        }
+        tweaking = active;
+
         end_tweak_section(&show);
     }
     last_mode = current_mode;
@@ -199,6 +263,8 @@ void update() {
         mode_funcs[(u32) current_mode](new_state);
 
     using namespace Input;
+    if (pressed(Name::EDIT_UNDO))
+        undo();
     if (pressed(Name::EDIT_MOVE_MODE))
         current_mode = EditorMode::MOVE_MODE;
     if (pressed(Name::EDIT_SCALE_MODE))
@@ -232,7 +298,7 @@ void update() {
             current_mode = EditorMode::SELECT_MODE;
         }
         if (pressed(Name::EDIT_DO)) {
-            write_entities_to_file(FILE_NAME);
+            save_edits();
             current_mode = EditorMode::SELECT_MODE;
         }
     }

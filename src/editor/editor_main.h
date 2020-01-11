@@ -153,6 +153,12 @@ struct EditorState {
     Util::List<Logic::EntityID> selected;
     Util::List<EditorEdit> edits;
 
+    struct EditNode {
+        Util::List<EditorEdit> edits;
+        EditNode *next;
+    };
+    EditNode *history = nullptr;
+
     union {
         f32 delta_f32;
         Vec2 delta_vec2;
@@ -169,6 +175,11 @@ enum class EditorMode {
 
     NUM_MODES,
 };
+
+void setup_edits();
+void save_edits();
+
+void undo();
 
 void select_func(bool clean);
 void select_box_func(bool clean);
