@@ -165,7 +165,7 @@ void update(f32 delta) {
                 system.position_y = { ball->body.position.y, ball->body.position.y };
                 system.spawn();
             }
-            break;
+            Mixer::play_sound(ASSET_HIT_SHORT, 1.0, 5.0, Mixer::AUDIO_DEFAULT_VARIANCE, Mixer::AUDIO_DEFAULT_VARIANCE, false);
         }
     }
 
