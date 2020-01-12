@@ -83,41 +83,82 @@ void entity_registration() {
 // Editor stuff
 //
 
-void draw_outline(Logic::Entity *e, Vec4 color=V4(1, 1, 0, 0.1));
+Logic::EntityID create_entity_from_type(Logic::EntityType type) {
+    Logic::EMeta info = Logic::meta_data_for(type);
+    u8 *entity_ptr = Util::request_temporary_memory<u8>(info.size);
+    Util::zero_memory(entity_ptr, info.size);
+    *((void **) entity_ptr) = Logic::_entity_vtable(type);
+    Logic::Entity *entity = (Logic::Entity *) entity_ptr;
+    entity->scale = V2(1, 1);
+    entity->position = Renderer::get_camera()->position;
+    return Logic::add_entity_ptr(entity);
+}
 
+void draw_outline(Logic::Entity *e, Vec4 color=V4(1, 1, 0, 0.1));
 
 struct EditorEdit {
     Logic::EntityID target;
-    u64 hash;
-    u16 offset;
+
+    enum class EditorEditType {
+        CHANGE,
+        ADD,
+        REMOVE,
+    };
+
+    // TODO(ed): Maybe make this a union, it might save a lot.
+    EditorEditType type;
+
+    Logic::EntityType target_type;
 
     struct BinaryBlob {
         u8 data[8];
     };
 
+    u64 hash;
+    u16 offset;
+
     u8 size;
     BinaryBlob before;
     BinaryBlob after;
 
-    void apply(Logic::Entity *e) {
-        ASSERT(e->id == target, "Trying to apply edit to different entity");
-        u8 *type_ignorer = (u8 *) e;
-        Util::copy_bytes((void *) &after, type_ignorer + offset, size);
-    }
-
     void apply() {
-        apply(fetch_entity(target));
-    }
-
-    void revert(Logic::Entity *e) {
-        ASSERT(e->id == target, "Trying to apply edit to different entity");
-        u8 *type_ignorer = (u8 *) e;
-        Util::copy_bytes((void *) &before, type_ignorer + offset, size);
+        if (type == EditorEditType::CHANGE) {
+            Logic::Entity *e = fetch_entity(target);
+            ASSERT(e, "Trying to apply edit to different entity");
+            u8 *type_ignorer = (u8 *) e;
+            Util::copy_bytes((void *) &after, type_ignorer + offset, size);
+        } else if (type == EditorEditType::ADD) {
+            add();
+        } else if (type == EditorEditType::REMOVE) {
+            remove();
+        }
     }
 
     void revert() {
-        revert(fetch_entity(target));
+        if (type == EditorEditType::CHANGE) {
+            Logic::Entity *e = fetch_entity(target);
+            ASSERT(e, "Trying to apply edit to different entity");
+            u8 *type_ignorer = (u8 *) e;
+            Util::copy_bytes((void *) &before, type_ignorer + offset, size);
+        } else if (type == EditorEditType::REMOVE) {
+            // NOTE(ed): Reversing a remove is an add.
+            add();
+        } else if (type == EditorEditType::ADD) {
+            // NOTE(ed): Reversing an add is a remove.
+            remove();
+        }
     }
+
+    void add() {
+        if (Logic::valid_entity(target)) return;
+        Logic::EntityID new_name = create_entity_from_type(target_type);
+    }
+
+    void remove() {
+        if (!Logic::valid_entity(target)) return;
+        Logic::remove_entity(target);
+    }
+
 };
 
 EditorEdit::BinaryBlob _copy_field(void *field, u8 size) {
@@ -129,10 +170,12 @@ EditorEdit::BinaryBlob _copy_field(void *field, u8 size) {
 
 #define MAKE_EDIT(ENT, field)                         \
     {                                                 \
-        (ENT)->id, \
-        (u64) typeid((ENT)->field).hash_code(),\
+        (ENT)->id,                                    \
+        EditorEdit::EditorEditType::CHANGE,           \
+        (ENT)->type(),                                \
+        (u64) typeid((ENT)->field).hash_code(),       \
         (u16) offsetof(std::remove_reference<decltype(*(ENT))>::type, field), \
-        sizeof((ENT)->field), \
+        sizeof((ENT)->field),                         \
         _copy_field(&(ENT)->field, sizeof((ENT)->field)), \
         _copy_field(&(ENT)->field, sizeof((ENT)->field)), \
     }
@@ -143,11 +186,26 @@ EditorEdit::BinaryBlob _copy_field(void *field, u8 size) {
         edit->after = _copy_field(&new_val, sizeof(new_val)); \
     }
 
-#define ADD_EDIT(edit, new_val) \
+#define NEW_EDIT(edit, new_val) \
     if (edit->size) { \
         ASSERT(typeid(new_val).hash_code() == edit->hash, "Types doesn't match"); \
         *((decltype(new_val) *) &edit->after) += new_val; \
     }
+
+#define ADD_EDIT(target, type) \
+    { \
+        target,\
+        EditorEdit::EditorEditType::ADD, \
+        type, \
+    }
+
+#define REMOVE_EDIT(target, type) \
+    { \
+        target,\
+        EditorEdit::EditorEditType::REMOVE, \
+        type, \
+    }
+
 
 struct EditorState {
     Util::List<Logic::EntityID> selected;
@@ -159,11 +217,9 @@ struct EditorState {
     };
     EditNode *history = nullptr;
 
-    union {
-        u32 active_element;
-        f32 delta_f32;
-        Vec2 delta_vec2;
-    };
+    s32 active_element;
+    f32 delta_f32;
+    Vec2 delta_vec2;
 } global_editor;
 
 enum class EditorMode {

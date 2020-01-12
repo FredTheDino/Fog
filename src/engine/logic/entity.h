@@ -139,7 +139,7 @@ struct Entity {
     Vec2 position;
     Vec2 scale;
     f32  rotation;
-    s32 layer;
+    s32  layer;
 
     // Called when the entity is updated.
     virtual void update(f32 delta) = 0;

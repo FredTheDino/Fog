@@ -37,6 +37,7 @@ namespace Input {
         EDIT_ABORT,
         EDIT_UNDO,
         EDIT_ADD,
+        EDIT_REMOVE,
         EDIT_SELECT_ALL,
         EDIT_SELECT_BOX,
         EDIT_DO,
@@ -67,6 +68,8 @@ namespace Logic {
     enum class EntityType {
         BASE,
         A_TYPE,
+        B_TYPE,
+        C_TYPE,
         MY_ENT,
 
         NUM_ENTITY_TYPES, // Don't write anything after this.

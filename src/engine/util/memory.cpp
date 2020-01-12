@@ -120,6 +120,46 @@ void pop_memory(T *data) {
     free(data);
 }
 
+void zero_memory(void *to, u64 size) {
+    u8 *ptr = (u8 *) to;
+    // TODO(ed): memcpy might be like... A lot faster..
+    for (u64 i = 0; i <= size; i++) 
+        ptr[i] = 0;
+}
+
+template <typename T>
+void quicksort(T *start, u64 length, bool (*cmp)(T *a, T *b)) {
+    // NOTE(ed): Not sure how well this quicksort performs,
+    // I stole it from wikipedia but it looks quite promising.
+    //
+    // It might be possible to squeeze out even more performance
+    // from this bad boy though.
+    constexpr auto partition = [](T *start, u64 length,
+                                  bool (*cmp)(T *a, T *b)) -> u64 {
+        T *pivot = start + (length / 2);
+        u64 l = 0;
+        u64 h = length - 1;
+        for (;;) {
+            while (cmp(start + l, pivot)) l++;
+            while (cmp(pivot, start + h)) h--;
+            if (l >= h) return h;
+
+            T tmp = start[l];
+            start[l] = start[h];
+            start[h] = tmp;
+
+            l++;
+            h--;
+        }
+    };
+
+    if (1 < length) {
+        u64 mid = partition(start, length, cmp);
+        quicksort(start, mid, cmp);
+        quicksort(start + mid, length - mid, cmp);
+    }
+}
+
 void copy_bytes(void *from, void *to, u64 size) {
     // TODO(ed): memcpy might be like... A lot faster..
     u8 *_to = (u8 *) to;

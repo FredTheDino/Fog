@@ -46,10 +46,27 @@ void show_int(char *buffer, void *info) {
     Util::format_inplace(buffer, "%d", *((int *) info));
 }
 
+struct B : public Logic::Entity {
+    void update(f32 delta) override {}
+    void draw() override {}
+
+    u32 i = 0;
+    REGISTER_NO_FIELDS(B_TYPE, B)
+};
+
+struct C : public Logic::Entity {
+    void update(f32 delta) override {}
+    void draw() override {}
+    u32 i = 0;
+    REGISTER_NO_FIELDS(C_TYPE, C)
+};
+
 void entity_registration() {
     REGISTER_TYPE(std::vector<int>, show_buffer);
 
     REGISTER_ENTITY(A);
+    REGISTER_ENTITY(B);
+    REGISTER_ENTITY(C);
     REGISTER_ENTITY(MyEnt);
 }
 

@@ -28,6 +28,6 @@ namespace Util {
     }
 
     void debug_text(const char *text, f32 y, u32 color_code = 0) {
-        debug_text(text, -1, y, color_code);
+        debug_text(text, -1.0 + 0.01, y, color_code);
     }
 };
