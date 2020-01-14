@@ -40,7 +40,7 @@ void do_all_allocations();
 void swap_frame_memory();
 
 ///*
-// Request a block of memory, |only_one| doesn't allow the arena to grow as the
+// Request a block of memory, only_one doesn't allow the arena to grow as the
 // memory usage is increased but caps it at one buffer. This works in a similar
 // way as "malloc".
 MemoryArena *request_arena(bool only_one = false);

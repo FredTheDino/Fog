@@ -21,8 +21,9 @@
 //// Adding a new entity type
 // <h4>The long</h4>
 // So to make a new entity struct simply create the struct, inherit from the
-// base entity (directly or indirectly) export the desired fields. Add it to
-// the list of entity types in the "entity_registration()" function. If you
+// base entity (directly or indirectly) exports meta data for the fields, used
+// by the editor. Add it to the list of entity types in the
+// "entity_registration()" function. If you
 // don't want any fields in the entity, there is a REGISTER_NO_FIELDS macro.
 struct MyNewEntity : public Entity {
     u32 some_weird_field;
@@ -257,4 +258,5 @@ void draw_es();
 
 // Restructures the memory to remove potential holes in the allocation.
 void defragment_entity_memory();
-};
+
+}

@@ -80,7 +80,7 @@ def find_all_comments(files):
         if region not in regions:
             regions.append(region)
     documentation = {region: dict() for region in regions}
-    for region, file_path in files:
+    for region, file_path in sorted(files):
         heading, comments = find_comments(file_path)
         if heading and comments:
             documentation[region][heading] = comments 
@@ -166,7 +166,7 @@ def format_comment(section, comment):
                find_comment_id(section, comment))
 
 
-def find_documentation_title(comment):
+def find_documentation_title(heading, comment):
     """
     Finds the title for this piece of documentation.
     """
@@ -174,10 +174,10 @@ def find_documentation_title(comment):
         if "///*" in line:
             potential_title = line[5:].strip()
             if potential_title:
-                return potential_title
+                return heading.title() + ": " + potential_title
         for word in line.split(" "):
             if "(" in word:
-                return word[:word.index("(")].replace("*", "")
+                return heading.title() + ": " + word[:word.index("(")].replace("*", "")
     return "ERROR-NO-TITLE"
 
 
@@ -196,7 +196,7 @@ def format_documentation(section, comment):
     """
     Formants the code according to how a comment should be formatted.
     """
-    title = find_documentation_title(comment)
+    title = find_documentation_title(section, comment)
     return tag("div", tag("h3", title) + process_comment_section(comment.split("\n")[1:]),
                "block doc",
                find_documentation_id(section, comment))
@@ -235,7 +235,7 @@ def write_documentation(path, documentation):
                     if comment_type == HEADING:
                         continue
                     elif comment_type == DOC:
-                        text = find_documentation_title(comment)
+                        text = find_documentation_title(heading, comment)
                         html_id = find_documentation_id(heading, comment)
                     elif comment_type == COMMENT:
                         text = find_comment_title(comment)
