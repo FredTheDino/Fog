@@ -126,13 +126,18 @@ void write_entity(FILE *stream, Logic::Entity *e) {
 
 void write_entities_to_file(const char *filename) {
     FILE *f = fopen(filename, "w");
-    u32 num = Logic::_fog_es.num_entities;
+    u32 num = 0; // We have to manually count here, due to the remove field.
+    // Write a temp number
     write_to_file(f, &num);
-    auto write_to_file = [f](Logic::Entity *e) {
+    auto ent_write = [&num, f](Logic::Entity *e) -> void {
+        num++;
         write_entity(f, e);
-        return false;
     };
-    Logic::for_entity(write_to_file);
+    Logic::for_entity(ent_write);
+
+    // Write the actual value
+    rewind(f);
+    write_to_file(f, &num);
     fclose(f);
 }
 

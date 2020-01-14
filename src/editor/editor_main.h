@@ -99,17 +99,6 @@ void draw_outline(Logic::Entity *e, Vec4 color=V4(1, 1, 0, 0.1));
 struct EditorEdit {
     Logic::EntityID target;
 
-    enum class EditorEditType {
-        CHANGE,
-        ADD,
-        REMOVE,
-    };
-
-    // TODO(ed): Maybe make this a union, it might save a lot.
-    EditorEditType type;
-
-    Logic::EntityType target_type;
-
     struct BinaryBlob {
         u8 data[8];
     };
@@ -122,43 +111,18 @@ struct EditorEdit {
     BinaryBlob after;
 
     void apply() {
-        if (type == EditorEditType::CHANGE) {
-            Logic::Entity *e = fetch_entity(target);
-            ASSERT(e, "Trying to apply edit to different entity");
-            u8 *type_ignorer = (u8 *) e;
-            Util::copy_bytes((void *) &after, type_ignorer + offset, size);
-        } else if (type == EditorEditType::ADD) {
-            add();
-        } else if (type == EditorEditType::REMOVE) {
-            remove();
-        }
+        Logic::Entity *e = fetch_entity(target);
+        ASSERT(e, "Trying to apply edit to different entity");
+        u8 *type_ignorer = (u8 *) e;
+        Util::copy_bytes((void *) &after, type_ignorer + offset, size);
     }
 
     void revert() {
-        if (type == EditorEditType::CHANGE) {
-            Logic::Entity *e = fetch_entity(target);
-            ASSERT(e, "Trying to apply edit to different entity");
-            u8 *type_ignorer = (u8 *) e;
-            Util::copy_bytes((void *) &before, type_ignorer + offset, size);
-        } else if (type == EditorEditType::REMOVE) {
-            // NOTE(ed): Reversing a remove is an add.
-            add();
-        } else if (type == EditorEditType::ADD) {
-            // NOTE(ed): Reversing an add is a remove.
-            remove();
-        }
+        Logic::Entity *e = fetch_entity(target);
+        ASSERT(e, "Trying to apply edit to different entity");
+        u8 *type_ignorer = (u8 *) e;
+        Util::copy_bytes((void *) &before, type_ignorer + offset, size);
     }
-
-    void add() {
-        if (Logic::valid_entity(target)) return;
-        Logic::EntityID new_name = create_entity_from_type(target_type);
-    }
-
-    void remove() {
-        if (!Logic::valid_entity(target)) return;
-        Logic::remove_entity(target);
-    }
-
 };
 
 EditorEdit::BinaryBlob _copy_field(void *field, u8 size) {
@@ -171,8 +135,6 @@ EditorEdit::BinaryBlob _copy_field(void *field, u8 size) {
 #define MAKE_EDIT(ENT, field)                         \
     {                                                 \
         (ENT)->id,                                    \
-        EditorEdit::EditorEditType::CHANGE,           \
-        (ENT)->type(),                                \
         (u64) typeid((ENT)->field).hash_code(),       \
         (u16) offsetof(std::remove_reference<decltype(*(ENT))>::type, field), \
         sizeof((ENT)->field),                         \
@@ -191,21 +153,6 @@ EditorEdit::BinaryBlob _copy_field(void *field, u8 size) {
         ASSERT(typeid(new_val).hash_code() == edit->hash, "Types doesn't match"); \
         *((decltype(new_val) *) &edit->after) += new_val; \
     }
-
-#define ADD_EDIT(target, type) \
-    { \
-        target,\
-        EditorEdit::EditorEditType::ADD, \
-        type, \
-    }
-
-#define REMOVE_EDIT(target, type) \
-    { \
-        target,\
-        EditorEdit::EditorEditType::REMOVE, \
-        type, \
-    }
-
 
 struct EditorState {
     Util::List<Logic::EntityID> selected;

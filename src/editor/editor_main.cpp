@@ -57,10 +57,10 @@ void apply_edits() {
     };
     global_editor.history = next;
     // TODO(ed): Have a better initial capacity.
-    global_editor.edits = Util::create_list<EditorEdit>(52);
+    global_editor.edits = Util::create_list<EditorEdit>(50);
 
     write_entities_to_file(FILE_NAME);
-    LOG("Save stuff??");
+    LOG("Saved");
 }
 
 void undo_edits() {
@@ -73,6 +73,9 @@ void undo_edits() {
     if (!node) return;
     // TODO(ed): This deallocation here, it doesn't allow
     // redo:s... But I guess those are overkill, aye?
+    // TODO(ed): Currently we are leaking entities that
+    // are deleted. With the redo we have to be careful to
+    // free it.
     Util::destroy_list(&global_editor.edits);
     global_editor.history = node->next;
     global_editor.edits = node->edits;
@@ -169,10 +172,12 @@ void remove_selected() {
     global_editor.edits.clear();
     for (u32 i = 0; i < global_editor.selected.length; i++) {
         Logic::Entity *e = Logic::fetch_entity(global_editor.selected[i]);
-        global_editor.edits.append(REMOVE_EDIT(e->id, e->type()));
-        Logic::remove_entity(e->id);
+
+        EditorEdit edit = MAKE_EDIT(e, removed);
+        edit.before.data[0] = false;
+        edit.after.data[0] = true;
+        global_editor.edits.append(edit);
     }
-    LOG("%d, %d", global_editor.selected, global_editor.edits.length);
     global_editor.selected.clear();
     apply_edits();
 }
@@ -232,7 +237,13 @@ void add_func(bool clean) {
     if (Input::pressed(Input::Name::EDIT_DO)) {
         Logic::EntityType enum_type = entity_types[selected].enum_type;
         Logic::EntityID created = create_entity_from_type(enum_type);
-        global_editor.edits.append(ADD_EDIT(created, enum_type));
+        Logic::Entity *e = fetch_entity(created);
+
+        EditorEdit edit = MAKE_EDIT(e, removed);
+        edit.before.data[0] = true;
+        edit.after.data[0] = false;
+
+        global_editor.edits.append(edit);
         apply_edits();
     }
 }

@@ -130,6 +130,17 @@ EMeta _fog_global_entity_list[_NUM_ENTITY_TYPES] = {};
 
 #include "entity_macros.h"
 
+#ifdef FOG_EDITOR
+// It's an editor build so we add an extra field
+// to the entity for undo history. This makes the
+// code easy to read aswell.
+#define REMOVED_FIELD bool removed
+#define CONTINUE_IF_REMOVED(E) if (e->removed) continue
+#else
+#define REMOVED_FIELD
+#define CONTINUE_IF_REMOVED(E)
+#endif
+
 struct Entity {
     EntityID id;
     // A generic function for validating the data, override this
@@ -141,6 +152,8 @@ struct Entity {
     f32  rotation;
     s32  layer;
 
+    REMOVED_FIELD;
+    
     // Called when the entity is updated.
     virtual void update(f32 delta) = 0;
     // Called when the entity is drawn.
@@ -223,7 +236,8 @@ bool remove_entity(EntityID id);
 //
 // A return value of true means to break the loop.
 // A return value of false means to continue the loop.
-typedef Function<bool(Entity *)> MapFunc;
+typedef Function<bool(Entity *)> MapFuncBool;
+typedef Function<void(Entity *)> MapFuncVoid;
 
 ///*
 // Applies the the function f to each entity that matches
@@ -234,7 +248,8 @@ typedef Function<bool(Entity *)> MapFunc;
 // if you know where they are, but this is a good
 // way to take out all entities of a type if you
 // want them in a list.
-void for_entity_of_type(EntityType type, MapFunc f);
+void for_entity_of_type(EntityType type, MapFuncVoid f);
+void for_entity_of_type(EntityType type, MapFuncBool f);
 
 ///*
 // Applies the map function to each entity in the ES.
@@ -242,7 +257,8 @@ void for_entity_of_type(EntityType type, MapFunc f);
 // Note: This is kinda slow, it will probably always
 // be faster to take out the ones you want to edit
 // if you know where they are.
-void for_entity(MapFunc f);
+void for_entity(MapFuncVoid f);
+void for_entity(MapFuncBool f);
 
 ///*
 // Returns the first entity in the system of the specified

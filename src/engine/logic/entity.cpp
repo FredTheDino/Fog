@@ -191,21 +191,48 @@ namespace Logic {
         }
         return true;
     }
-
-    void for_entity_of_type(EntityType type, MapFunc f) {
+    
+    // TODO(ed): Duplicate code here, there's something smart
+    // you can do here probably.
+    void for_entity_of_type(EntityType type, MapFuncVoid f) {
         for (s32 i = _fog_es.max_entity; 0 <= i; i--) {
             Entity *e = _fog_es.entities[i];
             if (!e) continue;
+            CONTINUE_IF_REMOVED(e);
+            if (e->id.slot != i) continue;
+            if (e->type() != type) continue;
+            f(e);
+        }
+    }
+
+    void for_entity_of_type(EntityType type, MapFuncBool f) {
+        for (s32 i = _fog_es.max_entity; 0 <= i; i--) {
+            Entity *e = _fog_es.entities[i];
+            if (!e) continue;
+            CONTINUE_IF_REMOVED(e);
             if (e->id.slot != i) continue;
             if (e->type() != type) continue;
             if (f(e)) break;
         }
     }
 
-    void for_entity(MapFunc f) {
+    // TODO(ed): Duplicate code here, there's something smart
+    // you can do here probably.
+    void for_entity(MapFuncVoid f) {
         for (s32 i = 0; i <= _fog_es.max_entity; i++) {
             Entity *e = _fog_es.entities[i];
             if (!e) continue;
+            CONTINUE_IF_REMOVED(e);
+            if (e->id.slot != i) continue;
+            f(e);
+        }
+    }
+
+    void for_entity(MapFuncBool f) {
+        for (s32 i = 0; i <= _fog_es.max_entity; i++) {
+            Entity *e = _fog_es.entities[i];
+            if (!e) continue;
+            CONTINUE_IF_REMOVED(e);
             if (e->id.slot != i) continue;
             if (f(e)) break;
         }
@@ -224,23 +251,19 @@ namespace Logic {
     void update_es() {
         START_PERF(ENTITY_UPDATE);
         const f32 delta = Logic::delta();
-        for (s32 i = 0; i <= _fog_es.max_entity; i++) {
-            Entity *e = _fog_es.entities[i];
-            if (!e) continue;
-            if (e->id.slot != i) continue;
+        auto update_func = [delta](Entity *e) -> void {
             e->update(delta);
-        }
+        };
+        for_entity(Function(update_func));
         STOP_PERF(ENTITY_UPDATE);
     }
 
     void draw_es() {
         START_PERF(ENTITY_DRAW);
-        for (s32 i = 0; i <= _fog_es.max_entity; i++) {
-            Entity *e = _fog_es.entities[i];
-            if (!e) continue;
-            if (e->id.slot != i) continue;
+        auto draw_func = [](Entity *e) -> void {
             e->draw();
-        }
+        };
+        for_entity(Function(draw_func));
         STOP_PERF(ENTITY_DRAW);
     }
 
