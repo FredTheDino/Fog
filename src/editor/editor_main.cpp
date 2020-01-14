@@ -54,7 +54,14 @@ void apply_edits() {
     *next = {
         global_editor.edits,
         global_editor.history,
+        nullptr,
     };
+    if (global_editor.history) {
+        if (global_editor.history->next) {
+            // Dangling edits
+        }
+        global_editor.history->next = next;
+    }
     global_editor.history = next;
     // TODO(ed): Have a better initial capacity.
     global_editor.edits = Util::create_list<EditorEdit>(50);
@@ -63,12 +70,29 @@ void apply_edits() {
     LOG("Saved");
 }
 
+void redo_edits() {
+    EditorState::EditNode *node = global_editor.history;
+    LOG("???");
+    if (!node || !node->next) return;
+    LOG("---");
+
+    for (u32 i = 0; i < global_editor.edits.length; i++)
+        global_editor.edits[i].apply();
+    //Util::destroy_list(&global_editor.edits);
+
+    if (node->next) {
+        global_editor.history = node->next;
+        global_editor.edits = node->edits;
+    }
+    write_entities_to_file(FILE_NAME);
+}
+
 void undo_edits() {
     current_mode = EditorMode::SELECT_MODE;
 
     for (u32 i = 0; i < global_editor.edits.length; i++)
         global_editor.edits[i].revert();
-    
+
     EditorState::EditNode *node = global_editor.history;
     if (!node) return;
     // TODO(ed): This deallocation here, it doesn't allow
@@ -77,13 +101,16 @@ void undo_edits() {
     // are deleted. With the redo we have to be careful to
     // free it.
     Util::destroy_list(&global_editor.edits);
-    global_editor.history = node->next;
-    global_editor.edits = node->edits;
+    if (node->prev) {
+        global_editor.history = node->prev;
+        global_editor.edits = node->edits;
+    }
 
     for (u32 i = 0; i < global_editor.edits.length; i++)
         global_editor.edits[i].revert();
 
-    Util::pop_memory(node);
+    //Util::pop_memory(node);
+    write_entities_to_file(FILE_NAME);
 }
 
 void setup() {
@@ -96,6 +123,7 @@ void setup() {
     add(K(x), Name::EDIT_REMOVE);
     add(K(SPACE), Name::EDIT_DO);
     add(K(u), Name::EDIT_UNDO);
+    add(K(r), Name::EDIT_REDO);
 
     add(K(DOWN), Name::EDIT_UI_DOWN);
     add(K(j), Name::EDIT_UI_DOWN);
@@ -189,7 +217,7 @@ void add_func(bool clean) {
         Logic::EMeta *type;
     };
     static Util::List<TypeEntry> entity_types = Util::create_list<TypeEntry>(1);
-    
+
     if (entity_types.length == 0) {
         global_editor.active_element = 0;
         for (u32 i = 0; i < Logic::_NUM_ENTITY_TYPES; i++) {
@@ -354,6 +382,8 @@ void update() {
     using namespace Input;
     if (pressed(Name::EDIT_UNDO))
         undo_edits();
+    if (pressed(Name::EDIT_REDO))
+        redo_edits();
     if (pressed(Name::EDIT_MOVE_MODE))
         current_mode = EditorMode::MOVE_MODE;
     if (pressed(Name::EDIT_ADD))

@@ -36,6 +36,7 @@ namespace Input {
 
         EDIT_ABORT,
         EDIT_UNDO,
+        EDIT_REDO,
         EDIT_ADD,
         EDIT_REMOVE,
         EDIT_SELECT_ALL,

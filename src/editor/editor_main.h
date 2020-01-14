@@ -160,6 +160,7 @@ struct EditorState {
 
     struct EditNode {
         Util::List<EditorEdit> edits;
+        EditNode *prev;
         EditNode *next;
     };
     EditNode *history = nullptr;
