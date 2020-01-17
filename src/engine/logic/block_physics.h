@@ -140,6 +140,14 @@ void center_body(Body *body);
 // returned, with a normal pointing towards "body_a".
 Overlap check_overlap(Body *body_a, Body *body_b);
 
+///*
+// Tries to solve the overlap by simulating a realistic
+// physics situation. Is probably not what you want in all
+// situations but is a good start.
+// <span class="note"></span> It's not valid to solve an overlap
+// that isn't overlapping, you can check this by casting the overlap
+// to a bool, doing this will result in an error.
+void solve(Overlap overlap);
 
 ///*
 // Check if the point "p" lies in the specified box. The box
