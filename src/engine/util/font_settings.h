@@ -10,7 +10,7 @@ namespace Util {
     // TODO(ed): Maybe don't calculate the font size this
     // many times per frame...
     f32 debug_font_size() {
-        return 40 / (f32) Renderer::global_camera.width;
+        return 40 / (f32) Renderer::get_camera()->width;
     }
 
     f32 debug_line_height() {
@@ -18,7 +18,7 @@ namespace Util {
     }
 
     f32 debug_top_of_screen() {
-        return Renderer::global_camera.aspect_ratio + debug_line_height() / 2.0;
+        return Renderer::get_camera()->aspect_ratio + debug_line_height() / 2.0;
     }
 
     void debug_text(const char *text, f32 x, f32 y, u32 color_code = 0) {

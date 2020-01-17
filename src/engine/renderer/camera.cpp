@@ -1,5 +1,13 @@
 namespace Renderer {
 
+void recalculate_global_aspect_ratio(int width, int height) {
+    for (u32 i = 0; i < OPENGL_NUM_CAMERAS; i++) {
+        get_camera()->width = width;
+        get_camera()->height = height;
+        get_camera()->aspect_ratio = get_camera()->height / get_camera()->width;
+    }
+}
+
 Camera camera_fit(u32 num_points, Vec2 *points, f32 border) {
     ASSERT(num_points, "No points given for camera to fit!");
     Camera camera = {};
@@ -36,8 +44,9 @@ void camera_shake(Camera *camera_shake, f32 shake_x, f32 shake_y) {
     camera_shake->offset = hadamard(random_unit_vec2(), V2(shake_x, shake_y)) * scaler;
 }
 
-Camera *get_camera() {
-    return &global_camera;
+Camera *get_camera(u32 camera_id) {
+    ASSERT(0 <= camera_id && camera_id < OPENGL_NUM_CAMERAS, "Not a valid camera");
+    return _fog_global_cameras + camera_id;
 }
 
 }

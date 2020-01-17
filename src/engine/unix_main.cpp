@@ -193,7 +193,7 @@ int main(int argc, char **argv) {
         Logic::update_es();
         Logic::call(Logic::At::POST_UPDATE);
 
-        Mixer::audio_struct.position = Renderer::global_camera.position;
+        Mixer::audio_struct.position = Renderer::get_camera()->position;
 
         START_PERF(RENDER);
         Renderer::clear();

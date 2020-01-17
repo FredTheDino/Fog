@@ -77,9 +77,9 @@ void update(f32 delta) {
     static bool run = false;
     static Vec2 shake = V2(0, 0);
     if (Util::begin_tweak_section("Camera controls", &show_camera_controls)) {
-        Util::tweak("zoom", &Renderer::global_camera.zoom);
-        Util::tweak("position", &Renderer::global_camera.position);
-        Util::tweak("aspect", &Renderer::global_camera.aspect_ratio);
+        Util::tweak("zoom", &Renderer::get_camera()->zoom);
+        Util::tweak("position", &Renderer::get_camera()->position);
+        Util::tweak("aspect", &Renderer::get_camera()->aspect_ratio);
         Util::tweak("run", &run);
         Util::tweak("x", &shake.x);
         Util::tweak("y", &shake.y);

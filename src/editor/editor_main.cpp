@@ -33,7 +33,7 @@ void setup() {
 
     add(K(a), Name::EDIT_SELECT_ALL);
 
-    Renderer::global_camera.zoom = 1.0 / 2.0;
+    Renderer::get_camera()->zoom = 1.0 / 2.0;
 
     global_editor.selected = Util::create_list<Logic::EntityID>(50);
     global_editor.edits = Util::create_list<EditorEdit>(50);
@@ -140,8 +140,6 @@ void set_entity_field(Logic::Entity *e, const char *name, u64 size, void *value)
 
 // Main logic
 void update() {
-    // Util::tweak("zoom", &Renderer::global_camera.zoom);
-
     static bool first = true;
     if (first) {
         FILE *f = fopen(FILE_NAME, "r");

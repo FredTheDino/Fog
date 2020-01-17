@@ -18,14 +18,10 @@ struct Camera {
 // TODO(ed): Would it be nice to have a rotating camera?
 #pragma pack(pop)
 
-Camera global_camera;
+Camera _fog_global_cameras[OPENGL_NUM_CAMERAS];
 
 // Called if the screen is updated.
-void recalculate_global_aspect_ratio(int width, int height) {
-    global_camera.width = width;
-    global_camera.height = height;
-    global_camera.aspect_ratio = global_camera.height / global_camera.width;
-}
+void recalculate_global_aspect_ratio(int width, int height); 
 
 // TODO(ed): Multiple cameras
 
@@ -34,7 +30,7 @@ void recalculate_global_aspect_ratio(int width, int height) {
 
 ///*
 // Returns the global camera, the one used when rendering.
-Camera *get_camera();
+Camera *get_camera(u32 camera_id=0);
 
 ///*
 // Shakes the camera in the specified ellipse.

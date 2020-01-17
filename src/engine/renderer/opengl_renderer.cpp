@@ -541,7 +541,7 @@ void clear() { glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT); }
 
 void blit() {
     glBindBuffer(GL_UNIFORM_BUFFER, ubo_camera);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Camera), &global_camera);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Camera), get_camera());
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, screen_fbo);
