@@ -60,6 +60,13 @@ void setup() {
     add(K(w), Name::UP);
     add(K(s), Name::DOWN);
 
+    Vec2 points[] = {
+        V2(0.0, 1.0),
+        V2(1.0, 1.0),
+        V2(1.0, 0.0),
+        V2(0.0, 0.0),
+    };
+    Physics::add_shape(LEN(points), points);
 }
 
 bool a_boolean;
