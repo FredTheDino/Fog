@@ -1,6 +1,5 @@
 // Tell the engine that this is loaded
 
-#include "editor_main.h"
 #include "entity_io.cpp"
 
 namespace Editor {
@@ -46,70 +45,67 @@ void setup_edits() {
 const char *FILE_NAME = "test.ent";
 
 void apply_edits() {
-    if (!global_editor.edits.length) return;
-    for (u32 i = 0; i < global_editor.edits.length; i++) {
+    for (u32 i = 0; i < global_editor.edits.length; i++)
         global_editor.edits[i].apply();
-    }
-    EditorState::EditNode *next = Util::push_memory<EditorState::EditNode>();
-    *next = {
-        global_editor.edits,
-        global_editor.history,
-        nullptr,
-    };
+    EditorState::EditNode *node = Util::push_memory<EditorState::EditNode>();
+    node->edits = global_editor.edits;
+    node->prev = global_editor.history;
+    node->next = nullptr;
+
     if (global_editor.history) {
-        if (global_editor.history->next) {
-            // Dangling edits
-        }
-        global_editor.history->next = next;
+        Function<void(EditorState::EditNode *n)> free_edits;
+        free_edits = [&free_edits](EditorState::EditNode *n) -> void {
+            if (!n) return;
+            free_edits(n->next);
+            Util::destroy_list(&n->edits);
+            Util::pop_memory(n);
+        };
+        free_edits(global_editor.history->next);
     }
-    global_editor.history = next;
-    // TODO(ed): Have a better initial capacity.
-    global_editor.edits = Util::create_list<EditorEdit>(50);
+
+    global_editor.history->next = node;
+    global_editor.history = node;
+    global_editor.edits = Util::create_list<EditorEdit>(0);
 
     write_entities_to_file(FILE_NAME);
-    LOG("Saved");
 }
 
 void redo_edits() {
-    EditorState::EditNode *node = global_editor.history;
-    LOG("???");
-    if (!node || !node->next) return;
-    LOG("---");
+    // TODO(ed): Only remove invalid IDs
+    global_editor.selected.clear();
 
     for (u32 i = 0; i < global_editor.edits.length; i++)
-        global_editor.edits[i].apply();
-    //Util::destroy_list(&global_editor.edits);
+        global_editor.edits[i].revert();
 
+    EditorState::EditNode *node = global_editor.history;
+    ASSERT(node, "Invalid editor state, null in history!");
+    if (!node) return;
+    for (u32 i = 0; i < node->edits.length; i++)
+        node->edits[i].apply();
     if (node->next) {
         global_editor.history = node->next;
-        global_editor.edits = node->edits;
+        for (u32 i = 0; i < node->next->edits.length; i++)
+            node->next->edits[i].apply();
     }
+
     write_entities_to_file(FILE_NAME);
 }
 
 void undo_edits() {
-    current_mode = EditorMode::SELECT_MODE;
+    // TODO(ed): Only remove invalid IDs
+    global_editor.selected.clear();
 
     for (u32 i = 0; i < global_editor.edits.length; i++)
         global_editor.edits[i].revert();
 
     EditorState::EditNode *node = global_editor.history;
+    ASSERT(node, "Invalid editor state, null in history");
     if (!node) return;
-    // TODO(ed): This deallocation here, it doesn't allow
-    // redo:s... But I guess those are overkill, aye?
-    // TODO(ed): Currently we are leaking entities that
-    // are deleted. With the redo we have to be careful to
-    // free it.
-    Util::destroy_list(&global_editor.edits);
-    if (node->prev) {
+    for (u32 i = 0; i < node->edits.length; i++)
+        node->edits[i].revert();
+    if (node->prev)
         global_editor.history = node->prev;
-        global_editor.edits = node->edits;
-    }
 
-    for (u32 i = 0; i < global_editor.edits.length; i++)
-        global_editor.edits[i].revert();
-
-    //Util::pop_memory(node);
     write_entities_to_file(FILE_NAME);
 }
 
@@ -138,6 +134,12 @@ void setup() {
 
     global_editor.selected = Util::create_list<Logic::EntityID>(50);
     global_editor.edits = Util::create_list<EditorEdit>(50);
+
+    EditorState::EditNode *next = Util::push_memory<EditorState::EditNode>();
+    next->edits = Util::create_list<EditorEdit>(0);
+    next->prev = nullptr;
+    next->next = nullptr;
+    global_editor.history = next;
 }
 
 void select_func(bool clean) {
@@ -156,6 +158,7 @@ void select_func(bool clean) {
         };
         Logic::for_entity(Function(find_click));
         if (selected) {
+            global_editor.edits.clear();
             s32 index = global_editor.selected.index(selected);
             if (index == -1)
                 global_editor.selected.append(selected);
@@ -415,6 +418,7 @@ void update() {
             for (u32 i = 0; i < global_editor.edits.length; i++) {
                 global_editor.edits[i].revert();
             }
+            global_editor.edits.clear();
             current_mode = EditorMode::SELECT_MODE;
         }
         if (pressed(Name::EDIT_DO)) {

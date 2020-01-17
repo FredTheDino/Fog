@@ -66,7 +66,17 @@ u64 Perf::highp_now() {
 }
 
 #include "../game/game_main.cpp"
+#include "../editor/editor_main.h"
+
+#ifdef FOG_EDITOR
 #include "../editor/editor_main.cpp"
+#else
+void Editor::select_func(bool) {};
+void Editor::select_box_func(bool) {};
+void Editor::add_func(bool) {};
+void Editor::move_func(bool) {};
+#endif
+
 #ifndef FOG_GAME
 #   error "No game found"
 #endif

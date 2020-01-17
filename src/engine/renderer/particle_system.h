@@ -7,7 +7,7 @@ namespace Renderer {
 
 // TODO(ed): More interesting lerp functions.
 // TODO(ed): Texture coordinates
-// TODO(ed): Direction and speen instead of random vec.
+// TODO(ed): Direction and speed instead of random vec.
 struct Particle {
     f32 progress;
 

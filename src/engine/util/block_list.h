@@ -141,6 +141,17 @@ List<T> create_list(u32 capacity)
 }
 
 template <typename T>
+List<T> clone_list(List<T> list) {
+    List<T> clone = create_list<T>(list.length);
+
+    // TODO(ed): A memcpy here would fit snuggly.
+    for (u32 i = 0; i < list.length; i++)
+        clone[i] = list[i];
+
+    return clone;
+}
+
+template <typename T>
 void destroy_list(List<T> *list)
 {
     Util::pop_memory(list->data);
