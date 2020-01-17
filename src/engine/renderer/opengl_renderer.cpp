@@ -23,6 +23,7 @@ static Program compile_shader_program_from_source(const char *source) {
         "#version 330\n", "#define VERT\n",
         "layout (std140) uniform Camera\n",
         "{\n",
+        "    vec2 offset;\n",
         "    vec2 position;\n",
         "    float zoom;\n",
         "    float aspect_ratio;\n",

@@ -1,40 +1,50 @@
 namespace Renderer {
 
-
 ///# Camera
-// The camera is very usefull when you want to decide what the
+// The camera is very useful when you want to decide what the
 // player looks at. I promise.
 
 ///* Camera struct
 // The camera struct is how a camera is controlled. This struct can
-// give you fine graind camera controll.
+// give you fine grain camera control.
 #pragma pack(push, 1)
 struct Camera {
     Vec2 position;
+    Vec2 offset;
     f32 zoom = 1.0;
     f32 aspect_ratio; // height / width
     f32 width, height;
 };
+// TODO(ed): Would it be nice to have a rotating camera?
 #pragma pack(pop)
 
 Camera global_camera;
 
-// Called if the scren is updated.
+// Called if the screen is updated.
 void recalculate_global_aspect_ratio(int width, int height) {
     global_camera.width = width;
     global_camera.height = height;
     global_camera.aspect_ratio = global_camera.height / global_camera.width;
 }
 
-// TODO(ed): Some camera control. Like smootly folling a point and
+// TODO(ed): Multiple cameras
+
+// TODO(ed): Some camera control. Like smoothly following a point and
 // screen shake would be cool.
 
 ///*
 // Returns the global camera, the one used when rendering.
 Camera *get_camera();
 
-Camera *get_camera() {
-    return &global_camera;
-}
+///*
+// Shakes the camera in the specified ellipse.
+void camera_shake(Camera *camera, f32 shake_x, f32 shake_y);
+
+///*
+// Fits the cameras zoom and position to focus on the points passed in.
+// The border is the amount of space around each point to the border.
+void camera_fit(Camera *camera, u32 num_points, Vec2 *points, f32 border=0.0);
+Camera camera_fit(u32 num_points, Vec2 *points, f32 border=0.0);
+
 
 };  // namespace Renderer

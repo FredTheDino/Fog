@@ -67,30 +67,41 @@ void setup() {
         V2(0.0, 0.0),
     };
     Physics::add_shape(LEN(points), points);
+    Renderer::set_window_size(500, 500);
 }
-
-bool a_boolean;
-float a_float;
-int a_int;
 
 // Main logic
 void update(f32 delta) {
     using namespace Input;
     static bool show_camera_controls = true;
+    static bool run = false;
+    static Vec2 shake = V2(0, 0);
     if (Util::begin_tweak_section("Camera controls", &show_camera_controls)) {
         Util::tweak("zoom", &Renderer::global_camera.zoom);
         Util::tweak("position", &Renderer::global_camera.position);
+        Util::tweak("aspect", &Renderer::global_camera.aspect_ratio);
+        Util::tweak("run", &run);
+        Util::tweak("x", &shake.x);
+        Util::tweak("y", &shake.y);
     }
+    Renderer::camera_shake(Renderer::get_camera(), shake.x, shake.y);
     Util::end_tweak_section(&show_camera_controls);
 
-    static bool show_entity_system = true;
-    if (Util::begin_tweak_section("Entity system", &show_entity_system)) {
-        Util::tweak("next_free", &Logic::_fog_es.next_free);
-        Util::tweak("entity", &Logic::_fog_es.max_entity);
-        Util::tweak("entities", &Logic::_fog_es.num_entities);
-        Util::tweak("removed", &Logic::_fog_es.num_removed);
+    Vec2 points[] = {
+        V2(0.0, 0.0),
+        V2(-1.0, 0.0),
+        V2(-0.0, 1.0),
+        V2(-3.5, -1.0),
+    };
+
+    if (!run) {
+        run = true;
+        Renderer::camera_fit(Renderer::get_camera(), LEN(points), points, 0.0);
     }
-    Util::end_tweak_section(&show_entity_system);
+
+    for (u32 i = 0; i < LEN(points); i++) {
+        Renderer::push_point(10, points[i], V4(1.0, 0.0, 1.0, 1.0));
+    }
 
 
     if (down(Name::UP)) {

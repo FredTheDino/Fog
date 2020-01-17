@@ -41,6 +41,7 @@ bool debug_values_are_on();
 #include "renderer/command.cpp"
 #include "renderer/text.cpp"
 #include "renderer/particle_system.cpp"
+#include "renderer/camera.cpp"
 #include "asset/asset.cpp"
 #include "util/performance.cpp"
 #include "util/tweak_values.cpp"
