@@ -320,8 +320,6 @@ void set_entity_field(EditorEdit *edit, const char *name, u64 size, void *value)
 
 // Main logic
 void update() {
-    // Util::tweak("zoom", &Renderer::global_camera.zoom);
-
     static bool first = true;
     if (first) {
         FILE *f = fopen(FILE_NAME, "r");
@@ -365,7 +363,7 @@ void update() {
                         set_entity_field(edit, field->name, size, (void *) addr);
                         edit->apply();
                     }
-                    break;
+                    // break;
                 }
             }
         }

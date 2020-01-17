@@ -28,6 +28,9 @@ struct MyNewEntity : public Entity {
     u32 some_weird_field;
     REGISTER_FIELDS(MY_NEW_ENTITY, MyNewEntity, position, some_weird_field)
 };
+// <span class="note"></span> There is a macro, "STD_REGISTER", which registers
+// the "normal fields", it's faster than specifying each base field individually.
+// <br>
 // This creates a new entity type, and remember to add a new field to the
 // enum EntityType located in the "game_includes.h" file. Then you need to
 // call the REGISTER_ENTITY macro in the "entity_registration()" located
@@ -48,6 +51,53 @@ void entity_registration() {
 //    <li>Call the REGISTER_ENTITY(...) macro in entity_registration()</li>
 //    <li>Use it to your hearts content.</li>
 // </ul>
+// <br>
+
+//// Entity fields
+// <table class="member-table">
+//    <tr><th width="150">Type</th><th width="50">Name</th><th>Description</th></tr>
+//    <tr><td>EntityID</td><td>id </td><td> A unique identifier for an entity, you should not set this field, it is set during the "add_entity" call.</td></tr>
+//    <tr><td>Vec2(0.0, 0.0)</td><td>position</td><td> The position of the entity in the game world.</td></tr>
+//    <tr><td>Vec2(1.0, 1.0)</td><td>scale</td><td> The scale of the entity in the game world.</td></tr>
+//    <tr><td>f32(0.0)</td><td>rotation</td><td> The rotation of the entity in the game world.</td></tr>
+//    <tr><td>layer(0)</td><td>layer</td><td> The layer on which the entity should be drawn on.</td></tr>
+// </table>
+
+///*
+// Serializes the entity to a string, really practical for
+// debugging.
+const char *Entity::show();
+
+///*
+// Returns the typename of the entity type as a string.
+const char *Entity::type_name() = 0;
+
+///*
+// Returns the type of the entity as the enum type EntityType,
+// usefull for switch cases. You don't need to overload this
+// function, this is done for you by the REGISTER_FIELDS macro.
+EntityType Entity::type() = 0;
+
+///*
+// Same as "type" except this is called on the type, and can be evaluated
+// during compile-time.
+static constexpr EntityType Entity::st_type();
+
+///*
+// A overridable function that makes sure the internal data for
+// the entity is valid. The base function checks the constraints
+// on the layer field.
+void Entity::validate_data();
+
+///*
+// A update function, called on each logic step. This has to be
+// set to some thing if you wish to instantiate the entity.
+void Entity::update(f32 delta) = 0;
+
+///*
+// A draw function, called on each logic step. This has to be
+// set to some thing if you wish to instantiate the entity.
+void Entity::draw() = 0;
 
 #endif
 
@@ -141,11 +191,21 @@ EMeta _fog_global_entity_list[_NUM_ENTITY_TYPES] = {};
 #define CONTINUE_IF_REMOVED(E)
 #endif
 
+///* STD_REGISTER
+// This magic macro exports the standard stuff from
+// the base entity, that you probably also want.
+// It's a fast way to write all the normal fields.
+#define STD_REGISTER position, scale, rotation, layer
+
 struct Entity {
     EntityID id;
     // A generic function for validating the data, override this
-    // if you want to empose some sort of data verification.
-    virtual void validate_data() {};
+    // if you want to empose some sort of data verification in
+    // the editor. Currently it prevents tweaking of the layers
+    // to go extreem.
+    virtual void validate_data() {
+        layer = CLAMP(0, OPENGL_NUM_LAYERS - 1, layer);
+    };
 
     Vec2 position;
     Vec2 scale;

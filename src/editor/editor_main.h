@@ -115,6 +115,7 @@ struct EditorEdit {
         ASSERT(e, "Trying to apply edit to different entity");
         u8 *type_ignorer = (u8 *) e;
         Util::copy_bytes((void *) &after, type_ignorer + offset, size);
+        e->validate_data();
     }
 
     void revert() {
@@ -122,6 +123,7 @@ struct EditorEdit {
         ASSERT(e, "Trying to apply edit to different entity");
         u8 *type_ignorer = (u8 *) e;
         Util::copy_bytes((void *) &before, type_ignorer + offset, size);
+        e->validate_data();
     }
 };
 

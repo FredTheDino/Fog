@@ -32,7 +32,7 @@ struct MyEnt : public Logic::Entity {
 
     f32 value;
 
-    REGISTER_FIELDS(MY_ENT, MyEnt, position, rotation, scale, value)
+    REGISTER_FIELDS(MY_ENT, MyEnt, STD_REGISTER, value)
 };
 
 void show_buffer(char *buffer, void *tmp) {
