@@ -1,11 +1,15 @@
 namespace Renderer {
 
 void recalculate_global_aspect_ratio(int width, int height) {
+    get_window()->width = width;
+    get_window()->height = height;
+    get_window()->aspect_ratio = (f32) height / (f32) width;
+    
+#if OPENGL_AUTO_APPLY_ASPECTRATIO_CHANGE
     for (u32 i = 0; i < OPENGL_NUM_CAMERAS; i++) {
-        get_camera()->width = width;
-        get_camera()->height = height;
-        get_camera()->aspect_ratio = get_camera()->height / get_camera()->width;
+        get_camera(i)->aspect_ratio = get_window()->aspect_ratio;
     }
+#endif
 }
 
 Camera camera_fit(u32 num_points, Vec2 *points, f32 border) {
@@ -14,6 +18,20 @@ Camera camera_fit(u32 num_points, Vec2 *points, f32 border) {
     camera.aspect_ratio = get_camera()->aspect_ratio;
     camera_fit(&camera, num_points, points, border);
     return camera;
+}
+
+Camera camera_lerp(Camera camera_a, Camera camera_b, f32 lerp) {
+    // TODO(ed): Make this into a clamp?
+    return {
+        LERP(camera_a.position    , lerp, camera_b.position),
+        LERP(camera_a.offset      , lerp, camera_b.offset),
+        (f32) LERP(camera_a.zoom        , lerp, camera_b.zoom),
+        LERP(camera_a.aspect_ratio, lerp, camera_b.aspect_ratio),
+    };
+}
+
+Camera camera_smooth(Camera camera_a, Camera camera_b, f32 lerp) {
+    return camera_lerp(camera_a, camera_b, lerp * lerp * (1.5 - lerp));
 }
 
 void camera_fit(Camera *camera, u32 num_points, Vec2 *points, f32 border) {
@@ -38,15 +56,36 @@ void camera_fit(Camera *camera, u32 num_points, Vec2 *points, f32 border) {
     }
 }
 
-void camera_shake(Camera *camera_shake, f32 shake_x, f32 shake_y) {
+void camera_shake(Camera *camera, f32 shake) {
+    camera_shake(camera, shake, shake);
+}
+
+void camera_shake(Camera *camera, f32 shake_x, f32 shake_y) {
     // TODO(ed): Camera shake rotation
     f32 scaler = random_real(0.2, 1.0);
-    camera_shake->offset = hadamard(random_unit_vec2(), V2(shake_x, shake_y)) * scaler;
+    Vec2 shake = V2(shake_x, shake_y);
+    camera->offset = hadamard(random_unit_vec2(), shake) * scaler;
 }
 
 Camera *get_camera(u32 camera_id) {
     ASSERT(0 <= camera_id && camera_id < OPENGL_NUM_CAMERAS, "Not a valid camera");
-    return _fog_global_cameras + camera_id;
+    return _fog_global_window_state.cam + camera_id;
+}
+
+Window *get_window() {
+    return &_fog_global_window_state.win;
+}
+
+f32 get_window_width() {
+    return get_window()->width;
+}
+
+f32 get_window_height() {
+    return get_window()->height;
+}
+
+f32 get_window_aspect_ratio() {
+    return get_window()->aspect_ratio;
 }
 
 }

@@ -1,5 +1,6 @@
-const static int GLSL_CAMERA_BLOCK = 0;
-static GLuint ubo_camera;
+const static int GLSL_GLOBAL_BLOCK = 0;
+static GLuint ubo_global;
+static GLuint ubo_global_size = sizeof(_fog_global_window_state);
 
 static Program compile_shader_program_from_source(const char *source) {
 #define SHADER_ERROR_CHECK(SHDR)                             \
@@ -20,15 +21,25 @@ static Program compile_shader_program_from_source(const char *source) {
     u32 vert = glCreateShader(GL_VERTEX_SHADER);
 
     const char *complete_source[] = {
-        "#version 330\n", "#define VERT\n",
-        "layout (std140) uniform Camera\n",
-        "{\n",
-        "    vec2 offset;\n",
-        "    vec2 position;\n",
-        "    float zoom;\n",
-        "    float aspect_ratio;\n",
-        "    float width;\n",
-        "    float height;\n",
+        "#version 330\n",
+        "#define VERT\n",
+        "struct Camera\n"
+        "{\n"
+        "    vec2  offset;\n"
+        "    vec2  pos;\n"
+        "    float zoom;\n"
+        "    float aspect_ratio;\n"
+        "};"
+        "struct Window\n"
+        "{\n"
+        "    float width;\n"
+        "    float height;\n"
+        "    float aspect_ratio;\n"
+        "};"
+        "layout (std140) uniform Global\n"
+        "{\n"
+        "   Camera cam[" STR(OPENGL_NUM_CAMERAS) "];\n"
+        "   Window win;\n"
         "};",
         source};
     glShaderSource(vert, LEN(complete_source), complete_source, NULL);
@@ -58,7 +69,7 @@ static Program compile_shader_program_from_source(const char *source) {
     }
 
     unsigned int block = glGetUniformBlockIndex(shader, "Camera");
-    glUniformBlockBinding(shader, block, GLSL_CAMERA_BLOCK);
+    glUniformBlockBinding(shader, block, GLSL_GLOBAL_BLOCK);
 
     return shader;
 }
@@ -336,7 +347,7 @@ void render_post_processing() {
 
 bool init(const char *title, int width, int height) {
     if (SDL_Init(SDL_INIT_EVERYTHING)) {
-        LOG("Failed to initalize SDL");
+        ERR("Failed to initalize SDL");
         return false;
     }
     window = SDL_CreateWindow(title, 0, 0, width, height,
@@ -349,7 +360,7 @@ bool init(const char *title, int width, int height) {
     context = SDL_GL_CreateContext(window);
 
     if (!gladLoadGL()) {
-        LOG("Failed to load OpenGL");
+        ERR("Failed to load OpenGL");
         return false;
     }
     resize_window(width, height);
@@ -357,17 +368,17 @@ bool init(const char *title, int width, int height) {
     SDL::window_callback = resize_window;
     SDL_GL_SetSwapInterval(1);
     glEnable(GL_DEBUG_OUTPUT);
-    //glDebugMessageCallback(gl_debug_message, 0);
+    glDebugMessageCallback(gl_debug_message, 0);
 
     for (u32 i = 0; i < OPENGL_NUM_LAYERS; i++) {
         sprite_render_queues[i].create(512);
     }
     font_render_queue.create(256);
 
-    glGenBuffers(1, &ubo_camera);
-    glBindBuffer(GL_UNIFORM_BUFFER, ubo_camera);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(Camera), NULL, GL_STREAM_DRAW);
-    glBindBufferBase(GL_UNIFORM_BUFFER, GLSL_CAMERA_BLOCK, ubo_camera);
+    glGenBuffers(1, &ubo_global);
+    glBindBuffer(GL_UNIFORM_BUFFER, ubo_global);
+    glBufferData(GL_UNIFORM_BUFFER, ubo_global_size, NULL, GL_STREAM_DRAW);
+    glBindBufferBase(GL_UNIFORM_BUFFER, GLSL_GLOBAL_BLOCK, ubo_global);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     create_frame_buffers(width, height);
@@ -540,8 +551,8 @@ void upload_shader(AssetID asset, const char *source) {
 void clear() { glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT); }
 
 void blit() {
-    glBindBuffer(GL_UNIFORM_BUFFER, ubo_camera);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Camera), get_camera());
+    glBindBuffer(GL_UNIFORM_BUFFER, ubo_global);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, ubo_global_size, &_fog_global_window_state);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, screen_fbo);

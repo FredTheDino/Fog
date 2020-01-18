@@ -101,7 +101,7 @@ void write_entity(FILE *stream, Logic::Entity *e) {
         auto *field = meta.fields + i;
         auto *info = Logic::fetch_type(field->hash);
         if (!info) {
-            LOG("Cannot find type info for \"%s\" (Has type hash %d)",
+            ERR("Cannot find type info for \"%s\" (Has type hash %d)",
                 field->name, field->hash);
             ASSERT(info, "Unkown type! Did you forget to "
                          "register a member type for an entity?");

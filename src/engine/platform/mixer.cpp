@@ -93,7 +93,6 @@ AudioID play_sound_at(AssetID asset_id, Vec2 position, f32 pitch, f32 gain,
 }
 
 void stop_sound(AudioID id) {
-    LOG("Called for audio: %d", id.slot);
     ASSERT(id.slot < NUM_SOURCES, "Invalid index in ID");
     lock_audio();
     SoundSource *source = audio_struct.sources + id.slot;

@@ -213,8 +213,8 @@ f32 value(Name name, Player player) {
 
 Vec2 screen_to_world(Vec2 p) {
     const f32 scale_factor = 1.0 / Renderer::get_camera()->zoom;
-    Vec2 result = hadamard(p, V2( 2 * scale_factor / Renderer::get_camera()->width,
-                                  2 * scale_factor / Renderer::get_camera()->height));
+    Vec2 result = hadamard(p, V2( 2 * scale_factor / Renderer::get_window_width(),
+                                  2 * scale_factor / Renderer::get_window_height()));
     result -= V2(scale_factor, scale_factor);
     result.y *= -1;
     result -= Renderer::get_camera()->position;
@@ -223,8 +223,8 @@ Vec2 screen_to_world(Vec2 p) {
 
 Vec2 scale_screen_to_world(Vec2 p) {
     const f32 scale_factor = 1.0 / Renderer::get_camera()->zoom;
-    Vec2 result = hadamard(p, V2( 2 * scale_factor / Renderer::get_camera()->width,
-                                  2 * scale_factor / Renderer::get_camera()->height));
+    Vec2 result = hadamard(p, V2( 2 * scale_factor / Renderer::get_window_width(),
+                                  2 * scale_factor / Renderer::get_window_height()));
     result.y *= -1;
     return result;
 }

@@ -21,7 +21,7 @@ in vec4 pass_color;
 out vec4 color;
 
 void main() {
-    vec2 pixel_offset = vec2(1.0 / width, 1.0 / height);
+    vec2 pixel_offset = vec2(1.0 / win.width, 1.0 / win.height);
     const int kernal_size = 0;
     if (bool(kernal_size)) {
         vec4 accumulator = vec4(0);
