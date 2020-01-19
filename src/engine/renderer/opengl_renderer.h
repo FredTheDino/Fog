@@ -102,14 +102,14 @@ RenderQueue<SdfVertex> font_render_queue;
 
 GLuint sprite_texture_array;
 
-GLuint screen_fbo;
-GLuint screen_rbo;
+GLuint screen_fbos[OPENGL_NUM_CAMERAS];
+GLuint screen_rbos[OPENGL_NUM_CAMERAS];
+GLuint screen_textures[OPENGL_NUM_CAMERAS];
 // A quad that covers the entire screen.
 GLuint screen_quad_vao;
 GLuint screen_quad_vbo;
 GLuint screen_texture_location;
 
-unsigned int screen_texture;
 
 
 // OpenGL global variables

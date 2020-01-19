@@ -234,76 +234,54 @@ void resize_window(int width, int height) {
     recalculate_global_aspect_ratio(width, height);
     glViewport(0, 0, width, height);
 
-    glBindTexture(GL_TEXTURE_2D, screen_texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
-            GL_UNSIGNED_BYTE, NULL);
+    for (u32 cam = 0; cam < OPENGL_NUM_CAMERAS; cam++) {
+        GLuint rbo = screen_rbos[cam];
+        GLuint texture = screen_textures[cam];
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
+                GL_UNSIGNED_BYTE, NULL);
 
-    glBindRenderbuffer(GL_RENDERBUFFER, screen_rbo);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8,
-            width, height);
+        glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8,
+                width, height);
+    }
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
 }
 
-void rebuild_frame_buffers(int width, int height) {
-    glGenTextures(1, &screen_texture);
-    glBindTexture(GL_TEXTURE_2D, screen_texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
-            GL_UNSIGNED_BYTE, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    glGenFramebuffers(1, &screen_fbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, screen_fbo);
-    {
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                               GL_TEXTURE_2D, screen_texture, 0);
-
-        glGenRenderbuffers(1, &screen_rbo);
-        glBindRenderbuffer(GL_RENDERBUFFER, screen_rbo);
-        {
-            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8,
-                                  width, height);
-        }
-        glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
-                                  GL_RENDERBUFFER, screen_rbo);
-
-        if (glCheckFramebufferStatus(screen_fbo) != GL_FRAMEBUFFER_COMPLETE)
-            ERR("Incomplete framebuffer");
-    }
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
 void create_frame_buffers(int width, int height) {
-    glGenTextures(1, &screen_texture);
-    glBindTexture(GL_TEXTURE_2D, screen_texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
-            GL_UNSIGNED_BYTE, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    glGenTextures(OPENGL_NUM_CAMERAS, (GLuint *) &screen_textures);
+    glGenFramebuffers(OPENGL_NUM_CAMERAS, (GLuint *) &screen_fbos);
+    glGenRenderbuffers(OPENGL_NUM_CAMERAS, (GLuint *) &screen_rbos);
+    for (u32 cam = 0; cam < OPENGL_NUM_CAMERAS; cam++) {
+        GLuint fbo = screen_fbos[cam];
+        GLuint rbo = screen_rbos[cam];
+        GLuint texture = screen_textures[cam];
 
-    glGenFramebuffers(1, &screen_fbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, screen_fbo);
-    {
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                               GL_TEXTURE_2D, screen_texture, 0);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
+                GL_UNSIGNED_BYTE, NULL);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glBindTexture(GL_TEXTURE_2D, 0);
 
-        glGenRenderbuffers(1, &screen_rbo);
-        glBindRenderbuffer(GL_RENDERBUFFER, screen_rbo);
+        glBindFramebuffer(GL_FRAMEBUFFER, fbo);
         {
-            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8,
-                                  width, height);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                    GL_TEXTURE_2D, texture, 0);
+
+            glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+            {
+                glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8,
+                        width, height);
+            }
+            glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
+                    GL_RENDERBUFFER, rbo);
+
+            if (glCheckFramebufferStatus(fbo) != GL_FRAMEBUFFER_COMPLETE)
+                ERR("Incomplete framebuffer");
         }
-        glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
-                                  GL_RENDERBUFFER, screen_rbo);
-
-        if (glCheckFramebufferStatus(screen_fbo) != GL_FRAMEBUFFER_COMPLETE)
-            ERR("Incomplete framebuffer");
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -338,9 +316,14 @@ void create_frame_buffers(int width, int height) {
 void render_post_processing() {
     post_process_shader_program.bind();
 
-    glBindTexture(GL_TEXTURE_2D, screen_texture);
+    glBindTexture(GL_TEXTURE_2D, screen_textures[0]);
     glActiveTexture(GL_TEXTURE1);
-    glUniform1i(screen_texture_location, 1);
+
+    glBindTexture(GL_TEXTURE_2D, screen_textures[1]);
+    glActiveTexture(GL_TEXTURE2);
+
+    int textures[] = {1, 2};
+    glUniform1iv(screen_texture_location, OPENGL_NUM_CAMERAS, &textures[0]);
 
     glBindVertexArray(screen_quad_vao);
     glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -372,7 +355,9 @@ bool init(const char *title, int width, int height) {
     SDL::window_callback = resize_window;
     SDL_GL_SetSwapInterval(1);
     glEnable(GL_DEBUG_OUTPUT);
+#if FOG_VERBOSE
     glDebugMessageCallback(gl_debug_message, 0);
+#endif
 
     for (u32 i = 0; i < OPENGL_NUM_LAYERS; i++) {
         sprite_render_queues[i].create(512);
@@ -542,10 +527,14 @@ void upload_shader(AssetID asset, const char *source) {
             ASSERT(font_shader_program, "Failed to compile shader");
             break;
         case ASSET_POST_PROCESS_SHADER:
+            source = Util::format(
+                    "const int num_screens = " STR(OPENGL_NUM_CAMERAS) ";\n"
+                    "uniform sampler2D screen_samplers[num_screens];\n"
+                    "%s", source);
             post_process_shader_program = compile_shader_program_from_source(source);
             ASSERT(post_process_shader_program, "Failed to compile shader");
             screen_texture_location = glGetUniformLocation(
-                post_process_shader_program.id, "screen_sampler");
+                post_process_shader_program.id, "screen_samplers");
             break;
         default:
             ERR("Invalid asset passed as shader (%d)", asset);
@@ -557,26 +546,34 @@ void clear() { glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT); }
 void blit() {
     glBindBuffer(GL_UNIFORM_BUFFER, ubo_global);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, ubo_global_size, &_fog_global_window_state);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    // TODO(ed): We don't need to query this every frame...
+    u32 loc = glGetUniformLocation(master_shader_program.id, "current_cam");
 
     // TODO(ed): Some way to turn off rendering for cirtain
     // cameras during runtime would be good!
-    {
-        glBindFramebuffer(GL_FRAMEBUFFER, screen_fbo);
+    for (u32 cam = 0; cam < OPENGL_NUM_CAMERAS; cam++) {
+        glBindFramebuffer(GL_FRAMEBUFFER, screen_fbos[cam]);
 
-        glClearColor(0.3f, 0.1f, 0.2f, 1.0f);
+        if (cam == 0)
+            glClearColor(0.3f, 0.1f, 0.2f, 1.0f);
+        else
+            glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
         clear();
 
         master_shader_program.bind();
-        u32 loc = glGetUniformLocation(master_shader_program.id, "current_cam");
-        glUniform1ui(loc, current_cam);
+        glUniform1ui(loc, cam);
         for (u32 layer = 0; layer < OPENGL_NUM_LAYERS; layer++)
             sprite_render_queues[layer].draw();
 
         font_shader_program.bind();
-        glUniform1ui(loc, current_cam);
+        // TODO(ed): Some way to do camera specific text or rendering
+        // would probably be good.
+        // TODO(ed): Is this needed?
+        glUniform1ui(loc, cam);
         font_render_queue.draw();
     }
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClearColor(0.1f, 0.3f, 0.2f, 1.0f);

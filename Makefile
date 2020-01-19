@@ -1,4 +1,5 @@
 CXX = g++
+# NOTE: The verbose flag doesn't allow compilation on cirtain mac systems.
 DEBUG_FLAGS = -ggdb -O0 -DDEBUG  # -DFOG_VERBOSE
 WARNINGS = -Wall -Wno-invalid-offsetof -Wno-unused-but-set-variable -Wno-unused-function -Wno-missing-braces -Wno-error
 FLAGS = $(WARNINGS) -std=c++17 -Iinc $(DEBUG_FLAGS)

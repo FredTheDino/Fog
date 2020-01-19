@@ -1,5 +1,3 @@
-uniform sampler2D screen_sampler;
-
 #ifdef VERT
 
 layout (location=0) in vec2 pos;
@@ -21,21 +19,11 @@ in vec4 pass_color;
 out vec4 color;
 
 void main() {
-    vec2 pixel_offset = vec2(1.0 / win.width, 1.0 / win.height);
-    const int kernal_size = 0;
-    if (bool(kernal_size)) {
-        vec4 accumulator = vec4(0);
-        for (int x = -kernal_size; x <= kernal_size; x++) {
-            for (int y = -kernal_size; y <= kernal_size; y++) {
-                vec2 relative = pixel_offset * vec2(x, y);
-                accumulator += texture(screen_sampler, pass_uv + relative);
-            }
-        }
-        color = accumulator / float((kernal_size * 2 + 1) * (kernal_size * 2 + 1));
+    if (pass_uv.y < 0.5) {
+        color = texture(screen_samplers[0], pass_uv);
     } else {
-        color = texture(screen_sampler, pass_uv);
+        color = texture(screen_samplers[1], pass_uv);
     }
-    color *= color;
 }
 
 #endif
