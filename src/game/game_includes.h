@@ -71,3 +71,5 @@ namespace Logic {
 }
 
 
+// REMOVE ME!
+static u32 current_cam = 0;

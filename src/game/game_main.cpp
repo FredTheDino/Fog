@@ -92,25 +92,33 @@ void update(f32 delta) {
     static Vec2 shake = V2(0, 0);
     static f32 start = Logic::now();
     if (Util::begin_tweak_section("Camera controls", &show_camera_controls)) {
-        Util::tweak("zoom", &Renderer::get_camera()->zoom);
-        Util::tweak("position", &Renderer::get_camera()->position);
-        Util::tweak("aspect", &Renderer::get_camera()->aspect_ratio);
+        Util::tweak("current_cam", &current_cam);
+        current_cam = CLAMP(0, OPENGL_NUM_CAMERAS - 1, current_cam);
+        Util::tweak("zoom", &Renderer::get_camera(current_cam)->zoom);
+        Util::tweak("position", &Renderer::get_camera(current_cam)->position);
+        Util::tweak("aspect", &Renderer::get_camera(current_cam)->aspect_ratio);
         Util::tweak("x", &shake.x);
         Util::tweak("y", &shake.y);
     }
     Util::end_tweak_section(&show_camera_controls);
-    *Renderer::get_camera() = Renderer::camera_smooth(from, to, CLAMP(0, 1.0, (Logic::now() - start) / 3));
+
+    if (current_cam == 0) {
+        for (u32 i = 0; i < OPENGL_NUM_CAMERAS; i++) {
+            *Renderer::get_camera(i) = Renderer::camera_smooth(
+                    from, to, (f32) i / ((f32) OPENGL_NUM_CAMERAS));
+        }
+    }
 
     Vec2 points[] = {
         V2(0.0, 0.0),
         V2(-1.0, 0.0),
         V2(-0.0, 1.0),
         V2(-3.5, -1.0),
+        V2(1.5, 0.0),
     };
     for (u32 i = 0; i < LEN(points); i++) {
         Renderer::push_point(10, points[i], V4(1.0, 0.0, 1.0, 1.0));
     }
-
 
     if (down(Name::UP)) {
         MyEnt e = {};

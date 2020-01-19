@@ -1,6 +1,8 @@
+#define GLSL_ACTIVE_CAM_LOC 2
 const static int GLSL_GLOBAL_BLOCK = 0;
+const static u32 ubo_int_size    = sizeof(u32);
+const static u32 ubo_global_size = sizeof(_fog_global_window_state);
 static GLuint ubo_global;
-static GLuint ubo_global_size = sizeof(_fog_global_window_state);
 
 static Program compile_shader_program_from_source(const char *source) {
 #define SHADER_ERROR_CHECK(SHDR)                             \
@@ -40,7 +42,9 @@ static Program compile_shader_program_from_source(const char *source) {
         "{\n"
         "   Camera cam[" STR(OPENGL_NUM_CAMERAS) "];\n"
         "   Window win;\n"
-        "};",
+        "};\n"
+        "uniform uint current_cam;\n"
+        ,
         source};
     glShaderSource(vert, LEN(complete_source), complete_source, NULL);
     glCompileShader(vert);
@@ -553,20 +557,26 @@ void clear() { glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT); }
 void blit() {
     glBindBuffer(GL_UNIFORM_BUFFER, ubo_global);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, ubo_global_size, &_fog_global_window_state);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, screen_fbo);
+    // TODO(ed): Some way to turn off rendering for cirtain
+    // cameras during runtime would be good!
     {
+        glBindFramebuffer(GL_FRAMEBUFFER, screen_fbo);
+
         glClearColor(0.3f, 0.1f, 0.2f, 1.0f);
         clear();
 
         master_shader_program.bind();
+        u32 loc = glGetUniformLocation(master_shader_program.id, "current_cam");
+        glUniform1ui(loc, current_cam);
         for (u32 layer = 0; layer < OPENGL_NUM_LAYERS; layer++)
             sprite_render_queues[layer].draw();
 
         font_shader_program.bind();
+        glUniform1ui(loc, current_cam);
         font_render_queue.draw();
     }
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClearColor(0.1f, 0.3f, 0.2f, 1.0f);

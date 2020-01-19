@@ -13,6 +13,7 @@ struct Camera {
     Vec2 offset;
     f32 zoom = 1.0;
     f32 aspect_ratio; // height / width
+    f32 _padding_[2];
 };
 #pragma pack(pop)
 // TODO(ed): Would it be nice to have a rotating camera?
@@ -22,6 +23,7 @@ struct Window {
     f32 width;
     f32 height;
     f32 aspect_ratio;
+    f32 _padding_;
 };
 #pragma pack(pop)
 
