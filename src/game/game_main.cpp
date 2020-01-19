@@ -91,6 +91,7 @@ void update(f32 delta) {
     static bool show_camera_controls = true;
     static Vec2 shake = V2(0, 0);
     static f32 start = Logic::now();
+    static bool dual_cameras = false;
     if (Util::begin_tweak_section("Camera controls", &show_camera_controls)) {
         Util::tweak("current_cam", &current_cam);
         current_cam = CLAMP(0, OPENGL_NUM_CAMERAS - 1, current_cam);
@@ -99,8 +100,17 @@ void update(f32 delta) {
         Util::tweak("aspect", &Renderer::get_camera(current_cam)->aspect_ratio);
         Util::tweak("x", &shake.x);
         Util::tweak("y", &shake.y);
+        Util::tweak("split screen", &dual_cameras);
+        Util::tweak("num:", &Renderer::_fog_num_active_cameras);
     }
     Util::end_tweak_section(&show_camera_controls);
+
+    Renderer::turn_on_camera(0);
+    if (dual_cameras) {
+        Renderer::turn_on_camera(1);
+    } else {
+        Renderer::turn_off_camera(1);
+    }
 
     if (current_cam == 0) {
         for (u32 i = 0; i < OPENGL_NUM_CAMERAS; i++) {

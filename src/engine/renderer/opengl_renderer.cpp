@@ -3,6 +3,7 @@ const static int GLSL_GLOBAL_BLOCK = 0;
 const static u32 ubo_int_size    = sizeof(u32);
 const static u32 ubo_global_size = sizeof(_fog_global_window_state);
 static GLuint ubo_global;
+static int _fog_texture_indicies[OPENGL_NUM_CAMERAS];
 
 static Program compile_shader_program_from_source(const char *source) {
 #define SHADER_ERROR_CHECK(SHDR)                             \
@@ -316,14 +317,16 @@ void create_frame_buffers(int width, int height) {
 void render_post_processing() {
     post_process_shader_program.bind();
 
-    glBindTexture(GL_TEXTURE_2D, screen_textures[0]);
-    glActiveTexture(GL_TEXTURE1);
+    // TODO(ed): Do I need to do this every frame?
+    {
+        for (u32 i = 0; i < OPENGL_NUM_CAMERAS; i++) {
+            glBindTexture(GL_TEXTURE_2D, screen_textures[i]);
+            glActiveTexture(GL_TEXTURE1 + i);
+        }
 
-    glBindTexture(GL_TEXTURE_2D, screen_textures[1]);
-    glActiveTexture(GL_TEXTURE2);
-
-    int textures[] = {1, 2};
-    glUniform1iv(screen_texture_location, OPENGL_NUM_CAMERAS, &textures[0]);
+        glUniform1iv(screen_texture_location, OPENGL_NUM_CAMERAS, &_fog_texture_indicies[0]);
+        glUniform1i(num_screen_textures_location, _fog_num_active_cameras);
+    }
 
     glBindVertexArray(screen_quad_vao);
     glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -363,6 +366,10 @@ bool init(const char *title, int width, int height) {
         sprite_render_queues[i].create(512);
     }
     font_render_queue.create(256);
+    
+    // Initalize texture indicies
+    for (u32 i = 0; i < OPENGL_NUM_CAMERAS; i++)
+        _fog_texture_indicies[i] = i;
 
     glGenBuffers(1, &ubo_global);
     glBindBuffer(GL_UNIFORM_BUFFER, ubo_global);
@@ -529,12 +536,15 @@ void upload_shader(AssetID asset, const char *source) {
         case ASSET_POST_PROCESS_SHADER:
             source = Util::format(
                     "const int num_screens = " STR(OPENGL_NUM_CAMERAS) ";\n"
+                    "uniform int num_active_samplers;\n"
                     "uniform sampler2D screen_samplers[num_screens];\n"
                     "%s", source);
             post_process_shader_program = compile_shader_program_from_source(source);
             ASSERT(post_process_shader_program, "Failed to compile shader");
             screen_texture_location = glGetUniformLocation(
                 post_process_shader_program.id, "screen_samplers");
+            num_screen_textures_location = glGetUniformLocation(
+                post_process_shader_program.id, "num_active_samplers");
             break;
         default:
             ERR("Invalid asset passed as shader (%d)", asset);
@@ -555,12 +565,10 @@ void blit() {
     // cameras during runtime would be good!
     for (u32 cam = 0; cam < OPENGL_NUM_CAMERAS; cam++) {
         glBindFramebuffer(GL_FRAMEBUFFER, screen_fbos[cam]);
-
-        if (cam == 0)
-            glClearColor(0.3f, 0.1f, 0.2f, 1.0f);
-        else
-            glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
+        glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
         clear();
+        u32 bit = (cam == 0) ? 1 : (1 << cam);
+        if (!(_fog_active_cameras & bit)) continue;
 
         master_shader_program.bind();
         glUniform1ui(loc, cam);

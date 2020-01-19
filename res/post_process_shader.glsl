@@ -19,10 +19,14 @@ in vec4 pass_color;
 out vec4 color;
 
 void main() {
-    if (pass_uv.y < 0.5) {
+    if (num_active_samplers == 1) {
         color = texture(screen_samplers[0], pass_uv);
     } else {
-        color = texture(screen_samplers[1], pass_uv);
+        if (pass_uv.x > 0.5) {
+            color = texture(screen_samplers[1], pass_uv);
+        } else {
+            color = texture(screen_samplers[0], pass_uv);
+        }
     }
 }
 

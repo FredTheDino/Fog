@@ -34,6 +34,10 @@ struct {
 } _fog_global_window_state;
 #pragma pack(pop)
 
+// This limits the number of cameras to 32, which sounds sane...
+u32 _fog_active_cameras = 0;
+u32 _fog_num_active_cameras = 0;
+
 // Called if the screen is updated.
 void recalculate_global_aspect_ratio(int width, int height);
 
@@ -83,5 +87,15 @@ Camera camera_smooth(Camera camera_a, Camera camera_b, f32 slerp);
 void camera_fit(Camera *camera, u32 num_points, Vec2 *points, f32 border=0.0);
 Camera camera_fit(u32 num_points, Vec2 *points, f32 border=0.0);
 
+
+///*
+// Starts rendering on the specified camera. The ID
+// has to be in the range [0, OPENGL_NUM_CAMERAS).
+void turn_on_camera(u32 camera_id);
+
+///*
+// Stops rendering on the specified camera. The ID
+// has to be in the range [0, OPENGL_NUM_CAMERAS).
+void turn_off_camera(u32 camera_id);
 
 };  // namespace Renderer

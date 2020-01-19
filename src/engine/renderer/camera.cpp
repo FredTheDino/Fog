@@ -12,6 +12,23 @@ void recalculate_global_aspect_ratio(int width, int height) {
 #endif
 }
 
+void turn_on_camera(u32 camera_id) {
+    ASSERT(camera_id < OPENGL_NUM_CAMERAS, "Invalid camera id");
+    u32 bit = (camera_id == 0) ? 1 : (1 << camera_id);
+    if (bit & _fog_active_cameras) return;
+    _fog_active_cameras |= 1 << camera_id;
+    _fog_num_active_cameras++;
+}
+
+void turn_off_camera(u32 camera_id) {
+    ASSERT(camera_id < OPENGL_NUM_CAMERAS, "Invalid camera id");
+    u32 bit = (camera_id == 0) ? 1 : (1 << camera_id);
+    if (bit & _fog_active_cameras) {
+        _fog_active_cameras &= ~(1 << camera_id);
+        _fog_num_active_cameras--;
+    }
+}
+
 Camera camera_fit(u32 num_points, Vec2 *points, f32 border) {
     ASSERT(num_points, "No points given for camera to fit!");
     Camera camera = {};

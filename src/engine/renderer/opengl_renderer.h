@@ -109,6 +109,7 @@ GLuint screen_textures[OPENGL_NUM_CAMERAS];
 GLuint screen_quad_vao;
 GLuint screen_quad_vbo;
 GLuint screen_texture_location;
+GLuint num_screen_textures_location;
 
 
 
