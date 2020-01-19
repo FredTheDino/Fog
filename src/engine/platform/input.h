@@ -249,6 +249,11 @@ Vec2 screen_to_world(Vec2 p);
 Vec2 world_mouse_position();
 
 ///*
+// The position of the mouse in the same scale as the world
+// coordinates, but relative to the camera position.
+Vec2 normalised_mouse_position();
+
+///*
 // The movement of the mouse in world coordinated,
 // taken into account the current camera transform.
 Vec2 world_mouse_move();

@@ -23,7 +23,7 @@ bool mouse_in_range(f32 height, f32 offset) {
     const f32 BASE_OFFSET = 1.2;
     f32 min = offset - height * (1.0 + BASE_OFFSET);
     f32 max = offset - height * (0.0 + BASE_OFFSET);
-    f32 y = 1 - 2 * Input::mouse_position().y / Renderer::global_camera.height;
+    f32 y = Input::normalized_mouse_position().y;
     return min < y && y < max;
 }
 
