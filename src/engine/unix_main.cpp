@@ -171,6 +171,7 @@ int main(int argc, char **argv) {
     Game::entity_registration();
     Logic::frame(SDL_GetTicks() / 1000.0f);
     setup();
+    Util::strict_allocation_check();
     while (SDL::running) {
         Logic::frame(SDL_GetTicks() / 1000.0f);
 
