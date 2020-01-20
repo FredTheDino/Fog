@@ -20,7 +20,7 @@ static MemoryAllocationState _fog_mem_alloc_state = MemoryAllocationState::NO_RU
     switch (_fog_mem_alloc_state) {\
         case MemoryAllocationState::ILLEGAL:\
             _fog_illegal_allocation();\
-        defailt:\
+        default:\
         case MemoryAllocationState::ALLOWED:\
             _fog_mem_alloc_state = MemoryAllocationState::ILLEGAL;\
         case MemoryAllocationState::NO_RULE:\

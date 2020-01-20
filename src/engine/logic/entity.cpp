@@ -165,6 +165,14 @@ namespace Logic {
         return nullptr;
     }
 
+    template <typename T>
+    T *fetch_entity(EntityID id) {
+        Entity *entity = fetch_entity(id);
+        ASSERT(entity, "Cannot find entity");
+        ASSERT(entity->type() == T::st_type(), "Types don't match!");
+        return (T *) entity;
+    }
+
     bool valid_entity(EntityID id) {
         return fetch_entity(id) != nullptr;
     }
