@@ -64,7 +64,7 @@ run: $(ENGINE_PROGRAM_PATH)
 	cd $(BIN_DIR); ./$(ENGINE_PROGRAM_NAME)
 
 debug: $(ENGINE_PROGRAM_PATH)
-	cd $(BIN_DIR); gdb -ex "b _fog_assert_failed()" ./$(ENGINE_PROGRAM_NAME)
+	cd $(BIN_DIR); gdb -ex "b _fog_assert_failed()" -ex "b _fog_illegal_allocation()" ./$(ENGINE_PROGRAM_NAME)
 
 valgrind: $(ENGINE_PROGRAM_PATH)
 	cd $(BIN_DIR); $(TERMINAL) gdb $(ENGINE_PROGRAM_NAME) &
