@@ -20,6 +20,10 @@ namespace Input {
     enum class Name {
         NONE = 0,
 
+        LEFT_RIGHT,
+        UP_DOWN,
+        SEL,
+
         LEFT,
         RIGHT,
         UP,

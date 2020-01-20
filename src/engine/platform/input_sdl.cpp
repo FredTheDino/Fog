@@ -15,9 +15,77 @@ static bool running = true;
 
 #define K(key) (SDL::key_to_input_code((SDLK_##key)))
 Input::InputCode key_to_input_code(s32 scancode) {
-    return scancode << 3 | 0b0001;
+    return scancode << 5 | 0b001;
 }
 
+#define A(axis, player)\
+    (SDL::axis_to_input_code((SDL_CONTROLLER_AXIS_##axis), toID(player)))
+Input::InputCode axis_to_input_code(s32 scancode, s32 which) {
+    ASSERT(which < 0b100, "Which is too large");
+    return scancode << 5 | which << 3 | 0b010;
+}
+
+#define B(button, player)\
+    (SDL::button_to_input_code((SDL_CONTROLLER_BUTTON_##button), toID(player)))
+Input::InputCode button_to_input_code(s32 scancode, s32 which) {
+    ASSERT(which < 0b100, "Which is too large");
+    return scancode << 5 | which << 3 | 0b011;
+}
+
+struct ControllerMapping {
+    s32 slot;
+    SDL_GameController *controller;
+};
+
+const u32 NUM_PLAYERS = (u32) Player::NUM;
+static ControllerMapping _fog_global_controller_mapping[NUM_PLAYERS] = {};
+
+void register_controller(s32 slot) {
+    for (u32 i = 0; i < NUM_PLAYERS; i++) {
+        if (_fog_global_controller_mapping[i].controller)
+            continue;
+        _fog_global_controller_mapping[i] = {
+            slot,
+            SDL_GameControllerOpen(slot),
+        };
+        return;
+    }
+    ERR("Too many controllers connected, cannot connect more.");
+}
+
+s32 get_contoller_id(s32 slot) {
+    for (u32 i = 0; i < NUM_PLAYERS; i++) {
+        if (_fog_global_controller_mapping[i].slot == slot)
+            return i;
+    }
+    return -1;
+}
+
+void unregister_controller(s32 slot) {
+    for (u32 i = 0; i < NUM_PLAYERS; i++) {
+        ControllerMapping mapping = _fog_global_controller_mapping[i];
+        if (!mapping.controller || mapping.slot != slot)
+            continue;
+        SDL_GameControllerClose(mapping.controller);
+        _fog_global_controller_mapping[i] = {};
+        return;
+    }
+    ERR("Trying to disconnect unconnected controller");
+}
+
+// Make this more tweakable?? This isn't a "real deadzone",
+// since it would be nice to tweak the shape of it aswell...
+f32 _fog_controller_deadzone = 0.1;
+
+f32 s16_to_float(s16 value) {
+    // This makes the values normalized, so
+    // you don't "run faster to the left".
+    f32 normalzed;
+    if (value == -32768) normalzed = -1.0;
+    else normalzed = value / 32767.0;
+    if (ABS(normalzed) < _fog_controller_deadzone) return 0.0;
+    return normalzed;
+}
 
 void poll_events() {
     SDL_Event event;
@@ -67,6 +135,51 @@ void poll_events() {
                     Input::global_mapping.mouse.state[1] = state;
                 else if (event.button.button == SDL_BUTTON_RIGHT)
                     Input::global_mapping.mouse.state[2] = state;
+            } break;
+            case (SDL_CONTROLLERAXISMOTION): {
+                s32 which = event.caxis.which;
+                u32 id = get_contoller_id(which);
+                u8 axis = event.caxis.axis;
+                Input::InputCode code = axis_to_input_code(axis, id);
+                f32 value = s16_to_float(event.caxis.value);
+                // TODO(ed): If flipping the sticks should be added,
+                // it's here it's done.
+                if (axis == SDL_CONTROLLER_AXIS_LEFTY ||
+                    axis == SDL_CONTROLLER_AXIS_RIGHTY) {
+                    value = -value;
+                }
+                Input::activate(code, value);
+            } break;
+            case (SDL_CONTROLLERBUTTONDOWN):
+            case (SDL_CONTROLLERBUTTONUP): {
+                s32 which = event.cbutton.which;
+                u32 id = get_contoller_id(which);
+                u8 button = event.cbutton.button;
+                Input::InputCode code = button_to_input_code(button, id);
+                f32 value = event.cbutton.state == SDL_PRESSED ? 1.0 : 0.0;
+                Input::activate(code, value);
+            } break;
+            case (SDL_CONTROLLERDEVICEADDED): {
+                s32 which = event.cdevice.which;
+                const char *name = SDL_GameControllerNameForIndex(which);
+                if (Util::contains_substr(name, "PS4")) {
+                    // NOTE(ed): I know this looks wierd... But
+                    // for some reason PS4 controllers are 2 devices
+                    // on Linux, this filters out the second one
+                    // which looks to be useless (I think it's the
+                    // motion controlls).
+                    static bool skipp = false;
+                    if (skipp) {
+                        skipp = false;
+                        break;
+                    }
+                    skipp = true;
+                }
+                register_controller(which);
+            } break;
+            case (SDL_CONTROLLERDEVICEREMOVED): {
+                s32 which = event.cdevice.which;
+                unregister_controller(which);
             } break;
             case (SDL_MOUSEMOTION):
                 Input::global_mapping.mouse.x = event.motion.x;

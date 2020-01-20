@@ -63,6 +63,14 @@ void setup() {
     add(K(w), Name::UP);
     add(K(s), Name::DOWN);
 
+    add(A(LEFTX, Player::P1), Name::LEFT_RIGHT);
+    add(A(LEFTY, Player::P1), Name::UP_DOWN);
+    add(B(A, Player::P1), Name::SEL);
+
+    add(A(LEFTX, Player::P2), Name::LEFT_RIGHT);
+    add(A(LEFTY, Player::P2), Name::UP_DOWN);
+    add(B(A, Player::P2), Name::SEL);
+
     Vec2 points[] = {
         V2(0.0, 1.0),
         V2(1.0, 1.0),
@@ -111,6 +119,14 @@ void update(f32 delta) {
     } else {
         Renderer::turn_off_camera(1);
     }
+
+    static Vec2 pos = {};
+    pos += V2(Input::value(Name::LEFT_RIGHT),
+              Input::value(Name::UP_DOWN)) * delta;
+    if (Input::value(Name::SEL)) {
+        pos = {};
+    }
+    Renderer::push_point(10, pos, V4(1, 0, 0, 1), 0.3);
 
     if (current_cam == 0) {
         for (u32 i = 0; i < OPENGL_NUM_CAMERAS; i++) {

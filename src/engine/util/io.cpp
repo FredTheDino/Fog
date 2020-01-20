@@ -99,6 +99,17 @@ char *utf8_advance(char *c) {
     return c + utf8_size(c);
 }
 
+bool contains_substr(const char *str, const char *substr) {
+    for (; *str; str++) {
+        for (u32 i = 0; str[i] == substr[i]; i++) {
+            if (substr[i+1] == '\0')
+                return true;
+        }
+    }
+    return false;
+}
+
+#if 0
 // Returns the whole contents of the file as
 // as a string, that is valid for |FRAME_LAG_FOR_MEMORY|
 // frames.
@@ -116,5 +127,6 @@ String dump_file(const char *file_path) {
     fclose(file);
     return {buffer, file_size};
 }
+#endif
 
 }  // namespace Util
