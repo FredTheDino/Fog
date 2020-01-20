@@ -4,7 +4,7 @@ void clear() {
     for (u64 i = 0; i < NUMBER_OF_MARKERS; i++) {
         Clock *clock = clocks + i;
         if (clock->active) {
-            LOG("Never resetting clock \"%s\"", clock->name);
+            ERR("Never resetting clock \"%s\"", clock->name);
         }
         f64 time = clock->time / 1000.0f;
         clock->total_time += time;

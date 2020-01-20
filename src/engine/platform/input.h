@@ -246,7 +246,7 @@ Vec2 screen_to_world(Vec2 p);
 ///*
 // The position of the mouse in world coordinated,
 // taken into account the current camera transform.
-Vec2 world_mouse_position();
+Vec2 world_mouse_position(u32 camera_id = 0);
 
 ///*
 // The position of the mouse in the same scale as the world
@@ -256,7 +256,7 @@ Vec2 normalised_mouse_position();
 ///*
 // The movement of the mouse in world coordinated,
 // taken into account the current camera transform.
-Vec2 world_mouse_move();
+Vec2 world_mouse_move(u32 camera_id = 0);
 
 ///*
 // Returns the depth of the mouse press, this far. Should increase

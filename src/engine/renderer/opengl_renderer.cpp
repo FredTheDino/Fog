@@ -1,5 +1,9 @@
-const static int GLSL_CAMERA_BLOCK = 0;
-static GLuint ubo_camera;
+#define GLSL_ACTIVE_CAM_LOC 2
+const static int GLSL_GLOBAL_BLOCK = 0;
+const static u32 ubo_int_size    = sizeof(u32);
+const static u32 ubo_global_size = sizeof(_fog_global_window_state);
+static GLuint ubo_global;
+static int _fog_texture_indicies[OPENGL_NUM_CAMERAS];
 
 static Program compile_shader_program_from_source(const char *source) {
 #define SHADER_ERROR_CHECK(SHDR)                             \
@@ -20,16 +24,28 @@ static Program compile_shader_program_from_source(const char *source) {
     u32 vert = glCreateShader(GL_VERTEX_SHADER);
 
     const char *complete_source[] = {
-        "#version 330\n", "#define VERT\n",
-        "layout (std140) uniform Camera\n",
-        "{\n",
-        "    vec2 offset;\n",
-        "    vec2 position;\n",
-        "    float zoom;\n",
-        "    float aspect_ratio;\n",
-        "    float width;\n",
-        "    float height;\n",
-        "};",
+        "#version 330\n",
+        "#define VERT\n",
+        "struct Camera\n"
+        "{\n"
+        "    vec2  offset;\n"
+        "    vec2  pos;\n"
+        "    float zoom;\n"
+        "    float aspect_ratio;\n"
+        "};"
+        "struct Window\n"
+        "{\n"
+        "    float width;\n"
+        "    float height;\n"
+        "    float aspect_ratio;\n"
+        "};"
+        "layout (std140) uniform Global\n"
+        "{\n"
+        "   Camera cam[" STR(OPENGL_NUM_CAMERAS) "];\n"
+        "   Window win;\n"
+        "};\n"
+        "uniform uint current_cam;\n"
+        ,
         source};
     glShaderSource(vert, LEN(complete_source), complete_source, NULL);
     glCompileShader(vert);
@@ -58,7 +74,7 @@ static Program compile_shader_program_from_source(const char *source) {
     }
 
     unsigned int block = glGetUniformBlockIndex(shader, "Camera");
-    glUniformBlockBinding(shader, block, GLSL_CAMERA_BLOCK);
+    glUniformBlockBinding(shader, block, GLSL_GLOBAL_BLOCK);
 
     return shader;
 }
@@ -219,76 +235,54 @@ void resize_window(int width, int height) {
     recalculate_global_aspect_ratio(width, height);
     glViewport(0, 0, width, height);
 
-    glBindTexture(GL_TEXTURE_2D, screen_texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
-            GL_UNSIGNED_BYTE, NULL);
+    for (u32 cam = 0; cam < OPENGL_NUM_CAMERAS; cam++) {
+        GLuint rbo = screen_rbos[cam];
+        GLuint texture = screen_textures[cam];
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
+                GL_UNSIGNED_BYTE, NULL);
 
-    glBindRenderbuffer(GL_RENDERBUFFER, screen_rbo);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8,
-            width, height);
+        glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8,
+                width, height);
+    }
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
 }
 
-void rebuild_frame_buffers(int width, int height) {
-    glGenTextures(1, &screen_texture);
-    glBindTexture(GL_TEXTURE_2D, screen_texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
-            GL_UNSIGNED_BYTE, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    glGenFramebuffers(1, &screen_fbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, screen_fbo);
-    {
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                               GL_TEXTURE_2D, screen_texture, 0);
-
-        glGenRenderbuffers(1, &screen_rbo);
-        glBindRenderbuffer(GL_RENDERBUFFER, screen_rbo);
-        {
-            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8,
-                                  width, height);
-        }
-        glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
-                                  GL_RENDERBUFFER, screen_rbo);
-
-        if (glCheckFramebufferStatus(screen_fbo) != GL_FRAMEBUFFER_COMPLETE)
-            ERR("Incomplete framebuffer");
-    }
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
 void create_frame_buffers(int width, int height) {
-    glGenTextures(1, &screen_texture);
-    glBindTexture(GL_TEXTURE_2D, screen_texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
-            GL_UNSIGNED_BYTE, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    glGenTextures(OPENGL_NUM_CAMERAS, (GLuint *) &screen_textures);
+    glGenFramebuffers(OPENGL_NUM_CAMERAS, (GLuint *) &screen_fbos);
+    glGenRenderbuffers(OPENGL_NUM_CAMERAS, (GLuint *) &screen_rbos);
+    for (u32 cam = 0; cam < OPENGL_NUM_CAMERAS; cam++) {
+        GLuint fbo = screen_fbos[cam];
+        GLuint rbo = screen_rbos[cam];
+        GLuint texture = screen_textures[cam];
 
-    glGenFramebuffers(1, &screen_fbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, screen_fbo);
-    {
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                               GL_TEXTURE_2D, screen_texture, 0);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
+                GL_UNSIGNED_BYTE, NULL);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glBindTexture(GL_TEXTURE_2D, 0);
 
-        glGenRenderbuffers(1, &screen_rbo);
-        glBindRenderbuffer(GL_RENDERBUFFER, screen_rbo);
+        glBindFramebuffer(GL_FRAMEBUFFER, fbo);
         {
-            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8,
-                                  width, height);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                    GL_TEXTURE_2D, texture, 0);
+
+            glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+            {
+                glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8,
+                        width, height);
+            }
+            glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
+                    GL_RENDERBUFFER, rbo);
+
+            if (glCheckFramebufferStatus(fbo) != GL_FRAMEBUFFER_COMPLETE)
+                ERR("Incomplete framebuffer");
         }
-        glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
-                                  GL_RENDERBUFFER, screen_rbo);
-
-        if (glCheckFramebufferStatus(screen_fbo) != GL_FRAMEBUFFER_COMPLETE)
-            ERR("Incomplete framebuffer");
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -323,9 +317,16 @@ void create_frame_buffers(int width, int height) {
 void render_post_processing() {
     post_process_shader_program.bind();
 
-    glBindTexture(GL_TEXTURE_2D, screen_texture);
-    glActiveTexture(GL_TEXTURE1);
-    glUniform1i(screen_texture_location, 1);
+    // TODO(ed): Do I need to do this every frame?
+    {
+        for (u32 i = 0; i < OPENGL_NUM_CAMERAS; i++) {
+            glBindTexture(GL_TEXTURE_2D, screen_textures[i]);
+            glActiveTexture(GL_TEXTURE1 + i);
+        }
+
+        glUniform1iv(screen_texture_location, OPENGL_NUM_CAMERAS, &_fog_texture_indicies[0]);
+        glUniform1i(num_screen_textures_location, _fog_num_active_cameras);
+    }
 
     glBindVertexArray(screen_quad_vao);
     glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -336,7 +337,7 @@ void render_post_processing() {
 
 bool init(const char *title, int width, int height) {
     if (SDL_Init(SDL_INIT_EVERYTHING)) {
-        LOG("Failed to initalize SDL");
+        ERR("Failed to initalize SDL");
         return false;
     }
     window = SDL_CreateWindow(title, 0, 0, width, height,
@@ -349,7 +350,7 @@ bool init(const char *title, int width, int height) {
     context = SDL_GL_CreateContext(window);
 
     if (!gladLoadGL()) {
-        LOG("Failed to load OpenGL");
+        ERR("Failed to load OpenGL");
         return false;
     }
     resize_window(width, height);
@@ -357,17 +358,23 @@ bool init(const char *title, int width, int height) {
     SDL::window_callback = resize_window;
     SDL_GL_SetSwapInterval(1);
     glEnable(GL_DEBUG_OUTPUT);
-    //glDebugMessageCallback(gl_debug_message, 0);
+#if FOG_VERBOSE
+    glDebugMessageCallback(gl_debug_message, 0);
+#endif
 
     for (u32 i = 0; i < OPENGL_NUM_LAYERS; i++) {
         sprite_render_queues[i].create(512);
     }
     font_render_queue.create(256);
+    
+    // Initalize texture indicies
+    for (u32 i = 0; i < OPENGL_NUM_CAMERAS; i++)
+        _fog_texture_indicies[i] = i;
 
-    glGenBuffers(1, &ubo_camera);
-    glBindBuffer(GL_UNIFORM_BUFFER, ubo_camera);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(Camera), NULL, GL_STREAM_DRAW);
-    glBindBufferBase(GL_UNIFORM_BUFFER, GLSL_CAMERA_BLOCK, ubo_camera);
+    glGenBuffers(1, &ubo_global);
+    glBindBuffer(GL_UNIFORM_BUFFER, ubo_global);
+    glBufferData(GL_UNIFORM_BUFFER, ubo_global_size, NULL, GL_STREAM_DRAW);
+    glBindBufferBase(GL_UNIFORM_BUFFER, GLSL_GLOBAL_BLOCK, ubo_global);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     create_frame_buffers(width, height);
@@ -527,10 +534,17 @@ void upload_shader(AssetID asset, const char *source) {
             ASSERT(font_shader_program, "Failed to compile shader");
             break;
         case ASSET_POST_PROCESS_SHADER:
+            source = Util::format(
+                    "const int num_screens = " STR(OPENGL_NUM_CAMERAS) ";\n"
+                    "uniform int num_active_samplers;\n"
+                    "uniform sampler2D screen_samplers[num_screens];\n"
+                    "%s", source);
             post_process_shader_program = compile_shader_program_from_source(source);
             ASSERT(post_process_shader_program, "Failed to compile shader");
             screen_texture_location = glGetUniformLocation(
-                post_process_shader_program.id, "screen_sampler");
+                post_process_shader_program.id, "screen_samplers");
+            num_screen_textures_location = glGetUniformLocation(
+                post_process_shader_program.id, "num_active_samplers");
             break;
         default:
             ERR("Invalid asset passed as shader (%d)", asset);
@@ -540,20 +554,32 @@ void upload_shader(AssetID asset, const char *source) {
 void clear() { glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT); }
 
 void blit() {
-    glBindBuffer(GL_UNIFORM_BUFFER, ubo_camera);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Camera), &global_camera);
+    glBindBuffer(GL_UNIFORM_BUFFER, ubo_global);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, ubo_global_size, &_fog_global_window_state);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, screen_fbo);
-    {
-        glClearColor(0.3f, 0.1f, 0.2f, 1.0f);
+    // TODO(ed): We don't need to query this every frame...
+    u32 loc = glGetUniformLocation(master_shader_program.id, "current_cam");
+
+    // TODO(ed): Some way to turn off rendering for cirtain
+    // cameras during runtime would be good!
+    for (u32 cam = 0; cam < OPENGL_NUM_CAMERAS; cam++) {
+        glBindFramebuffer(GL_FRAMEBUFFER, screen_fbos[cam]);
+        glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
         clear();
+        u32 bit = (cam == 0) ? 1 : (1 << cam);
+        if (!(_fog_active_cameras & bit)) continue;
 
         master_shader_program.bind();
+        glUniform1ui(loc, cam);
         for (u32 layer = 0; layer < OPENGL_NUM_LAYERS; layer++)
             sprite_render_queues[layer].draw();
 
         font_shader_program.bind();
+        // TODO(ed): Some way to do camera specific text or rendering
+        // would probably be good.
+        // TODO(ed): Is this needed?
+        glUniform1ui(loc, cam);
         font_render_queue.draw();
     }
 

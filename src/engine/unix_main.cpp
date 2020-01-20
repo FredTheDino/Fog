@@ -171,6 +171,7 @@ int main(int argc, char **argv) {
     Game::entity_registration();
     Logic::frame(SDL_GetTicks() / 1000.0f);
     setup();
+    Util::strict_allocation_check();
     while (SDL::running) {
         Logic::frame(SDL_GetTicks() / 1000.0f);
 
@@ -193,7 +194,7 @@ int main(int argc, char **argv) {
         Logic::update_es();
         Logic::call(Logic::At::POST_UPDATE);
 
-        Mixer::audio_struct.position = Renderer::global_camera.position;
+        Mixer::audio_struct.position = Renderer::get_camera()->position;
 
         START_PERF(RENDER);
         Renderer::clear();

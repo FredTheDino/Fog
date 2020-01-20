@@ -58,7 +58,7 @@ typedef f32 real;  // Type used in vectors.
 #define ABS_MAX(a, b) ((ABS(a) > ABS(b)) ? (a) : (b))
 #define ABS_MIN(a, b) ((ABS(a) < ABS(b)) ? (a) : (b))
 
-#define LERP(a, l, b) ((a) * (1.0 - (l)) + (b) * (l))
+#define LERP(a, l, b) ((a) * (1.0f - (l)) + (b) * (l))
 
 #define CLAMP(min, max, v) ((min) > (v) ? (min) : ((max) < (v)) ? (max) : (v))
 

@@ -53,6 +53,9 @@ void entity_registration() {
     REGISTER_ENTITY(MyEnt);
 }
 
+
+Renderer::Camera to;
+Renderer::Camera from;
 void setup() {
     using namespace Input;
     add(K(a), Name::LEFT);
@@ -68,41 +71,64 @@ void setup() {
     };
     Physics::add_shape(LEN(points), points);
     Renderer::set_window_size(500, 500);
+
+    {
+        Vec2 points[] = {
+            V2(0.0, 0.0),
+            V2(-1.0, 0.0),
+            V2(-0.0, 1.0),
+            V2(-3.5, -1.0),
+        };
+
+        to = Renderer::camera_fit(LEN(points), points, 0.0);
+        from = *Renderer::get_camera();
+    }
 }
 
 // Main logic
 void update(f32 delta) {
     using namespace Input;
     static bool show_camera_controls = true;
-    static bool run = false;
     static Vec2 shake = V2(0, 0);
+    static f32 start = Logic::now();
+    static bool dual_cameras = false;
     if (Util::begin_tweak_section("Camera controls", &show_camera_controls)) {
-        Util::tweak("zoom", &Renderer::global_camera.zoom);
-        Util::tweak("position", &Renderer::global_camera.position);
-        Util::tweak("aspect", &Renderer::global_camera.aspect_ratio);
-        Util::tweak("run", &run);
+        Util::tweak("current_cam", &current_cam);
+        current_cam = CLAMP(0, OPENGL_NUM_CAMERAS - 1, current_cam);
+        Util::tweak("zoom", &Renderer::get_camera(current_cam)->zoom);
+        Util::tweak("position", &Renderer::get_camera(current_cam)->position);
+        Util::tweak("aspect", &Renderer::get_camera(current_cam)->aspect_ratio);
         Util::tweak("x", &shake.x);
         Util::tweak("y", &shake.y);
+        Util::tweak("split screen", &dual_cameras);
+        Util::tweak("num:", &Renderer::_fog_num_active_cameras);
     }
-    Renderer::camera_shake(Renderer::get_camera(), shake.x, shake.y);
     Util::end_tweak_section(&show_camera_controls);
+
+    Renderer::turn_on_camera(0);
+    if (dual_cameras) {
+        Renderer::turn_on_camera(1);
+    } else {
+        Renderer::turn_off_camera(1);
+    }
+
+    if (current_cam == 0) {
+        for (u32 i = 0; i < OPENGL_NUM_CAMERAS; i++) {
+            *Renderer::get_camera(i) = Renderer::camera_smooth(
+                    from, to, (f32) i / ((f32) OPENGL_NUM_CAMERAS));
+        }
+    }
 
     Vec2 points[] = {
         V2(0.0, 0.0),
         V2(-1.0, 0.0),
         V2(-0.0, 1.0),
         V2(-3.5, -1.0),
+        V2(1.5, 0.0),
     };
-
-    if (!run) {
-        run = true;
-        Renderer::camera_fit(Renderer::get_camera(), LEN(points), points, 0.0);
-    }
-
     for (u32 i = 0; i < LEN(points); i++) {
         Renderer::push_point(10, points[i], V4(1.0, 0.0, 1.0, 1.0));
     }
-
 
     if (down(Name::UP)) {
         MyEnt e = {};

@@ -211,6 +211,12 @@ EntityID add_entity_ptr(Entity *entity);
 Entity *fetch_entity(EntityID id);
 
 ///*
+// Tries to fetch an entity from the ES, assumes the types match,
+// if they don't an assert is fired.
+template <typename T>
+T *fetch_entity(EntityID id);
+
+///*
 // Returns true if the entity is reachable and still alive.
 bool valid_entity(EntityID id);
 

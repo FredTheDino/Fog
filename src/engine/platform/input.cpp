@@ -211,36 +211,30 @@ f32 value(Name name, Player player) {
     return 0;
 }
 
-Vec2 screen_to_world(Vec2 p) {
-    const f32 inv_width = 1.0 / Renderer::global_camera.width;
-    const f32 scale_factor = 1.0 / Renderer::global_camera.zoom;
+Vec2 scale_screen_to_world(Vec2 p, u32 camera_id = 0) {
+    Renderer::Camera *camera = Renderer::get_camera(camera_id);
+    const f32 inv_width = 1.0 / Renderer::get_window_width();
+    const f32 scale_factor = 1.0 / camera->zoom;
     Vec2 opengl = V2( p.x * 2 * scale_factor * inv_width,
                      -p.y * 2 * scale_factor * inv_width);
-    const f32 aspect_ratio = Renderer::global_camera.aspect_ratio;
-    Vec2 world = opengl + V2(-scale_factor, scale_factor * aspect_ratio);
-    return world - Renderer::global_camera.position;
-}
-
-Vec2 scale_screen_to_world(Vec2 p) {
-    const f32 inv_width = 1.0 / Renderer::global_camera.width;
-    const f32 scale_factor = 1.0 / Renderer::global_camera.zoom;
-    Vec2 opengl = V2( p.x * 2 * scale_factor * inv_width,
-                     -p.y * 2 * scale_factor * inv_width);
-    const f32 aspect_ratio = Renderer::global_camera.aspect_ratio;
-    Vec2 world = opengl + V2(-scale_factor, scale_factor * aspect_ratio);
+    Vec2 world = opengl + V2(-scale_factor, scale_factor * camera->aspect_ratio);
     return world;
 }
 
-Vec2 world_mouse_position() {
-    return screen_to_world(mouse_position());
+Vec2 screen_to_world(Vec2 p, u32 camera_id = 0) {
+    Renderer::Camera *camera = Renderer::get_camera(camera_id);
+    return scale_screen_to_world(p, camera_id) - camera->position;
+}
+
+Vec2 world_mouse_position(u32 camera_id) {
+    return screen_to_world(mouse_position(), camera_id);
 }
 
 Vec2 normalized_mouse_position() {
-    const f32 inv_width = 1.0 / Renderer::global_camera.width;
+    const f32 inv_width = 1.0 / Renderer::get_window_width();
     Vec2 opengl = V2( mouse_position().x * 2 * inv_width,
                      -mouse_position().y * 2 * inv_width);
-    const f32 aspect_ratio = Renderer::global_camera.aspect_ratio;
-    Vec2 normalized = opengl + V2(-1, 1 * aspect_ratio);
+    Vec2 normalized = opengl + V2(-1, 1 * Renderer::get_window_aspect_ratio());
     return normalized;
 }
 
@@ -248,8 +242,8 @@ Vec2 mouse_position() {
     return V2(global_mapping.mouse.x, global_mapping.mouse.y);
 }
 
-Vec2 world_mouse_move() {
-    return scale_screen_to_world(mouse_move());
+Vec2 world_mouse_move(u32 camera_id) {
+    return scale_screen_to_world(mouse_move(), camera_id);
 }
 
 Vec2 mouse_move() {
