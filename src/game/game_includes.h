@@ -6,6 +6,8 @@
 #define OPENGL_TEXTURE_HEIGHT 512
 #define OPENGL_TEXTURE_DEPTH 256
 #define OPENGL_NUM_LAYERS 16
+#define OPENGL_NUM_CAMERAS 2
+#define OPENGL_AUTO_APPLY_ASPECTRATIO_CHANGE true
 #define MAX_LAYER (OPENGL_NUM_LAYERS - 2)
 #define SDL
 
@@ -69,3 +71,5 @@ namespace Logic {
 }
 
 
+// REMOVE ME!
+static u32 current_cam = 0;

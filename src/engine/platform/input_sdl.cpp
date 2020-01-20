@@ -79,17 +79,17 @@ void poll_events() {
                     const int WARP_BORDER = 4;
                     if (event.motion.x <= SAFE_BORDER)
                         SDL_WarpMouseInWindow(Renderer::Impl::window,
-                                              Renderer::global_camera.width - WARP_BORDER,
+                                              Renderer::get_window_width() - WARP_BORDER,
                                               event.motion.y);
                     if (event.motion.y <= SAFE_BORDER)
                         SDL_WarpMouseInWindow(Renderer::Impl::window,
                                               event.motion.x,
-                                              Renderer::global_camera.height - WARP_BORDER);
-                    if (event.motion.x >= Renderer::global_camera.width - SAFE_BORDER)
+                                              Renderer::get_window_height() - WARP_BORDER);
+                    if (event.motion.x >= Renderer::get_window_width() - SAFE_BORDER)
                         SDL_WarpMouseInWindow(Renderer::Impl::window,
                                               WARP_BORDER,
                                               event.motion.y);
-                    if (event.motion.y >= Renderer::global_camera.height - SAFE_BORDER)
+                    if (event.motion.y >= Renderer::get_window_height() - SAFE_BORDER)
                         SDL_WarpMouseInWindow(Renderer::Impl::window,
                                               event.motion.x,
                                               WARP_BORDER);

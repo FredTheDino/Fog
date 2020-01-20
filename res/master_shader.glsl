@@ -8,11 +8,12 @@ layout (location=2) in float sprite;
 layout (location=3) in vec4 color;
 
 out vec3 pass_uv;
-out int  pass_sprite;
 out vec4 pass_color;
 
 void main() {
-    vec2 world_pos = (pos + position + offset) * vec2(zoom, zoom / aspect_ratio);
+    Camera camera = cam[current_cam];
+    vec2 cam_scale = vec2(camera.zoom, camera.zoom / camera.aspect_ratio);
+    vec2 world_pos = (pos + camera.pos + camera.offset) * cam_scale;
     gl_Position = vec4(world_pos, 0.0, 1.0);
     pass_uv = vec3(uv, sprite);
     pass_color = color;
