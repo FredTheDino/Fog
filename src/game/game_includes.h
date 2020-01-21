@@ -60,7 +60,7 @@ namespace Perf {
 
         AUDIO,
         AUDIO_SOURCES,
-        AUDIO_EFFECT,
+        AUDIO_EFFECTS,
 
         NUMBER_OF_MARKERS, // Don't write anything after this.
     };

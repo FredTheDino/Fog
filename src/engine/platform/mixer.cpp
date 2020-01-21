@@ -171,6 +171,7 @@ void audio_callback(void* userdata, u8* stream, int len) {
             audio_struct.tracks[track][(base + i) % TRACK_BUFFER_LENGTH] = 0.0;
     }
 
+    START_PERF(AUDIO_SOURCES);
     f32 left_fade[NUM_SOURCES];
     f32 right_fade[NUM_SOURCES];
     for (u32 source_id = 0; source_id < NUM_SOURCES; source_id++) {
@@ -246,9 +247,11 @@ void audio_callback(void* userdata, u8* stream, int len) {
             audio_struct.tracks[source->track_id][sample_index+1] += right;
         }
     }
+    STOP_PERF(AUDIO_SOURCES);
     for (u32 i = 0; i < SAMPLES; i++)
         output_stream[i] = 0.0;
 
+    START_PERF(AUDIO_EFFECTS);
     for (u32 track_id = 0; track_id < NUM_TRACKS; track_id++) {
         f32 *track = audio_struct.tracks[track_id];
 
@@ -262,6 +265,7 @@ void audio_callback(void* userdata, u8* stream, int len) {
             output_stream[i] += track[(base + i) % TRACK_BUFFER_LENGTH];
         }
     }
+    STOP_PERF(AUDIO_EFFECTS);
     audio_struct.sample_index += SAMPLES;  // wraps after ~24h
     STOP_PERF(AUDIO);
 }
