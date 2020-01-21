@@ -120,6 +120,8 @@ void update(f32 delta) {
         Renderer::turn_off_camera(1);
     }
 
+    Renderer::camera_shake(Renderer::get_camera(0), shake.x, shake.y);
+
     static Vec2 pos = {};
     pos += V2(Input::value(Name::LEFT_RIGHT),
               Input::value(Name::UP_DOWN)) * delta;
@@ -128,12 +130,13 @@ void update(f32 delta) {
     }
     Renderer::push_point(10, pos, V4(1, 0, 0, 1), 0.3);
 
-    if (current_cam == 0) {
-        for (u32 i = 0; i < OPENGL_NUM_CAMERAS; i++) {
-            *Renderer::get_camera(i) = Renderer::camera_smooth(
-                    from, to, (f32) i / ((f32) OPENGL_NUM_CAMERAS));
-        }
-    }
+    // this code "resets" camera transformations set by the tweaks-system (shake and position)
+//  if (current_cam == 0) {
+//      for (u32 i = 0; i < OPENGL_NUM_CAMERAS; i++) {
+//          *Renderer::get_camera(i) = Renderer::camera_smooth(
+//                  from, to, (f32) i / ((f32) OPENGL_NUM_CAMERAS));
+//      }
+//  }
 
     Vec2 points[] = {
         V2(0.0, 0.0),
