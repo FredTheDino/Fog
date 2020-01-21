@@ -55,7 +55,8 @@ bool init();
 //  <li>gain_variance, how much random variance there should be applied to the gain.</li>
 //  <li>loop, if the sound should loop or not.</li>
 // </ul>
-AudioID play_sound(AssetID asset_id, f32 pitch = 1.0,
+AudioID play_sound(AssetID asset_id, u32 track_id = 0,
+                   f32 pitch = 1.0,
                    f32 gain = AUDIO_DEFAULT_GAIN,
                    f32 pitch_variance = AUDIO_DEFAULT_VARIANCE,
                    f32 gain_variance = AUDIO_DEFAULT_VARIANCE,
@@ -74,7 +75,8 @@ AudioID play_sound(AssetID asset_id, f32 pitch = 1.0,
 //  <li>gain_variance, how much random variance there should be applied to the gain.</li>
 //  <li>loop, if the sound should loop or not.</li>
 // </ul>
-AudioID play_sound_at(AssetID asset_id, Vec2 position, f32 pitch = 1.0,
+AudioID play_sound_at(AssetID asset_id, Vec2 position, 
+                      u32 track_id = 0, f32 pitch = 1.0,
                       f32 gain = AUDIO_DEFAULT_GAIN,
                       f32 pitch_variance = AUDIO_DEFAULT_VARIANCE,
                       f32 gain_variance = AUDIO_DEFAULT_VARIANCE,

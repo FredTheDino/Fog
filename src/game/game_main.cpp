@@ -150,29 +150,11 @@ void update(f32 delta) {
     }
 
     if (down(Name::UP)) {
-        MyEnt e = {};
-        e.position = random_unit_vec2() * 0.4;
-        e.scale = {0.5, 0.5};
-        auto id = Logic::add_entity(e);
-        LOG("%d %d", id.slot, id.gen);
+        Mixer::play_sound(ASSET_NOISE, 1);
     }
-
-    if (down(Name::LEFT)) {
-        A e = {};
-        e.position = random_unit_vec2();
-        auto id = Logic::add_entity(e);
-        LOG("%d %d", id.slot, id.gen);
-    }
-
 
     if (down(Name::DOWN)) {
-        auto thing = [](Logic::Entity *e) -> bool {
-            Logic::remove_entity(e->id);
-            return false;
-        };
-        std::function func = std::function<bool(Logic::Entity*)>(thing);
-        Logic::for_entity_of_type(Logic::EntityType::MY_ENT,
-                                  func);
+        Mixer::play_sound(ASSET_NOISE);
     }
 }
 
