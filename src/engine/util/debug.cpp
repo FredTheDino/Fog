@@ -2,21 +2,21 @@
 #include <stdlib.h>
 // Debug functions
 // TODO(ed): It might be possible to remove the _MSG,
-#define LOG(fmt, ...) _fog_debug_log("LOG", __FILE__, __LINE__, __func__, fmt, ##__VA_ARGS__)
-#define ERR(fmt, ...) _fog_debug_log("ERR", __FILE__, __LINE__, __func__, fmt, ##__VA_ARGS__)
-void _fog_debug_log(const char* type, const char* file, int line,
-                        const char *func, const char* fmt, ...) {
+#define LOG(fmt, ...) _fog_debug_log("LOG", stdout, __FILE__, __LINE__, __func__, fmt, ##__VA_ARGS__)
+#define ERR(fmt, ...) _fog_debug_log("ERR", stderr, __FILE__, __LINE__, __func__, fmt, ##__VA_ARGS__)
+void _fog_debug_log(const char* type, FILE* stream, const char* file,
+                    int line, const char *func, const char* fmt, ...) {
     // TODO: Log file with timestamps?
     va_list args;
     va_start(args, fmt);
 #ifdef VIM_JUMP_TO
-    fprintf(stderr, "%s|%d| (%s) [%s]: ", file, line, func, type);
+    fprintf(stream, "%s|%d| (%s) [%s]: ", file, line, func, type);
 #else
-    fprintf(stderr, "%s @ %d (%s) [%s]:\n-- ", file, line, func, type);
+    fprintf(stream, "%s @ %d (%s) [%s]:\n-- ", file, line, func, type);
 #endif
-    vfprintf(stderr, fmt, args);
+    vfprintf(stream, fmt, args);
     va_end(args);
-    fprintf(stderr, "\n");
+    fprintf(stream, "\n");
 }
 
 #define STR_HELPER(x) #x
@@ -33,11 +33,11 @@ void _fog_assert_failed() {HALT_AND_CATCH_FIRE;}
 void _fog_assert(const char* file, int line, const char* expr,
                      bool assumed) {
     if (assumed) return;
-    _fog_debug_log("!ASSERT!", file, line, "ASSERT", expr);
+    _fog_debug_log("!ASSERT!", stderr, file, line, "ASSERT", expr);
     _fog_assert_failed();
 }
 #define UNREACHABLE                                \
-    _fog_debug_log("UNREACHABLE", __FILE__, __LINE__, \
+    _fog_debug_log("UNREACHABLE", stderr, __FILE__, __LINE__, \
                 __func__, "Reached unreachable code");       \
     HALT_AND_CATCH_FIRE;
 
@@ -45,6 +45,6 @@ void _fog_assert(const char* file, int line, const char* expr,
 void _fog_check(const char* file, int line, const char* expr,
                     bool assumed) {
     if (assumed) return;
-    _fog_debug_log("?CHECK?", file, line, "CHECK", expr);
+    _fog_debug_log("?CHECK?", stderr, file, line, "CHECK", expr);
 }
 
