@@ -161,4 +161,18 @@ bool tweak(const char *name, Vec2 *value) {
     return false;
 }
 
+bool tweak(const char *name, Span *value) {
+    if (!debug_values_are_on()) return false;
+    const char *buffer = Util::format(" %s: { %.4f, %.4f }", name, value->min, value->max);
+    debug_value_logic(name, buffer);
+
+    if (name == global_tweak.hot) {
+        Vec2 delta = hadamard(V2(1, -1), Input::mouse_move() / global_tweak.pixels_per_unit / 7.0);
+        value->min += delta.x;
+        value->max += delta.y;
+        return delta.x != 0 || delta.y != 0;
+    }
+    return false;
+}
+
 };

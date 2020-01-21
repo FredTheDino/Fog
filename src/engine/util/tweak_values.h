@@ -46,5 +46,6 @@ bool tweak(const char *name, f32 *value);
 bool tweak(const char *name, s32 *value);
 bool tweak(const char *name, u32 *value);
 bool tweak(const char *name, Vec2 *value);
+bool tweak(const char *name, Span *value);
 
 };
