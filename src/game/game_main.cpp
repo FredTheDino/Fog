@@ -112,6 +112,12 @@ void update(f32 delta) {
         Util::tweak("num:", &Renderer::_fog_num_active_cameras);
     }
     Util::end_tweak_section(&show_camera_controls);
+    static bool show_various_tweaks = true;
+    static Span span = { 0.3, 0.35};
+    if (Util::begin_tweak_section("Other tweaks", &show_various_tweaks)) {
+        Util::tweak("point size", &span);
+    }
+    Util::end_tweak_section(&show_various_tweaks);
 
     Renderer::turn_on_camera(0);
     if (dual_cameras) {
@@ -128,7 +134,7 @@ void update(f32 delta) {
     if (Input::value(Name::SEL)) {
         pos = {};
     }
-    Renderer::push_point(10, pos, V4(1, 0, 0, 1), 0.3);
+    Renderer::push_point(10, pos, V4(1, 0, 0, 1), span.random());
 
     // this code "resets" camera transformations set by the tweaks-system (shake and position)
 //  if (current_cam == 0) {
