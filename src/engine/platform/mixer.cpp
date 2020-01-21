@@ -32,6 +32,7 @@ struct SoundSource {
     u8 gen;
 };
 
+const u32 NUM_EFFECTS = 5;
 const u32 NUM_INSTRUMENTS = 10;
 const u32 NUM_SOURCES = 32;
 const u32 NUM_TRACKS = 10;
@@ -44,6 +45,7 @@ struct AudioStruct {
     u16 free_sources[NUM_SOURCES];
     f32 *tracks[NUM_TRACKS];
     u32 sample_index;
+    Effect effects[NUM_TRACKS][NUM_EFFECTS];
     // Position of the listener
     Vec2 position;
     f32 time;
@@ -51,6 +53,34 @@ struct AudioStruct {
 
     SDL_AudioDeviceID dev;
 } audio_struct = {};
+
+Effect create_delay(f32 feedback, f32 delay_time) {
+    auto delay_func = [] (Effect *effect, f32 *buffer, u32 start, u32 len) -> void {
+        LOG("DELAY!");
+    };
+    Effect effect = {delay_func};
+    effect.delay.feedback = feedback;
+    effect.delay.delay_len = (u32) AUDIO_SAMPLE_RATE * delay_time * 2;
+    return effect;
+}
+
+//TODO(GS) assert track_id
+bool add_effect(Effect effect, u32 track_id) {
+    for (u32 i = 0; i < NUM_EFFECTS; i++) {
+        if (audio_struct.effects[track_id][i].effect) continue;
+        audio_struct.effects[track_id][i] = effect;
+        return true;
+    }
+    ERR("Not enough free effect slots on track %d, skipping effect", track_id);
+    return false;
+}
+
+//TODO(GS) assert track_id
+void clear_effects(u32 track_id) {
+    for (u32 i = 0; i < NUM_EFFECTS; i++) {
+        audio_struct.effects[track_id][i].effect = nullptr;
+    }
+}
 
 f32 pitch(s32 tone) {
     return BASE_TONE * pow(NEXT_TONE, tone);
@@ -84,12 +114,14 @@ AudioID push_sound(SoundSource source) {
     return {0, NUM_SOURCES};
 }
 
+//TODO(GS) assert track_id
 AudioID play_sound(AssetID asset_id, u32 track_id, f32 pitch, f32 gain, f32 pitch_variance,
                    f32 gain_variance, bool loop) {
     return push_sound({0, asset_id, track_id, pitch + random_real(-1, 1) * pitch_variance,
                        gain + random_real(-1, 1) * gain_variance, loop});
 }
 
+//TODO(GS) assert track_id
 AudioID play_sound_at(AssetID asset_id, Vec2 position, u32 track_id, f32 pitch, f32 gain,
                       f32 pitch_variance, f32 gain_variance, bool loop) {
     return push_sound({0, asset_id, track_id, pitch + random_real(-1, 1) * pitch_variance,
@@ -122,6 +154,7 @@ void unlock_audio() {
 #define S16_TO_F32(S) ((f32) (S) / ((f32) 0xEFFF))
 
 void audio_callback(void* userdata, u8* stream, int len) {
+    START_PERF(AUDIO);
     const u32 SAMPLES = len / sizeof(f32);
     AudioStruct *data = (AudioStruct *) userdata;
     f32 *output_stream = (f32*) stream;
@@ -213,11 +246,19 @@ void audio_callback(void* userdata, u8* stream, int len) {
 
     for (u32 track_id = 0; track_id < NUM_TRACKS; track_id++) {
         f32 *track = audio_struct.tracks[track_id];
+
+        for (u32 i = 0; i < NUM_EFFECTS; i++) {
+            Effect *effect = &audio_struct.effects[track_id][i];
+            if (!effect->effect) continue;
+            effect->effect(effect, track, base, SAMPLES);
+        }
+
         for (u32 i = 0; i < SAMPLES; i++) {
             output_stream[i] += track[(base + i) % TRACK_BUFFER_LENGTH];
         }
     }
     audio_struct.sample_index += SAMPLES;  // wraps after ~24h
+    STOP_PERF(AUDIO);
 }
 
 bool init() {

@@ -78,7 +78,7 @@ void setup() {
         V2(0.0, 0.0),
     };
     Physics::add_shape(LEN(points), points);
-    Renderer::set_window_size(500, 500);
+    Renderer::set_window_size(1000, 1000);
 
     {
         Vec2 points[] = {
@@ -91,6 +91,8 @@ void setup() {
         to = Renderer::camera_fit(LEN(points), points, 0.0);
         from = *Renderer::get_camera();
     }
+
+    Mixer::add_effect(Mixer::create_delay(1.0, 1.0), 1);
 }
 
 // Main logic
@@ -130,13 +132,13 @@ void update(f32 delta) {
     }
     Renderer::push_point(10, pos, V4(1, 0, 0, 1), 0.3);
 
-    // this code "resets" camera transformations set by the tweaks-system (shake and position)
-//  if (current_cam == 0) {
-//      for (u32 i = 0; i < OPENGL_NUM_CAMERAS; i++) {
-//          *Renderer::get_camera(i) = Renderer::camera_smooth(
-//                  from, to, (f32) i / ((f32) OPENGL_NUM_CAMERAS));
-//      }
-//  }
+    // // this code "resets" camera transformations set by the tweaks-system (shake and position)
+    // if (current_cam == 0) {
+    //     for (u32 i = 0; i < OPENGL_NUM_CAMERAS; i++) {
+    //         *Renderer::get_camera(i) = Renderer::camera_smooth(
+    //                 from, to, (f32) i / ((f32) OPENGL_NUM_CAMERAS));
+    //     }
+    // }
 
     Vec2 points[] = {
         V2(0.0, 0.0),

@@ -25,6 +25,18 @@ struct AudioID {
     u16 slot;
 };
 
+struct Effect {
+    void (* effect)(Effect *effect, f32 *buffer, u32 start, u32 len);
+    union {
+        struct {
+            f32 feedback;
+            u32 delay_len;
+        } delay;
+    };
+};
+
+Effect create_delay(f32 feedback, f32 delay_time);
+
 // TODO(ed): Some reverb and echo effects would
 // go a long way to create cool atmospheres.
 
