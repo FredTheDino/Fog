@@ -81,6 +81,13 @@ void setup_debug_keybindings() {
 
     CHECK(add(K(F12), Name::QUIT),
           "Failed to create mapping");
+
+    CHECK(add(K(LSHIFT), Name::TWEAK_SMOOTH),
+          "Failed to create mapping");
+
+    CHECK(add(K(LCTRL), Name::TWEAK_STEP),
+          "Failed to create mapping");
+
     CHECK(add(K(F1), Name::DEBUG_PERF),
           "Failed to create mapping");
 

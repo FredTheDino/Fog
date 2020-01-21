@@ -132,11 +132,8 @@ bool tweak(const char *name, u32 *value) {
 
     if (name == global_tweak.hot) {
         f32 current_x = Input::mouse_position().x;
-        s32 upper = (current_x - global_tweak.click_pos.x) /
-                    global_tweak.pixels_per_unit;
-        s32 lower =
-            (current_x - Input::mouse_move().x - global_tweak.click_pos.x) /
-            global_tweak.pixels_per_unit;
+        s32 upper = (current_x - global_tweak.click_pos.x) / global_tweak.pixels_per_unit;
+        s32 lower = upper - Input::mouse_move().x / global_tweak.pixels_per_unit;
         s32 delta = upper - lower;
         if ((s32) *value < -delta) {
             *value = 0;
@@ -154,7 +151,30 @@ bool tweak(const char *name, Vec2 *value) {
     debug_value_logic(name, buffer);
 
     if (name == global_tweak.hot) {
-        Vec2 delta = hadamard(V2(1, -1), Input::mouse_move() / global_tweak.pixels_per_unit / 7.0);
+        Vec2 delta = {};
+
+        f32 movement_scale;
+        if (Input::down(Input::Name::TWEAK_SMOOTH))
+            movement_scale = 1.0 / global_tweak.pixels_per_unit / 14.0; 
+        else 
+            movement_scale = 1.0 / global_tweak.pixels_per_unit / 7.0; 
+
+        if (Input::down(Input::Name::TWEAK_STEP)) {
+            Vec2 curr = Input::mouse_position();
+            Vec2 upper = (curr - global_tweak.click_pos) * movement_scale;
+            Vec2 lower = upper - Input::mouse_move() * movement_scale;
+            Vec2 change = V2(ROUND(upper.x) - ROUND(lower.x),
+                             ROUND(upper.y) - ROUND(lower.y));
+            value->x = ROUND(value->x);
+            value->y = ROUND(value->y);
+            if (change.x)
+                delta.x = value->x - ROUND(value->x + change.x);
+
+            if (change.y)
+                delta.y = value->y - ROUND(value->y + change.y);
+        } else {
+            delta = hadamard(V2(1, -1), Input::mouse_move() * movement_scale);
+        }
         *value += delta;
         return delta.x != 0 || delta.y != 0;
     }
