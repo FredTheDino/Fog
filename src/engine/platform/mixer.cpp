@@ -127,9 +127,10 @@ void audio_callback(void* userdata, u8* stream, int len) {
     f32 *output_stream = (f32*) stream;
     const f32 TIME_STEP = data->time_step;
 
+    u32 base = audio_struct.sample_index;
     for (u32 track = 0; track < NUM_TRACKS; track++) {
         for (u32 i = 0; i < SAMPLES; i++)
-            audio_struct.tracks[track][i] = 0.0;
+            audio_struct.tracks[track][(base + i) % TRACK_BUFFER_LENGTH] = 0.0;
     }
 
     f32 left_fade[NUM_SOURCES];
@@ -210,7 +211,6 @@ void audio_callback(void* userdata, u8* stream, int len) {
     for (u32 i = 0; i < SAMPLES; i++)
         output_stream[i] = 0.0;
 
-    u32 base = audio_struct.sample_index;
     for (u32 track_id = 0; track_id < NUM_TRACKS; track_id++) {
         f32 *track = audio_struct.tracks[track_id];
         for (u32 i = 0; i < SAMPLES; i++) {

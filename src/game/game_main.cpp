@@ -149,12 +149,12 @@ void update(f32 delta) {
         Renderer::push_point(10, points[i], V4(1.0, 0.0, 1.0, 1.0));
     }
 
-    if (down(Name::UP)) {
-        Mixer::play_sound(ASSET_NOISE, 1);
+    if (pressed(Name::UP)) {
+        Mixer::play_sound(ASSET_NOISE_SHORT, 1);
     }
 
-    if (down(Name::DOWN)) {
-        Mixer::play_sound(ASSET_NOISE);
+    if (pressed(Name::DOWN)) {
+        Mixer::play_sound(ASSET_NOISE_SHORT);
     }
 }
 
