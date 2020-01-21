@@ -36,7 +36,8 @@ const u32 NUM_EFFECTS = 5;
 const u32 NUM_INSTRUMENTS = 10;
 const u32 NUM_SOURCES = 32;
 const u32 NUM_TRACKS = 10;
-const u32 TRACK_BUFFER_LENGTH = AUDIO_SAMPLE_RATE * 3 * 2;  // 3 seconds, 2 channels
+const u32 TRACK_BUFFER_LENGTH_SECONDS = 3;  // ~2MB
+const u32 TRACK_BUFFER_LENGTH = AUDIO_SAMPLE_RATE * TRACK_BUFFER_LENGTH_SECONDS * 2;  // two channels
 
 struct AudioStruct {
     Instrument instruments[NUM_INSTRUMENTS];
@@ -54,8 +55,8 @@ struct AudioStruct {
     SDL_AudioDeviceID dev;
 } audio_struct = {};
 
-//TODO(GS) assert delay_time
 Effect create_delay(f32 feedback, f32 delay_time) {
+    ASSERT(delay_time < TRACK_BUFFER_LENGTH_SECONDS, "Delay time is longer than track buffer");
     auto delay_func = [] (Effect *effect, f32 *buffer, u32 start, u32 len) -> void {
         for (u32 i = 0; i < len; i++) {
             //TODO(GS) I am not sure about the math here:       vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
@@ -68,8 +69,8 @@ Effect create_delay(f32 feedback, f32 delay_time) {
     return effect;
 }
 
-//TODO(GS) assert track_id
 bool add_effect(Effect effect, u32 track_id) {
+    ASSERT(track_id < NUM_TRACKS, "Invalid track_id");
     for (u32 i = 0; i < NUM_EFFECTS; i++) {
         if (audio_struct.effects[track_id][i].effect) continue;
         audio_struct.effects[track_id][i] = effect;
@@ -79,8 +80,8 @@ bool add_effect(Effect effect, u32 track_id) {
     return false;
 }
 
-//TODO(GS) assert track_id
 void clear_effects(u32 track_id) {
+    ASSERT(track_id < NUM_TRACKS, "Invalid track_id");
     for (u32 i = 0; i < NUM_EFFECTS; i++) {
         audio_struct.effects[track_id][i].effect = nullptr;
     }
@@ -118,16 +119,16 @@ AudioID push_sound(SoundSource source) {
     return {0, NUM_SOURCES};
 }
 
-//TODO(GS) assert track_id
 AudioID play_sound(AssetID asset_id, u32 track_id, f32 pitch, f32 gain, f32 pitch_variance,
                    f32 gain_variance, bool loop) {
+    ASSERT(track_id < NUM_TRACKS, "Invalid track_id");
     return push_sound({0, asset_id, track_id, pitch + random_real(-1, 1) * pitch_variance,
                        gain + random_real(-1, 1) * gain_variance, loop});
 }
 
-//TODO(GS) assert track_id
 AudioID play_sound_at(AssetID asset_id, Vec2 position, u32 track_id, f32 pitch, f32 gain,
                       f32 pitch_variance, f32 gain_variance, bool loop) {
+    ASSERT(track_id < NUM_TRACKS, "Invalid track_id");
     return push_sound({0, asset_id, track_id, pitch + random_real(-1, 1) * pitch_variance,
                        gain + random_real(-1, 1) * gain_variance, loop, true,
                        position});
