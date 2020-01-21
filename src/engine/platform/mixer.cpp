@@ -151,12 +151,12 @@ void audio_callback(void* userdata, u8* stream, int len) {
     }
 
 
-    f32 time = 0;
-    for (u32 i = 0; i < SAMPLES; i += 2) {
-        time += TIME_STEP;
-        for (u32 source_id = 0; source_id < NUM_SOURCES; source_id++) {
+    for (u32 source_id = 0; source_id < NUM_SOURCES; source_id++) {
+        f32 time = 0;
+        for (u32 i = 0; i < SAMPLES; i += 2) {
+            time += TIME_STEP;
             SoundSource *source = data->sources + source_id;
-            if (source->gain == 0.0) continue;
+            if (source->gain == 0.0) break;
             Sound *sound = Asset::fetch_sound(source->source);
             source->sample += sound->sample_rate * source->pitch * TIME_STEP;
             u64 index = source->sample;
@@ -167,7 +167,7 @@ void audio_callback(void* userdata, u8* stream, int len) {
                 } else {
                     data->free_sources[data->num_free_sources++] = source_id;
                     source->gain = 0.0;
-                    continue;
+                    break;
                 }
             }
 
