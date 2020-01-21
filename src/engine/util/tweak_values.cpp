@@ -81,7 +81,7 @@ bool auto_tweak(const char *name, void *value, u64 hash) {
     return false;
 }
 
-bool tweak(const char *name, bool *value) {
+bool tweak(const char *name, bool *value, f32 modifier) {
     if (!debug_values_are_on()) return false;
     const char *buffer = Util::format(" %s: %s", name, *value ? "true" : "false");
     debug_value_logic(name, buffer);
@@ -93,20 +93,20 @@ bool tweak(const char *name, bool *value) {
     return false;
 }
 
-bool tweak(const char *name, f32 *value) {
+bool tweak(const char *name, f32 *value, f32 modifier) {
     if (!debug_values_are_on()) return false;
     const char *buffer = Util::format(" %s: %.4f", name, *value);
     debug_value_logic(name, buffer);
 
     if (name == global_tweak.hot) {
         f32 delta = Input::mouse_move().x / global_tweak.pixels_per_unit / 7.0;
-        *value += delta;
+        *value += delta * modifier;
         return delta != 0;
     }
     return false;
 }
 
-bool tweak(const char *name, s32 *value) {
+bool tweak(const char *name, s32 *value, f32 modifier) {
     if (!debug_values_are_on()) return false;
     const char *buffer = Util::format(" %s: %d", name, *value);
     debug_value_logic(name, buffer);
@@ -119,13 +119,13 @@ bool tweak(const char *name, s32 *value) {
             (current_x - Input::mouse_move().x - global_tweak.click_pos.x) /
             global_tweak.pixels_per_unit;
         s32 delta = upper - lower;
-        *value += delta;
+        *value += delta * modifier;
         return delta != 0;
     }
     return false;
 }
 
-bool tweak(const char *name, u32 *value) {
+bool tweak(const char *name, u32 *value, f32 modifier) {
     if (!debug_values_are_on()) return false;
     const char *buffer = Util::format(" %s: %u", name, *value);
     debug_value_logic(name, buffer);
@@ -138,24 +138,38 @@ bool tweak(const char *name, u32 *value) {
             (current_x - Input::mouse_move().x - global_tweak.click_pos.x) /
             global_tweak.pixels_per_unit;
         s32 delta = upper - lower;
-        if ((s32) *value < -delta) {
+        if ((s32) *value < -delta * modifier) {
             *value = 0;
         } else {
-            *value += delta;
+            *value += delta * modifier;
         }
         return delta != 0;
     }
     return true;
 }
 
-bool tweak(const char *name, Vec2 *value) {
+bool tweak(const char *name, Vec2 *value, f32 modifier) {
     if (!debug_values_are_on()) return false;
     const char *buffer = Util::format(" %s: %.4f, %.4f", name, value->x, value->y);
     debug_value_logic(name, buffer);
 
     if (name == global_tweak.hot) {
         Vec2 delta = hadamard(V2(1, -1), Input::mouse_move() / global_tweak.pixels_per_unit / 7.0);
-        *value += delta;
+        *value += delta * modifier;
+        return delta.x != 0 || delta.y != 0;
+    }
+    return false;
+}
+
+bool tweak(const char *name, Span *value, f32 modifier) {
+    if (!debug_values_are_on()) return false;
+    const char *buffer = Util::format(" %s: { %.4f, %.4f }", name, value->min, value->max);
+    debug_value_logic(name, buffer);
+
+    if (name == global_tweak.hot) {
+        Vec2 delta = hadamard(V2(1, -1), Input::mouse_move() / global_tweak.pixels_per_unit / 7.0);
+        value->min += delta.x * modifier;
+        value->max += delta.y * modifier;
         return delta.x != 0 || delta.y != 0;
     }
     return false;
