@@ -54,9 +54,13 @@ struct AudioStruct {
     SDL_AudioDeviceID dev;
 } audio_struct = {};
 
+//TODO(GS) assert delay_time
 Effect create_delay(f32 feedback, f32 delay_time) {
     auto delay_func = [] (Effect *effect, f32 *buffer, u32 start, u32 len) -> void {
-        LOG("DELAY!");
+        for (u32 i = 0; i < len; i++) {
+            //TODO(GS) I am not sure about the math here:       vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+            buffer[(start + i) % TRACK_BUFFER_LENGTH] += buffer[ABS(((s32) start + i - effect->delay.delay_len) % TRACK_BUFFER_LENGTH)] * effect->delay.feedback;
+        }
     };
     Effect effect = {delay_func};
     effect.delay.feedback = feedback;

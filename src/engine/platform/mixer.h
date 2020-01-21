@@ -25,6 +25,7 @@ struct AudioID {
     u16 slot;
 };
 
+//TODO(GS) standard effects for common sounds (consts).
 struct Effect {
     void (* effect)(Effect *effect, f32 *buffer, u32 start, u32 len);
     union {

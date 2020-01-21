@@ -92,7 +92,7 @@ void setup() {
         from = *Renderer::get_camera();
     }
 
-    Mixer::add_effect(Mixer::create_delay(1.0, 1.0), 1);
+    Mixer::add_effect(Mixer::create_delay(0.3, 0.2), 1);
 }
 
 // Main logic
