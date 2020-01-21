@@ -151,12 +151,34 @@ void update(f32 delta) {
         Renderer::push_point(10, points[i], V4(1.0, 0.0, 1.0, 1.0));
     }
 
-    if (pressed(Name::UP)) {
-        Mixer::play_sound(ASSET_NOISE_SHORT, 1);
+        if (down(Name::UP)) {
+        MyEnt e = {};
+        e.position = random_unit_vec2() * 0.4;
+        e.scale = {0.5, 0.5};
+        auto id = Logic::add_entity(e);
+        LOG("%d %d", id.slot, id.gen);
     }
 
-    if (pressed(Name::DOWN)) {
-        Mixer::play_sound(ASSET_NOISE_SHORT);
+    if (down(Name::LEFT)) {
+        A e = {};
+        e.position = random_unit_vec2();
+        auto id = Logic::add_entity(e);
+        LOG("%d %d", id.slot, id.gen);
+    }
+
+
+    if (down(Name::DOWN)) {
+        auto thing = [](Logic::Entity *e) -> bool {
+            Logic::remove_entity(e->id);
+            return false;
+        };
+        std::function func = std::function<bool(Logic::Entity*)>(thing);
+        Logic::for_entity_of_type(Logic::EntityType::MY_ENT,
+                                  func);
+    }
+
+    if (pressed(Name::RIGHT)) {
+        Mixer::play_sound(ASSET_NOISE_SHORT, 1);
     }
 }
 
