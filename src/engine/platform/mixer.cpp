@@ -243,6 +243,14 @@ void audio_callback(void* userdata, u8* stream, int len) {
         for (u32 i = 0; i < SAMPLES; i++) {
             output_stream[i] += channel->buffer[(base + i) % CHANNEL_BUFFER_LENGTH];
         }
+
+        for (u32 i = 0; i < SAMPLES; i++) {
+            if (output_stream[i] > SAMPLE_LIMIT) {
+                output_stream[i] = SAMPLE_LIMIT;
+            } else if (output_stream[i] < -SAMPLE_LIMIT) {
+                output_stream[i] = -SAMPLE_LIMIT;
+            }
+        }
     }
     STOP_PERF(AUDIO_EFFECTS);
     audio_struct.sample_index += SAMPLES;  // wraps after ~24h
