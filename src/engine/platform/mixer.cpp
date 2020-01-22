@@ -59,6 +59,7 @@ Effect create_delay(f32 feedback, f32 delay_time) {
     ASSERT(delay_time < CHANNEL_BUFFER_LENGTH_SECONDS, "Delay time is longer than channel buffer");
     auto delay_func = [] (Effect *effect, f32 *buffer, u32 start, u32 len) -> void {
         if (effect->delay._delay_len_seconds != effect->delay._prev_delay_len_seconds) {
+            //TODO(GS) crackling when length is changed while sound is playing
             effect->delay.delay_len = (u32) AUDIO_SAMPLE_RATE * effect->delay._delay_len_seconds * 2;
             effect->delay._prev_delay_len_seconds = effect->delay._delay_len_seconds;
         }
@@ -82,6 +83,16 @@ Effect* add_effect(Effect effect, u32 channel_id) {
     }
     ERR("Not enough free effect slots on channel %d, skipping effect", channel_id);
     return nullptr;
+}
+
+bool remove_effect(Effect *effect) {
+    for (u32 channel_id = 0; channel_id < NUM_CHANNELS; channel_id++) {
+        for (u32 effect_id = 0; effect_id < NUM_EFFECTS; effect_id++) {
+            if (audio_struct.effects[channel_id][effect_id].effect == effect->effect) {
+                audio_struct.effects[channel_id][effect_id].effect = nullptr;
+            }
+        }
+    }
 }
 
 void clear_effects(u32 channel_id) {

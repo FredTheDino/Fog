@@ -176,7 +176,7 @@ void update(f32 delta) {
     }
 
 
-    if (down(Name::DOWN)) {
+    if (pressed(Name::DOWN)) {
         auto thing = [](Logic::Entity *e) -> bool {
             Logic::remove_entity(e->id);
             return false;
@@ -184,6 +184,7 @@ void update(f32 delta) {
         std::function func = std::function<bool(Logic::Entity*)>(thing);
         Logic::for_entity_of_type(Logic::EntityType::MY_ENT,
                                   func);
+        // Mixer::remove_effect(delay);  // this works!
     }
 
     if (pressed(Name::RIGHT)) {
