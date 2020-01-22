@@ -56,8 +56,7 @@ void entity_registration() {
 
 Renderer::Camera to;
 Renderer::Camera from;
-Mixer::Effect *delay;
-bool delay_exists;
+Mixer::EffectID delay_id;
 void setup() {
     using namespace Input;
     add(K(a), Name::LEFT);
@@ -94,8 +93,8 @@ void setup() {
         from = *Renderer::get_camera();
     }
 
-    delay = Mixer::add_effect(Mixer::create_delay(0.3, 0.2), 1);
-    delay_exists = true;
+    Mixer::Effect delay = Mixer::create_delay(0.3, 0.2);
+    delay_id = Mixer::add_effect(delay, 1);
 }
 
 // Main logic
@@ -121,8 +120,8 @@ void update(f32 delta) {
     static Span span = { 0.3, 0.35};
     if (Util::begin_tweak_section("Other tweaks", &show_various_tweaks)) {
         Util::tweak("point size", &span, 0.1);
-        Util::tweak("delay length", &delay->delay._delay_len_seconds);
-        Util::tweak("delay feedback", &delay->delay.feedback, 0.5);
+        //Util::tweak("delay length", &delay->delay._delay_len_seconds);
+        //Util::tweak("delay feedback", &delay->delay.feedback, 0.5);
     }
     Util::end_tweak_section(&show_various_tweaks);
 
@@ -186,13 +185,6 @@ void update(f32 delta) {
         std::function func = std::function<bool(Logic::Entity*)>(thing);
         Logic::for_entity_of_type(Logic::EntityType::MY_ENT,
                                   func);
-        if (delay_exists) {
-            Mixer::remove_effect(delay);
-            delay_exists = false;
-        } else {
-            delay = Mixer::add_effect(Mixer::create_delay(0.3, 0.2), 1);
-            delay_exists = true;
-        }
     }
 
     if (pressed(Name::RIGHT)) {

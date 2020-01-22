@@ -25,8 +25,26 @@ struct AudioID {
     u16 slot;
 };
 
+struct EffectID {
+    s32 channel;
+    u32 slot;
+
+    bool operator== (const EffectID &other) const {
+        return channel == other.channel && slot == other.slot;
+    }
+
+    operator bool() const {
+        return channel >= 0;
+    }
+};
+
+EffectID invalid_id() {
+    return {-1, 0};
+}
+
 //TODO(GS) standard effects for common sounds (consts).
 struct Effect {
+    EffectID id;
     void (* effect)(Effect *effect, f32 *buffer, u32 start, u32 len);
     union {
         struct {

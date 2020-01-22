@@ -22,7 +22,7 @@ struct Instrument {
 struct SoundSource {
     f32 sample;
     AssetID source;
-    u32 channel_id;
+    u32 channel;
     f32 pitch;
     f32 gain;
     bool looping;
@@ -67,37 +67,45 @@ Effect create_delay(f32 feedback, f32 delay_time) {
             buffer[(start + i) % CHANNEL_BUFFER_LENGTH] += buffer[((u32) start + i - effect->delay.delay_len + CHANNEL_BUFFER_LENGTH) % CHANNEL_BUFFER_LENGTH] * effect->delay.feedback;
         }
     };
-    Effect effect = {delay_func};
+    Effect effect = {invalid_id(), delay_func};
     effect.delay.feedback = feedback;
     effect.delay._delay_len_seconds = delay_time;
     return effect;
 }
 
-Effect* add_effect(Effect effect, u32 channel_id) {
-    ASSERT(channel_id < NUM_CHANNELS, "Invalid channel_id");
+EffectID add_effect(Effect effect, u32 channel) {
+    ASSERT(channel < NUM_CHANNELS, "Invalid channel");
     for (u32 i = 0; i < NUM_EFFECTS; i++) {
-        if (audio_struct.effects[channel_id][i].effect) continue;
-        audio_struct.effects[channel_id][i] = effect;
-        return &audio_struct.effects[channel_id][i];
+        if (audio_struct.effects[channel][i].effect) continue;
+        EffectID id = {channel, i};
+        effect.id = id;
+        audio_struct.effects[effect.id.channel][effect.id.slot] = effect;
+        return effect.id;
     }
-    ERR("Not enough free effect slots on channel %d, skipping effect", channel_id);
-    return nullptr;
+    ERR("Not enough free effect slots on channel %d, skipping effect", channel);
+    return invalid_id();
 }
 
-bool remove_effect(Effect *effect) {
-    for (u32 channel_id = 0; channel_id < NUM_CHANNELS; channel_id++) {
-        for (u32 effect_id = 0; effect_id < NUM_EFFECTS; effect_id++) {
-            if (audio_struct.effects[channel_id][effect_id].effect == effect->effect) {
-                audio_struct.effects[channel_id][effect_id].effect = nullptr;
-            }
-        }
+Effect* fetch_effect(EffectID id) {
+    if (!audio_struct.effects[id.channel][id.slot].effect) {
+        return nullptr;
     }
+    return &audio_struct.effects[id.channel][id.slot];
 }
 
-void clear_effects(u32 channel_id) {
-    ASSERT(channel_id < NUM_CHANNELS, "Invalid channel_id");
+bool remove_effect(EffectID id) {
+    if (!audio_struct.effects[id.channel][id.slot].effect) {
+        ERR("Invalid EffectID");
+        return false;
+    }
+    audio_struct.effects[id.channel][id.slot].effect = nullptr;
+    return true;
+}
+
+void clear_effects(u32 channel) {
+    ASSERT(channel < NUM_CHANNELS, "Invalid channel");
     for (u32 i = 0; i < NUM_EFFECTS; i++) {
-        audio_struct.effects[channel_id][i].effect = nullptr;
+        audio_struct.effects[channel][i].effect = nullptr;
     }
 }
 
@@ -133,17 +141,17 @@ AudioID push_sound(SoundSource source) {
     return {0, NUM_SOURCES};
 }
 
-AudioID play_sound(AssetID asset_id, u32 channel_id, f32 pitch, f32 gain, f32 pitch_variance,
+AudioID play_sound(AssetID asset_id, u32 channel, f32 pitch, f32 gain, f32 pitch_variance,
                    f32 gain_variance, bool loop) {
-    ASSERT(channel_id < NUM_CHANNELS, "Invalid channel_id");
-    return push_sound({0, asset_id, channel_id, pitch + random_real(-1, 1) * pitch_variance,
+    ASSERT(channel < NUM_CHANNELS, "Invalid channel");
+    return push_sound({0, asset_id, channel, pitch + random_real(-1, 1) * pitch_variance,
                        gain + random_real(-1, 1) * gain_variance, loop});
 }
 
-AudioID play_sound_at(AssetID asset_id, Vec2 position, u32 channel_id, f32 pitch, f32 gain,
+AudioID play_sound_at(AssetID asset_id, Vec2 position, u32 channel, f32 pitch, f32 gain,
                       f32 pitch_variance, f32 gain_variance, bool loop) {
-    ASSERT(channel_id < NUM_CHANNELS, "Invalid channel_id");
-    return push_sound({0, asset_id, channel_id, pitch + random_real(-1, 1) * pitch_variance,
+    ASSERT(channel < NUM_CHANNELS, "Invalid channel");
+    return push_sound({0, asset_id, channel, pitch + random_real(-1, 1) * pitch_variance,
                        gain + random_real(-1, 1) * gain_variance, loop, true,
                        position});
 }
@@ -257,8 +265,8 @@ void audio_callback(void* userdata, u8* stream, int len) {
                 }
             }
             u32 sample_index = (audio_struct.sample_index + i) % CHANNEL_BUFFER_LENGTH;
-            audio_struct.channels[source->channel_id][sample_index+0] += left;
-            audio_struct.channels[source->channel_id][sample_index+1] += right;
+            audio_struct.channels[source->channel][sample_index+0] += left;
+            audio_struct.channels[source->channel][sample_index+1] += right;
         }
     }
     STOP_PERF(AUDIO_SOURCES);
