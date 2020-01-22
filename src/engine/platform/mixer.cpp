@@ -301,6 +301,8 @@ bool init() {
     for (u32 i = 0; i < NUM_CHANNELS; i++)
         audio_struct.channels[i] = audio_mixer.arena->push<f32>(CHANNEL_BUFFER_LENGTH);
 
+    audio_struct.num_effects = 0;
+
     SDL_AudioSpec want = {};
     want.freq = AUDIO_SAMPLE_RATE;
     want.format = AUDIO_F32;
