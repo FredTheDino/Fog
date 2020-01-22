@@ -38,7 +38,6 @@ Camera camera_fit(u32 num_points, Vec2 *points, f32 border) {
 }
 
 Camera camera_lerp(Camera camera_a, Camera camera_b, f32 lerp) {
-    // TODO(ed): Make this into a clamp?
     return {
         LERP(camera_a.position    , lerp, camera_b.position),
         LERP(camera_a.offset      , lerp, camera_b.offset),
@@ -78,7 +77,6 @@ void camera_shake(Camera *camera, f32 shake) {
 }
 
 void camera_shake(Camera *camera, f32 shake_x, f32 shake_y) {
-    // TODO(ed): Camera shake rotation
     f32 scaler = random_real(0.2, 1.0);
     Vec2 shake = V2(shake_x, shake_y);
     camera->offset = hadamard(random_unit_vec2(), shake) * scaler;

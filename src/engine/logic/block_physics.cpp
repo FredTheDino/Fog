@@ -22,9 +22,10 @@ ShapeID add_shape(u32 points_length, Vec2 *points) {
     shape.points = create_list<Vec2>(points_length);
 
     // Check for non-convex polygons.
-    // TODO(ed): We can do this while looping over
+    // We can do this while looping over
     // the points checking for the center, but I don't
     // think performance will be an issue here.
+    // -- Ed
     u32 positiv_cross = 0;
     u32 negative_cross = 0;
     for (u32 i = 0; i < points_length; i++) {
@@ -183,7 +184,6 @@ bool point_in_box(Vec2 p, Vec2 min, Vec2 max) {
 }
 
 bool point_in_box(Vec2 p, Vec2 center, Vec2 dim, f32 rotation) {
-    // TODO(ed): Remove double sin, cos calculations.
     p = rotate(p, -rotation);
     center = rotate(center, -rotation);
     Vec2 delta = p - center;

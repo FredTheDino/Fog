@@ -56,6 +56,7 @@ void entity_registration() {
 
 Renderer::Camera to;
 Renderer::Camera from;
+Mixer::EffectID delay_id;
 void setup() {
     using namespace Input;
     add(K(a), Name::LEFT);
@@ -78,7 +79,7 @@ void setup() {
         V2(0.0, 0.0),
     };
     Physics::add_shape(LEN(points), points);
-    Renderer::set_window_size(500, 500);
+    Renderer::set_window_size(1000, 1000);
 
     {
         Vec2 points[] = {
@@ -91,6 +92,9 @@ void setup() {
         to = Renderer::camera_fit(LEN(points), points, 0.0);
         from = *Renderer::get_camera();
     }
+
+    Mixer::Effect delay = Mixer::create_delay(0.3, 0.2);
+    delay_id = Mixer::add_effect(delay, 1);
 }
 
 // Main logic
@@ -106,12 +110,20 @@ void update(f32 delta) {
         Util::tweak("zoom", &Renderer::get_camera(current_cam)->zoom);
         Util::tweak("position", &Renderer::get_camera(current_cam)->position);
         Util::tweak("aspect", &Renderer::get_camera(current_cam)->aspect_ratio);
-        Util::tweak("x", &shake.x);
-        Util::tweak("y", &shake.y);
+        Util::tweak("x", &shake.x, 0.1);
+        Util::tweak("y", &shake.y, 0.1);
         Util::tweak("split screen", &dual_cameras);
         Util::tweak("num:", &Renderer::_fog_num_active_cameras);
     }
     Util::end_tweak_section(&show_camera_controls);
+    static bool show_various_tweaks = true;
+    static Span span = { 0.3, 0.35};
+    if (Util::begin_tweak_section("Other tweaks", &show_various_tweaks)) {
+        Util::tweak("point size", &span, 0.1);
+        //Util::tweak("delay length", &delay->delay._delay_len_seconds);
+        //Util::tweak("delay feedback", &delay->delay.feedback, 0.5);
+    }
+    Util::end_tweak_section(&show_various_tweaks);
 
     Renderer::turn_on_camera(0);
     if (dual_cameras) {
@@ -120,20 +132,23 @@ void update(f32 delta) {
         Renderer::turn_off_camera(1);
     }
 
+    Renderer::camera_shake(Renderer::get_camera(0), shake.x, shake.y);
+
     static Vec2 pos = {};
     pos += V2(Input::value(Name::LEFT_RIGHT),
               Input::value(Name::UP_DOWN)) * delta;
     if (Input::value(Name::SEL)) {
         pos = {};
     }
-    Renderer::push_point(10, pos, V4(1, 0, 0, 1), 0.3);
+    Renderer::push_point(10, pos, V4(1, 0, 0, 1), span.random());
 
-    if (current_cam == 0) {
-        for (u32 i = 0; i < OPENGL_NUM_CAMERAS; i++) {
-            *Renderer::get_camera(i) = Renderer::camera_smooth(
-                    from, to, (f32) i / ((f32) OPENGL_NUM_CAMERAS));
-        }
-    }
+    // // this code "resets" camera transformations set by the tweaks-system (shake and position)
+    // if (current_cam == 0) {
+    //     for (u32 i = 0; i < OPENGL_NUM_CAMERAS; i++) {
+    //         *Renderer::get_camera(i) = Renderer::camera_smooth(
+    //                 from, to, (f32) i / ((f32) OPENGL_NUM_CAMERAS));
+    //     }
+    // }
 
     Vec2 points[] = {
         V2(0.0, 0.0),
@@ -146,7 +161,7 @@ void update(f32 delta) {
         Renderer::push_point(10, points[i], V4(1.0, 0.0, 1.0, 1.0));
     }
 
-    if (down(Name::UP)) {
+        if (down(Name::UP)) {
         MyEnt e = {};
         e.position = random_unit_vec2() * 0.4;
         e.scale = {0.5, 0.5};
@@ -162,7 +177,7 @@ void update(f32 delta) {
     }
 
 
-    if (down(Name::DOWN)) {
+    if (pressed(Name::DOWN)) {
         auto thing = [](Logic::Entity *e) -> bool {
             Logic::remove_entity(e->id);
             return false;
@@ -170,6 +185,10 @@ void update(f32 delta) {
         std::function func = std::function<bool(Logic::Entity*)>(thing);
         Logic::for_entity_of_type(Logic::EntityType::MY_ENT,
                                   func);
+    }
+
+    if (pressed(Name::RIGHT)) {
+        Mixer::play_sound(1, ASSET_NOISE);
     }
 }
 

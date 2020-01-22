@@ -19,7 +19,6 @@ void draw_outline(Logic::Entity *e, Vec4 color) {
     }
 }
 
-// TODO(ed): Commandline arguments
 const char *FILE_NAME = "test.ent";
 
 void setup() {

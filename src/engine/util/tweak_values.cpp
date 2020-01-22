@@ -123,7 +123,7 @@ bool tweak(const char *name, bool *value) {
     return false;
 }
 
-bool tweak(const char *name, f32 *value) {
+bool tweak(const char *name, f32 *value, f32 modifier) {
     if (!debug_values_are_on()) return false;
     const char *buffer = Util::format(" %s: %.4f", name, *value);
     debug_value_logic(name, buffer);
@@ -142,7 +142,7 @@ bool tweak(const char *name, f32 *value) {
             }
         } else {
             delta = scaled_mouse_movements().x;
-            *value += delta;
+            *value += delta * modifier;
         }
         return delta != 0;
     }
@@ -179,7 +179,7 @@ bool tweak(const char *name, u32 *value) {
     return true;
 }
 
-bool tweak(const char *name, Vec2 *value) {
+bool tweak(const char *name, Vec2 *value, f32 modifier) {
     if (!debug_values_are_on()) return false;
     const char *buffer = Util::format(" %s: %.4f, %.4f", name, value->x, value->y);
     debug_value_logic(name, buffer);
@@ -202,7 +202,7 @@ bool tweak(const char *name, Vec2 *value) {
             }
         } else {
             delta = hadamard(V2(1, -1), scaled_mouse_movements());
-            *value += delta;
+            *value += delta * modifier;
         }
         return delta.x != 0 || delta.y != 0;
     }

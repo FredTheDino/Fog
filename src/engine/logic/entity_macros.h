@@ -8,7 +8,6 @@ EMeta::EField generate_field_info(const char *name, u64 offset, u64 hash) {
 
 template <class T, class M> M _fog_member_type(M T:: *);
 
-// TODO(ed): Document this... Like a lot...
 #define GET_FIELD_TYPE(Base, field) decltype(Logic::_fog_member_type(&Base::field))
 
 #define GEN_FIELD_INFO(E, f, ...)                                           \
@@ -17,9 +16,6 @@ template <class T, class M> M _fog_member_type(M T:: *);
         ##__VA_ARGS__)
 
 #define EXPAND_FIELDS_EXPORT(member) GEN_FIELD_INFO(self, member),
-
-// TODO(ed): Maybe make this neater? Is there a way to detect if you passed
-// variadic arguments? Would be great if this was one macro...
 
 #define REGISTER_FIELDS(EnumType, SelfType, ...)                              \
     virtual const char *type_name() override { return #EnumType; }            \

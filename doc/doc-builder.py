@@ -131,7 +131,7 @@ def process_comment_section(lines):
             out += "</p>"
             out += "<p class='code'>"
         if in_comment:
-            to_append = " " + line.replace("//", "").strip()
+            to_append = " " + line.replace("// ", "").strip()
             if to_append:
                 out += to_append
             else:

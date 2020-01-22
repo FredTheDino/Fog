@@ -112,6 +112,15 @@ float winding_direction(Vec2 p1, Vec2 p2, Vec2 p3) {
 #include "random.h"
 #include "random.cpp"
 
+struct Span {
+    // TODO(ed): Maybe add different kinds of randomizations.
+    f32 min, max;
+
+    f32 random() {
+        return random_real(min, max);
+    }
+};
+
 #ifdef _COMMENTS_
 
 ///*

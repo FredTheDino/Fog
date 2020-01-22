@@ -22,6 +22,7 @@ struct Instrument {
 struct SoundSource {
     f32 sample;
     AssetID source;
+    u32 channel;
     f32 pitch;
     f32 gain;
     bool looping;
@@ -31,14 +32,15 @@ struct SoundSource {
     u8 gen;
 };
 
-const u32 NUM_INSTRUMENTS = 10;
-const u32 NUM_SOURCES = 32;
-
 struct AudioStruct {
     Instrument instruments[NUM_INSTRUMENTS];
     SoundSource sources[NUM_SOURCES];
     u16 num_free_sources;
     u16 free_sources[NUM_SOURCES];
+    f32 *channels[NUM_CHANNELS];
+    u32 sample_index;
+    Effect effects[NUM_CHANNELS][NUM_EFFECTS];
+    u16 num_effects;
     // Position of the listener
     Vec2 position;
     f32 time;
@@ -46,6 +48,65 @@ struct AudioStruct {
 
     SDL_AudioDeviceID dev;
 } audio_struct = {};
+
+Effect create_delay(f32 feedback, f32 delay_time) {
+    ASSERT(delay_time < CHANNEL_BUFFER_LENGTH_SECONDS, "Delay time is longer than channel buffer");
+    auto delay_func = [] (Effect *effect, f32 *buffer, u32 start, u32 len) -> void {
+        if (effect->delay._delay_len_seconds != effect->delay._prev_delay_len_seconds) {
+            //TODO(GS) crackling when length is changed while sound is playing
+            effect->delay.delay_len = (u32) AUDIO_SAMPLE_RATE * effect->delay._delay_len_seconds * 2;
+            effect->delay._prev_delay_len_seconds = effect->delay._delay_len_seconds;
+        }
+        for (u32 i = 0; i < len; i++) {
+            u32 cur_pos = (start + i) % CHANNEL_BUFFER_LENGTH;
+            u32 prev_pos = (start + i - effect->delay.delay_len + CHANNEL_BUFFER_LENGTH) % CHANNEL_BUFFER_LENGTH;
+            buffer[cur_pos] += buffer[prev_pos] * effect->delay.feedback;
+        }
+    };
+    Effect effect = {};
+    effect.id = invalid_id();
+    effect.effect = delay_func;
+    effect.delay.feedback = feedback;
+    effect.delay._delay_len_seconds = delay_time;
+    return effect;
+}
+
+EffectID add_effect(Effect effect, u32 channel) {
+    ASSERT(channel < NUM_CHANNELS, "Invalid channel");
+    for (u32 i = 0; i < NUM_EFFECTS; i++) {
+        if (audio_struct.effects[channel][i].effect) continue;
+        EffectID id = {channel, i, audio_struct.num_effects};
+        effect.id = id;
+        audio_struct.effects[effect.id.channel][effect.id.slot] = effect;
+        audio_struct.num_effects++;
+        return effect.id;
+    }
+    ERR("Not enough free effect slots on channel %d, skipping effect", channel);
+    return invalid_id();
+}
+
+Effect* fetch_effect(EffectID id) {
+    if (!audio_struct.effects[id.channel][id.slot].effect) {
+        return nullptr;
+    }
+    return &audio_struct.effects[id.channel][id.slot];
+}
+
+bool remove_effect(EffectID id) {
+    if (!audio_struct.effects[id.channel][id.slot].effect) {
+        ERR("Invalid EffectID");
+        return false;
+    }
+    audio_struct.effects[id.channel][id.slot].effect = nullptr;
+    return true;
+}
+
+void clear_effects(u32 channel) {
+    ASSERT(channel < NUM_CHANNELS, "Invalid channel");
+    for (u32 i = 0; i < NUM_EFFECTS; i++) {
+        audio_struct.effects[channel][i].effect = nullptr;
+    }
+}
 
 f32 pitch(s32 tone) {
     return BASE_TONE * pow(NEXT_TONE, tone);
@@ -79,15 +140,17 @@ AudioID push_sound(SoundSource source) {
     return {0, NUM_SOURCES};
 }
 
-AudioID play_sound(AssetID asset_id, f32 pitch, f32 gain, f32 pitch_variance,
+AudioID play_sound(u32 channel, AssetID asset_id, f32 pitch, f32 gain, f32 pitch_variance,
                    f32 gain_variance, bool loop) {
-    return push_sound({0, asset_id, pitch + random_real(-1, 1) * pitch_variance,
+    ASSERT(channel < NUM_CHANNELS, "Invalid channel");
+    return push_sound({0, asset_id, channel, pitch + random_real(-1, 1) * pitch_variance,
                        gain + random_real(-1, 1) * gain_variance, loop});
 }
 
-AudioID play_sound_at(AssetID asset_id, Vec2 position, f32 pitch, f32 gain,
+AudioID play_sound_at(u32 channel, AssetID asset_id, Vec2 position, f32 pitch, f32 gain,
                       f32 pitch_variance, f32 gain_variance, bool loop) {
-    return push_sound({0, asset_id, pitch + random_real(-1, 1) * pitch_variance,
+    ASSERT(channel < NUM_CHANNELS, "Invalid channel");
+    return push_sound({0, asset_id, channel, pitch + random_real(-1, 1) * pitch_variance,
                        gain + random_real(-1, 1) * gain_variance, loop, true,
                        position});
 }
@@ -117,11 +180,19 @@ void unlock_audio() {
 #define S16_TO_F32(S) ((f32) (S) / ((f32) 0xEFFF))
 
 void audio_callback(void* userdata, u8* stream, int len) {
-    f32 time = 0.0;
+    START_PERF(AUDIO);
+    const u32 SAMPLES = len / sizeof(f32);
     AudioStruct *data = (AudioStruct *) userdata;
     f32 *output_stream = (f32*) stream;
     const f32 TIME_STEP = data->time_step;
 
+    u32 base = audio_struct.sample_index;
+    for (u32 channel = 0; channel < NUM_CHANNELS; channel++) {
+        for (u32 i = 0; i < SAMPLES; i++)
+            audio_struct.channels[channel][(base + i) % CHANNEL_BUFFER_LENGTH] = 0.0;
+    }
+
+    START_PERF(AUDIO_SOURCES);
     f32 left_fade[NUM_SOURCES];
     f32 right_fade[NUM_SOURCES];
     for (u32 source_id = 0; source_id < NUM_SOURCES; source_id++) {
@@ -140,31 +211,12 @@ void audio_callback(void* userdata, u8* stream, int len) {
     }
 
 
-    for (u32 i = 0; i < len / sizeof(f32); i += 2) {
-        time += TIME_STEP;
-        f32 left_sample = 0.0;
-        f32 right_sample = 0.0;
-        for (u32 inst_id = 0; inst_id < NUM_INSTRUMENTS; inst_id++) {
-            Instrument *inst = &data->instruments[inst_id];
-            // if (!inst->gain) continue;
-            if (inst->time_to >= TIME_STEP) {
-                inst->pitch += inst->pitch_speed * TIME_STEP;
-                inst->gain += inst->gain_speed * TIME_STEP;
-                inst->time_to = MAX(0, inst->time_to - TIME_STEP);
-            } else {
-                inst->pitch = inst->pitch_dest;
-            }
-            inst->time += TIME_STEP * inst->pitch;
-            f32 sample = sin(2.0 * PI * inst->time) * inst->gain;;
-            left_sample += sample;
-            right_sample += sample;
-            if (inst->time > 1.0)
-                inst->time -= 1.0;
-        }
-
-        for (u32 source_id = 0; source_id < NUM_SOURCES; source_id++) {
+    for (u32 source_id = 0; source_id < NUM_SOURCES; source_id++) {
+        f32 time = 0;
+        for (u32 i = 0; i < SAMPLES; i += 2) {
+            time += TIME_STEP;
             SoundSource *source = data->sources + source_id;
-            if (source->gain == 0.0) continue;
+            if (source->gain == 0.0) break;
             Sound *sound = Asset::fetch_sound(source->source);
             source->sample += sound->sample_rate * source->pitch * TIME_STEP;
             u64 index = source->sample;
@@ -175,13 +227,13 @@ void audio_callback(void* userdata, u8* stream, int len) {
                 } else {
                     data->free_sources[data->num_free_sources++] = source_id;
                     source->gain = 0.0;
-                    continue;
+                    break;
                 }
             }
 
+            f32 left;
+            f32 right;
             if (sound->is_stereo) {
-                f32 left;
-                f32 right;
                 if (sound->bits_per_sample == 16) {
                     left = S16_TO_F32(sound->samples_16[index * 2 + 0]);
                     right = S16_TO_F32(sound->samples_16[index * 2 + 1]);
@@ -191,8 +243,8 @@ void audio_callback(void* userdata, u8* stream, int len) {
                 } else {
                     UNREACHABLE;
                 }
-                left_sample += left * source->gain;
-                right_sample += right * source->gain;
+                left *= source->gain;
+                right *= source->gain;
             } else {
                 f32 sample;
                 if (sound->bits_per_sample == 16) {
@@ -204,18 +256,39 @@ void audio_callback(void* userdata, u8* stream, int len) {
                 }
 
                 // Distance blending
-                left_sample  += sample * source->gain;
-                right_sample += sample * source->gain;
+                left = sample * source->gain;
+                right = sample * source->gain;
                 if (source->positional) {
-                    left_sample  *= left_fade[source_id];
-                    right_sample *= right_fade[source_id];
+                    left *= left_fade[source_id];
+                    right *= right_fade[source_id];
                 }
             }
-
+            u32 sample_index = (audio_struct.sample_index + i) % CHANNEL_BUFFER_LENGTH;
+            audio_struct.channels[source->channel][sample_index+0] += left;
+            audio_struct.channels[source->channel][sample_index+1] += right;
         }
-        output_stream[i+0] = left_sample;
-        output_stream[i+1] = right_sample;
     }
+    STOP_PERF(AUDIO_SOURCES);
+    for (u32 i = 0; i < SAMPLES; i++)
+        output_stream[i] = 0.0;
+
+    START_PERF(AUDIO_EFFECTS);
+    for (u32 channel_id = 0; channel_id < NUM_CHANNELS; channel_id++) {
+        f32 *channel = audio_struct.channels[channel_id];
+
+        for (u32 i = 0; i < NUM_EFFECTS; i++) {
+            Effect *effect = &audio_struct.effects[channel_id][i];
+            if (!effect->effect) continue;
+            effect->effect(effect, channel, base, SAMPLES);
+        }
+
+        for (u32 i = 0; i < SAMPLES; i++) {
+            output_stream[i] += channel[(base + i) % CHANNEL_BUFFER_LENGTH];
+        }
+    }
+    STOP_PERF(AUDIO_EFFECTS);
+    audio_struct.sample_index += SAMPLES;  // wraps after ~24h
+    STOP_PERF(AUDIO);
 }
 
 bool init() {
@@ -224,6 +297,9 @@ bool init() {
     audio_struct.num_free_sources = NUM_SOURCES;
     for (u32 i = 0; i < NUM_SOURCES; i++)
         audio_struct.free_sources[i] = i;
+
+    for (u32 i = 0; i < NUM_CHANNELS; i++)
+        audio_struct.channels[i] = audio_mixer.arena->push<f32>(CHANNEL_BUFFER_LENGTH);
 
     SDL_AudioSpec want = {};
     want.freq = AUDIO_SAMPLE_RATE;

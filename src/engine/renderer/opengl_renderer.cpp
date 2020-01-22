@@ -317,7 +317,7 @@ void create_frame_buffers(int width, int height) {
 void render_post_processing() {
     post_process_shader_program.bind();
 
-    // TODO(ed): Do I need to do this every frame?
+    // This needs to run every frame
     {
         for (u32 i = 0; i < OPENGL_NUM_CAMERAS; i++) {
             glBindTexture(GL_TEXTURE_2D, screen_textures[i]);
@@ -449,8 +449,6 @@ void push_quad(u32 layer, Vec2 min, Vec2 max, Vec4 color) {
     push_quad(layer, min, V2(-1, -1), max, V2(-1, -1), OPENGL_INVALID_SPRITE, color);
 }
 
-// TODO(ed): Do you want to have different sprites per vertex? Could
-// be a cool effect...
 void push_triangle(u32 layer, Vec2 p1, Vec2 p2, Vec2 p3,
                           Vec2 uv1, Vec2 uv2, Vec2 uv3,
                           Vec4 color1, Vec4 color2, Vec4 color3,
@@ -528,6 +526,8 @@ void upload_shader(AssetID asset, const char *source) {
         case ASSET_MASTER_SHADER:
             master_shader_program = compile_shader_program_from_source(source);
             ASSERT(master_shader_program, "Failed to compile shader");
+            u32 master_shader_current_cam_loc =
+                glGetUniformLocation(master_shader_program.id, "current_cam");
             break;
         case ASSET_FONT_SHADER:
             font_shader_program = compile_shader_program_from_source(source);
@@ -558,11 +558,6 @@ void blit() {
     glBufferSubData(GL_UNIFORM_BUFFER, 0, ubo_global_size, &_fog_global_window_state);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-    // TODO(ed): We don't need to query this every frame...
-    u32 loc = glGetUniformLocation(master_shader_program.id, "current_cam");
-
-    // TODO(ed): Some way to turn off rendering for cirtain
-    // cameras during runtime would be good!
     for (u32 cam = 0; cam < OPENGL_NUM_CAMERAS; cam++) {
         glBindFramebuffer(GL_FRAMEBUFFER, screen_fbos[cam]);
         glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
@@ -571,15 +566,14 @@ void blit() {
         if (!(_fog_active_cameras & bit)) continue;
 
         master_shader_program.bind();
-        glUniform1ui(loc, cam);
+        glUniform1ui(master_shader_current_cam_loc, cam);
         for (u32 layer = 0; layer < OPENGL_NUM_LAYERS; layer++)
             sprite_render_queues[layer].draw();
 
         font_shader_program.bind();
         // TODO(ed): Some way to do camera specific text or rendering
         // would probably be good.
-        // TODO(ed): Is this needed?
-        glUniform1ui(loc, cam);
+        glUniform1ui(master_shader_current_cam_loc, cam);
         font_render_queue.draw();
     }
 
@@ -588,7 +582,8 @@ void blit() {
     clear();
     render_post_processing();
     // TODO(ed): This is where screen space reflections can be rendered.
-    // TODO(ed): Passing values is kinda tricky right now...
+    // TODO(ed): Passing values is kinda tricky right now, might need some
+    // way to pass uniforms to the shader...
 
     SDL_GL_SwapWindow(window);
 
