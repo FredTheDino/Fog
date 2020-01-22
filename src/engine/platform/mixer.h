@@ -32,6 +32,8 @@ struct Effect {
         struct {
             f32 feedback;
             u32 delay_len;
+            f32 _delay_len_seconds;
+            f32 _prev_delay_len_seconds;
         } delay;
     };
 };
