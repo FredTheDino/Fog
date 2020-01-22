@@ -10,6 +10,13 @@ namespace Mixer {
 // spectacular ways depending on the OS. But most of the OS
 // specific code should be limited to this submodule.
 
+const u32 NUM_EFFECTS = 5;
+const u32 NUM_INSTRUMENTS = 10;
+const u32 NUM_SOURCES = 32;
+const u32 NUM_CHANNELS = 10;
+const u32 CHANNEL_BUFFER_LENGTH_SECONDS = 3;  // ~2MB
+const u32 CHANNEL_BUFFER_LENGTH = AUDIO_SAMPLE_RATE * CHANNEL_BUFFER_LENGTH_SECONDS * 2;  // two channels
+
 struct AudioMixer {
     u64 num_sounds;
     Sound **sound;
