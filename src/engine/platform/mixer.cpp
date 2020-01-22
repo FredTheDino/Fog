@@ -22,7 +22,7 @@ struct Instrument {
 struct SoundSource {
     f32 sample;
     AssetID source;
-    u32 track_id;
+    u32 channel_id;
     f32 pitch;
     f32 gain;
     bool looping;
@@ -35,18 +35,18 @@ struct SoundSource {
 const u32 NUM_EFFECTS = 5;
 const u32 NUM_INSTRUMENTS = 10;
 const u32 NUM_SOURCES = 32;
-const u32 NUM_TRACKS = 10;
-const u32 TRACK_BUFFER_LENGTH_SECONDS = 3;  // ~2MB
-const u32 TRACK_BUFFER_LENGTH = AUDIO_SAMPLE_RATE * TRACK_BUFFER_LENGTH_SECONDS * 2;  // two channels
+const u32 NUM_CHANNELS = 10;
+const u32 CHANNEL_BUFFER_LENGTH_SECONDS = 3;  // ~2MB
+const u32 CHANNEL_BUFFER_LENGTH = AUDIO_SAMPLE_RATE * CHANNEL_BUFFER_LENGTH_SECONDS * 2;  // two channels
 
 struct AudioStruct {
     Instrument instruments[NUM_INSTRUMENTS];
     SoundSource sources[NUM_SOURCES];
     u16 num_free_sources;
     u16 free_sources[NUM_SOURCES];
-    f32 *tracks[NUM_TRACKS];
+    f32 *channels[NUM_CHANNELS];
     u32 sample_index;
-    Effect effects[NUM_TRACKS][NUM_EFFECTS];
+    Effect effects[NUM_CHANNELS][NUM_EFFECTS];
     // Position of the listener
     Vec2 position;
     f32 time;
@@ -56,11 +56,11 @@ struct AudioStruct {
 } audio_struct = {};
 
 Effect create_delay(f32 feedback, f32 delay_time) {
-    ASSERT(delay_time < TRACK_BUFFER_LENGTH_SECONDS, "Delay time is longer than track buffer");
+    ASSERT(delay_time < CHANNEL_BUFFER_LENGTH_SECONDS, "Delay time is longer than channel buffer");
     auto delay_func = [] (Effect *effect, f32 *buffer, u32 start, u32 len) -> void {
         for (u32 i = 0; i < len; i++) {
             //TODO(GS) I am not sure about the math here:       vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-            buffer[(start + i) % TRACK_BUFFER_LENGTH] += buffer[ABS(((s32) start + i - effect->delay.delay_len) % TRACK_BUFFER_LENGTH)] * effect->delay.feedback;
+            buffer[(start + i) % CHANNEL_BUFFER_LENGTH] += buffer[ABS(((s32) start + i - effect->delay.delay_len) % CHANNEL_BUFFER_LENGTH)] * effect->delay.feedback;
         }
     };
     Effect effect = {delay_func};
@@ -69,21 +69,21 @@ Effect create_delay(f32 feedback, f32 delay_time) {
     return effect;
 }
 
-bool add_effect(Effect effect, u32 track_id) {
-    ASSERT(track_id < NUM_TRACKS, "Invalid track_id");
+bool add_effect(Effect effect, u32 channel_id) {
+    ASSERT(channel_id < NUM_CHANNELS, "Invalid channel_id");
     for (u32 i = 0; i < NUM_EFFECTS; i++) {
-        if (audio_struct.effects[track_id][i].effect) continue;
-        audio_struct.effects[track_id][i] = effect;
+        if (audio_struct.effects[channel_id][i].effect) continue;
+        audio_struct.effects[channel_id][i] = effect;
         return true;
     }
-    ERR("Not enough free effect slots on track %d, skipping effect", track_id);
+    ERR("Not enough free effect slots on channel %d, skipping effect", channel_id);
     return false;
 }
 
-void clear_effects(u32 track_id) {
-    ASSERT(track_id < NUM_TRACKS, "Invalid track_id");
+void clear_effects(u32 channel_id) {
+    ASSERT(channel_id < NUM_CHANNELS, "Invalid channel_id");
     for (u32 i = 0; i < NUM_EFFECTS; i++) {
-        audio_struct.effects[track_id][i].effect = nullptr;
+        audio_struct.effects[channel_id][i].effect = nullptr;
     }
 }
 
@@ -119,17 +119,17 @@ AudioID push_sound(SoundSource source) {
     return {0, NUM_SOURCES};
 }
 
-AudioID play_sound(AssetID asset_id, u32 track_id, f32 pitch, f32 gain, f32 pitch_variance,
+AudioID play_sound(AssetID asset_id, u32 channel_id, f32 pitch, f32 gain, f32 pitch_variance,
                    f32 gain_variance, bool loop) {
-    ASSERT(track_id < NUM_TRACKS, "Invalid track_id");
-    return push_sound({0, asset_id, track_id, pitch + random_real(-1, 1) * pitch_variance,
+    ASSERT(channel_id < NUM_CHANNELS, "Invalid channel_id");
+    return push_sound({0, asset_id, channel_id, pitch + random_real(-1, 1) * pitch_variance,
                        gain + random_real(-1, 1) * gain_variance, loop});
 }
 
-AudioID play_sound_at(AssetID asset_id, Vec2 position, u32 track_id, f32 pitch, f32 gain,
+AudioID play_sound_at(AssetID asset_id, Vec2 position, u32 channel_id, f32 pitch, f32 gain,
                       f32 pitch_variance, f32 gain_variance, bool loop) {
-    ASSERT(track_id < NUM_TRACKS, "Invalid track_id");
-    return push_sound({0, asset_id, track_id, pitch + random_real(-1, 1) * pitch_variance,
+    ASSERT(channel_id < NUM_CHANNELS, "Invalid channel_id");
+    return push_sound({0, asset_id, channel_id, pitch + random_real(-1, 1) * pitch_variance,
                        gain + random_real(-1, 1) * gain_variance, loop, true,
                        position});
 }
@@ -166,9 +166,9 @@ void audio_callback(void* userdata, u8* stream, int len) {
     const f32 TIME_STEP = data->time_step;
 
     u32 base = audio_struct.sample_index;
-    for (u32 track = 0; track < NUM_TRACKS; track++) {
+    for (u32 channel = 0; channel < NUM_CHANNELS; channel++) {
         for (u32 i = 0; i < SAMPLES; i++)
-            audio_struct.tracks[track][(base + i) % TRACK_BUFFER_LENGTH] = 0.0;
+            audio_struct.channels[channel][(base + i) % CHANNEL_BUFFER_LENGTH] = 0.0;
     }
 
     START_PERF(AUDIO_SOURCES);
@@ -242,9 +242,9 @@ void audio_callback(void* userdata, u8* stream, int len) {
                     right *= right_fade[source_id];
                 }
             }
-            u32 sample_index = (audio_struct.sample_index + i) % TRACK_BUFFER_LENGTH;
-            audio_struct.tracks[source->track_id][sample_index+0] += left;
-            audio_struct.tracks[source->track_id][sample_index+1] += right;
+            u32 sample_index = (audio_struct.sample_index + i) % CHANNEL_BUFFER_LENGTH;
+            audio_struct.channels[source->channel_id][sample_index+0] += left;
+            audio_struct.channels[source->channel_id][sample_index+1] += right;
         }
     }
     STOP_PERF(AUDIO_SOURCES);
@@ -252,17 +252,17 @@ void audio_callback(void* userdata, u8* stream, int len) {
         output_stream[i] = 0.0;
 
     START_PERF(AUDIO_EFFECTS);
-    for (u32 track_id = 0; track_id < NUM_TRACKS; track_id++) {
-        f32 *track = audio_struct.tracks[track_id];
+    for (u32 channel_id = 0; channel_id < NUM_CHANNELS; channel_id++) {
+        f32 *channel = audio_struct.channels[channel_id];
 
         for (u32 i = 0; i < NUM_EFFECTS; i++) {
-            Effect *effect = &audio_struct.effects[track_id][i];
+            Effect *effect = &audio_struct.effects[channel_id][i];
             if (!effect->effect) continue;
-            effect->effect(effect, track, base, SAMPLES);
+            effect->effect(effect, channel, base, SAMPLES);
         }
 
         for (u32 i = 0; i < SAMPLES; i++) {
-            output_stream[i] += track[(base + i) % TRACK_BUFFER_LENGTH];
+            output_stream[i] += channel[(base + i) % CHANNEL_BUFFER_LENGTH];
         }
     }
     STOP_PERF(AUDIO_EFFECTS);
@@ -277,8 +277,8 @@ bool init() {
     for (u32 i = 0; i < NUM_SOURCES; i++)
         audio_struct.free_sources[i] = i;
 
-    for (u32 i = 0; i < NUM_TRACKS; i++)
-        audio_struct.tracks[i] = audio_mixer.arena->push<f32>(TRACK_BUFFER_LENGTH);
+    for (u32 i = 0; i < NUM_CHANNELS; i++)
+        audio_struct.channels[i] = audio_mixer.arena->push<f32>(CHANNEL_BUFFER_LENGTH);
 
     SDL_AudioSpec want = {};
     want.freq = AUDIO_SAMPLE_RATE;
