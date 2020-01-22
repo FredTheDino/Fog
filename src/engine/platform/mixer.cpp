@@ -57,10 +57,14 @@ Effect create_delay(f32 feedback, f32 delay_time) {
             effect->delay._prev_delay_len_seconds = effect->delay._delay_len_seconds;
         }
         for (u32 i = 0; i < len; i++) {
-            buffer[(start + i) % CHANNEL_BUFFER_LENGTH] += buffer[((u32) start + i - effect->delay.delay_len + CHANNEL_BUFFER_LENGTH) % CHANNEL_BUFFER_LENGTH] * effect->delay.feedback;
+            u32 cur_pos = (start + i) % CHANNEL_BUFFER_LENGTH;
+            u32 prev_pos = (start + i - effect->delay.delay_len + CHANNEL_BUFFER_LENGTH) % CHANNEL_BUFFER_LENGTH;
+            buffer[cur_pos] += buffer[prev_pos] * effect->delay.feedback;
         }
     };
-    Effect effect = {invalid_id(), delay_func};
+    Effect effect = {};
+    effect.id = invalid_id();
+    effect.effect = delay_func;
     effect.delay.feedback = feedback;
     effect.delay._delay_len_seconds = delay_time;
     return effect;
