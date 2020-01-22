@@ -138,14 +138,14 @@ AudioID push_sound(SoundSource source) {
     return {0, NUM_SOURCES};
 }
 
-AudioID play_sound(AssetID asset_id, u32 channel, f32 pitch, f32 gain, f32 pitch_variance,
+AudioID play_sound(u32 channel, AssetID asset_id, f32 pitch, f32 gain, f32 pitch_variance,
                    f32 gain_variance, bool loop) {
     ASSERT(channel < NUM_CHANNELS, "Invalid channel");
     return push_sound({0, asset_id, channel, pitch + random_real(-1, 1) * pitch_variance,
                        gain + random_real(-1, 1) * gain_variance, loop});
 }
 
-AudioID play_sound_at(AssetID asset_id, Vec2 position, u32 channel, f32 pitch, f32 gain,
+AudioID play_sound_at(u32 channel, AssetID asset_id, Vec2 position, f32 pitch, f32 gain,
                       f32 pitch_variance, f32 gain_variance, bool loop) {
     ASSERT(channel < NUM_CHANNELS, "Invalid channel");
     return push_sound({0, asset_id, channel, pitch + random_real(-1, 1) * pitch_variance,

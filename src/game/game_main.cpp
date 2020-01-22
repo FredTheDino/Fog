@@ -188,7 +188,7 @@ void update(f32 delta) {
     }
 
     if (pressed(Name::RIGHT)) {
-        Mixer::play_sound(ASSET_NOISE, 1);
+        Mixer::play_sound(1, ASSET_NOISE);
     }
 }
 
