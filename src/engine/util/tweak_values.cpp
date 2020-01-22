@@ -52,7 +52,7 @@ void debug_value_logic(const char *name, const char *buffer) {
 f32 movement_scale() {
     if (Input::down(Input::Name::TWEAK_SMOOTH))
         return global_tweak.smooth_pixels_to_unit;
-    else 
+    else
         return global_tweak.pixels_to_unit;
 }
 
