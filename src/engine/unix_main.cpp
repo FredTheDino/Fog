@@ -53,7 +53,6 @@ bool debug_values_are_on();
 #include "platform/mixer.cpp"
 
 #ifdef SDL
-// TODO(ed): Better job of abstracting out SDL.
 #include "platform/input_sdl.cpp"
 #else
 #error "No other platform layer than SDL supported."

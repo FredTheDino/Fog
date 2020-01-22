@@ -110,7 +110,6 @@ T *MemoryArena::push(u64 count) {
     CHECK_ILLEGAL_ALLOC;
     u64 allocation_size = sizeof(T) * count;
     ASSERT(allocation_size <= ARENA_SIZE_IN_BYTES, "Too large allocation");
-    // TODO(ed): Should do boundry checking here.
     if (watermark + allocation_size > ARENA_SIZE_IN_BYTES) {
         if (!next) {
             if (only_one) HALT_AND_CATCH_FIRE;
@@ -131,7 +130,6 @@ T *MemoryArena::push(T type) {
 }
 
 void MemoryArena::clear() {
-    // TODO(ed): Should do boundry checking here.
     while (next) {
         MemoryArena *old = next;
         next = next->next;
@@ -142,7 +140,6 @@ void MemoryArena::clear() {
 
 void MemoryArena::pop() { return_arean(this); }
 
-// TODO(ed):
 // I know these are just wrappers for malloc
 // and free, but they add an easy place to see
 // if memory is potentially leaked, and are intended

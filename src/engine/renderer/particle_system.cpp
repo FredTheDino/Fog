@@ -72,8 +72,6 @@ Particle ParticleSystem::generate() {
 
 void ParticleSystem::spawn() {
     ASSERT(particles, "Trying to use uninitalized/destroyed particle system");
-    // TODO(ed): Might be superior to do a linked list to avoid holes,
-    // you don't have to care about the modulo as well.
     if (head == tail) return;
 
     Particle new_particle = generate();

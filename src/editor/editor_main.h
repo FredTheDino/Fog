@@ -88,7 +88,7 @@ void draw_outline(Logic::Entity *e, Vec4 color=V4(1, 1, 0, 0.1));
 
 struct EditorEdit {
     Logic::EntityID target;
-    u64 hash; // TODO(ed): Do I need this?
+    u64 hash;
     u16 offset;
 
     struct BinaryBlob {

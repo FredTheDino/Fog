@@ -136,15 +136,13 @@ void load_font(AssetFile *file, Asset::Header *header) {
         assert(sdf_header.asset_id != 0xFFFFFFF);
         font.texture = file->assets[sdf_header.asset_id].image.id;
     }
-    // TODO(ed): This is hard coded for a reason, maybe make this
-    // more explicit...
-    float inv_width  = 1.0 / 512.0;
-    float inv_height = 1.0 / 512.0;
+    float inv_width  = 1.0 / OPENGL_TEXTURE_WIDTH;
+    float inv_height = 1.0 / OPENGL_TEXTURE_HEIGHT;
     FILE *font_file = fopen(header->file_path, "r");
     assert(font_file);
     char *read_line = nullptr;
     size_t size = 0;
-    // TODO: Might switch O(n) for O(nlogn) to save space.
+
     font.glyphs = (Asset::Font::Glyph *) malloc(font.num_glyphs * sizeof(Asset::Font::Glyph));
     long expected_glyphs = 0, expected_kernings = 0;
     while (getline(&read_line, &size, font_file) != -1) {
@@ -218,7 +216,6 @@ void load_shader(AssetFile *file, Asset::Header *header) {
 
 void load_atlas(AssetFile *file, Asset::Header *header) {
     printf("Trying to load atlas, but code is not implemented\n");
-    // TODO:
 }
 
 void load_sound(AssetFile *file, Asset::Header *header) {

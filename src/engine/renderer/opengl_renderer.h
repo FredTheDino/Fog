@@ -94,6 +94,7 @@ struct RenderQueue {
 
 // Render state
 Program master_shader_program;
+u32 master_shader_current_cam_loc;
 Program font_shader_program;
 Program post_process_shader_program;
 

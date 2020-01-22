@@ -1,12 +1,11 @@
 #include <stdarg.h>
 #include <stdlib.h>
 // Debug functions
-// TODO(ed): It might be possible to remove the _MSG,
 #define LOG(fmt, ...) _fog_debug_log("LOG", stdout, __FILE__, __LINE__, __func__, fmt, ##__VA_ARGS__)
 #define ERR(fmt, ...) _fog_debug_log("ERR", stderr, __FILE__, __LINE__, __func__, fmt, ##__VA_ARGS__)
 void _fog_debug_log(const char* type, FILE* stream, const char* file,
                     int line, const char *func, const char* fmt, ...) {
-    // TODO: Log file with timestamps?
+    // TODO(ed): Log file with timestamps?
     va_list args;
     va_start(args, fmt);
 #ifdef VIM_JUMP_TO

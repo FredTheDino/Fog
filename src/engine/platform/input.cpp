@@ -13,7 +13,6 @@ Binding *find_first_binding(InputCode code) {
         } else if (cur_code < code) {
             low = cur + 1;
         } else {
-            // TODO(ed): This can maybe be better?
             while (global_mapping.bindings[(cur - 1)] == code) cur--;
             return global_mapping.bindings + cur;
         }
@@ -151,7 +150,6 @@ bool edit_string(char *text, u32 max_length) {
     }
 
 bool super_pressed(Name name, Player player) {
-    // TODO(ed): This can be better if we have a defer macro...
     bool remember = global_mapping.text_input;
     global_mapping.text_input = false;
     BEGIN_BINDINGS_BLOCK {
