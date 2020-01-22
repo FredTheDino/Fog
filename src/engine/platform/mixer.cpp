@@ -52,10 +52,10 @@ struct AudioStruct {
 Effect create_delay(f32 feedback, f32 delay_time) {
     ASSERT(delay_time < CHANNEL_BUFFER_LENGTH_SECONDS, "Delay time is longer than channel buffer");
     auto delay_func = [] (Effect *effect, f32 *buffer, u32 start, u32 len) -> void {
-        if (effect->delay._delay_len_seconds != effect->delay._prev_delay_len_seconds) {
+        if (effect->delay.delay_len_seconds != effect->delay._prev_delay_len_seconds) {
             //TODO(GS) crackling when length is changed while sound is playing
-            effect->delay.delay_len = (u32) AUDIO_SAMPLE_RATE * effect->delay._delay_len_seconds * 2;
-            effect->delay._prev_delay_len_seconds = effect->delay._delay_len_seconds;
+            effect->delay.delay_len = (u32) AUDIO_SAMPLE_RATE * effect->delay.delay_len_seconds * 2;
+            effect->delay._prev_delay_len_seconds = effect->delay.delay_len_seconds;
         }
         for (u32 i = 0; i < len; i++) {
             u32 cur_pos = (start + i) % CHANNEL_BUFFER_LENGTH;
@@ -85,7 +85,7 @@ EffectID add_effect(Effect effect, u32 channel) {
     return invalid_id();
 }
 
-Effect* fetch_effect(EffectID id) {
+Effect *fetch_effect(EffectID id) {
     if (!audio_struct.effects[id.channel][id.slot].effect) {
         return nullptr;
     }

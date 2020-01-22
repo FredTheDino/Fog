@@ -58,7 +58,7 @@ struct Effect {
         struct {
             f32 feedback;
             u32 delay_len;
-            f32 _delay_len_seconds;
+            f32 delay_len_seconds;
             f32 _prev_delay_len_seconds;
         } delay;
     };
@@ -89,6 +89,7 @@ bool init();
 // Plays a sound in the game world, the sound should have been
 // loaded by the asset system:<br>
 // <ul>
+//  <li>channel, which channel the sound should be sent too.</li>
 //  <li>asset_id, the sound asset to play.</li>
 //  <li>pitch, how fast the sound should be played.</li>
 //  <li>gain, how loud the sound should be played.</li>
@@ -108,6 +109,7 @@ AudioID play_sound(u32 channel, AssetID asset_id,
 // has applied distance attenuation. The sound
 // should have been loaded by the asset system:<br>
 // <ul>
+//  <li>channel, which channel the sound should be sent too.</li>
 //  <li>asset_id, the sound asset to play.</li>
 //  <li>position, where in the game world the sound should come from.</li>
 //  <li>pitch, how fast the sound should be played.</li>
@@ -126,5 +128,33 @@ AudioID play_sound_at(u32 channel, AssetID asset_id,
 ///*
 // Stops a sound from playing.
 void stop_sound(AudioID id);
+
+#ifdef _COMMENTS_
+
+///*
+// Attaches an effect to the specified channel and returns a unique ID to the
+// effect.
+EffectID add_effect(Effect effect, u32 channel);
+
+///*
+// Returns a delay-effect where feedback is the amount of sound to be repeated
+// and delay_time is the time in seconds between each repeat.
+Effect create_delay(f32 feedback, f32 delay_time);
+
+///*
+// Fetches a pointer to an effect with an id. Returns nullptr if the effect
+// isn't valid, which usually means that the effect has been detached.
+Effect *fetch_effect(EffectID id);
+
+///*
+// Detaches an effect from its channel. Returns true if the effect was
+// successfully detached, otherwise false.
+bool remove_effect(EffectID id);
+
+///*
+// Detaches all effects from a channel.
+void clear_effects(u32 channel);
+
+#endif
 
 };
