@@ -58,6 +58,10 @@ namespace Perf {
         ENTITY_DRAW,
         ENTITY_DEFRAG,
 
+        AUDIO,
+        AUDIO_SOURCES,
+        AUDIO_EFFECTS,
+
         NUMBER_OF_MARKERS, // Don't write anything after this.
     };
 }

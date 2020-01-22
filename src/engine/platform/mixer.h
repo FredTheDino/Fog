@@ -10,6 +10,13 @@ namespace Mixer {
 // spectacular ways depending on the OS. But most of the OS
 // specific code should be limited to this submodule.
 
+const u32 NUM_EFFECTS = 5;
+const u32 NUM_INSTRUMENTS = 10;
+const u32 NUM_SOURCES = 32;
+const u32 NUM_CHANNELS = 10;
+const u32 CHANNEL_BUFFER_LENGTH_SECONDS = 3;  // ~2MB
+const u32 CHANNEL_BUFFER_LENGTH = AUDIO_SAMPLE_RATE * CHANNEL_BUFFER_LENGTH_SECONDS * 2;  // two channels
+
 struct AudioMixer {
     u64 num_sounds;
     Sound **sound;
@@ -24,6 +31,40 @@ struct AudioID {
     u8 gen;
     u16 slot;
 };
+
+struct EffectID {
+    s32 channel;
+    u32 slot;
+    u32 gen;
+
+    bool operator== (const EffectID &other) const {
+        return channel == other.channel && slot == other.slot && gen == other.gen;
+    }
+
+    operator bool() const {
+        return channel >= 0;
+    }
+};
+
+EffectID invalid_id() {
+    return {-1, 0, 0};
+}
+
+//TODO(GS) standard effects for common sounds (consts).
+struct Effect {
+    EffectID id;
+    void (* effect)(Effect *effect, f32 *buffer, u32 start, u32 len);
+    union {
+        struct {
+            f32 feedback;
+            u32 delay_len;
+            f32 _delay_len_seconds;
+            f32 _prev_delay_len_seconds;
+        } delay;
+    };
+};
+
+Effect create_delay(f32 feedback, f32 delay_time);
 
 // TODO(ed): Some reverb and echo effects would
 // go a long way to create cool atmospheres.
@@ -55,7 +96,8 @@ bool init();
 //  <li>gain_variance, how much random variance there should be applied to the gain.</li>
 //  <li>loop, if the sound should loop or not.</li>
 // </ul>
-AudioID play_sound(AssetID asset_id, f32 pitch = 1.0,
+AudioID play_sound(u32 channel, AssetID asset_id,
+                   f32 pitch = 1.0,
                    f32 gain = AUDIO_DEFAULT_GAIN,
                    f32 pitch_variance = AUDIO_DEFAULT_VARIANCE,
                    f32 gain_variance = AUDIO_DEFAULT_VARIANCE,
@@ -74,7 +116,8 @@ AudioID play_sound(AssetID asset_id, f32 pitch = 1.0,
 //  <li>gain_variance, how much random variance there should be applied to the gain.</li>
 //  <li>loop, if the sound should loop or not.</li>
 // </ul>
-AudioID play_sound_at(AssetID asset_id, Vec2 position, f32 pitch = 1.0,
+AudioID play_sound_at(u32 channel, AssetID asset_id,
+                      Vec2 position, f32 pitch = 1.0,
                       f32 gain = AUDIO_DEFAULT_GAIN,
                       f32 pitch_variance = AUDIO_DEFAULT_VARIANCE,
                       f32 gain_variance = AUDIO_DEFAULT_VARIANCE,
