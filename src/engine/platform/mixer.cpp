@@ -40,6 +40,7 @@ struct AudioStruct {
     f32 *channels[NUM_CHANNELS];
     u32 sample_index;
     Effect effects[NUM_CHANNELS][NUM_EFFECTS];
+    u16 num_effects;
     // Position of the listener
     Vec2 position;
     f32 time;
@@ -74,9 +75,10 @@ EffectID add_effect(Effect effect, u32 channel) {
     ASSERT(channel < NUM_CHANNELS, "Invalid channel");
     for (u32 i = 0; i < NUM_EFFECTS; i++) {
         if (audio_struct.effects[channel][i].effect) continue;
-        EffectID id = {channel, i};
+        EffectID id = {channel, i, audio_struct.num_effects};
         effect.id = id;
         audio_struct.effects[effect.id.channel][effect.id.slot] = effect;
+        audio_struct.num_effects++;
         return effect.id;
     }
     ERR("Not enough free effect slots on channel %d, skipping effect", channel);

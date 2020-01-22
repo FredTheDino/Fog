@@ -35,9 +35,10 @@ struct AudioID {
 struct EffectID {
     s32 channel;
     u32 slot;
+    u32 gen;
 
     bool operator== (const EffectID &other) const {
-        return channel == other.channel && slot == other.slot;
+        return channel == other.channel && slot == other.slot && gen == other.gen;
     }
 
     operator bool() const {
@@ -46,7 +47,7 @@ struct EffectID {
 };
 
 EffectID invalid_id() {
-    return {-1, 0};
+    return {-1, 0, 0};
 }
 
 //TODO(GS) standard effects for common sounds (consts).
