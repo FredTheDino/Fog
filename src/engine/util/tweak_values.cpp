@@ -69,7 +69,7 @@ Vec2i moved_over_boundry() {
     s32 upper_y = (mpos.y - cpos.y) * scale;
     s32 lower_x = (mpos.x - mmov.x - cpos.x) * scale;
     s32 lower_y = (mpos.y - mmov.y - cpos.y) * scale;
-    return {upper_x - lower_x, upper_y - lower_y};
+    return {upper_x - lower_x, lower_y - upper_y};
 }
 
 void precise_snap(f32 *value) {
