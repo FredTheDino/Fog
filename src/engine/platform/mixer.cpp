@@ -64,8 +64,7 @@ Effect create_delay(f32 feedback, f32 delay_time) {
             effect->delay._prev_delay_len_seconds = effect->delay._delay_len_seconds;
         }
         for (u32 i = 0; i < len; i++) {
-            //                                                    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-            buffer[(start + i) % CHANNEL_BUFFER_LENGTH] += buffer[ABS(((s32) start + i - effect->delay.delay_len) % CHANNEL_BUFFER_LENGTH)] * effect->delay.feedback;
+            buffer[(start + i) % CHANNEL_BUFFER_LENGTH] += buffer[((u32) start + i - effect->delay.delay_len + CHANNEL_BUFFER_LENGTH) % CHANNEL_BUFFER_LENGTH] * effect->delay.feedback;
         }
     };
     Effect effect = {delay_func};
