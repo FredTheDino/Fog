@@ -72,9 +72,8 @@ typedef f32 real;  // Type used in vectors.
 
 #define MOD(a, b) ((a) - floor((a) / (b)) * (b))
 
-#define CEIL(n)  (MOD((n), 1.0) + (n))
-#define FLOOR(n) (1.0 - MOD((n), 1.0) + (n))
-#define ROUND(n) (CEIL((n) - 0.5))
+#define FLOOR(n) (floor(n))
+#define ROUND(n) (floor((n) + 0.5))
 
 #define SQ(a) ((a) * (a))
 

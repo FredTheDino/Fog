@@ -49,6 +49,36 @@ void debug_value_logic(const char *name, const char *buffer) {
     debug_text(buffer, -1 + global_tweak.indentation * height, global_tweak.yoffset -= height, color);
 }
 
+f32 movement_scale() {
+    if (Input::down(Input::Name::TWEAK_SMOOTH))
+        return global_tweak.smooth_pixels_to_unit;
+    else 
+        return global_tweak.pixels_to_unit;
+}
+
+Vec2 scaled_mouse_movements() {
+    return Input::mouse_move() * movement_scale();
+}
+
+Vec2i moved_over_boundry() {
+    const Vec2 mpos = Input::mouse_position();
+    const Vec2 mmov = Input::mouse_move();
+    const Vec2 cpos = global_tweak.click_pos;
+    const f32 scale = global_tweak.snapping_pixels_to_unit;
+    s32 upper_x = (mpos.x - cpos.x) * scale;
+    s32 upper_y = (mpos.y - cpos.y) * scale;
+    s32 lower_x = (mpos.x - mmov.x - cpos.x) * scale;
+    s32 lower_y = (mpos.y - mmov.y - cpos.y) * scale;
+    return {upper_x - lower_x, upper_y - lower_y};
+}
+
+void precise_snap(f32 *value) {
+    f32 precision = Input::down(Input::Name::TWEAK_SMOOTH) ? 0.1 : 1.0;
+    f32 v = (*value) / precision;
+    *value = ROUND(v) * precision;
+    LOG("snap: %f -> %f", v * precision, *value);
+}
+
 bool begin_tweak_section(const char *name, bool *active) {
     if (!debug_values_are_on()) return false;
     const char *buffer = Util::format(" - %s -", name);
@@ -99,8 +129,21 @@ bool tweak(const char *name, f32 *value) {
     debug_value_logic(name, buffer);
 
     if (name == global_tweak.hot) {
-        f32 delta = Input::mouse_move().x / global_tweak.pixels_per_unit / 7.0;
-        *value += delta;
+        f32 delta;
+        if (Input::down(Input::Name::TWEAK_STEP)) {
+            delta = moved_over_boundry().x;
+
+            if (Input::down(Input::Name::TWEAK_SMOOTH))
+                delta *= 0.1;
+
+            if (delta) {
+                *value += delta;
+                precise_snap(value);
+            }
+        } else {
+            delta = scaled_mouse_movements().x;
+            *value += delta;
+        }
         return delta != 0;
     }
     return false;
@@ -112,13 +155,7 @@ bool tweak(const char *name, s32 *value) {
     debug_value_logic(name, buffer);
 
     if (name == global_tweak.hot) {
-        f32 current_x = Input::mouse_position().x;
-        s32 upper = (current_x - global_tweak.click_pos.x) /
-                    global_tweak.pixels_per_unit;
-        s32 lower =
-            (current_x - Input::mouse_move().x - global_tweak.click_pos.x) /
-            global_tweak.pixels_per_unit;
-        s32 delta = upper - lower;
+        s32 delta = moved_over_boundry().x;
         *value += delta;
         return delta != 0;
     }
@@ -131,10 +168,7 @@ bool tweak(const char *name, u32 *value) {
     debug_value_logic(name, buffer);
 
     if (name == global_tweak.hot) {
-        f32 current_x = Input::mouse_position().x;
-        s32 upper = (current_x - global_tweak.click_pos.x) / global_tweak.pixels_per_unit;
-        s32 lower = upper - Input::mouse_move().x / global_tweak.pixels_per_unit;
-        s32 delta = upper - lower;
+        s32 delta = moved_over_boundry().x;
         if ((s32) *value < -delta) {
             *value = 0;
         } else {
@@ -152,30 +186,24 @@ bool tweak(const char *name, Vec2 *value) {
 
     if (name == global_tweak.hot) {
         Vec2 delta = {};
-
-        f32 movement_scale;
-        if (Input::down(Input::Name::TWEAK_SMOOTH))
-            movement_scale = 1.0 / global_tweak.pixels_per_unit / 14.0; 
-        else 
-            movement_scale = 1.0 / global_tweak.pixels_per_unit / 7.0; 
-
         if (Input::down(Input::Name::TWEAK_STEP)) {
-            Vec2 curr = Input::mouse_position();
-            Vec2 upper = (curr - global_tweak.click_pos) * movement_scale;
-            Vec2 lower = upper - Input::mouse_move() * movement_scale;
-            Vec2 change = V2(ROUND(upper.x) - ROUND(lower.x),
-                             ROUND(upper.y) - ROUND(lower.y));
-            value->x = ROUND(value->x);
-            value->y = ROUND(value->y);
-            if (change.x)
-                delta.x = value->x - ROUND(value->x + change.x);
+            Vec2i int_delta = moved_over_boundry();
+            delta = V2(int_delta.x, int_delta.y);
+            if (Input::down(Input::Name::TWEAK_SMOOTH))
+                delta *= 0.1;
+            if (delta.x) {
+                value->x += delta.x;
+                precise_snap(&value->x);
+            }
 
-            if (change.y)
-                delta.y = value->y - ROUND(value->y + change.y);
+            if (delta.y) {
+                value->y += delta.y;
+                precise_snap(&value->y);
+            }
         } else {
-            delta = hadamard(V2(1, -1), Input::mouse_move() * movement_scale);
+            delta = hadamard(V2(1, -1), scaled_mouse_movements());
+            *value += delta;
         }
-        *value += delta;
         return delta.x != 0 || delta.y != 0;
     }
     return false;

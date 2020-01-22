@@ -2,7 +2,9 @@
 namespace Util {
 
 struct TweakState {
-    const f32 pixels_per_unit = 10;
+    const f32 pixels_to_unit = 1.0 / 70.0;
+    const f32 smooth_pixels_to_unit = 1.0 / 2800.0;
+    const f32 snapping_pixels_to_unit = 1.0 / 20.0;
 
     f32 yoffset = 0;
     u32 indentation = 0;
