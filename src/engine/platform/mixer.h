@@ -32,39 +32,25 @@ struct AudioID {
     u16 slot;
 };
 
-struct EffectID {
-    s32 channel;
-    u32 slot;
-    u32 gen;
+struct Channel {
+    f32 *buffer;
 
-    bool operator== (const EffectID &other) const {
-        return channel == other.channel && slot == other.slot && gen == other.gen;
-    }
+    struct {
+        f32 feedback;
+        u32 len;
+        f32 len_seconds;
+        f32 _prev_len_seconds;
+        operator bool() const {
+            return len_seconds > 0;
+        }
+    } delay = {};
+    void set_delay(f32 feedback, f32 len_seconds);
+    void remove_delay();
 
-    operator bool() const {
-        return channel >= 0;
-    }
+    void effect(u32 start, u32 len);
 };
 
-EffectID invalid_id() {
-    return {-1, 0, 0};
-}
-
-//TODO(GS) standard effects for common sounds (consts).
-struct Effect {
-    EffectID id;
-    void (* effect)(Effect *effect, f32 *buffer, u32 start, u32 len);
-    union {
-        struct {
-            f32 feedback;
-            u32 delay_len;
-            f32 delay_len_seconds;
-            f32 _prev_delay_len_seconds;
-        } delay;
-    };
-};
-
-Effect create_delay(f32 feedback, f32 delay_time);
+// TODO(GS) standard effects for common sounds (consts).
 
 // TODO(ed): Some reverb and echo effects would
 // go a long way to create cool atmospheres.
@@ -89,7 +75,7 @@ bool init();
 // Plays a sound in the game world, the sound should have been
 // loaded by the asset system:<br>
 // <ul>
-//  <li>channel, which channel the sound should be sent too.</li>
+//  <li>channel_id, which channel the sound should be sent too.</li>
 //  <li>asset_id, the sound asset to play.</li>
 //  <li>pitch, how fast the sound should be played.</li>
 //  <li>gain, how loud the sound should be played.</li>
@@ -97,7 +83,7 @@ bool init();
 //  <li>gain_variance, how much random variance there should be applied to the gain.</li>
 //  <li>loop, if the sound should loop or not.</li>
 // </ul>
-AudioID play_sound(u32 channel, AssetID asset_id,
+AudioID play_sound(u32 channel_id, AssetID asset_id,
                    f32 pitch = 1.0,
                    f32 gain = AUDIO_DEFAULT_GAIN,
                    f32 pitch_variance = AUDIO_DEFAULT_VARIANCE,
@@ -109,7 +95,7 @@ AudioID play_sound(u32 channel, AssetID asset_id,
 // has applied distance attenuation. The sound
 // should have been loaded by the asset system:<br>
 // <ul>
-//  <li>channel, which channel the sound should be sent too.</li>
+//  <li>channel_id, which channel the sound should be sent too.</li>
 //  <li>asset_id, the sound asset to play.</li>
 //  <li>position, where in the game world the sound should come from.</li>
 //  <li>pitch, how fast the sound should be played.</li>
@@ -118,7 +104,7 @@ AudioID play_sound(u32 channel, AssetID asset_id,
 //  <li>gain_variance, how much random variance there should be applied to the gain.</li>
 //  <li>loop, if the sound should loop or not.</li>
 // </ul>
-AudioID play_sound_at(u32 channel, AssetID asset_id,
+AudioID play_sound_at(u32 channel_id, AssetID asset_id,
                       Vec2 position, f32 pitch = 1.0,
                       f32 gain = AUDIO_DEFAULT_GAIN,
                       f32 pitch_variance = AUDIO_DEFAULT_VARIANCE,
@@ -132,28 +118,13 @@ void stop_sound(AudioID id);
 #ifdef _COMMENTS_
 
 ///*
-// Attaches an effect to the specified channel and returns a unique ID to the
-// effect.
-EffectID add_effect(Effect effect, u32 channel);
+// Returns a pointer to a channel. Returns nullptr if the channel_id isn't
+// valid.
+Channel *fetch_channel(u32 channel_id);
 
 ///*
-// Returns a delay-effect where feedback is the amount of sound to be repeated
-// and delay_time is the time in seconds between each repeat.
-Effect create_delay(f32 feedback, f32 delay_time);
-
-///*
-// Fetches a pointer to an effect with an id. Returns nullptr if the effect
-// isn't valid, which usually means that the effect has been detached.
-Effect *fetch_effect(EffectID id);
-
-///*
-// Detaches an effect from its channel. Returns true if the effect was
-// successfully detached, otherwise false.
-bool remove_effect(EffectID id);
-
-///*
-// Detaches all effects from a channel.
-void clear_effects(u32 channel);
+// Activates delay on the channel with the specified settings.
+void Channel::set_delay(f32 feedback, f32 len_seconds);
 
 #endif
 
