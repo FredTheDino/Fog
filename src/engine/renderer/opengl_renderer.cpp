@@ -526,7 +526,7 @@ void upload_shader(AssetID asset, const char *source) {
         case ASSET_MASTER_SHADER:
             master_shader_program = compile_shader_program_from_source(source);
             ASSERT(master_shader_program, "Failed to compile shader");
-            u32 master_shader_current_cam_loc =
+            master_shader_current_cam_loc =
                 glGetUniformLocation(master_shader_program.id, "current_cam");
             break;
         case ASSET_FONT_SHADER:

@@ -102,8 +102,8 @@ void update(f32 delta) {
     using namespace Input;
     static bool show_camera_controls = true;
     static Vec2 shake = V2(0, 0);
-    static f32 start = Logic::now();
     static bool dual_cameras = false;
+    static u32 current_cam = 0;
     if (Util::begin_tweak_section("Camera controls", &show_camera_controls)) {
         Util::tweak("current_cam", &current_cam);
         current_cam = CLAMP(0, OPENGL_NUM_CAMERAS - 1, current_cam);
@@ -134,13 +134,15 @@ void update(f32 delta) {
 
     Renderer::camera_shake(Renderer::get_camera(0), shake.x, shake.y);
 
-    static Vec2 pos = {};
+    static Vec2 pos = V2(1, 1);
     pos += V2(Input::value(Name::LEFT_RIGHT),
               Input::value(Name::UP_DOWN)) * delta;
     if (Input::value(Name::SEL)) {
         pos = {};
     }
     Renderer::push_point(10, pos, V4(1, 0, 0, 1), span.random());
+
+    Renderer::push_point(10, V2(0, 0), V4(1, 1, 0, 1), 0.5);
 
     // // this code "resets" camera transformations set by the tweaks-system (shake and position)
     // if (current_cam == 0) {

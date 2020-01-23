@@ -67,7 +67,7 @@ Effect create_delay(f32 feedback, f32 delay_time) {
     effect.id = invalid_id();
     effect.effect = delay_func;
     effect.delay.feedback = feedback;
-    effect.delay._delay_len_seconds = delay_time;
+    effect.delay.delay_len_seconds = delay_time;
     return effect;
 }
 
@@ -75,7 +75,7 @@ EffectID add_effect(Effect effect, u32 channel) {
     ASSERT(channel < NUM_CHANNELS, "Invalid channel");
     for (u32 i = 0; i < NUM_EFFECTS; i++) {
         if (audio_struct.effects[channel][i].effect) continue;
-        EffectID id = {channel, i, audio_struct.num_effects};
+        EffectID id = {(s32) channel, i, audio_struct.num_effects};
         effect.id = id;
         audio_struct.effects[effect.id.channel][effect.id.slot] = effect;
         audio_struct.num_effects++;
