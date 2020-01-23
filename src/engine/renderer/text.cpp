@@ -14,14 +14,22 @@ Vec2 messure_text(const char *string, f32 size, AssetID font_id) {
             length += font->glyphs[curr].advance + font->glyphs[curr].x_offset;
         }
     }
-    return V2(length * size, size);
+    // Why is there a 10 here? I do not understand why...
+    return V2(length * size * 10, size);
 }
 
 void draw_text(const char *string, f32 x, f32 y, f32 size, AssetID font_id,
-               Vec4 color, f32 edge, bool border) {
+               f32 alignment,
+               Vec4 color,
+               f32 edge,
+               bool border) {
     START_PERF(TEXT);
     Asset::Font *font = Asset::fetch_font(font_id);
-    ASSERT(font, "Cannot find font, the \"id\" passed in should en with _FONT");
+    ASSERT(font, "Cannot find font, the \"id\" passed in should end with _FONT");
+    Vec2 offset = V2(0, 0);
+    if (alignment)
+        offset = V2(alignment * messure_text(string, size, font_id).x, 0.0);
+
     size /= font->height;
     if (!font->num_kernings) {
         Asset::Font::Glyph std = font->glyphs[(u8) 'A'];
@@ -33,7 +41,8 @@ void draw_text(const char *string, f32 x, f32 y, f32 size, AssetID font_id,
                           y + (glyph.h + glyph.y_offset) * -size};
                 Vec2 uv = {glyph.x, glyph.y};
                 Vec2 span = {glyph.w, glyph.h};
-                Renderer::push_sdf_quad(p, p + span * size, uv, uv + span,
+                Renderer::push_sdf_quad(p + offset, p + offset + span * size,
+                                        uv, uv + span,
                                         font->texture, color, 0.4, 0.4 + edge,
                                         border);
             }
@@ -52,7 +61,8 @@ void draw_text(const char *string, f32 x, f32 y, f32 size, AssetID font_id,
                           y + (glyph.h + glyph.y_offset) * (-size)};
                 Vec2 uv = {glyph.x, glyph.y};
                 Vec2 span = {glyph.w, glyph.h};
-                Renderer::push_sdf_quad(p, p + span * size, uv, uv + span,
+                Renderer::push_sdf_quad(p + offset, p + offset + span * size,
+                                        uv, uv + span,
                                         font->texture, color, 0.4, 0.4 + edge,
                                         border);
             }

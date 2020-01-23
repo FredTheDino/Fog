@@ -24,6 +24,7 @@ namespace Util {
     void debug_text(const char *text, f32 x, f32 y, u32 color_code = 0) {
         ASSERT(color_code < LEN(DEBUG_COLORS), "Invalid color code!");
         Renderer::draw_text(text, x, y, debug_font_size(), DEBUG_FONT,
+                            0,
                             DEBUG_COLORS[color_code], DEBUG_EDGE, true);
     }
 

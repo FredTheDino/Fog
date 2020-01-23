@@ -209,4 +209,36 @@ bool tweak(const char *name, Vec2 *value, f32 modifier) {
     return false;
 }
 
+bool tweak(const char *name, Span *value, f32 modifier) {
+    if (!debug_values_are_on()) return false;
+    const char *buffer = Util::format(" %s: %.4f, %.4f", name, value->min, value->max);
+    debug_value_logic(name, buffer);
+
+    if (name == global_tweak.hot) {
+        Vec2 delta = {};
+        if (Input::down(Input::Name::TWEAK_STEP)) {
+            Vec2i int_delta = moved_over_boundry();
+            delta = V2(int_delta.x, int_delta.y);
+            if (Input::down(Input::Name::TWEAK_SMOOTH))
+                delta *= 0.1;
+            if (delta.x) {
+                value->min += delta.x;
+                precise_snap(&value->min);
+            }
+
+            if (delta.y) {
+                value->min += delta.y;
+                precise_snap(&value->min);
+            }
+        } else {
+            delta = hadamard(V2(1, -1), scaled_mouse_movements());
+            value->min += delta.x * modifier;
+            value->max += delta.y * modifier;
+        }
+        return delta.x != 0 || delta.y != 0;
+    }
+    return false;
+}
+
+
 };

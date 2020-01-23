@@ -79,7 +79,7 @@ void setup() {
         V2(0.0, 0.0),
     };
     Physics::add_shape(LEN(points), points);
-    Renderer::set_window_size(1000, 1000);
+    Renderer::set_window_size(500, 500);
 
     {
         Vec2 points[] = {
@@ -100,7 +100,7 @@ void setup() {
 // Main logic
 void update(f32 delta) {
     using namespace Input;
-    static bool show_camera_controls = true;
+    static bool show_camera_controls = false;
     static Vec2 shake = V2(0, 0);
     static bool dual_cameras = false;
     static u32 current_cam = 0;
@@ -116,7 +116,7 @@ void update(f32 delta) {
         Util::tweak("num:", &Renderer::_fog_num_active_cameras);
     }
     Util::end_tweak_section(&show_camera_controls);
-    static bool show_various_tweaks = true;
+    static bool show_various_tweaks = false;
     static Span span = { 0.3, 0.35};
     if (Util::begin_tweak_section("Other tweaks", &show_various_tweaks)) {
         Util::tweak("point size", &span, 0.1);
@@ -196,6 +196,10 @@ void update(f32 delta) {
 
 // Main draw
 void draw() {
+    const char *some_string = "Wellcome to the other side!";
+    Renderer::draw_text(some_string, 0, -0.2, 0.1, ASSET_MONACO_FONT, 0);
+    Renderer::draw_text(some_string, 0, 0, 0.1, ASSET_MONACO_FONT, -0.5);
+    Renderer::draw_text(some_string, 0, 0.2, 0.1, ASSET_MONACO_FONT, -1.0);
 }
 
 }  // namespace Game
