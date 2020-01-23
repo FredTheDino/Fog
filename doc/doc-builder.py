@@ -235,11 +235,11 @@ def has_content(region_headings):
 
 def write_documentation(path, documentation):
     with open(path, "w") as f:
-        PREAMBLE = "<html><head><title>Fog - Documentation</title><meta charset=utf-8><script src=\"script.js\"></script><link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\"></head><body>"
+        PREAMBLE = "<html><head><title>Fog - Documentation</title><meta charset=utf-8><link rel='icon' type='image/png' href='../misc/fog-favicon.png'><script src=\"script.js\"></script><link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\"></head><body>"
         f.write(PREAMBLE)
         # Writing nav
         documented_code = {}
-        f.write("<nav><h2>Content</h2>")
+        f.write("<nav><img id='logo' src='../misc/fog-logo.png'><h2>Content</h2>")
         f.write("<ul id=\"nav\">")
         for region, headings in documentation:
             if not has_content(headings): continue

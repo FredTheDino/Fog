@@ -1,3 +1,11 @@
+#logo {
+    width: 75%;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 1em;
+    display: block;
+}
+
 body {
     background-color: #EEE;
     font-family: sans-serif;
