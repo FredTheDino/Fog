@@ -32,39 +32,23 @@ struct AudioID {
     u16 slot;
 };
 
-struct EffectID {
-    s32 channel;
-    u32 slot;
-    u32 gen;
+struct Channel {
+    f32 *buffer;
 
-    bool operator== (const EffectID &other) const {
-        return channel == other.channel && slot == other.slot && gen == other.gen;
-    }
+    struct {
+        bool active;
+        f32 feedback;
+        u32 len;
+        f32 len_seconds;
+        f32 _prev_len_seconds;
+    } delay = {};
+    void set_delay(f32 feedback, f32 len_seconds);
+    void remove_delay();
 
-    operator bool() const {
-        return channel >= 0;
-    }
+    void effect(u32 start, u32 len);
 };
 
-EffectID invalid_id() {
-    return {-1, 0, 0};
-}
-
-//TODO(GS) standard effects for common sounds (consts).
-struct Effect {
-    EffectID id;
-    void (* effect)(Effect *effect, f32 *buffer, u32 start, u32 len);
-    union {
-        struct {
-            f32 feedback;
-            u32 delay_len;
-            f32 delay_len_seconds;
-            f32 _prev_delay_len_seconds;
-        } delay;
-    };
-};
-
-Effect create_delay(f32 feedback, f32 delay_time);
+// TODO(GS) standard effects for common sounds (consts).
 
 // TODO(ed): Some reverb and echo effects would
 // go a long way to create cool atmospheres.
