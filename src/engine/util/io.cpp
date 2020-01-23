@@ -24,7 +24,7 @@ u32 str_len(const char *str) {
     return len + 1; // Include the null terminator.
 }
 
-///*
+///* format
 // Formats a string according to the passed in
 // format string (see printf for more info). Memory
 // is allocated using the frame allocator so it is
@@ -46,7 +46,7 @@ char *format(const char *fmt, ...) {
     return buffer;
 }
 
-///*
+///* format_inplace
 // Formats a string according to the passed in
 // format string (see printf for more info). The
 // result is written to the "out" buffer.

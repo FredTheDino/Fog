@@ -3,7 +3,7 @@ from os import listdir as ls
 import os.path as path
 from functools import reduce
 from enum import Enum
-from highlighter import highlight_code
+from highlighter import highlight_code, split_all
 
 def search(region, root):
     """
@@ -119,7 +119,15 @@ def make_id_friendly(string):
     return sub(r"[^a-z0-9]", "", string.lower())
 
 
-def process_comment_section(lines):
+def insert_links(line, docs):
+    def link(l):
+        if l in docs:
+            return "<a href='{}' class='code-link'>{}</a>".format("#" + docs[l], l)
+        return l
+    SPLIT_SEPS = set(" ,;(){}[]<>.;:-'*+\n")
+    return "".join([link(w) + s for w, s in zip(*split_all(line, SPLIT_SEPS))])
+
+def process_comment_section(lines, docs):
     """
     Parses out code from text and applies the appropriate markup.
     """
@@ -137,7 +145,7 @@ def process_comment_section(lines):
             out += "</p>"
             out += "<p class='code'>"
         if in_comment:
-            to_append = " " + line.replace("// ", "").strip()
+            to_append = " " + insert_links(line.replace("// ", "").strip(), docs)
             if to_append:
                 out += to_append
             else:
@@ -146,7 +154,7 @@ def process_comment_section(lines):
             indent = len(line) - len(line.lstrip())
             out += "<span indent=\"{}\"></span>".format("#" * indent)
             safe_code = line.replace("<", "&lt;").replace(">", "&gt;").lstrip()
-            out += highlight_code(safe_code)
+            out += insert_links(highlight_code(safe_code), docs)
             out += "<br>"
     return out.replace("<p></p>", "").strip()
 
@@ -162,14 +170,14 @@ def find_comment_id(section, comment):
     return make_id_friendly(section + find_comment_title(comment))
 
 
-def format_comment(section, comment, namespace):
+def format_comment(section, comment, namespace, docs):
     """
     Formats the code according to how a comment should be formatted.
     """
     title = find_comment_title(comment)
     if namespace:
         namespace = tag("span", namespace, html_class="namespace")
-    return tag("div", tag("h3", namespace + title ) + process_comment_section(comment.split("\n")[1:]),
+    return tag("div", tag("h3", namespace + title ) + process_comment_section(comment.split("\n")[1:], docs),
                "block comment",
                find_comment_id(section, comment))
 
@@ -200,19 +208,19 @@ def find_documentation_id(section, comment):
     return "ERROR-NO-ID"
 
 
-def format_documentation(section, comment, namespace):
+def format_documentation(section, comment, namespace, docs):
     """
     Formants the code according to how a comment should be formatted.
     """
     title = find_documentation_title(section, comment, namespace)
     if namespace:
         namespace = tag("span", namespace, html_class="namespace")
-    return tag("div", tag("h3", namespace + title) + process_comment_section(comment.split("\n")[1:]),
+    return tag("div", tag("h3", namespace + title) + process_comment_section(comment.split("\n")[1:], docs),
                "block doc",
                find_documentation_id(section, comment))
 
 
-def format_heading(heading, comment, namespace):
+def format_heading(heading, comment, namespace, _):
     return tag("h2", heading, "section heading", make_id_friendly(heading)) + \
            tag("p", comment.replace("///#", "").replace("//", "").strip())
 
@@ -230,6 +238,7 @@ def write_documentation(path, documentation):
         PREAMBLE = "<html><head><title>Fog - Documentation</title><meta charset=utf-8><script src=\"script.js\"></script><link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\"></head><body>"
         f.write(PREAMBLE)
         # Writing nav
+        documented_code = {}
         f.write("<nav><h2>Content</h2>")
         f.write("<ul id=\"nav\">")
         for region, headings in documentation:
@@ -250,6 +259,7 @@ def write_documentation(path, documentation):
                     elif comment_type == COMMENT:
                         text = find_comment_title(comment)
                         html_id = find_comment_id(heading, comment)
+                    documented_code[text] = html_id
                     f.write(tag("li", link(text, "#" + html_id)))
                 f.write("</li></ul>")
                     
@@ -264,14 +274,14 @@ def write_documentation(path, documentation):
             for heading in headings:
                 for comment_type, comment, namespace in headings[heading]:
                     if not comment: continue
-
+                    args = (heading, comment, namespace, documented_code)
                     # Formats the comments to a more suitable HTML format.
                     if comment_type == HEADING:
-                        output = format_heading(heading, comment, namespace)
+                        output = format_heading(*args)
                     elif comment_type == DOC:
-                        output = format_documentation(heading, comment, namespace)
+                        output = format_documentation(*args)
                     elif comment_type == COMMENT:
-                        output = format_comment(heading, comment, namespace)
+                        output = format_comment(*args)
                     f.write(output)
         f.write("</article>")
         f.write("</body></html>")
