@@ -35,9 +35,15 @@ def find_comments(file_path):
         comments = []
         current_type = None
         comment = ""
+        namespace = ""
         for line in f:
             if not appending_to_comment:
                 next_type = None
+                if "namespace" in line and not comments:
+                    words = line.split()
+                    if words[0] == "namespace" and len(words) <= 3:
+                        namespace = words[1]
+                        print(file_path, namespace)
                 if "///#" in line:
                     next_type = HEADING
                     heading = line[4:].strip()
@@ -49,7 +55,7 @@ def find_comments(file_path):
                 if next_type is not None:
                     appending_to_comment = True
                     if current_type is not None:
-                        comments.append((current_type, comment))
+                        comments.append((current_type, comment, namespace))
                     current_type = next_type
                     comment = ""
                     if current_type != HEADING:
@@ -61,7 +67,7 @@ def find_comments(file_path):
                 else:
                     comment += line
     if comment:
-        comments.append((current_type, comment))
+        comments.append((current_type, comment, namespace))
     return heading, comments
 
 
@@ -156,17 +162,19 @@ def find_comment_id(section, comment):
     return make_id_friendly(section + find_comment_title(comment))
 
 
-def format_comment(section, comment):
+def format_comment(section, comment, namespace):
     """
     Formats the code according to how a comment should be formatted.
     """
     title = find_comment_title(comment)
-    return tag("div", tag("h3", title) + process_comment_section(comment.split("\n")[1:]),
+    if namespace:
+        namespace = tag("span", namespace, html_class="namespace")
+    return tag("div", tag("h3", namespace + title ) + process_comment_section(comment.split("\n")[1:]),
                "block comment",
                find_comment_id(section, comment))
 
 
-def find_documentation_title(heading, comment):
+def find_documentation_title(heading, comment, namespace):
     """
     Finds the title for this piece of documentation.
     """
@@ -174,10 +182,10 @@ def find_documentation_title(heading, comment):
         if "///*" in line:
             potential_title = line[5:].strip()
             if potential_title:
-                return heading.title() + ": " + potential_title
+                return potential_title
         for word in line.split(" "):
             if "(" in word:
-                return heading.title() + ": " + word[:word.index("(")].replace("*", "")
+                return word[:word.index("(")].replace("*", "")
     return "ERROR-NO-TITLE"
 
 
@@ -192,24 +200,26 @@ def find_documentation_id(section, comment):
     return "ERROR-NO-ID"
 
 
-def format_documentation(section, comment):
+def format_documentation(section, comment, namespace):
     """
     Formants the code according to how a comment should be formatted.
     """
-    title = find_documentation_title(section, comment)
-    return tag("div", tag("h3", title) + process_comment_section(comment.split("\n")[1:]),
+    title = find_documentation_title(section, comment, namespace)
+    if namespace:
+        namespace = tag("span", namespace, html_class="namespace")
+    return tag("div", tag("h3", namespace + title) + process_comment_section(comment.split("\n")[1:]),
                "block doc",
                find_documentation_id(section, comment))
 
 
-def format_heading(heading, comment):
+def format_heading(heading, comment, namespace):
     return tag("h2", heading, "section heading", make_id_friendly(heading)) + \
            tag("p", comment.replace("///#", "").replace("//", "").strip())
 
 
 def has_content(region_headings):
     for heading in region_headings: 
-        for comment_type, comment in region_headings[heading]:
+        for comment_type, comment, namespace in region_headings[heading]:
             if comment:
                 return True
     return False
@@ -229,13 +239,13 @@ def write_documentation(path, documentation):
             for heading in headings:
                 f.write(tag("li", link(heading, "#" + make_id_friendly(heading)),  "hide hideable"))
                 f.write("<li><ul>")
-                for comment_type, comment in headings[heading]:
+                for comment_type, comment, namespace in headings[heading]:
                     if not comment: continue
 
                     if comment_type == HEADING:
                         continue
                     elif comment_type == DOC:
-                        text = find_documentation_title(heading, comment)
+                        text = find_documentation_title(heading, comment, namespace)
                         html_id = find_documentation_id(heading, comment)
                     elif comment_type == COMMENT:
                         text = find_comment_title(comment)
@@ -252,16 +262,16 @@ def write_documentation(path, documentation):
             if not has_content(headings): continue
             f.write(tag("h1", region.capitalize(), "region heading", region))
             for heading in headings:
-                for comment_type, comment in headings[heading]:
+                for comment_type, comment, namespace in headings[heading]:
                     if not comment: continue
 
                     # Formats the comments to a more suitable HTML format.
                     if comment_type == HEADING:
-                        output = format_heading(heading, comment)
+                        output = format_heading(heading, comment, namespace)
                     elif comment_type == DOC:
-                        output = format_documentation(heading, comment)
+                        output = format_documentation(heading, comment, namespace)
                     elif comment_type == COMMENT:
-                        output = format_comment(heading, comment)
+                        output = format_comment(heading, comment, namespace)
                     f.write(output)
         f.write("</article>")
         f.write("</body></html>")

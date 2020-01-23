@@ -62,18 +62,18 @@ f32 get_window_width();
 f32 get_window_height();
 f32 get_window_aspect_ratio();
 
-///*
+///* camera_shake
 // Shakes the camera in the specified ellipse.
 void camera_shake(Camera *camera, f32 shake);
 void camera_shake(Camera *camera, f32 shake_x, f32 shake_y);
 
-///*
+///* camera_lerp
 // Creates a new camera that lerps between the values of the
 // two cameras passed in. 0 -> camera_a, 1 -> camera_b.<br>
 // (A lerp is a linear interpolation between "a" and "b".)
 Camera camera_lerp(Camera camera_a, Camera camera_b, f32 lerp);
 
-///*
+///* camera_smooth
 // Creates a new camera that moves between the values of the
 // two cameras passed in. 0 -> camera_a, 1 -> camera_b.<br>
 // (The smooth movement has a derivative of 0 in both 0 and 1.)

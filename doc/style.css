@@ -76,6 +76,19 @@ article {
     width: calc(100% - 17em);
 }
 
+.namespace {
+    font-style: bold;
+    color: rgba(0, 0, 0, 0.50);
+    padding-left: 2px;
+    padding-right: 2px;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.namespace::after {
+    content: "::";
+}
+
 .note {
     background-color: blue;
     color: white;

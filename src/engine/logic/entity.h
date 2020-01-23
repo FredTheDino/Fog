@@ -1,6 +1,7 @@
 #include <typeindex>
 #include <type_traits>
 
+namespace Logic {
 #if 0
 
 ///# Entity system
@@ -51,8 +52,6 @@ void entity_registration() {
 // </ul>
 
 #endif
-
-namespace Logic {
 
 struct EntityID {
     s32 slot;

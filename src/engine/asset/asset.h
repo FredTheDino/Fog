@@ -1,5 +1,7 @@
 #include "../util/types.h"
 
+namespace Asset {
+
 ///# Asset System
 // <p>
 // The asset system is in charge of loading and passing around assets for other
@@ -21,8 +23,6 @@
 // An AssetID is a simple and easy way to identify an asset, they are unique
 // and created by "src/fog_assets.cpp"
 using AssetID = u64;
-
-namespace Asset {
 
 const u32 ASSET_ID_NO_ASSET = 0xFFFF;
 
