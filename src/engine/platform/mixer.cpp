@@ -68,9 +68,7 @@ void Channel::set_delay(f32 feedback, f32 len_seconds) {
 }
 
 Channel *fetch_channel(u32 channel_id) {
-    if (channel_id >= NUM_CHANNELS) {
-        return nullptr;
-    }
+    ASSERT(channel_id < NUM_CHANNELS, "Invalid channel");
     return &audio_struct.channels[channel_id];
 }
 
