@@ -20,6 +20,8 @@ namespace Input {
     enum class Name {
         NONE = 0,
 
+        /* --------- Your bindings go bellow this line --------- */
+
         LEFT_RIGHT,
         UP_DOWN,
         SEL,
@@ -28,12 +30,20 @@ namespace Input {
         RIGHT,
         UP,
         DOWN,
-        QUIT,
 
+        /* ---------------- And above this line ---------------- */
+
+        // Defaults
+        QUIT,
+        TWEAK_STEP,
+        TWEAK_SMOOTH,
+
+        // Debug
         DEBUG_PERF,
         DEBUG_VIEW,
         DEBUG_VALUES,
 
+        // Editor
         EDIT_MOVE_MODE,
         EDIT_SCALE_MODE,
 
