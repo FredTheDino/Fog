@@ -56,7 +56,7 @@ void entity_registration() {
 
 Renderer::Camera to;
 Renderer::Camera from;
-Mixer::EffectID delay_id;
+Mixer::Channel *channel;
 void setup() {
     using namespace Input;
     add(K(a), Name::LEFT);
@@ -92,9 +92,8 @@ void setup() {
         to = Renderer::camera_fit(LEN(points), points, 0.0);
         from = *Renderer::get_camera();
     }
-
-    Mixer::Effect delay = Mixer::create_delay(0.3, 0.2);
-    delay_id = Mixer::add_effect(delay, 1);
+    channel = Mixer::fetch_channel(1);
+    channel->set_delay(0.3, 0.2);
 }
 
 // Main logic
@@ -120,8 +119,8 @@ void update(f32 delta) {
     static Span span = { 0.3, 0.35};
     if (Util::begin_tweak_section("Other tweaks", &show_various_tweaks)) {
         Util::tweak("point size", &span, 0.1);
-        //Util::tweak("delay length", &delay->delay._delay_len_seconds);
-        //Util::tweak("delay feedback", &delay->delay.feedback, 0.5);
+        Util::tweak("delay length", &channel->delay.len_seconds);
+        Util::tweak("delay feedback", &channel->delay.feedback, 0.5);
     }
     Util::end_tweak_section(&show_various_tweaks);
 
