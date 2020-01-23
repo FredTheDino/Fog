@@ -36,11 +36,13 @@ struct Channel {
     f32 *buffer;
 
     struct {
-        bool active;
         f32 feedback;
         u32 len;
         f32 len_seconds;
         f32 _prev_len_seconds;
+        operator bool() const {
+            return len_seconds > 0;
+        }
     } delay = {};
     void set_delay(f32 feedback, f32 len_seconds);
     void remove_delay();

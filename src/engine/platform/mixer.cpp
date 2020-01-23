@@ -48,7 +48,7 @@ struct AudioStruct {
 } audio_struct = {};
 
 void Channel::effect(u32 start, u32 len) {
-    if (delay.active) {
+    if (delay) {
         if (delay.len_seconds != delay._prev_len_seconds) {
             //TODO(GS) crackling when length is changed while sound is playing
             delay.len = (u32) AUDIO_SAMPLE_RATE * delay.len_seconds * 2;
@@ -63,7 +63,6 @@ void Channel::effect(u32 start, u32 len) {
 }
 
 void Channel::set_delay(f32 feedback, f32 len_seconds) {
-    delay.active = true;
     delay.feedback = feedback;
     delay.len_seconds = len_seconds;
 }
