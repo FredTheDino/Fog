@@ -16,6 +16,7 @@ struct Camera {
     f32 _padding_[2];
 };
 #pragma pack(pop)
+
 // TODO(ed): Would it be nice to have a rotating camera?
 
 #pragma pack(push, 1)

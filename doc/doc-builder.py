@@ -19,7 +19,7 @@ def search(region, root):
 
 # Used to describe what is in this file, the first line is also
 # mined for a name.
-HEADING = 1  
+HEADING = 1
 DOC = 2  # API referend.
 COMMENT = 3  # Misc comments.
 
@@ -133,7 +133,7 @@ def process_comment_section(lines, docs):
     """
     out = ""
     in_comment = False
-    for line in lines: 
+    for line in lines:
         if line.strip() == "": continue
         if not in_comment and line.startswith("//"):
             in_comment = True
@@ -145,7 +145,10 @@ def process_comment_section(lines, docs):
             out += "</p>"
             out += "<p class='code'>"
         if in_comment:
-            to_append = " " + insert_links(line.replace("// ", "").strip(), docs)
+            if line == "//":
+                to_append = " "
+            else:
+                to_append = " " + insert_links(line.replace("// ", "").strip(), docs)
             if to_append:
                 out += to_append
             else:

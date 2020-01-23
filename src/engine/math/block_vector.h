@@ -433,7 +433,6 @@ Vec4 normalize(Vec4 a);
 ///*
 // Creates a new Vec4.
 Vec4 V4(real x, real y, real z, real w);
-////
 
 #endif
 
