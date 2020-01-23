@@ -106,6 +106,7 @@ bool auto_tweak(const char *name, void *value, u64 hash) {
     CHECK_TYPE(s32);
     CHECK_TYPE(u32);
     CHECK_TYPE(Vec2);
+    CHECK_TYPE(Span);
     const char *buffer = Util::format(" %s: ???", name);
     debug_value_logic(name, buffer);
     return false;

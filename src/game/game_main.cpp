@@ -197,9 +197,9 @@ void update(f32 delta) {
 // Main draw
 void draw() {
     const char *some_string = "Wellcome to the other side!";
-    Renderer::draw_text(some_string, 0, -0.2, 0.1, ASSET_MONACO_FONT, 0);
-    Renderer::draw_text(some_string, 0, 0, 0.1, ASSET_MONACO_FONT, -0.5);
-    Renderer::draw_text(some_string, 0, 0.2, 0.1, ASSET_MONACO_FONT, -1.0);
+    Renderer::draw_text(some_string, 0, -0.2, 1.0, ASSET_MONACO_FONT, 0);
+    Renderer::draw_text(some_string, 0, 0, 1.0, ASSET_MONACO_FONT, -0.5);
+    Renderer::draw_text(some_string, 0, 0.2, 1.0, ASSET_MONACO_FONT, -1.0);
 }
 
 }  // namespace Game

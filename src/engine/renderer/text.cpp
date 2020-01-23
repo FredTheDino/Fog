@@ -14,8 +14,7 @@ Vec2 messure_text(const char *string, f32 size, AssetID font_id) {
             length += font->glyphs[curr].advance + font->glyphs[curr].x_offset;
         }
     }
-    // Why is there a 10 here? I do not understand why...
-    return V2(length * size * 10, size);
+    return V2(length * size, size * font->height);
 }
 
 void draw_text(const char *string, f32 x, f32 y, f32 size, AssetID font_id,
@@ -30,7 +29,6 @@ void draw_text(const char *string, f32 x, f32 y, f32 size, AssetID font_id,
     if (alignment)
         offset = V2(alignment * messure_text(string, size, font_id).x, 0.0);
 
-    size /= font->height;
     if (!font->num_kernings) {
         Asset::Font::Glyph std = font->glyphs[(u8) 'A'];
         while (*string) {
