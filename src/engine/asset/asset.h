@@ -134,6 +134,8 @@ Font *fetch_font(AssetID id);
 
 };  // namespace Asset
 
+using AssetID = Asset::AssetID;
+
 // The file format:
 //
 // Number of Assets,

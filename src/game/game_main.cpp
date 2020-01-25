@@ -117,11 +117,11 @@ void update(f32 delta) {
     Util::end_tweak_section(&show_camera_controls);
     static bool show_various_tweaks = true;
     static Span span = { 0.3, 0.35};
-    if (Util::begin_tweak_section("Other tweaks", &show_various_tweaks)) {
-        Util::tweak("point size", &span, 0.1);
-        Util::tweak("delay length", &channel->delay.len_seconds);
-        Util::tweak("delay feedback", &channel->delay.feedback, 0.5);
-    }
+    // if (Util::begin_tweak_section("Other tweaks", &show_various_tweaks)) {
+    //     Util::tweak("point size", &span, 0.1);
+    //     Util::tweak("delay length", &channel->delay.len_seconds);
+    //     Util::tweak("delay feedback", &channel->delay.feedback, 0.5);
+    // }
     Util::end_tweak_section(&show_various_tweaks);
 
     Renderer::turn_on_camera(0);

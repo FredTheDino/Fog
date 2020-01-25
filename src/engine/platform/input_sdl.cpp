@@ -37,7 +37,7 @@ struct ControllerMapping {
     SDL_GameController *controller;
 };
 
-const u32 NUM_PLAYERS = (u32) Player::NUM;
+const u32 NUM_PLAYERS = (u32) Input::Player::NUM;
 static ControllerMapping _fog_global_controller_mapping[NUM_PLAYERS] = {};
 
 void register_controller(s32 slot) {
