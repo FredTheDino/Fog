@@ -131,8 +131,12 @@ Body create_body(ShapeID shape_id, f32 mass = 1.0f, u32 layer=0xFFFFFFFF,
                  f32 bounce = 0.1f, f32 damping = 0.1f);
 
 ///*
-// Make sure the body is centerd to where the shape thinks the center is.
+// Make sure the shape is centerd to where the body is.
 void center_body(Body *body);
+
+///*
+// Swaps the current shape on the given body to the new shape.
+void swap_shape(Body *body, ShapeID shape);
 
 ///*
 // Check if the two bodies overlap, if they
