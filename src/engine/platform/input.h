@@ -7,6 +7,46 @@ void (*window_callback)(int, int) = nullptr;
 // The name is essentially an integer and should be kept in the enum
 // Input::Name.
 
+enum class Player {
+    NONE = 0b0000,
+
+    P1 = 0b0001,
+    P2 = 0b0010,
+    P3 = 0b0100,
+    P4 = 0b1000,
+
+    // Max number of players.
+    NUM = 4,
+
+    ANY = 0b1111,
+};
+
+bool is_valid_player(Player p) {
+    return (p == Player::P1 || p == Player::P2 || p == Player::P3 ||
+            p == Player::P4);
+}
+
+bool is(Player p, Player filter) { return (bool)((u8)p & (u8)filter); }
+
+u32 toID(Player p) {
+    switch (p) {
+        case (Player::P1):
+            return 0;
+        case (Player::P2):
+            return 1;
+        case (Player::P3):
+            return 2;
+        case (Player::P4):
+            return 3;
+        default:
+            UNREACHABLE;
+    }
+    // Safe guard return.
+    return 0;
+}
+
+namespace Input {
+
 ///* Player type
 // <p>
 // Player is an enum bit-field, with enums for P1, P2, P3 and P4. There
@@ -47,46 +87,6 @@ A(...)
 B(...)
 
 #endif
-
-enum class Player {
-    NONE = 0b0000,
-
-    P1 = 0b0001,
-    P2 = 0b0010,
-    P3 = 0b0100,
-    P4 = 0b1000,
-
-    // Max number of players.
-    NUM = 4,
-
-    ANY = 0b1111,
-};
-
-bool is_valid_player(Player p) {
-    return (p == Player::P1 || p == Player::P2 || p == Player::P3 ||
-            p == Player::P4);
-}
-
-bool is(Player p, Player filter) { return (bool)((u8)p & (u8)filter); }
-
-u32 toID(Player p) {
-    switch (p) {
-        case (Player::P1):
-            return 0;
-        case (Player::P2):
-            return 1;
-        case (Player::P3):
-            return 2;
-        case (Player::P4):
-            return 3;
-        default:
-            UNREACHABLE;
-    }
-    // Safe guard return.
-    return 0;
-}
-
-namespace Input {
 
 //*
 // To add a new "key" or "name" to the input system, an enum in the engine has
