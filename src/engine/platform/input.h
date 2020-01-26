@@ -2,6 +2,8 @@ void (*window_callback)(int, int) = nullptr;
 
 // TODO(ed): Shift and key combinations? Should those be handled?
 
+namespace Input {
+
 ///# Input
 // The input system allows players and keys to be mapped to a name.
 // The name is essentially an integer and should be kept in the enum
@@ -44,8 +46,6 @@ u32 toID(Player p) {
     // Safe guard return.
     return 0;
 }
-
-namespace Input {
 
 ///* Player type
 // <p>
