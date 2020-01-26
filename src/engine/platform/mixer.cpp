@@ -250,6 +250,10 @@ void audio_callback(void* userdata, u8* stream, int len) {
 }
 
 bool init() {
+    OTHER_THREAD(AUDIO);
+    OTHER_THREAD(AUDIO_SOURCES);
+    OTHER_THREAD(AUDIO_EFFECTS);
+
     audio_mixer.arena = Util::request_arena();
 
     audio_struct.num_free_sources = NUM_SOURCES;

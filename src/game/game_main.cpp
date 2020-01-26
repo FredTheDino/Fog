@@ -12,8 +12,7 @@ Physics::ShapeID square;
 Physics::Body a, b;
 
 struct A : public Logic::Entity {
-
-    virtual void update(f32 delta) {};
+    virtual void update(f32 delta){};
     virtual void draw() {
         Renderer::push_point(layer, position, V4(0, 0, 0, 1), 0.1);
     };
@@ -26,8 +25,8 @@ struct MyEnt : public Logic::Entity {
 
     void draw() override {
         Renderer::push_sprite(layer, position, scale, rotation,
-                ASSET_DEBUG_TEST,
-                LERP(V2(0, 0), value, V2(100, 100)), V2(64, 64));
+                              ASSET_DEBUG_TEST,
+                              LERP(V2(0, 0), value, V2(100, 100)), V2(64, 64));
     }
 
     f32 value;
@@ -38,8 +37,7 @@ struct MyEnt : public Logic::Entity {
 void show_buffer(char *buffer, void *tmp) {
     std::vector<int> *vec = (std::vector<int> *) tmp;
     buffer += Util::format_inplace(buffer, "(%d) ", vec->size());
-    for (int v : *vec)
-        buffer += Util::format_inplace(buffer, "%d ", v);
+    for (int v : *vec) buffer += Util::format_inplace(buffer, "%d ", v);
 }
 
 void show_int(char *buffer, void *info) {
@@ -52,7 +50,6 @@ void entity_registration() {
     REGISTER_ENTITY(A);
     REGISTER_ENTITY(MyEnt);
 }
-
 
 Renderer::Camera to;
 Renderer::Camera from;
@@ -132,16 +129,16 @@ void update(f32 delta) {
     Renderer::camera_shake(Renderer::get_camera(0), shake.x, shake.y);
 
     static Vec2 pos = V2(1, 1);
-    pos += V2(Input::value(Name::LEFT_RIGHT),
-              Input::value(Name::UP_DOWN)) * delta;
+    pos +=
+        V2(Input::value(Name::LEFT_RIGHT), Input::value(Name::UP_DOWN)) * delta;
     if (Input::value(Name::SEL)) {
         pos = {};
     }
 
     Renderer::push_point(10, V2(0, 0), V4(1, 1, 0, 1), 0.5);
 
-    // // this code "resets" camera transformations set by the tweaks-system (shake and position)
-    // if (current_cam == 0) {
+    // // this code "resets" camera transformations set by the tweaks-system
+    // (shake and position) if (current_cam == 0) {
     //     for (u32 i = 0; i < OPENGL_NUM_CAMERAS; i++) {
     //         *Renderer::get_camera(i) = Renderer::camera_smooth(
     //                 from, to, (f32) i / ((f32) OPENGL_NUM_CAMERAS));
@@ -159,30 +156,30 @@ void update(f32 delta) {
         Renderer::push_point(10, points[i], V4(1.0, 0.0, 1.0, 1.0));
     }
 
-        if (down(Name::UP)) {
+    if (down(Name::UP)) {
         MyEnt e = {};
         e.position = random_unit_vec2() * 0.4;
         e.scale = {0.5, 0.5};
+        Util::allow_allocation();
         auto id = Logic::add_entity(e);
-        LOG("%d %d", id.slot, id.gen);
+        //LOG("%d %d", id.slot, id.gen);
     }
 
     if (down(Name::LEFT)) {
         A e = {};
         e.position = random_unit_vec2();
+        Util::allow_allocation();
         auto id = Logic::add_entity(e);
-        LOG("%d %d", id.slot, id.gen);
+        //LOG("%d %d", id.slot, id.gen);
     }
-
 
     if (pressed(Name::DOWN)) {
         auto thing = [](Logic::Entity *e) -> bool {
             Logic::remove_entity(e->id);
             return false;
         };
-        std::function func = std::function<bool(Logic::Entity*)>(thing);
-        Logic::for_entity_of_type(Logic::EntityType::MY_ENT,
-                                  func);
+        std::function func = std::function<bool(Logic::Entity *)>(thing);
+        Logic::for_entity_of_type(Logic::EntityType::MY_ENT, func);
     }
 
     if (pressed(Name::RIGHT)) {
@@ -191,7 +188,6 @@ void update(f32 delta) {
 }
 
 // Main draw
-void draw() {
-}
+void draw() {}
 
 }  // namespace Game
