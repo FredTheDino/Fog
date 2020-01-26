@@ -43,7 +43,6 @@ def find_comments(file_path):
                     words = line.split()
                     if words[0] == "namespace" and len(words) <= 3:
                         namespace = words[1]
-                        print(file_path, namespace)
                 if "///#" in line:
                     next_type = HEADING
                     heading = line[4:].strip()
