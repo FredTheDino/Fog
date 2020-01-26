@@ -58,7 +58,7 @@ typedef f32 real;  // Type used in vectors.
 #define ABS_MAX(a, b) ((ABS(a) > ABS(b)) ? (a) : (b))
 #define ABS_MIN(a, b) ((ABS(a) < ABS(b)) ? (a) : (b))
 
-#define LERP(a, l, b) ((a) * (1.0 - (l)) + (b) * (l))
+#define LERP(a, l, b) ((a) * (1.0f - (l)) + (b) * (l))
 
 #define CLAMP(min, max, v) ((min) > (v) ? (min) : ((max) < (v)) ? (max) : (v))
 
@@ -71,6 +71,9 @@ typedef f32 real;  // Type used in vectors.
 #define ABS(n) ((n) < 0 ? -(n) : (n))
 
 #define MOD(a, b) ((a) - floor((a) / (b)) * (b))
+
+#define FLOOR(n) (floor(n))
+#define ROUND(n) (floor((n) + 0.5))
 
 #define SQ(a) ((a) * (a))
 
@@ -108,6 +111,15 @@ float winding_direction(Vec2 p1, Vec2 p2, Vec2 p3) {
 
 #include "random.h"
 #include "random.cpp"
+
+struct Span {
+    // TODO(ed): Maybe add different kinds of randomizations.
+    f32 min, max;
+
+    f32 random() {
+        return random_real(min, max);
+    }
+};
 
 #ifdef _COMMENTS_
 

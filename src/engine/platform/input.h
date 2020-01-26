@@ -2,30 +2,12 @@ void (*window_callback)(int, int) = nullptr;
 
 // TODO(ed): Shift and key combinations? Should those be handled?
 
+namespace Input {
+
 ///# Input
 // The input system allows players and keys to be mapped to a name.
 // The name is essentially an integer and should be kept in the enum
 // Input::Name.
-
-///* Player type
-// <p>
-// Player is an enum bit-field, with enums for P1, P2, P3 and P4. There
-// are also pseudo-players like "ANY" player, which is all players and "NONE"
-// which doesn't match any player.
-// More players can of course be added but requires some knowledge of the
-// engine. These magic-constans are feed into the input functions and
-// can trivially be used to identify player entities.
-// </p>
-// <p>
-// Possible values are:
-// <ul>
-//    <li>P1 - The first player</li>
-//    <li>P2 - The second player</li>
-//    <li>P3 - The third player</li>
-//    <li>P4 - The fourth player</li>
-//    <li>ANY - Any of the players (Does not currently work when assigning input)</li>
-// </ul>
-// </p>
 
 enum class Player {
     NONE = 0b0000,
@@ -65,7 +47,46 @@ u32 toID(Player p) {
     return 0;
 }
 
-namespace Input {
+///* Player type
+// <p>
+// Player is an enum bit-field, with enums for P1, P2, P3 and P4. There
+// are also pseudo-players like "ANY" player, which is all players and "NONE"
+// which doesn't match any player.
+// More players can of course be added but requires some knowledge of the
+// engine. These magic-constans are feed into the input functions and
+// can trivially be used to identify player entities.
+// </p>
+// <p>
+// Possible values are:
+// <ul>
+//    <li>P1 - The first player</li>
+//    <li>P2 - The second player</li>
+//    <li>P3 - The third player</li>
+//    <li>P4 - The fourth player</li>
+//    <li>ANY - Any of the players (Does not currently work when assigning input)</li>
+// </ul>
+// </p>
+
+#if 0
+///* K(...) macro
+// The K() macro generates a keyboard input code for a specific key,
+// it's usefull to make the code more readable. You give it the last
+// part of a SDLK_* name. (<a href="https://wiki.libsdl.org/SDL_Keycode">link to all possible values</a>)
+K(...)
+
+///* A(...) macro
+// The same as K, but for controller axis, like the left/right sticks
+// and the two triggers. Here it's the SDL_CONTROLLER_AXIS_* part of the
+// name. (<a href="https://wiki.libsdl.org/SDL_GameControllerAxis">link to all possible values</a>)
+A(...)
+
+///* B(...) macro
+// The same as K and A, but for controller buttons, the buttons are given
+// using the Xbox layout. Here it's the SDL_CONTROLLER_BUTTON_* part of the
+// name. (<a href="https://wiki.libsdl.org/SDL_GameControllerButton">link to all possible values</a>)
+B(...)
+
+#endif
 
 //*
 // To add a new "key" or "name" to the input system, an enum in the engine has
@@ -246,12 +267,17 @@ Vec2 screen_to_world(Vec2 p);
 ///*
 // The position of the mouse in world coordinated,
 // taken into account the current camera transform.
-Vec2 world_mouse_position();
+Vec2 world_mouse_position(u32 camera_id = 0);
+
+///*
+// The position of the mouse in the same scale as the world
+// coordinates, but relative to the camera position.
+Vec2 normalised_mouse_position();
 
 ///*
 // The movement of the mouse in world coordinated,
 // taken into account the current camera transform.
-Vec2 world_mouse_move();
+Vec2 world_mouse_move(u32 camera_id = 0);
 
 ///*
 // Returns the depth of the mouse press, this far. Should increase

@@ -2,7 +2,9 @@
 namespace Util {
 
 struct TweakState {
-    const f32 pixels_per_unit = 10;
+    const f32 pixels_to_unit = 1.0 / 70.0;
+    const f32 smooth_pixels_to_unit = 1.0 / 2800.0;
+    const f32 snapping_pixels_to_unit = 1.0 / 20.0;
 
     f32 yoffset = 0;
     u32 indentation = 0;
@@ -36,15 +38,20 @@ void end_tweak_section(bool *active);
 // building the game in debug mode and pressing <F3>. These
 // values can then be tweaked however you want.
 //
-// If the values are hot, "true" is returned, if the values
-// are cold "false" is returned. (Hot means it is potentially edited)
+// Modifier scales the change of the value, so a large one
+// makes the changes faster, they only appear on floating
+// point types however.
+//
+// If the values are changed, "true" is returned, if the values
+// stay the same "false" is returned.
 //
 // A cool trick to remember is that the code can verify the values and for
 // example clamp them in a range efter the use has manipulated them.
 bool tweak(const char *name, bool *value);
-bool tweak(const char *name, f32 *value);
+bool tweak(const char *name, f32 *value, f32 modifier=1.0);
 bool tweak(const char *name, s32 *value);
 bool tweak(const char *name, u32 *value);
-bool tweak(const char *name, Vec2 *value);
+bool tweak(const char *name, Vec2 *value, f32 modifier=1.0);
+bool tweak(const char *name, Span *value, f32 modifier=1.0);
 
 };

@@ -393,7 +393,7 @@ real length_squared(Vec3 a);
 
 ///*
 // |a|*|a|*|a|
-real length_squared(Vec3 a);
+real length_cubed(Vec3 a);
 
 ///*
 // a / |a|
@@ -408,7 +408,7 @@ Vec2 V2(Vec3 a);
 Vec3 V3(real x, real y, real z);
 
 ///*
-// Padds out a V4 with appropriate lements, {x, y, z, x4}
+// Padds out a V4 with appropriate lements, {x, y, 0.0, x4}
 Vec4 V4(Vec2 a, x4=1.0);
 
 ///* Vec4
@@ -433,7 +433,6 @@ Vec4 normalize(Vec4 a);
 ///*
 // Creates a new Vec4.
 Vec4 V4(real x, real y, real z, real w);
-////
 
 #endif
 

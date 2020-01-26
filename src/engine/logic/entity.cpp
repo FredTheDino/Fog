@@ -1,8 +1,9 @@
 namespace Logic {
 
     bool init_entity() {
-        // TODO(ed): This sets a hard limit on the memory... Might need to be expanded,
-        // as of writing this is 2MB, and I think that's enough for most...
+        // This limits the memory to one arena, just to keep
+        // tabs on the memory, if you trust this code switch it
+        // to true to have UNLIMITED entities.
         _fog_es.memory = Util::request_arena(false);
         _fog_es.next_free = 0;
         _fog_es.entities = Util::create_list<Entity *>(100),
@@ -130,7 +131,6 @@ namespace Logic {
         }
 
         if ((s32) _fog_es.entities.capacity <= id.slot) {
-            // TODO(ed): Is this a good size?
             _fog_es.entities.resize(id.slot * 2);
         }
 
@@ -168,6 +168,14 @@ namespace Logic {
             if (entity && id == entity->id) return entity;
         }
         return nullptr;
+    }
+
+    template <typename T>
+    T *fetch_entity(EntityID id) {
+        Entity *entity = fetch_entity(id);
+        ASSERT(entity, "Cannot find entity");
+        ASSERT(entity->type() == T::st_type(), "Types don't match!");
+        return (T *) entity;
     }
 
     bool valid_entity(EntityID id) {

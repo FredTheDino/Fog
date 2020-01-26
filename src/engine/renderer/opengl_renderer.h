@@ -94,6 +94,7 @@ struct RenderQueue {
 
 // Render state
 Program master_shader_program;
+u32 master_shader_current_cam_loc;
 Program font_shader_program;
 Program post_process_shader_program;
 
@@ -102,14 +103,15 @@ RenderQueue<SdfVertex> font_render_queue;
 
 GLuint sprite_texture_array;
 
-GLuint screen_fbo;
-GLuint screen_rbo;
+GLuint screen_fbos[OPENGL_NUM_CAMERAS];
+GLuint screen_rbos[OPENGL_NUM_CAMERAS];
+GLuint screen_textures[OPENGL_NUM_CAMERAS];
 // A quad that covers the entire screen.
 GLuint screen_quad_vao;
 GLuint screen_quad_vbo;
 GLuint screen_texture_location;
+GLuint num_screen_textures_location;
 
-unsigned int screen_texture;
 
 
 // OpenGL global variables
@@ -158,9 +160,9 @@ void GLAPIENTRY gl_debug_message(GLenum source, GLenum type, GLuint id,
                                  GLenum severity, GLsizei length,
                                  const GLchar *message, const void *userParam) {
 #ifdef FOG_VERBOSE
-    _fog_debug_log((type == GL_DEBUG_TYPE_ERROR ? "GL ERROR" : "GL"), __FILE__,
-                __LINE__, "type: 0x%x, severity: 0x%x\n\"%s\"",
-                type, severity, message);
+    _fog_debug_log((type == GL_DEBUG_TYPE_ERROR ? "GL ERROR" : "GL"), stderr,
+                   __FILE__, __LINE__, "type: 0x%x, severity: 0x%x\n\"%s\"",
+                   type, severity, message);
 #endif
 }
 

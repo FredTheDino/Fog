@@ -40,7 +40,7 @@ void do_all_allocations();
 void swap_frame_memory();
 
 ///*
-// Request a block of memory, |only_one| doesn't allow the arena to grow as the
+// Request a block of memory, only_one doesn't allow the arena to grow as the
 // memory usage is increased but caps it at one buffer. This works in a similar
 // way as "malloc".
 MemoryArena *request_arena(bool only_one = false);
@@ -87,6 +87,16 @@ void pop_memory(T *data);
 ///*
 // Copies the memory from one pointer to the other.
 void copy_bytes(void *from, void *to, u64 size);
+
+///*
+// Allows a single memory allocation without very verbose complaining.
+// You don't need to call this if you're doing allocations in setup,
+// but after the inital setup you shouldn't really be allocating unless
+// you know what you're doing. I'm looking at you Erik.
+void allow_allocation();
+
+// Doesn't allow allocations all willy-nilly anymore.
+void strict_allocation_check();
 
 // TODO(ed): We could do system allocations here, it
 // would be faster, but a tad less portable.

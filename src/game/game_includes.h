@@ -6,6 +6,8 @@
 #define OPENGL_TEXTURE_HEIGHT 512
 #define OPENGL_TEXTURE_DEPTH 256
 #define OPENGL_NUM_LAYERS 16
+#define OPENGL_NUM_CAMERAS 2
+#define OPENGL_AUTO_APPLY_ASPECTRATIO_CHANGE true
 #define MAX_LAYER (OPENGL_NUM_LAYERS - 2)
 #define SDL
 
@@ -18,16 +20,30 @@ namespace Input {
     enum class Name {
         NONE = 0,
 
+        /* --------- Your bindings go bellow this line --------- */
+
+        LEFT_RIGHT,
+        UP_DOWN,
+        SEL,
+
         LEFT,
         RIGHT,
         UP,
         DOWN,
-        QUIT,
 
+        /* ---------------- And above this line ---------------- */
+
+        // Defaults
+        QUIT,
+        TWEAK_STEP,
+        TWEAK_SMOOTH,
+
+        // Debug
         DEBUG_PERF,
         DEBUG_VIEW,
         DEBUG_VALUES,
 
+        // Editor
         EDIT_UI_DOWN,
         EDIT_UI_UP,
 
@@ -59,6 +75,10 @@ namespace Perf {
         ENTITY_DRAW,
         ENTITY_DEFRAG,
 
+        AUDIO,
+        AUDIO_SOURCES,
+        AUDIO_EFFECTS,
+
         NUMBER_OF_MARKERS, // Don't write anything after this.
     };
 }
@@ -76,5 +96,4 @@ namespace Logic {
         NUM_ENTITY_TYPES, // Don't write anything after this.
     };
 }
-
 

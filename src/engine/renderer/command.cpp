@@ -20,10 +20,10 @@ bool init(const char *title, int width, int height) {
     return Impl::init(title, width, height);
 }
 
-// TODO: Make this into a queue ordeal, so the implementation
+// TODO(ed): Make this into a queue ordeal, so the implementation
 // can live on a separate thread.
 //
-// TODO: Make a static push call so only the moving geometry
+// TODO(ed): Make a static push call so only the moving geometry
 // has to be pushed.
 
 // Clear the screen and prepare for rendering.

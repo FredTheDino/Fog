@@ -41,15 +41,6 @@ struct Particle {
 struct ParticleSystem {
     Util::MemoryArena *memory;
 
-    struct Span {
-        // TODO(ed): Maybe add different kinds of randomizations.
-        f32 min, max;
-
-        f32 random() {
-            return random_real(min, max);
-        }
-    };
-
     struct SubSprite {
         u16 texture;
         Vec2 min;

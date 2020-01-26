@@ -1,4 +1,5 @@
 CXX = g++
+# NOTE: The verbose flag doesn't allow compilation on cirtain mac systems.
 DEBUG_FLAGS = -ggdb -O0 -DDEBUG  # -DFOG_VERBOSE
 WARNINGS = -Wall -Wno-invalid-offsetof -Wno-unused-but-set-variable -Wno-unused-function -Wno-missing-braces -Wno-error
 FLAGS = $(WARNINGS) -std=c++17 -Iinc $(DEBUG_FLAGS)
@@ -29,7 +30,7 @@ default: $(ENGINE_PROGRAM_PATH) $(ASSET_OUTPUT) $(DOCUMENTATION)
 
 doc: $(DOCUMENTATION)
 
-$(DOCUMENTATION) : $(SOURCE_FILES) $(DOCUMENTATION_GENERATOR)
+$(DOCUMENTATION): $(ENGINE_PROGRAM_PATH)
 	$(DOCUMENTATION_GENERATOR)
 
 $(ENGINE_PROGRAM_PATH): $(SOURCE_FILES) $(ASSET_OUTPUT)
@@ -63,7 +64,7 @@ run: $(ENGINE_PROGRAM_PATH)
 	cd $(BIN_DIR); ./$(ENGINE_PROGRAM_NAME)
 
 debug: $(ENGINE_PROGRAM_PATH)
-	cd $(BIN_DIR); gdb ./$(ENGINE_PROGRAM_NAME)
+	cd $(BIN_DIR); gdb -ex "b _fog_assert_failed()" -ex "b _fog_illegal_allocation()" ./$(ENGINE_PROGRAM_NAME)
 
 valgrind: $(ENGINE_PROGRAM_PATH)
 	cd $(BIN_DIR); $(TERMINAL) gdb $(ENGINE_PROGRAM_NAME) &

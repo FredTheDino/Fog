@@ -41,6 +41,7 @@ bool debug_values_are_on();
 #include "renderer/command.cpp"
 #include "renderer/text.cpp"
 #include "renderer/particle_system.cpp"
+#include "renderer/camera.cpp"
 #include "asset/asset.cpp"
 #include "util/performance.cpp"
 #include "util/tweak_values.cpp"
@@ -52,7 +53,6 @@ bool debug_values_are_on();
 #include "platform/mixer.cpp"
 
 #ifdef SDL
-// TODO(ed): Better job of abstracting out SDL.
 #include "platform/input_sdl.cpp"
 #else
 #error "No other platform layer than SDL supported."
@@ -90,6 +90,13 @@ void setup_debug_keybindings() {
 
     CHECK(add(K(F12), Name::QUIT),
           "Failed to create mapping");
+
+    CHECK(add(K(LSHIFT), Name::TWEAK_SMOOTH),
+          "Failed to create mapping");
+
+    CHECK(add(K(LCTRL), Name::TWEAK_STEP),
+          "Failed to create mapping");
+
     CHECK(add(K(F1), Name::DEBUG_PERF),
           "Failed to create mapping");
 
@@ -180,6 +187,7 @@ int main(int argc, char **argv) {
     Game::entity_registration();
     Logic::frame(SDL_GetTicks() / 1000.0f);
     setup();
+    Util::strict_allocation_check();
     while (SDL::running) {
         Logic::frame(SDL_GetTicks() / 1000.0f);
 
@@ -202,7 +210,7 @@ int main(int argc, char **argv) {
         Logic::update_es();
         Logic::call(Logic::At::POST_UPDATE);
 
-        Mixer::audio_struct.position = Renderer::global_camera.position;
+        Mixer::audio_struct.position = Renderer::get_camera()->position;
 
         START_PERF(RENDER);
         Renderer::clear();

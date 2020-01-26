@@ -46,6 +46,6 @@ START_PERF(marker)
 // Tells the performance clock that this is the end
 // of this block, accumulating it to the other results.
 STOP_PERF(marker)
-#endif
 
+#endif
 

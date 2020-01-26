@@ -130,7 +130,7 @@ void setup() {
 
     add(K(a), Name::EDIT_SELECT_ALL);
 
-    Renderer::global_camera.zoom = 1.0 / 2.0;
+    Renderer::get_camera()->zoom = 1.0 / 2.0;
 
     global_editor.selected = Util::create_list<Logic::EntityID>(50);
     global_editor.edits = Util::create_list<EditorEdit>(50);
@@ -156,7 +156,7 @@ void select_func(bool clean) {
             }
             return false;
         };
-        Logic::for_entity(Function(find_click));
+        Logic::for_entity(Function<bool(Logic::Entity *)>(find_click));
         if (selected) {
             global_editor.edits.clear();
             s32 index = global_editor.selected.index(selected);
@@ -184,7 +184,7 @@ void select_box_func(bool clean) {
         }
         return false;
     };
-    Logic::for_entity(Function(find_click));
+    Logic::for_entity(Function<bool(Logic::Entity *)>(find_click));
 
     f32 lx = box_min.x;
     f32 ly = box_min.y;
@@ -406,7 +406,7 @@ void update() {
                     global_editor.selected.append(e->id);
                     return false;
                 };
-                Logic::for_entity(Function(select));
+                Logic::for_entity(Function<bool(Logic::Entity *)>(select));
             }
         }
     }

@@ -8,6 +8,46 @@ static const u32 FRAME_LAG_FOR_MEMORY = 2;
 static u32 CURRENT_MEMORY = 0;
 static MemoryArena *FRAME_MEMORY[FRAME_LAG_FOR_MEMORY];
 
+enum class MemoryAllocationState {
+    ALLOWED,
+    ILLEGAL,
+    NO_RULE,
+};
+static MemoryAllocationState _fog_mem_alloc_state = MemoryAllocationState::NO_RULE;
+
+#define CHECK_ILLEGAL_ALLOC \
+    do {\
+    switch (_fog_mem_alloc_state) {\
+        case MemoryAllocationState::ILLEGAL:\
+            _fog_illegal_allocation();\
+        default:\
+        case MemoryAllocationState::ALLOWED:\
+            _fog_mem_alloc_state = MemoryAllocationState::ILLEGAL;\
+        case MemoryAllocationState::NO_RULE:\
+            break;\
+    }\
+    } while (false);
+
+void _fog_illegal_allocation() {
+    static u32 num_errors = 0;
+    num_errors++;
+    for (u32 i = 0; i < num_errors; i++) {
+        ERR("Trying to allocate memory outside the main loop. Are you aware of "
+            "what you're doing? Call \"allow_allocation\" before your allocation "
+            "to make this error go away.\nhttps://www.xkcd.com/1495/\n");
+    }
+}
+
+void allow_allocation() {
+    // So we don't turn off the "NO_RULE" mode.
+    if (_fog_mem_alloc_state == MemoryAllocationState::ILLEGAL)
+        _fog_mem_alloc_state = MemoryAllocationState::ALLOWED;
+}
+
+void strict_allocation_check() {
+    _fog_mem_alloc_state = MemoryAllocationState::ILLEGAL;
+}
+
 void do_all_allocations() {
     static_assert(TOTAL_MEMORY_BUDGET % ARENA_SIZE_IN_BYTES == 0);
 
@@ -34,15 +74,18 @@ void swap_frame_memory() {
 
 template <typename T>
 T *request_temporary_memory(u64 num) {
+    allow_allocation();
     return FRAME_MEMORY[CURRENT_MEMORY]->push<T>(num);
 }
 
 template <typename T>
 T *temporary_push(T t) {
+    allow_allocation();
     return FRAME_MEMORY[CURRENT_MEMORY]->push(t);
 }
 
 MemoryArena *request_arena(bool only_one) {
+    CHECK_ILLEGAL_ALLOC;
     ASSERT(global_memory.free_regions, "No more memory");
     ASSERT(global_memory.num_free_regions, "No more memory");
     MemoryArena *next = global_memory.free_regions;
@@ -64,9 +107,9 @@ void return_arean(MemoryArena *arena) {
 
 template <typename T>
 T *MemoryArena::push(u64 count) {
+    CHECK_ILLEGAL_ALLOC;
     u64 allocation_size = sizeof(T) * count;
     ASSERT(allocation_size <= ARENA_SIZE_IN_BYTES, "Too large allocation");
-    // TODO(ed): Should do boundry checking here.
     if (watermark + allocation_size > ARENA_SIZE_IN_BYTES) {
         if (!next) {
             if (only_one) HALT_AND_CATCH_FIRE;
@@ -87,7 +130,6 @@ T *MemoryArena::push(T type) {
 }
 
 void MemoryArena::clear() {
-    // TODO(ed): Should do boundry checking here.
     while (next) {
         MemoryArena *old = next;
         next = next->next;
@@ -98,7 +140,6 @@ void MemoryArena::clear() {
 
 void MemoryArena::pop() { return_arean(this); }
 
-// TODO(ed):
 // I know these are just wrappers for malloc
 // and free, but they add an easy place to see
 // if memory is potentially leaked, and are intended
@@ -107,11 +148,13 @@ void MemoryArena::pop() { return_arean(this); }
 
 template <typename T>
 T *push_memory(u32 num) {
+    CHECK_ILLEGAL_ALLOC;
     return (T *) malloc(sizeof(T) * num);
 }
 
 template <typename T>
 T *resize_memory(T *data, u32 num) {
+    CHECK_ILLEGAL_ALLOC;
     return (T *) realloc(data, sizeof(T) * num);
 }
 

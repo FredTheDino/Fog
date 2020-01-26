@@ -17,7 +17,7 @@ flat out float pass_high;
 flat out int pass_border;
 
 void main() {
-    gl_Position = vec4(pos.x, pos.y / aspect_ratio, 0.0, 1.0);
+    gl_Position = vec4(pos.x, pos.y / win.aspect_ratio, 0.0, 1.0);
     pass_uv = vec3(uv, sprite);
     pass_color = color;
 

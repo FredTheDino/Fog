@@ -21,6 +21,41 @@ ShapeID add_shape(u32 points_length, Vec2 *points) {
     Shape shape = {};
     shape.points = create_list<Vec2>(points_length);
 
+    // Check for non-convex polygons.
+    // We can do this while looping over
+    // the points checking for the center, but I don't
+    // think performance will be an issue here.
+    // -- Ed
+    u32 positiv_cross = 0;
+    u32 negative_cross = 0;
+    for (u32 i = 0; i < points_length; i++) {
+        Vec2 a = points[(i - 1) % points_length];
+        Vec2 b = points[(i + 0) % points_length];
+        Vec2 c = points[(i + 1) % points_length];
+        Vec2 ab = b - a;
+        Vec2 bc = c - b;
+        auto winding_is_positive = [](Vec2 a, Vec2 b) -> bool {
+            return (a.x * b.y - a.y * b.x) > 0;
+        };
+        if (winding_is_positive(ab, bc))
+            positiv_cross += 1;
+        else
+            negative_cross += 1;
+
+        if (positiv_cross != 0 && negative_cross != 0) {
+            char *shape_dump = Util::format("\t%.5f, %.5f\n",
+                                            points[0].x, points[1].y);
+            for (u32 a = 1; a < points_length; a++) {
+                shape_dump = Util::format("%s\t%.5f, %.5f\n",
+                                          shape_dump, points[a].x, points[a].y);
+            }
+            ERR("Invalid shape, a given shape is not convex. The shape was:\n %s",
+                shape_dump);
+            ASSERT(false, "Invalid shape.");
+        }
+    }
+
+
     // We need the center to lay inside the shapes
     // for the SAT algorithm to work.
     Vec2 center = V2(0, 0);
@@ -58,8 +93,9 @@ ShapeID add_shape(u32 points_length, Vec2 *points) {
         continue;
     }
 
+    shape.id = global_shape_list.length;
     global_shape_list.append(shape);
-    return global_shape_list.length - 1;
+    return shape.id;
 }
 
 ShapeID add_shape(List<Vec2> points) {
@@ -148,7 +184,6 @@ bool point_in_box(Vec2 p, Vec2 min, Vec2 max) {
 }
 
 bool point_in_box(Vec2 p, Vec2 center, Vec2 dim, f32 rotation) {
-    // TODO(ed): Remove double sin, cos calculations.
     p = rotate(p, -rotation);
     center = rotate(center, -rotation);
     Vec2 delta = p - center;
@@ -273,6 +308,11 @@ Overlap check_overlap(Body *body_a, Body *body_b) {
 
 void solve(Overlap overlap)
 {
+    if (!overlap) {
+        ERR("You are trying to solve an overlap that isn't overlapping.");
+        return;
+    }
+
     Body *a = overlap.a;
     Body *b = overlap.b;
 

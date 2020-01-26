@@ -13,7 +13,6 @@ Binding *find_first_binding(InputCode code) {
         } else if (cur_code < code) {
             low = cur + 1;
         } else {
-            // TODO(ed): This can maybe be better?
             while (global_mapping.bindings[(cur - 1)] == code) cur--;
             return global_mapping.bindings + cur;
         }
@@ -151,7 +150,6 @@ bool edit_string(char *text, u32 max_length) {
     }
 
 bool super_pressed(Name name, Player player) {
-    // TODO(ed): This can be better if we have a defer macro...
     bool remember = global_mapping.text_input;
     global_mapping.text_input = false;
     BEGIN_BINDINGS_BLOCK {
@@ -211,34 +209,39 @@ f32 value(Name name, Player player) {
     return 0;
 }
 
-Vec2 screen_to_world(Vec2 p) {
-    const f32 scale_factor = 1.0 / Renderer::global_camera.zoom;
-    Vec2 result = hadamard(p, V2( 2 * scale_factor / Renderer::global_camera.width,
-                                  2 * scale_factor / Renderer::global_camera.height));
-    result -= V2(scale_factor, scale_factor);
-    result.y *= -1;
-    result -= Renderer::global_camera.position;
-    return result;
+Vec2 scale_screen_to_world(Vec2 p, u32 camera_id = 0) {
+    Renderer::Camera *camera = Renderer::get_camera(camera_id);
+    const f32 inv_width = 1.0 / Renderer::get_window_width();
+    const f32 scale_factor = 1.0 / camera->zoom;
+    Vec2 opengl = V2( p.x * 2 * scale_factor * inv_width,
+                     -p.y * 2 * scale_factor * inv_width);
+    Vec2 world = opengl + V2(-scale_factor, scale_factor * camera->aspect_ratio);
+    return world;
 }
 
-Vec2 scale_screen_to_world(Vec2 p) {
-    const f32 scale_factor = 1.0 / Renderer::global_camera.zoom;
-    Vec2 result = hadamard(p, V2( 2 * scale_factor / Renderer::global_camera.width,
-                                  2 * scale_factor / Renderer::global_camera.height));
-    result.y *= -1;
-    return result;
+Vec2 screen_to_world(Vec2 p, u32 camera_id = 0) {
+    Renderer::Camera *camera = Renderer::get_camera(camera_id);
+    return scale_screen_to_world(p, camera_id) - camera->position;
 }
 
-Vec2 world_mouse_position() {
-    return screen_to_world(mouse_position());
+Vec2 world_mouse_position(u32 camera_id) {
+    return screen_to_world(mouse_position(), camera_id);
+}
+
+Vec2 normalized_mouse_position() {
+    const f32 inv_width = 1.0 / Renderer::get_window_width();
+    Vec2 opengl = V2( mouse_position().x * 2 * inv_width,
+                     -mouse_position().y * 2 * inv_width);
+    Vec2 normalized = opengl + V2(-1, 1 * Renderer::get_window_aspect_ratio());
+    return normalized;
 }
 
 Vec2 mouse_position() {
     return V2(global_mapping.mouse.x, global_mapping.mouse.y);
 }
 
-Vec2 world_mouse_move() {
-    return scale_screen_to_world(mouse_move());
+Vec2 world_mouse_move(u32 camera_id) {
+    return scale_screen_to_world(mouse_move(), camera_id);
 }
 
 Vec2 mouse_move() {
