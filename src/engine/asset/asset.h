@@ -1,5 +1,6 @@
 #include "../util/types.h"
 
+
 namespace Asset {
 
 ///# Asset System
