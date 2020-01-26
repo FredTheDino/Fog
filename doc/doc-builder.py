@@ -241,7 +241,7 @@ def write_documentation(path, documentation):
         f.write(PREAMBLE)
         # Writing nav
         documented_code = {}
-        f.write("<nav><img id='logo' src='../misc/fog-logo.png'><h2>Content</h2>")
+        f.write("<nav><div class='container'><img id='logo' src='../misc/fog-logo.png'><h2>Content</h2>")
         f.write("<ul id=\"nav\">")
         for region, headings in documentation:
             if not has_content(headings): continue
@@ -267,7 +267,7 @@ def write_documentation(path, documentation):
                     
             f.write("</li></ul>")
         f.write("</ul>")
-        f.write("</nav>")
+        f.write("</div></nav>")
 
         f.write("<article>")
         for region, headings in documentation:
