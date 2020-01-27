@@ -269,11 +269,7 @@ void audio_callback(void* userdata, u8* stream, int len) {
         }
 
         for (u32 i = 0; i < SAMPLES; i++) {
-            if (output_stream[i] > SAMPLE_LIMIT) {
-                output_stream[i] = SAMPLE_LIMIT;
-            } else if (output_stream[i] < -SAMPLE_LIMIT) {
-                output_stream[i] = -SAMPLE_LIMIT;
-            }
+            output_stream[i] = CLAMP(-SAMPLE_LIMIT, SAMPLE_LIMIT, output_stream[i]);
         }
     }
     STOP_PERF(AUDIO_EFFECTS);
