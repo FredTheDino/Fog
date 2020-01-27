@@ -67,9 +67,9 @@ void Channel::effect(u32 start, u32 len) {
 
         for (u32 i = 0; i < len; i++) {
             f32 tmp = 0;
-            for (u32 j = 0; j < lowpass.coeffs_len; j++) {
-                if (i >= 2 * j) {
-                    tmp += lowpass.coeffs[j] * buffer_tmp[i - (j * 2)];
+            for (u32 coeff = 0; coeff < lowpass.coeffs_len; coeff++) {
+                if (i >= 2 * coeff) {
+                    tmp += lowpass.coeffs[coeff] * buffer_tmp[i - (coeff * 2)];
                 }
             }
             buffer[(start + i) % CHANNEL_BUFFER_LENGTH] = tmp;
