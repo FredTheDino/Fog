@@ -186,6 +186,10 @@ void update(f32 delta) {
     }
 
     //TODO(GS) better sample to showcase filtering
+    if (pressed(Name::UP)) {
+        Mixer::play_sound(3, ASSET_NOISE);
+    }
+
     if (pressed(Name::LEFT)) {
         Mixer::play_sound(2, ASSET_NOISE);
     }
