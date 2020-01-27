@@ -60,11 +60,34 @@ void Channel::effect(u32 start, u32 len) {
             buffer[cur_pos] += buffer[pre_pos] * delay.feedback;
         }
     }
+    if (lowpass) {
+        for (u32 i = 0; i < len; i++) {
+            buffer_tmp[i] = buffer[(start + i) % CHANNEL_BUFFER_LENGTH];
+        }
+
+        for (u32 i = 0; i < len; i++) {
+            f32 tmp = 0;
+            for (u32 j = 0; j < lowpass.coeffs_len; j++) {
+                if (i >= 2 * j) {
+                    tmp += lowpass.coeffs[j] * buffer_tmp[i - (j * 2)];
+                }
+            }
+            buffer[(start + i) % CHANNEL_BUFFER_LENGTH] = tmp;
+        }
+    }
 }
 
 void Channel::set_delay(f32 feedback, f32 len_seconds) {
     delay.feedback = feedback;
     delay.len_seconds = len_seconds;
+}
+
+void Channel::set_lowpass(f32 *coeffs, u32 coeffs_len) {
+    lowpass.coeffs = Util::push_memory<f32>(coeffs_len);  //TODO(GS) >:(
+    lowpass.coeffs_len = coeffs_len;
+    for (u32 i = 0; i < coeffs_len; i++) {
+        lowpass.coeffs[i] = coeffs[i];
+    }
 }
 
 Channel *fetch_channel(u32 channel_id) {
@@ -262,7 +285,7 @@ bool init() {
 
     for (u32 i = 0; i < NUM_CHANNELS; i++) {
         audio_struct.channels[i].buffer = audio_mixer.arena->push<f32>(CHANNEL_BUFFER_LENGTH);
-        audio_struct.channels[i].buffer_tmp = audio_mixer.arena->push<f32>(AUDIO_SAMPLES_WANT);
+        audio_struct.channels[i].buffer_tmp = audio_mixer.arena->push<f32>(AUDIO_SAMPLES_WANT * 2);
     }
 
     SDL_AudioSpec want = {};
