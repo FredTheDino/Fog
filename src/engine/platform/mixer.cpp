@@ -76,10 +76,19 @@ void Channel::set_delay(f32 feedback, f32 len_seconds) {
     delay.len_seconds = len_seconds;
 }
 
+void Channel::remove_delay() {
+    delay.feedback = 0;
+    delay.len_seconds = 0;
+}
+
 void Channel::set_lowpass(f32 weight) {
     lowpass.sum[0] = 0;
     lowpass.sum[1] = 0;
     lowpass.weight = weight;
+}
+
+void Channel::remove_lowpass() {
+    lowpass.weight = 0;
 }
 
 Channel *fetch_channel(u32 channel_id) {
