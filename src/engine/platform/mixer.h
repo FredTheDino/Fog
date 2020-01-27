@@ -47,6 +47,16 @@ struct Channel {
     void set_delay(f32 feedback, f32 len_seconds);
     void remove_delay();
 
+    struct {
+        f32 sum[2];
+        f32 magic;
+        operator bool() const {
+            return magic > 0;
+        }
+    } lowpass = {};
+    void set_lowpass(f32 magic);
+    void remove_lowpass();
+
     void effect(u32 start, u32 len);
 };
 
