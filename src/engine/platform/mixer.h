@@ -50,12 +50,12 @@ struct Channel {
 
     struct {
         f32 sum[2];
-        f32 magic;
+        f32 weight;
         operator bool() const {
-            return magic > 0;
+            return weight > 0;
         }
     } lowpass = {};
-    void set_lowpass(f32 magic);
+    void set_lowpass(f32 weight);
     void remove_lowpass();
 
     void effect(u32 start, u32 len);
