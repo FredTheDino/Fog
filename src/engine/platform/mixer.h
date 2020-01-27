@@ -34,6 +34,7 @@ struct AudioID {
 
 struct Channel {
     f32 *buffer;
+    f32 *buffer_tmp;
 
     struct {
         f32 feedback;

@@ -260,13 +260,15 @@ bool init() {
     for (u32 i = 0; i < NUM_SOURCES; i++)
         audio_struct.free_sources[i] = i;
 
-    for (u32 i = 0; i < NUM_CHANNELS; i++)
+    for (u32 i = 0; i < NUM_CHANNELS; i++) {
         audio_struct.channels[i].buffer = audio_mixer.arena->push<f32>(CHANNEL_BUFFER_LENGTH);
+        audio_struct.channels[i].buffer_tmp = audio_mixer.arena->push<f32>(AUDIO_SAMPLES_WANT);
+    }
 
     SDL_AudioSpec want = {};
     want.freq = AUDIO_SAMPLE_RATE;
     want.format = AUDIO_F32;
-    want.samples = 2048;
+    want.samples = AUDIO_SAMPLES_WANT;
     want.channels = 2;
     want.callback = audio_callback;
     audio_struct.time_step = 1.0 / (f32) AUDIO_SAMPLE_RATE;
