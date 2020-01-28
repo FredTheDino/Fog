@@ -1,24 +1,5 @@
 namespace Mixer {
 
-
-enum VoiceType {
-    SINE,
-    NOISE,
-};
-
-struct Instrument {
-    VoiceType voice;
-    f32 time;
-    f32 pitch;
-    f32 pitch_dest;
-    f32 pitch_speed;
-    f32 gain;
-    f32 gain_dest;
-    f32 gain_speed;
-
-    f32 time_to;
-};
-
 struct SoundSource {
     f32 sample;
     AssetID source;
@@ -33,7 +14,6 @@ struct SoundSource {
 };
 
 struct AudioStruct {
-    Instrument instruments[NUM_INSTRUMENTS];
     SoundSource sources[NUM_SOURCES];
     u16 num_free_sources;
     u16 free_sources[NUM_SOURCES];
@@ -95,22 +75,6 @@ void Channel::remove_lowpass() {
 Channel *fetch_channel(u32 channel_id) {
     ASSERT(channel_id < NUM_CHANNELS, "Invalid channel");
     return &audio_struct.channels[channel_id];
-}
-
-f32 pitch(s32 tone) {
-    return BASE_TONE * pow(NEXT_TONE, tone);
-}
-
-
-void set_note(u32 instrument_id, f32 new_pitch, f32 new_gain, f32 time=1.0) {
-    ASSERT(instrument_id < NUM_INSTRUMENTS,
-            "Invalid instrument");
-    Instrument *inst = audio_struct.instruments + instrument_id;
-    inst->pitch_dest = new_pitch;
-    inst->pitch_speed = (new_pitch - inst->pitch) / time;
-    inst->gain_dest = new_gain;
-    inst->gain_speed = (new_gain - inst->gain) / time;
-    inst->time_to = time;
 }
 
 AudioID push_sound(SoundSource source) {

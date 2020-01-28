@@ -11,7 +11,6 @@ namespace Mixer {
 // specific code should be limited to this submodule.
 
 const u32 NUM_EFFECTS = 5;
-const u32 NUM_INSTRUMENTS = 10;
 const u32 NUM_SOURCES = 32;
 const u32 NUM_CHANNELS = 10;
 const u32 CHANNEL_BUFFER_LENGTH_SECONDS = 3;  // ~2MB
@@ -65,12 +64,6 @@ struct Channel {
 
 // TODO(ed): Some reverb and echo effects would
 // go a long way to create cool atmospheres.
-
-// TODO(ed): The instrument playing API needs some
-// work, it might be good to move to an approach where
-// bars are queried for by the audio thread.
-const f32 NEXT_TONE = 1.0594630943593;
-const f32 BASE_TONE = 440;
 
 constexpr f32 AUDIO_DEFAULT_GAIN = 0.2;
 constexpr f32 AUDIO_DEFAULT_VARIANCE = 0.01;
