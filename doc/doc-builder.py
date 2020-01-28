@@ -123,7 +123,7 @@ def insert_links(line, docs):
         if l in docs:
             return "<a href='{}' class='code-link'>{}</a>".format("#" + docs[l], l)
         return l
-    SPLIT_SEPS = set(" ,;(){}[]<>.;:-'*+\n")
+    SPLIT_SEPS = set(" ,;(){}[]<>.-'*+\n")
     return "".join([link(w) + s for w, s in zip(*split_all(line, SPLIT_SEPS))])
 
 def process_comment_section(lines, docs):
