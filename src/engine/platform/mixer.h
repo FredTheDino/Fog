@@ -38,8 +38,12 @@ struct Channel {
 
     struct {
         f32 feedback;
+        f32 feedback_target;
+        f32 feedback_delta;
         u32 len;
         f32 len_seconds;
+        f32 len_seconds_target;
+        f32 len_seconds_delta;
         f32 _prev_len_seconds;
         operator bool() const {
             return len_seconds > 0;

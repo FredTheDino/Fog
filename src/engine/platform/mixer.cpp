@@ -47,8 +47,24 @@ struct AudioStruct {
     SDL_AudioDeviceID dev;
 } audio_struct = {};
 
+
+//TODO(GS) need better function names here
+
+void add(f32 *value, f32 target, f32 delta) {
+    if (*value != target)
+        *value += delta * (*value < target ? 1 : -1);
+}
+
+void mult(f32 *value, f32 target, f32 delta) {
+    //TODO(GS) set if close enough
+    if (*value != target)
+        *value *= 1 + (delta * (*value < target ? 1 : -1));
+}
+
 void Channel::effect(u32 start, u32 len) {
     if (delay) {
+        add(&delay.feedback, delay.feedback_target, delay.feedback_delta);
+        add(&delay.len_seconds, delay.len_seconds_target, delay.len_seconds_delta);
         if (delay.len_seconds != delay._prev_len_seconds) {
             //TODO(GS) crackling when length is changed while sound is playing
             delay.len = (u32) AUDIO_SAMPLE_RATE * delay.len_seconds * 2;
@@ -61,11 +77,7 @@ void Channel::effect(u32 start, u32 len) {
         }
     }
     if (lowpass) {
-        if (lowpass.weight != lowpass.weight_target) {
-            //TODO(GS) check if close enough
-            lowpass.weight *=  1 + (lowpass.weight_delta *
-                (lowpass.weight < lowpass.weight_target ? 1 : -1));
-        }
+        mult(&lowpass.weight, lowpass.weight_target, lowpass.weight_delta);  //TODO(GS) sounds like it needs exponential change
         for (u32 i = 0; i < len; i += 2) {
             u32 pos = (start + i) % CHANNEL_BUFFER_LENGTH;
             lowpass.sum[0] -= (lowpass.weight * (lowpass.sum[0] - buffer[pos+0]));
