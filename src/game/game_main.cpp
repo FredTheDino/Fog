@@ -91,7 +91,7 @@ void setup() {
     }
     channel = Mixer::fetch_channel(2);
     Mixer::fetch_channel(2)->set_lowpass(0.05);
-    channel->lowpass.weight_delta = 0.005;
+    channel->lowpass.weight_delta = 0.33;
 }
 
 // Main logic
@@ -184,11 +184,11 @@ void update(f32 delta) {
     }
 
     if (pressed(Name::UP)) {
-        channel->lowpass.weight_target = 0.5;
+        channel->lowpass.weight_target = 1.0;
     }
 
     if (pressed(Name::DOWN)) {
-        channel->lowpass.weight_target = 0.05;
+        channel->lowpass.weight_target = 0.008;
     }
 
     if (pressed(Name::LEFT)) {

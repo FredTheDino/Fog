@@ -62,8 +62,9 @@ void Channel::effect(u32 start, u32 len) {
     }
     if (lowpass) {
         if (lowpass.weight != lowpass.weight_target) {
-            lowpass.weight += lowpass.weight_delta * 
-                (lowpass.weight < lowpass.weight_target ? 1 : -1);
+            //TODO(GS) check if close enough
+            lowpass.weight *=  1 + (lowpass.weight_delta *
+                (lowpass.weight < lowpass.weight_target ? 1 : -1));
         }
         for (u32 i = 0; i < len; i += 2) {
             u32 pos = (start + i) % CHANNEL_BUFFER_LENGTH;
