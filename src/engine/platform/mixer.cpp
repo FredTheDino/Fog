@@ -237,7 +237,7 @@ void audio_callback(void* userdata, u8* stream, int len) {
             } else {
                 f32 sample;
                 if (sound->bits_per_sample == 16) {
-                    sample = (f32) sound->samples_16[index] / ((f32) 0xEFFF);
+                    sample = S16_TO_F32(sound->samples_16[index]);
                 } else if (sound->bits_per_sample == 32) {
                     sample = sound->samples_32[index];
                 } else {
