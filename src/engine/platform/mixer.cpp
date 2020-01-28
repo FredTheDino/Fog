@@ -183,6 +183,7 @@ void unlock_audio() {
 
 #define S16_TO_F32(S) ((f32) (S) / ((f32) 0xEFFF))
 
+// 48kHz / (2048 samples * 2 channels) => 11.71875 calls per second
 void audio_callback(void* userdata, u8* stream, int len) {
     START_PERF(AUDIO);
     const u32 SAMPLES = len / sizeof(f32);
