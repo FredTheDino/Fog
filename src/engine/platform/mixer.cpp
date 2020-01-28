@@ -83,6 +83,16 @@ void Channel::effect(u32 start, u32 len) {
             buffer[pos+1] = lowpass.sum[1];
         }
     }
+    if (highpass) {
+        mult(&highpass.weight, highpass.weight_target, highpass.weight_delta);
+        for (u32 i = 0; i < len; i += 2) {
+            u32 pos = (start + i) % CHANNEL_BUFFER_LENGTH;
+            highpass.sum[0] -= ((1 - highpass.weight) * (highpass.sum[0] - buffer[pos+0]));
+            highpass.sum[1] -= ((1 - highpass.weight) * (highpass.sum[1] - buffer[pos+1]));
+            buffer[pos+0] -= highpass.sum[0];
+            buffer[pos+1] -= highpass.sum[1];
+        }
+    }
 }
 
 void Channel::set_delay(f32 feedback, f32 len_seconds) {
@@ -105,6 +115,18 @@ void Channel::set_lowpass(f32 weight) {
 
 void Channel::remove_lowpass() {
     lowpass.weight = 0;
+}
+
+void Channel::set_highpass(f32 weight) {
+    ASSERT(0 <= weight && weight <= 1, "Weight needs to be between 0 and 1.");
+    highpass.sum[0] = 0;
+    highpass.sum[1] = 0;
+    highpass.weight_target = weight;
+    highpass.weight = weight;
+}
+
+void Channel::remove_highpass() {
+    highpass.weight = 0;
 }
 
 Channel *fetch_channel(u32 channel_id) {

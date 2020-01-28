@@ -184,11 +184,11 @@ void update(f32 delta) {
     }
 
     if (pressed(Name::UP)) {
-        channel->lowpass.weight_target = 1.0;
+        channel->lowpass.weight_target = 0.2;
     }
 
     if (pressed(Name::DOWN)) {
-        channel->lowpass.weight_target = 0.008;
+        channel->lowpass.weight_target = 0;
     }
 
     if (pressed(Name::LEFT)) {
