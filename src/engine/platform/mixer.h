@@ -16,6 +16,7 @@ const u32 NUM_SOURCES = 32;
 const u32 NUM_CHANNELS = 10;
 const u32 CHANNEL_BUFFER_LENGTH_SECONDS = 3;  // ~2MB
 const u32 CHANNEL_BUFFER_LENGTH = AUDIO_SAMPLE_RATE * CHANNEL_BUFFER_LENGTH_SECONDS * 2;  // two channels
+const f32 SAMPLE_LIMIT = 1.0;
 
 struct AudioMixer {
     u64 num_sounds;
@@ -46,6 +47,16 @@ struct Channel {
     } delay = {};
     void set_delay(f32 feedback, f32 len_seconds);
     void remove_delay();
+
+    struct {
+        f32 sum[2];
+        f32 weight;
+        operator bool() const {
+            return weight > 0;
+        }
+    } lowpass = {};
+    void set_lowpass(f32 weight);
+    void remove_lowpass();
 
     void effect(u32 start, u32 len);
 };
@@ -125,6 +136,19 @@ Channel *fetch_channel(u32 channel_id);
 ///*
 // Activates delay on the channel with the specified settings.
 void Channel::set_delay(f32 feedback, f32 len_seconds);
+
+///*
+// De-activates delay on the channel.
+void Channel::remove_delay();
+
+///*
+// Activates a lowpass filter on the channel with the specified weight. A
+// higher weight means less sound filtered. Weight needs to be between 0 and 1.
+void Channel::set_lowpass(f32 weight);
+
+///*
+// De-activates lowpass filtering on the channel.
+void Channel::remove_lowpass();
 
 #endif
 

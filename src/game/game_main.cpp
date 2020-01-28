@@ -90,7 +90,10 @@ void setup() {
         from = *Renderer::get_camera();
     }
     channel = Mixer::fetch_channel(1);
-    channel->set_delay(0.3, 0.2);
+    Mixer::fetch_channel(1)->set_delay(0.3, 0.2);
+    Mixer::fetch_channel(2)->set_delay(0.3, 0.2);
+    Mixer::fetch_channel(1)->set_lowpass(0.5);
+    Mixer::fetch_channel(2)->set_lowpass(0.05);
 }
 
 // Main logic
@@ -180,6 +183,15 @@ void update(f32 delta) {
         };
         std::function func = std::function<bool(Logic::Entity *)>(thing);
         Logic::for_entity_of_type(Logic::EntityType::MY_ENT, func);
+    }
+
+    //TODO(GS) better sample to showcase filtering
+    if (pressed(Name::UP)) {
+        Mixer::play_sound(3, ASSET_NOISE);
+    }
+
+    if (pressed(Name::LEFT)) {
+        Mixer::play_sound(2, ASSET_NOISE);
     }
 
     if (pressed(Name::RIGHT)) {

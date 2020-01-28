@@ -60,11 +60,36 @@ void Channel::effect(u32 start, u32 len) {
             buffer[cur_pos] += buffer[pre_pos] * delay.feedback;
         }
     }
+    if (lowpass) {
+        for (u32 i = 0; i < len; i += 2) {
+            u32 pos = (start + i) % CHANNEL_BUFFER_LENGTH;
+            lowpass.sum[0] -= (lowpass.weight * (lowpass.sum[0] - buffer[pos+0]));
+            lowpass.sum[1] -= (lowpass.weight * (lowpass.sum[1] - buffer[pos+1]));
+            buffer[pos+0] = lowpass.sum[0];
+            buffer[pos+1] = lowpass.sum[1];
+        }
+    }
 }
 
 void Channel::set_delay(f32 feedback, f32 len_seconds) {
     delay.feedback = feedback;
     delay.len_seconds = len_seconds;
+}
+
+void Channel::remove_delay() {
+    delay.feedback = 0;
+    delay.len_seconds = 0;
+}
+
+void Channel::set_lowpass(f32 weight) {
+    ASSERT(0 <= weight && weight <= 1, "Weight needs to be between 0 and 1.");
+    lowpass.sum[0] = 0;
+    lowpass.sum[1] = 0;
+    lowpass.weight = weight;
+}
+
+void Channel::remove_lowpass() {
+    lowpass.weight = 0;
 }
 
 Channel *fetch_channel(u32 channel_id) {
@@ -242,6 +267,10 @@ void audio_callback(void* userdata, u8* stream, int len) {
         channel->effect(base, SAMPLES);
         for (u32 i = 0; i < SAMPLES; i++) {
             output_stream[i] += channel->buffer[(base + i) % CHANNEL_BUFFER_LENGTH];
+        }
+
+        for (u32 i = 0; i < SAMPLES; i++) {
+            output_stream[i] = CLAMP(-SAMPLE_LIMIT, SAMPLE_LIMIT, output_stream[i]);
         }
     }
     STOP_PERF(AUDIO_EFFECTS);
