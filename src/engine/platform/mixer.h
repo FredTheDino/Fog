@@ -168,6 +168,12 @@ void Channel::set_lowpass(f32 weight);
 // De-activates lowpass filtering on the channel.
 void Channel::remove_lowpass();
 
+///*
+// Activates/sets a highpass filter on the channel with the specified weight. A
+// higher weight means less sound filtered. Weight needs to be between 0 and 1.
+// Unset by setting weight to 1.
+void Channel::set_highpass(f32 weight);
+
 #endif
 
 };
