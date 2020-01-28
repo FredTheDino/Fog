@@ -89,11 +89,9 @@ void setup() {
         to = Renderer::camera_fit(LEN(points), points, 0.0);
         from = *Renderer::get_camera();
     }
-    channel = Mixer::fetch_channel(1);
-    Mixer::fetch_channel(1)->set_delay(0.3, 0.2);
-    Mixer::fetch_channel(2)->set_delay(0.3, 0.2);
-    Mixer::fetch_channel(1)->set_lowpass(0.5);
+    channel = Mixer::fetch_channel(2);
     Mixer::fetch_channel(2)->set_lowpass(0.05);
+    channel->lowpass.weight_delta = 0.005;
 }
 
 // Main logic
@@ -185,17 +183,24 @@ void update(f32 delta) {
         Logic::for_entity_of_type(Logic::EntityType::MY_ENT, func);
     }
 
-    //TODO(GS) better sample to showcase filtering
     if (pressed(Name::UP)) {
-        Mixer::play_sound(3, ASSET_NOISE);
+        channel->lowpass.weight_target = 0.5;
+    }
+
+    if (pressed(Name::DOWN)) {
+        channel->lowpass.weight_target = 0.05;
     }
 
     if (pressed(Name::LEFT)) {
-        Mixer::play_sound(2, ASSET_NOISE);
+        Mixer::play_sound(2, ASSET_DNB, 1.0, 
+                Mixer::AUDIO_DEFAULT_GAIN, 
+                Mixer::AUDIO_DEFAULT_VARIANCE, 
+                Mixer::AUDIO_DEFAULT_VARIANCE, 
+                true);
     }
 
     if (pressed(Name::RIGHT)) {
-        Mixer::play_sound(1, ASSET_NOISE);
+        Mixer::play_sound(1, ASSET_DNB);
     }
 }
 

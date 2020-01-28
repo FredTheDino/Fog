@@ -51,6 +51,8 @@ struct Channel {
     struct {
         f32 sum[2];
         f32 weight;
+        f32 weight_target;
+        f32 weight_delta;
         operator bool() const {
             return weight > 0;
         }

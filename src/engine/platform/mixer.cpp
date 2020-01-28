@@ -61,6 +61,10 @@ void Channel::effect(u32 start, u32 len) {
         }
     }
     if (lowpass) {
+        if (lowpass.weight != lowpass.weight_target) {
+            lowpass.weight += lowpass.weight_delta * 
+                (lowpass.weight < lowpass.weight_target ? 1 : -1);
+        }
         for (u32 i = 0; i < len; i += 2) {
             u32 pos = (start + i) % CHANNEL_BUFFER_LENGTH;
             lowpass.sum[0] -= (lowpass.weight * (lowpass.sum[0] - buffer[pos+0]));
@@ -85,6 +89,7 @@ void Channel::set_lowpass(f32 weight) {
     ASSERT(0 <= weight && weight <= 1, "Weight needs to be between 0 and 1.");
     lowpass.sum[0] = 0;
     lowpass.sum[1] = 0;
+    lowpass.weight_target = weight;
     lowpass.weight = weight;
 }
 
