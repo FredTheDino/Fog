@@ -82,6 +82,7 @@ void Channel::remove_delay() {
 }
 
 void Channel::set_lowpass(f32 weight) {
+    ASSERT(0 <= weight && weight <= 1, "Weight needs to be between 0 and 1.");
     lowpass.sum[0] = 0;
     lowpass.sum[1] = 0;
     lowpass.weight = weight;

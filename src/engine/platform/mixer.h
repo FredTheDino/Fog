@@ -143,14 +143,7 @@ void Channel::remove_delay();
 
 ///*
 // Activates a lowpass filter on the channel with the specified weight. A
-// lowpass filter only lets sounds with a certain frequency or lower through
-// and essentialy filters the high end. This filter is about as basic as it
-// gets and is implemented with a running sum of the previous values. The
-// weight specifies how much the sum is weighted towards the new value,
-// so a lower weight means more filtering. You could probably do some math
-// and figure out / visualize the cutoff for different weights, but knowing
-// that a weight of 1 filters nothing and a weight of 0 filters everything
-// is a good starting point for testing what works for your assets and needs.
+// higher weight means less sound filtered. Weight needs to be between 0 and 1.
 void Channel::set_lowpass(f32 weight);
 
 ///*
