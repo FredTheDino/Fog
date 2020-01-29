@@ -78,23 +78,18 @@ void setup() {
     Physics::add_shape(LEN(points), points);
     Renderer::set_window_size(500, 500);
 
-    // {
-    //     Vec2 points[] = {
-    //         V2(0.0, 0.0),
-    //         V2(-1.0, 0.0),
-    //         V2(-0.0, 1.0),
-    //         V2(-3.5, -1.0),
-    //     };
-
-    //     to = Renderer::camera_fit(LEN(points), points, 0.0);
-    //     from = *Renderer::get_camera();
-    // }
-    // channel = Mixer::fetch_channel(1);
-    // Mixer::fetch_channel(1)->set_delay(0.3, 0.2);
-    // Mixer::fetch_channel(2)->set_delay(0.3, 0.2);
-    // Mixer::fetch_channel(1)->set_lowpass(0.5);
-    // Mixer::fetch_channel(2)->set_lowpass(0.05);
     Renderer::turn_on_camera(0);
+    {
+        Vec2 points[] = {
+            V2(0.0, 0.0),
+            V2(-1.0, 0.0),
+            V2(-0.0, 1.0),
+            V2(-3.5, -1.0),
+        };
+
+        to = Renderer::camera_fit(LEN(points), points, 0.0);
+        from = *Renderer::get_camera();
+    }
 
 }
 
@@ -117,7 +112,8 @@ void update(f32 delta) {
         Util::tweak("num:", &Renderer::_fog_num_active_cameras);
     }
     Util::end_tweak_section(&show_camera_controls);
-    static bool show_various_tweaks = true;
+    static bool show_various_tweaks = false;
+    static Span span = { 0.3, 0.35};
     if (Util::begin_tweak_section("Other tweaks", &show_various_tweaks)) {
         Util::tweak("max_entity", &Logic::_fog_es.max_entity);
         Util::tweak("num_entities", &Logic::_fog_es.num_entities);
@@ -163,6 +159,11 @@ void update(f32 delta) {
 }
 
 // Main draw
-void draw() {}
+void draw() {
+    const char *some_string = "Wellcome to the other side!";
+    Renderer::draw_text(some_string, 0, -0.2, 1.0, ASSET_MONACO_FONT, 0);
+    Renderer::draw_text(some_string, 0, 0, 1.0, ASSET_MONACO_FONT, -0.5);
+    Renderer::draw_text(some_string, 0, 0.2, 1.0, ASSET_MONACO_FONT, -1.0);
+}
 
 }  // namespace Game
