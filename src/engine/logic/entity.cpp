@@ -265,10 +265,15 @@ namespace Logic {
         Util::allow_allocation();
         Util::MemoryArena *target_arena = Util::request_arena(false);
         u64 memory = 0;
+        ASSERT(offsetof(Entity, id) < 16, "Empty entity is quite large");
         for (s32 i = 0; i <= _fog_es.max_entity; i++) {
             Entity *e = _fog_es.entities[i];
-            if (e->id.slot != i) continue;
-            u32 size = fetch_type(meta_data_for(e->type()).hash)->size;
+            u32 size;
+            if (e->id.slot != i) {
+                size = offsetof(Entity, id) + sizeof(EntityID);
+            } else {
+                size = fetch_type(meta_data_for(e->type()).hash)->size;
+            }
             memory += size;
             Util::allow_allocation();
             u8 *target = target_arena->push<u8>(size);
