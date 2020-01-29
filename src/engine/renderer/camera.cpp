@@ -87,6 +87,26 @@ Camera *get_camera(u32 camera_id) {
     return _fog_global_window_state.cam + camera_id;
 }
 
+void debug_camera(u32 camera_id) {
+    const f32 ZOOM_SCALE_MOVE = 1.0 / 50.0;
+    const f32 ZOOM_SCALE_WHEEL = 1.0 / 5.0;
+    ASSERT(0 <= camera_id && camera_id < OPENGL_NUM_CAMERAS, "Not a valid camera");
+
+    Camera *camera = get_camera(camera_id);
+    if (Input::mouse_down(0))
+        camera->position += Input::world_mouse_move(camera_id);
+
+    f32 zoom_strength = 1.0;
+    if (Input::mouse_down(2))
+        zoom_strength = (1.0 - Input::mouse_move().y * ZOOM_SCALE_MOVE);
+    if (Input::mouse_scroll().y != 0)
+        zoom_strength = 1.0 + Input::mouse_scroll().y * ZOOM_SCALE_WHEEL;
+
+    // TODO(ed): Figure out how those cool cameras that you can move
+    // by zooming work...
+    camera->zoom *= zoom_strength;
+}
+
 Window *get_window() {
     return &_fog_global_window_state.win;
 }

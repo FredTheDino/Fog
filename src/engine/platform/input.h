@@ -178,6 +178,7 @@ struct Mapping {
         ButtonState state[3];
         s32 x, y;
         s32 move_x, move_y;
+        s32 wheel_x, wheel_y;
         u32 depth;
 
         //TODO(er): Add moved
@@ -289,6 +290,11 @@ u32 mouse_depth();
 ///*
 // Increases the mouse depth.
 void eat_mouse();
+
+///*
+// Returns the direction the mouse wheel was scrolled this
+// frame.
+Vec2 mouse_scroll();
 
 ///*
 // Returns true if the mouse button was pressed or released this frame.

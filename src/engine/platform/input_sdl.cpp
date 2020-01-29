@@ -124,6 +124,10 @@ void poll_events() {
             case (SDL_TEXTINPUT): {
                 Input::type_text(event.text.text);
             } break;
+            case (SDL_MOUSEWHEEL):
+                Input::global_mapping.mouse.wheel_x = event.wheel.x;
+                Input::global_mapping.mouse.wheel_y = event.wheel.y;
+                break;
             case (SDL_MOUSEBUTTONDOWN):
             case (SDL_MOUSEBUTTONUP): {
                 Input::ButtonState state =

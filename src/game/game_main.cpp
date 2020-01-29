@@ -122,6 +122,8 @@ void update(f32 delta) {
     }
     Util::end_tweak_section(&show_various_tweaks);
 
+    Renderer::debug_camera(0);
+
     if (down(Name::UP)) {
         MyEnt e = {};
         for (u32 i = 0; i < 100; i++) {
@@ -133,7 +135,7 @@ void update(f32 delta) {
         //LOG("%d %d", id.slot, id.gen);
     }
 
-    for (u32 i = 0; i < 100; i++) {
+    for (u32 i = 0; i < 1; i++) {
         if (random_real() < 0.1) {
             A e = {};
             e.position = random_unit_vec2();
