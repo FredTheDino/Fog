@@ -4,7 +4,7 @@ void recalculate_global_aspect_ratio(int width, int height) {
     get_window()->width = width;
     get_window()->height = height;
     get_window()->aspect_ratio = (f32) height / (f32) width;
-    
+
 #if OPENGL_AUTO_APPLY_ASPECTRATIO_CHANGE
     for (u32 i = 0; i < OPENGL_NUM_CAMERAS; i++) {
         get_camera(i)->aspect_ratio = get_window()->aspect_ratio;

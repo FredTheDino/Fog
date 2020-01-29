@@ -19,7 +19,7 @@ struct Clock {
     u64 total_count;
 };
 
-// TODO(ed): This makes it kinda slow, but maybe that isn't a 
+// TODO(ed): This makes it kinda slow, but maybe that isn't a
 // problem.
 volatile Clock clocks[NUMBER_OF_MARKERS] = {};
 

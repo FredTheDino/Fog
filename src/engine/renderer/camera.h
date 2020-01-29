@@ -57,7 +57,7 @@ Camera *get_camera(u32 camera_id=0);
 Window *get_window();
 
 ///*
-// Returns the corresponding field in the global window, 
+// Returns the corresponding field in the global window,
 // containing dimensions of the window.
 f32 get_window_width();
 f32 get_window_height();
@@ -88,7 +88,7 @@ Camera camera_smooth(Camera camera_a, Camera camera_b, f32 slerp);
 void camera_fit(Camera *camera, u32 num_points, Vec2 *points, f32 border=0.0);
 Camera camera_fit(u32 num_points, Vec2 *points, f32 border=0.0);
 
-///* 
+///*
 // Gives you simple debug controls for the camera that can be used to
 // look around the world a bit if you need to. The movement is done if
 // this function is called.
