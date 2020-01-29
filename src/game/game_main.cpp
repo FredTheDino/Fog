@@ -96,19 +96,6 @@ void setup() {
     // Mixer::fetch_channel(2)->set_lowpass(0.05);
     Renderer::turn_on_camera(0);
 
-    for (u32 i = 0; i < 100; i++) {
-        A e = {};
-        e.position = random_unit_vec2();
-        Util::allow_allocation();
-        Logic::add_entity(e);
-        while (random_real() < 0.5) {
-            MyEnt e = {};
-            e.position = random_unit_vec2() * 0.4;
-            e.scale = {0.5, 0.5};
-            Util::allow_allocation();
-            Logic::add_entity(e);
-        };
-    }
 }
 
 // Main logic
@@ -150,20 +137,22 @@ void update(f32 delta) {
         //LOG("%d %d", id.slot, id.gen);
     }
 
-    if (down(Name::LEFT)) {
-        //LOG("%d %d", id.slot, id.gen);
+    for (u32 i = 0; i < 100; i++) {
+        if (random_real() < 0.1) {
+            A e = {};
+            e.position = random_unit_vec2();
+            Util::allow_allocation();
+            Logic::add_entity(e);
+        }
+        if (random_real() < 0.9) {
+            MyEnt e = {};
+            e.position = random_unit_vec2() * 0.4;
+            e.scale = {0.5, 0.5};
+            Util::allow_allocation();
+            Logic::add_entity(e);
+        }
     }
-
-    u64 counter = 0;
-    auto counter_func = [&counter](Logic::Entity *e) -> bool {
-        counter++;
-        return false;
-    };
-    std::function c_func = std::function<bool(Logic::Entity *)>(counter_func);
-    Logic::for_entity_of_type(Logic::EntityType::A_TYPE, c_func);
-    ASSERT(counter == 100, "Memory corruption!");
-
-    if (pressed(Name::DOWN)) {
+    if (random_real() < 0.1) {
         auto thing = [](Logic::Entity *e) -> bool {
             Logic::remove_entity(e->id);
             return false;
