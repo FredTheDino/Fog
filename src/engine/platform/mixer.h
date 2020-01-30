@@ -49,7 +49,6 @@ struct Channel {
         }
     } delay = {};
     void set_delay(f32 feedback, f32 len_seconds);
-    void remove_delay();
     void set_delay_at_time(f32 feedback, f32 len_seconds, f32 delta_seconds);
 
     struct {
@@ -60,7 +59,6 @@ struct Channel {
         }
     } lowpass = {};
     void set_lowpass(f32 weight);
-    void remove_lowpass();
 
     struct {
         f32 sum[2];
