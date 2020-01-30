@@ -90,7 +90,14 @@ void setup() {
         to = Renderer::camera_fit(LEN(points), points, 0.0);
         from = *Renderer::get_camera();
     }
+    channel = Mixer::fetch_channel(2);
+    channel->lowpass.weight_delta = 1.5;
 
+    Mixer::play_sound(2, ASSET_WHITE, 1.0,
+            Mixer::AUDIO_DEFAULT_GAIN,
+            Mixer::AUDIO_DEFAULT_VARIANCE,
+            Mixer::AUDIO_DEFAULT_VARIANCE,
+            true);
 }
 
 // Main logic
@@ -112,6 +119,16 @@ void update(f32 delta) {
         Util::tweak("num:", &Renderer::_fog_num_active_cameras);
     }
     Util::end_tweak_section(&show_camera_controls);
+    static bool show_audio_tweaks = false;
+    if (Util::begin_tweak_section("Audio tweaks", &show_audio_tweaks)) {
+        Util::tweak("delay length", &channel->delay.len_seconds);
+        Util::tweak("delay feedback", &channel->delay.feedback, 0.5);
+        Util::tweak("lowpass weight", &channel->lowpass.weight);
+        Util::tweak("lowpass weight target", &channel->lowpass.weight_target);
+        Util::tweak("highpass weight", &channel->highpass.weight);
+        Util::tweak("highpass weight target", &channel->highpass.weight_target);
+    }
+    Util::end_tweak_section(&show_audio_tweaks);
     static bool show_various_tweaks = false;
     static Span span = { 0.3, 0.35};
     if (Util::begin_tweak_section("Other tweaks", &show_various_tweaks)) {
@@ -124,39 +141,19 @@ void update(f32 delta) {
 
     Renderer::debug_camera(0);
 
-    if (down(Name::UP)) {
-        MyEnt e = {};
-        for (u32 i = 0; i < 100; i++) {
-            e.position = random_unit_vec2() * 0.4;
-            e.scale = {0.5, 0.5};
-            Util::allow_allocation();
-            auto id = Logic::add_entity(e);
-        }
-        //LOG("%d %d", id.slot, id.gen);
+    if (pressed(Name::UP)) {
+        channel->lowpass.weight_target = 0.05;
     }
 
-    for (u32 i = 0; i < 1; i++) {
-        if (random_real() < 0.1) {
-            A e = {};
-            e.position = random_unit_vec2();
-            Util::allow_allocation();
-            Logic::add_entity(e);
-        }
-        if (random_real() < 0.9) {
-            MyEnt e = {};
-            e.position = random_unit_vec2() * 0.4;
-            e.scale = {0.5, 0.5};
-            Util::allow_allocation();
-            Logic::add_entity(e);
-        }
+    if (pressed(Name::RIGHT)) {
+        channel->lowpass.weight_target = 0.5;
     }
-    if (random_real() < 0.1) {
-        auto thing = [](Logic::Entity *e) -> bool {
-            Logic::remove_entity(e->id);
-            return false;
-        };
-        std::function func = std::function<bool(Logic::Entity *)>(thing);
-        Logic::for_entity_of_type(Logic::EntityType::MY_ENT, func);
+
+    if (pressed(Name::DOWN)) {
+        channel->lowpass.weight_target = 1;
+    }
+
+    if (pressed(Name::LEFT)) {
     }
 }
 
