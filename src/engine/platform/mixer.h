@@ -56,7 +56,7 @@ struct Channel {
         f32 weight = 1;
         f32 weight_target = 1;
         f32 weight_delta;
-        const f32 _sensitivity = 0.03;
+        const f32 _SENSITIVITY = 0.03;
         operator bool() const {
             return weight < 1 || weight_target < 1;
         }
@@ -69,7 +69,7 @@ struct Channel {
         f32 weight = 1;
         f32 weight_target = 1;
         f32 weight_delta;
-        const f32 _sensitivity = 0.03;
+        const f32 _SENSITIVITY = 0.03;
         operator bool() const {
             return weight < 1 || weight_target < 1;
         }

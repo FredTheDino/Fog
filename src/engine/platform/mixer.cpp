@@ -52,8 +52,8 @@ void Channel::effect(u32 start, u32 len) {
     }
     if (lowpass) {
         add(&lowpass.weight, lowpass.weight_target, lowpass.weight_delta);
-        f32 weight = lowpass._sensitivity * pow(2.718,
-                log(lowpass.weight * (1+lowpass._sensitivity) / lowpass._sensitivity)) - lowpass._sensitivity;
+        f32 weight = lowpass._SENSITIVITY * pow(2.718,
+                log(lowpass.weight * (1+lowpass._SENSITIVITY) / lowpass._SENSITIVITY)) - lowpass._SENSITIVITY;
         for (u32 i = 0; i < len; i += 2) {
             u32 pos = (start + i) % CHANNEL_BUFFER_LENGTH;
             lowpass.sum[0] -= (weight * (lowpass.sum[0] - buffer[pos+0]));
@@ -64,8 +64,8 @@ void Channel::effect(u32 start, u32 len) {
     }
     if (highpass) {
         add(&highpass.weight, highpass.weight_target, highpass.weight_delta);
-        f32 weight = highpass._sensitivity * pow(2.718,
-                log(highpass.weight * (1+highpass._sensitivity) / highpass._sensitivity)) - highpass._sensitivity;
+        f32 weight = highpass._SENSITIVITY * pow(2.718,
+                log(highpass.weight * (1+highpass._SENSITIVITY) / highpass._SENSITIVITY)) - highpass._SENSITIVITY;
         for (u32 i = 0; i < len; i += 2) {
             u32 pos = (start + i) % CHANNEL_BUFFER_LENGTH;
             highpass.sum[0] -= ((1 - weight) * (highpass.sum[0] - buffer[pos+0]));
