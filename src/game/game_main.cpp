@@ -91,7 +91,8 @@ void setup() {
         from = *Renderer::get_camera();
     }
     channel = Mixer::fetch_channel(2);
-    channel->lowpass.weight_delta = 1.5;
+    channel->lowpass.weight_delta = 1.2;
+    channel->highpass.weight_delta = 1.2;
 
     Mixer::play_sound(2, ASSET_WHITE, 1.0,
             Mixer::AUDIO_DEFAULT_GAIN,
