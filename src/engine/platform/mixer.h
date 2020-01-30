@@ -54,20 +54,26 @@ struct Channel {
     struct {
         f32 sum[2];
         f32 weight;
+        f32 weight_target;
+        f32 weight_delta;
         operator bool() const {
-            return weight > 0;
+            return weight > 0 || weight_target > 0;
         }
     } lowpass = {};
     void set_lowpass(f32 weight);
+    void set_lowpass_at_time(f32 weight, f32 delta_seconds);
 
     struct {
         f32 sum[2];
         f32 weight = 1;
+        f32 weight_target = 1;
+        f32 weight_delta;
         operator bool() const {
-            return weight < 1;
+            return weight < 1 || weight_target < 1;
         }
     } highpass = {};
     void set_highpass(f32 weight);
+    void set_highpass_at_time(f32 weight, f32 delta_seconds);
 
     void effect(u32 start, u32 len);
 };

@@ -35,6 +35,15 @@ void add(f32 *value, f32 target, f32 delta) {
     }
 }
 
+void mult(f32 *value, f32 target, f32 delta) {
+    ASSERT(delta > 1, "Delta-change needs to be larger than 1");
+    if (*value < target) {
+        *value = MIN((*value + 0.005) * delta, target);
+    } else if (*value > target) {
+        *value = MAX(*value * (1 / delta), target);
+    }
+}
+
 void Channel::effect(u32 start, u32 len) {
     if (delay) {
         add(&delay.feedback, delay.feedback_target, delay.feedback_delta);
@@ -51,6 +60,7 @@ void Channel::effect(u32 start, u32 len) {
         }
     }
     if (lowpass) {
+        mult(&lowpass.weight, lowpass.weight_target, lowpass.weight_delta);
         for (u32 i = 0; i < len; i += 2) {
             u32 pos = (start + i) % CHANNEL_BUFFER_LENGTH;
             lowpass.sum[0] -= ((1 - lowpass.weight) * (lowpass.sum[0] - buffer[pos+0]));
@@ -60,6 +70,7 @@ void Channel::effect(u32 start, u32 len) {
         }
     }
     if (highpass) {
+        mult(&highpass.weight, highpass.weight_target, highpass.weight_delta);
         for (u32 i = 0; i < len; i += 2) {
             u32 pos = (start + i) % CHANNEL_BUFFER_LENGTH;
             highpass.sum[0] -= ((1 - highpass.weight) * (highpass.sum[0] - buffer[pos+0]));
@@ -86,8 +97,11 @@ void Channel::set_lowpass(f32 weight) {
     ASSERT(0 <= weight && weight <= 1, "Weight needs to be between 0 and 1.");
     lowpass.sum[0] = 0;
     lowpass.sum[1] = 0;
+    lowpass.weight_target = weight;
     lowpass.weight = weight;
 }
+
+void Channel::set_lowpass_at_time(f32 weight, f32 delta_seconds) {}
 
 void Channel::set_highpass(f32 weight) {
     ASSERT(0 <= weight && weight <= 1, "Weight needs to be between 0 and 1.");
@@ -96,6 +110,8 @@ void Channel::set_highpass(f32 weight) {
     highpass.weight_target = weight;
     highpass.weight = weight;
 }
+
+void Channel::set_highpass_at_time(f32 weight, f32 delta_seconds) {}
 
 Channel *fetch_channel(u32 channel_id) {
     ASSERT(channel_id < NUM_CHANNELS, "Invalid channel");
