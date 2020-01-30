@@ -62,6 +62,15 @@ struct Channel {
     void set_lowpass(f32 weight);
     void remove_lowpass();
 
+    struct {
+        f32 sum[2];
+        f32 weight = 1;
+        operator bool() const {
+            return weight < 1;
+        }
+    } highpass = {};
+    void set_highpass(f32 weight);
+
     void effect(u32 start, u32 len);
 };
 

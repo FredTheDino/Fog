@@ -53,10 +53,19 @@ void Channel::effect(u32 start, u32 len) {
     if (lowpass) {
         for (u32 i = 0; i < len; i += 2) {
             u32 pos = (start + i) % CHANNEL_BUFFER_LENGTH;
-            lowpass.sum[0] -= (lowpass.weight * (lowpass.sum[0] - buffer[pos+0]));
-            lowpass.sum[1] -= (lowpass.weight * (lowpass.sum[1] - buffer[pos+1]));
+            lowpass.sum[0] -= ((1 - lowpass.weight) * (lowpass.sum[0] - buffer[pos+0]));
+            lowpass.sum[1] -= ((1 - lowpass.weight) * (lowpass.sum[1] - buffer[pos+1]));
             buffer[pos+0] = lowpass.sum[0];
             buffer[pos+1] = lowpass.sum[1];
+        }
+    }
+    if (highpass) {
+        for (u32 i = 0; i < len; i += 2) {
+            u32 pos = (start + i) % CHANNEL_BUFFER_LENGTH;
+            highpass.sum[0] -= ((1 - highpass.weight) * (highpass.sum[0] - buffer[pos+0]));
+            highpass.sum[1] -= ((1 - highpass.weight) * (highpass.sum[1] - buffer[pos+1]));
+            buffer[pos+0] -= highpass.sum[0];
+            buffer[pos+1] -= highpass.sum[1];
         }
     }
 }
@@ -86,6 +95,14 @@ void Channel::set_lowpass(f32 weight) {
 
 void Channel::remove_lowpass() {
     lowpass.weight = 0;
+}
+
+void Channel::set_highpass(f32 weight) {
+    ASSERT(0 <= weight && weight <= 1, "Weight needs to be between 0 and 1.");
+    highpass.sum[0] = 0;
+    highpass.sum[1] = 0;
+    highpass.weight_target = weight;
+    highpass.weight = weight;
 }
 
 Channel *fetch_channel(u32 channel_id) {
