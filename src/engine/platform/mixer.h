@@ -145,21 +145,33 @@ void stop_sound(AudioID id);
 Channel *fetch_channel(u32 channel_id);
 
 ///*
-// Activates delay on the channel with the specified settings.
+// Sets delay on the channel with the specified settings. Unset by
+// setting either feedback or len_seconds to 0.
 void Channel::set_delay(f32 feedback, f32 len_seconds);
 
 ///*
-// De-activates delay on the channel.
-void Channel::remove_delay();
+// Sets target delay on the channel with the specified settings. The feedback
+// and length is changed over time and reaches their targets after delta_seconds.
+void Channel::set_delay_at_time(f32 feedback, f32 len_seconds, f32 delta_seconds);
 
 ///*
-// Activates a lowpass filter on the channel with the specified weight. A
+// Sets a lowpass filter on the channel with the specified weight. A
 // higher weight means less sound filtered. Weight needs to be between 0 and 1.
+// Unset by setting weight to 0.
 void Channel::set_lowpass(f32 weight);
 
 ///*
-// De-activates lowpass filtering on the channel.
-void Channel::remove_lowpass();
+// Sets a highpass filter on the channel with the specified weight. A
+// higher weight means less sound filtered. Weight needs to be between 0 and 1.
+// Unset by setting weight to 1.
+void Channel::set_highpass(f32 weight);
+
+//// set_lowpass/highpass_at_time
+// Unfortunately set_lowpass_at_time and set_highpass_at_time aren't working at
+// this time. Instead, do something like the following.
+Mixer::fetch_channel(id)->lowpass.weight_target = 0.3; // your target weight
+Mixer::fetch_channel(id)->lowpass.weight_delta = 1.1; // the rate of change
+// Delta needs to always be larger than 1.
 
 #endif
 
