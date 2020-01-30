@@ -143,15 +143,15 @@ void update(f32 delta) {
     Renderer::debug_camera(0);
 
     if (pressed(Name::UP)) {
-        channel->set_highpass_at_time(0.05, 2);
+        channel->set_highpass(0.05, 2);
     }
 
     if (pressed(Name::RIGHT)) {
-        channel->set_highpass_at_time(0.25, 2);
+        channel->set_highpass(0.25, 2);
     }
 
     if (pressed(Name::DOWN)) {
-        channel->set_highpass_at_time(1, 2);
+        channel->set_highpass(1, 2);
     }
 
     if (pressed(Name::LEFT)) {
