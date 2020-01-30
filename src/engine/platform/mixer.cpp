@@ -201,7 +201,7 @@ void audio_callback(void* userdata, u8* stream, int len) {
             } else {
                 f32 sample;
                 if (sound->bits_per_sample == 16) {
-                    sample = (f32) sound->samples_16[index] / ((f32) 0xEFFF);
+                    sample = S16_TO_F32(sound->samples_16[index]);
                 } else if (sound->bits_per_sample == 32) {
                     sample = sound->samples_32[index];
                 } else {
@@ -259,7 +259,7 @@ bool init() {
     SDL_AudioSpec want = {};
     want.freq = AUDIO_SAMPLE_RATE;
     want.format = AUDIO_F32;
-    want.samples = 2048;
+    want.samples = AUDIO_SAMPLES_WANT;
     want.channels = 2;
     want.callback = audio_callback;
     audio_struct.time_step = 1.0 / (f32) AUDIO_SAMPLE_RATE;
