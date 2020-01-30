@@ -27,8 +27,18 @@ struct AudioStruct {
     SDL_AudioDeviceID dev;
 } audio_struct = {};
 
+void add(f32 *value, f32 target, f32 delta) {
+    if (delta > 1 && *value < target) {
+        *value = MIN(*value + delta, target);
+    } else if (delta < 1 && *value > target) {
+        *value = MAX(*value + delta, target);
+    }
+}
+
 void Channel::effect(u32 start, u32 len) {
     if (delay) {
+        add(&delay.feedback, delay.feedback_target, delay.feedback_delta);
+        add(&delay.len_seconds, delay.len_seconds_target, delay.len_seconds_delta);
         if (delay.len_seconds != delay._prev_len_seconds) {
             //TODO(GS) crackling when length is changed while sound is playing
             delay.len = (u32) AUDIO_SAMPLE_RATE * delay.len_seconds * 2;
@@ -59,6 +69,12 @@ void Channel::set_delay(f32 feedback, f32 len_seconds) {
 void Channel::remove_delay() {
     delay.feedback = 0;
     delay.len_seconds = 0;
+}
+void Channel::set_delay_at_time(f32 feedback, f32 len_seconds, f32 delta_seconds) {
+    delay.feedback_target = feedback;
+    delay.len_seconds_target = len_seconds;
+    delay.feedback_delta = (delay.feedback_target - delay.feedback) / (delta_seconds * AUDIO_SAMPLE_RATE / (AUDIO_SAMPLES_WANT * 2));
+    delay.len_seconds_delta = (delay.len_seconds_target - delay.len_seconds) / (delta_seconds * AUDIO_SAMPLE_RATE / (AUDIO_SAMPLES_WANT * 2));
 }
 
 void Channel::set_lowpass(f32 weight) {

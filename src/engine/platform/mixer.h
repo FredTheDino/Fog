@@ -37,15 +37,20 @@ struct Channel {
 
     struct {
         f32 feedback;
+        f32 feedback_target;
+        f32 feedback_delta;
         u32 len;
         f32 len_seconds;
+        f32 len_seconds_target;
+        f32 len_seconds_delta;
         f32 _prev_len_seconds;
         operator bool() const {
-            return len_seconds > 0;
+            return len_seconds > 0 || len_seconds_target > 0 || feedback > 0 || feedback_target > 0;
         }
     } delay = {};
     void set_delay(f32 feedback, f32 len_seconds);
     void remove_delay();
+    void set_delay_at_time(f32 feedback, f32 len_seconds, f32 delta_seconds);
 
     struct {
         f32 sum[2];
