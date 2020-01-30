@@ -28,19 +28,10 @@ struct AudioStruct {
 } audio_struct = {};
 
 void add(f32 *value, f32 target, f32 delta) {
-    if (delta > 1 && *value < target) {
+    if (delta > 0 && *value < target) {
         *value = MIN(*value + delta, target);
-    } else if (delta < 1 && *value > target) {
+    } else if (delta < 0 && *value > target) {
         *value = MAX(*value + delta, target);
-    }
-}
-
-void mult(f32 *value, f32 target, f32 delta) {
-    ASSERT(delta > 1, "Delta-change needs to be larger than 1");
-    if (*value < target) {
-        *value = MIN((*value + 0.005) * delta, target);
-    } else if (*value > target) {
-        *value = MAX(*value * (1 / delta), target);
     }
 }
 
@@ -60,21 +51,25 @@ void Channel::effect(u32 start, u32 len) {
         }
     }
     if (lowpass) {
-        mult(&lowpass.weight, lowpass.weight_target, lowpass.weight_delta);
+        add(&lowpass.weight, lowpass.weight_target, lowpass.weight_delta);
+        f32 weight = lowpass._sensitivity * pow(2.718,
+                log(lowpass.weight * (1+lowpass._sensitivity) / lowpass._sensitivity)) - lowpass._sensitivity;
         for (u32 i = 0; i < len; i += 2) {
             u32 pos = (start + i) % CHANNEL_BUFFER_LENGTH;
-            lowpass.sum[0] -= ((1 - lowpass.weight) * (lowpass.sum[0] - buffer[pos+0]));
-            lowpass.sum[1] -= ((1 - lowpass.weight) * (lowpass.sum[1] - buffer[pos+1]));
+            lowpass.sum[0] -= (weight * (lowpass.sum[0] - buffer[pos+0]));
+            lowpass.sum[1] -= (weight * (lowpass.sum[1] - buffer[pos+1]));
             buffer[pos+0] = lowpass.sum[0];
             buffer[pos+1] = lowpass.sum[1];
         }
     }
     if (highpass) {
-        mult(&highpass.weight, highpass.weight_target, highpass.weight_delta);
+        add(&highpass.weight, highpass.weight_target, highpass.weight_delta);
+        f32 weight = highpass._sensitivity * pow(2.718,
+                log(highpass.weight * (1+highpass._sensitivity) / highpass._sensitivity)) - highpass._sensitivity;
         for (u32 i = 0; i < len; i += 2) {
             u32 pos = (start + i) % CHANNEL_BUFFER_LENGTH;
-            highpass.sum[0] -= ((1 - highpass.weight) * (highpass.sum[0] - buffer[pos+0]));
-            highpass.sum[1] -= ((1 - highpass.weight) * (highpass.sum[1] - buffer[pos+1]));
+            highpass.sum[0] -= ((1 - weight) * (highpass.sum[0] - buffer[pos+0]));
+            highpass.sum[1] -= ((1 - weight) * (highpass.sum[1] - buffer[pos+1]));
             buffer[pos+0] -= highpass.sum[0];
             buffer[pos+1] -= highpass.sum[1];
         }
@@ -101,7 +96,11 @@ void Channel::set_lowpass(f32 weight) {
     lowpass.weight = weight;
 }
 
-void Channel::set_lowpass_at_time(f32 weight, f32 delta_seconds) {}
+void Channel::set_lowpass_at_time(f32 weight, f32 delta_seconds) {
+    ASSERT(0 <= weight && weight <= 1, "Weight needs to be between 0 and 1.");
+    lowpass.weight_target = weight;
+    lowpass.weight_delta = (lowpass.weight_target - lowpass.weight) / (delta_seconds * AUDIO_SAMPLE_RATE / (AUDIO_SAMPLES_WANT * 2));
+}
 
 void Channel::set_highpass(f32 weight) {
     ASSERT(0 <= weight && weight <= 1, "Weight needs to be between 0 and 1.");
@@ -111,7 +110,11 @@ void Channel::set_highpass(f32 weight) {
     highpass.weight = weight;
 }
 
-void Channel::set_highpass_at_time(f32 weight, f32 delta_seconds) {}
+void Channel::set_highpass_at_time(f32 weight, f32 delta_seconds) {
+    ASSERT(0 <= weight && weight <= 1, "Weight needs to be between 0 and 1.");
+    highpass.weight_target = weight;
+    highpass.weight_delta = (highpass.weight_target - highpass.weight) / (delta_seconds * AUDIO_SAMPLE_RATE / (AUDIO_SAMPLES_WANT * 2));
+}
 
 Channel *fetch_channel(u32 channel_id) {
     ASSERT(channel_id < NUM_CHANNELS, "Invalid channel");

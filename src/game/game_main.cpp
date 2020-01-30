@@ -76,7 +76,7 @@ void setup() {
         V2(0.0, 0.0),
     };
     Physics::add_shape(LEN(points), points);
-    Renderer::set_window_size(500, 500);
+    Renderer::set_window_size(1000, 1000);
 
     Renderer::turn_on_camera(0);
     {
@@ -143,15 +143,15 @@ void update(f32 delta) {
     Renderer::debug_camera(0);
 
     if (pressed(Name::UP)) {
-        channel->lowpass.weight_target = 0.05;
+        channel->set_highpass_at_time(0.05, 2);
     }
 
     if (pressed(Name::RIGHT)) {
-        channel->lowpass.weight_target = 0.5;
+        channel->set_highpass_at_time(0.25, 2);
     }
 
     if (pressed(Name::DOWN)) {
-        channel->lowpass.weight_target = 1;
+        channel->set_highpass_at_time(1, 2);
     }
 
     if (pressed(Name::LEFT)) {
