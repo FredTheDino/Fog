@@ -33,9 +33,6 @@ struct Image {
     }
 };
 
-// TODO(ed): Choose a more standard sample rate.
-const u64 AUDIO_SAMPLE_RATE = 48000;
-
 struct Sound {
     union {
         u8 *data;

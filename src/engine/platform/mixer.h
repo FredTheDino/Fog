@@ -10,6 +10,9 @@ namespace Mixer {
 // spectacular ways depending on the OS. But most of the OS
 // specific code should be limited to this submodule.
 
+// TODO(ed): Choose a more standard sample rate.
+const u64 AUDIO_SAMPLE_RATE = 48000;
+const u32 AUDIO_SAMPLES_WANT = 2048;
 const u32 NUM_EFFECTS = 5;
 const u32 NUM_SOURCES = 32;
 const u32 NUM_CHANNELS = 10;
@@ -37,25 +40,42 @@ struct Channel {
 
     struct {
         f32 feedback;
+        f32 feedback_target;
+        f32 feedback_delta;
         u32 len;
         f32 len_seconds;
+        f32 len_seconds_target;
+        f32 len_seconds_delta;
         f32 _prev_len_seconds;
         operator bool() const {
-            return len_seconds > 0;
+            return len_seconds > 0 || len_seconds_target > 0 || feedback > 0 || feedback_target > 0;
         }
     } delay = {};
-    void set_delay(f32 feedback, f32 len_seconds);
-    void remove_delay();
+    void set_delay(f32 feedback, f32 len_seconds, f32 in_seconds = 1);
 
     struct {
         f32 sum[2];
-        f32 weight;
+        f32 weight = 1;
+        f32 weight_target = 1;
+        f32 weight_delta;
+        const f32 _SENSITIVITY = 0.03;
         operator bool() const {
-            return weight > 0;
+            return weight < 1 || weight_target < 1;
         }
     } lowpass = {};
-    void set_lowpass(f32 weight);
-    void remove_lowpass();
+    void set_lowpass(f32 weight, f32 in_seconds = 1);
+
+    struct {
+        f32 sum[2];
+        f32 weight = 1;
+        f32 weight_target = 1;
+        f32 weight_delta;
+        const f32 _SENSITIVITY = 0.03;
+        operator bool() const {
+            return weight < 1 || weight_target < 1;
+        }
+    } highpass = {};
+    void set_highpass(f32 weight, f32 in_seconds = 1);
 
     void effect(u32 start, u32 len);
 };
@@ -127,21 +147,22 @@ void stop_sound(AudioID id);
 Channel *fetch_channel(u32 channel_id);
 
 ///*
-// Activates delay on the channel with the specified settings.
-void Channel::set_delay(f32 feedback, f32 len_seconds);
+// Sets target delay on the channel with the specified settings. The feedback
+// and length is changed over time and reaches their targets after in_seconds
+// seconds.
+void Channel::set_delay(f32 feedback, f32 len_seconds, f32 in_seconds = 1.0);
 
 ///*
-// De-activates delay on the channel.
-void Channel::remove_delay();
+// Sets a lowpass filter on the channel with the specified weight reached after
+// in_seconds seconds. A higher weight means less sound filtered. Weight needs
+// to be between 0 and 1. Unset by setting weight to 1.
+void Channel::set_lowpass(f32 weight, f32 in_seconds = 1.0);
 
 ///*
-// Activates a lowpass filter on the channel with the specified weight. A
-// higher weight means less sound filtered. Weight needs to be between 0 and 1.
-void Channel::set_lowpass(f32 weight);
-
-///*
-// De-activates lowpass filtering on the channel.
-void Channel::remove_lowpass();
+// Sets a highpass filter on the channel with the specified weight reached
+// after in_seconds seconds. A higher weight means less sound filtered. Weight
+// needs to be between 0 and 1. Unset by setting weight to 1.
+void Channel::set_highpass(f32 weight, f32 in_seconds = 1.0);
 
 #endif
 
