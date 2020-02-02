@@ -6,8 +6,7 @@ bool Particle::dead() {
 
 void Particle::update(f32 delta) {
     if (dead()) return;
-    if (alive_time.min != 0 or alive_time.max != 0)
-        progress += inv_alive_time * delta;
+    progress += inv_alive_time * delta;
     velocity += acceleration * delta;
     position += velocity * delta;
     velocity *= pow(damping, delta);

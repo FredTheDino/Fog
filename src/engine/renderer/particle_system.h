@@ -171,7 +171,7 @@ my_system.rotation = {0, PI};
 //    <tr><td>bool(false)</td><td>one_alpha</td><td> If the particles should have the same alpha throughout it's lifetime, ignores the "die_alpha" slot.</td></tr>
 //    <tr><td>bool(false)</td><td>one_size</td><td> If the size should be the same throughout it's lifetime.</td></tr>
 //
-//    <tr><td>Span(2, 2)</td><td>alive_time</td><td> The time the particles should be alive for, in seconds. If the span is equal to {0, 0}, particles don't die and keep their spawn_*-value until the system is destroyed.</td></tr>
+//    <tr><td>Span(2, 2)</td><td>alive_time</td><td> The time the particles should be atrve for, in seconds.</td></tr>
 //
 //    <tr><td>Span(0, 2PI)</td><td>rotation </td><td> The rotation to have when emitted, in radians.</td></tr>
 //    <tr><td>Span(0, 0)</td><td>angular_velocity </td><td> The change in rotation over time, in radians per second.</td></tr>
