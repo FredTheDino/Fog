@@ -49,7 +49,7 @@ void recalculate_global_aspect_ratio(int width, int height);
 
 ///*
 // Returns the global camera, the one used when rendering.
-Camera *get_camera(u32 camera_id=0);
+Camera *fetch_camera(u32 camera_id=0);
 
 ///*
 // Returns the global window, containing dimensions

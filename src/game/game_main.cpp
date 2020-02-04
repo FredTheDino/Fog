@@ -77,18 +77,11 @@ void setup() {
     };
     Physics::add_shape(LEN(points), points);
 
-    Renderer::turn_on_camera(0);
-    {
-        Vec2 points[] = {
-            V2(0.0, 0.0),
-            V2(-1.0, 0.0),
-            V2(-0.0, 1.0),
-            V2(-3.5, -1.0),
-        };
+    Renderer::fetch_camera(0)->zoom = 0.1;
 
-        to = Renderer::camera_fit(LEN(points), points, 0.0);
-        from = *Renderer::get_camera();
-    }
+    to = Renderer::camera_fit(LEN(points), points, 0.0);
+    from = *Renderer::fetch_camera();
+
     channel = Mixer::fetch_channel(2);
     channel->lowpass.weight_delta = 1.2;
     channel->highpass.weight_delta = 1.2;
@@ -110,9 +103,9 @@ void update(f32 delta) {
     if (Util::begin_tweak_section("Camera controls", &show_camera_controls)) {
         Util::tweak("current_cam", &current_cam);
         current_cam = CLAMP(0, OPENGL_NUM_CAMERAS - 1, current_cam);
-        Util::tweak("zoom", &Renderer::get_camera(current_cam)->zoom);
-        Util::tweak("position", &Renderer::get_camera(current_cam)->position);
-        Util::tweak("aspect", &Renderer::get_camera(current_cam)->aspect_ratio);
+        Util::tweak("zoom", &Renderer::fetch_camera(current_cam)->zoom);
+        Util::tweak("position", &Renderer::fetch_camera(current_cam)->position);
+        Util::tweak("aspect", &Renderer::fetch_camera(current_cam)->aspect_ratio);
         Util::tweak("x", &shake.x, 0.1);
         Util::tweak("y", &shake.y, 0.1);
         Util::tweak("split screen", &dual_cameras);

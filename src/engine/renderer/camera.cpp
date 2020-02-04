@@ -7,7 +7,7 @@ void recalculate_global_aspect_ratio(int width, int height) {
 
 #if OPENGL_AUTO_APPLY_ASPECTRATIO_CHANGE
     for (u32 i = 0; i < OPENGL_NUM_CAMERAS; i++) {
-        get_camera(i)->aspect_ratio = get_window()->aspect_ratio;
+        fetch_camera(i)->aspect_ratio = get_window()->aspect_ratio;
     }
 #endif
 }
@@ -32,7 +32,7 @@ void turn_off_camera(u32 camera_id) {
 Camera camera_fit(u32 num_points, Vec2 *points, f32 border) {
     ASSERT(num_points, "No points given for camera to fit!");
     Camera camera = {};
-    camera.aspect_ratio = get_camera()->aspect_ratio;
+    camera.aspect_ratio = fetch_camera()->aspect_ratio;
     camera_fit(&camera, num_points, points, border);
     return camera;
 }
@@ -82,7 +82,7 @@ void camera_shake(Camera *camera, f32 shake_x, f32 shake_y) {
     camera->offset = hadamard(random_unit_vec2(), shake) * scaler;
 }
 
-Camera *get_camera(u32 camera_id) {
+Camera *fetch_camera(u32 camera_id) {
     ASSERT(0 <= camera_id && camera_id < OPENGL_NUM_CAMERAS, "Not a valid camera");
     return _fog_global_window_state.cam + camera_id;
 }
@@ -92,7 +92,7 @@ void debug_camera(u32 camera_id) {
     const f32 ZOOM_SCALE_WHEEL = 1.0 / 5.0;
     ASSERT(0 <= camera_id && camera_id < OPENGL_NUM_CAMERAS, "Not a valid camera");
 
-    Camera *camera = get_camera(camera_id);
+    Camera *camera = fetch_camera(camera_id);
     if (Input::mouse_down(0))
         camera->position += Input::world_mouse_move(camera_id);
 

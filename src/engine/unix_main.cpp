@@ -183,6 +183,8 @@ int main(int argc, char **argv) {
     Util::do_all_allocations();
     ASSERT(Renderer::init("Hello there", win_width, win_height),
            "Failed to initalize renderer");
+    Renderer::turn_on_camera(0);
+
     ASSERT(Mixer::init(),
             "Failed to initalize audio mixer");
     Asset::load("data.fog");
@@ -220,7 +222,7 @@ int main(int argc, char **argv) {
         Logic::update_es();
         Logic::call(Logic::At::POST_UPDATE);
 
-        Mixer::audio_struct.position = Renderer::get_camera()->position;
+        Mixer::audio_struct.position = Renderer::fetch_camera()->position;
 
         START_PERF(RENDER);
         Renderer::clear();

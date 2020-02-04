@@ -18,7 +18,7 @@ namespace Util {
     }
 
     f32 debug_top_of_screen() {
-        return Renderer::get_camera()->aspect_ratio + debug_line_height() / 2.0;
+        return Renderer::fetch_camera()->aspect_ratio + debug_line_height() / 2.0;
     }
 
     void debug_text(const char *text, f32 x, f32 y, u32 color_code = 0) {
