@@ -76,7 +76,6 @@ void setup() {
         V2(0.0, 0.0),
     };
     Physics::add_shape(LEN(points), points);
-    Renderer::set_window_size(1000, 1000);
 
     Renderer::turn_on_camera(0);
     {

@@ -18,6 +18,7 @@ bool debug_values_are_on();
 
 #include "renderer/text.h"
 
+#include "util/argument.h"
 #include "util/debug.cpp"
 #include "util/tweak_values.h"
 #include "util/types.h"
@@ -36,6 +37,7 @@ bool debug_values_are_on();
 
 #include "util/font_settings.h"
 #include "util/io.cpp"
+#include "util/argument.cpp"
 #include "util/memory.cpp"
 #include "platform/input.cpp"
 #include "renderer/command.cpp"
@@ -157,11 +159,29 @@ void draw() {
 }
 
 int main(int argc, char **argv) {
+    // parse command line arguments
+    using namespace Util;
+    u32 win_width = 500;
+    u32 win_height = 500;
+    u32 index = 1;
+    while (index < argc) {
+        switch (parse_str_argument(argv[index])) {
+        case resolution:
+            win_width = (u32) atoi(argv[index + 1]);
+            win_height = (u32) atoi(argv[index + 2]);
+            index += 3;
+            break;
+        default:
+            LOG("Invalid argument '%s'", argv[index]);
+            index++;
+        }
+    }
+
     using namespace Input;
     init_random();
 
     Util::do_all_allocations();
-    ASSERT(Renderer::init("Hello there", 500, 500),
+    ASSERT(Renderer::init("Hello there", win_width, win_height),
            "Failed to initalize renderer");
     ASSERT(Mixer::init(),
             "Failed to initalize audio mixer");
