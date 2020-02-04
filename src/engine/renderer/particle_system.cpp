@@ -70,13 +70,14 @@ Particle ParticleSystem::generate() {
     };
 }
 
-void ParticleSystem::spawn() {
+void ParticleSystem::spawn(u32 num_particles) {
     ASSERT(particles, "Trying to use uninitalized/destroyed particle system");
-    if (head == tail) return;
-
-    Particle new_particle = generate();
-    particles[tail] = new_particle;
-    tail = (tail + 1) % max_num_particles;
+    for (u32 i = 0; i < num_particles; i++) {
+        if (head == tail) return;
+        Particle new_particle = generate();
+        particles[tail] = new_particle;
+        tail = (tail + 1) % max_num_particles;
+    }
 }
 
 void ParticleSystem::update(f32 delta) {

@@ -99,7 +99,7 @@ struct ParticleSystem {
     Particle generate();
 
     // Generates a new one.
-    void spawn();
+    void spawn(u32 num_particles=1);
 
     // Updates all active particles.
     void update(f32 delta);
@@ -202,10 +202,10 @@ my_system.rotation = {0, PI};
 // </table>
 
 ///*
-// Emits a new particle from the particle system. If you
+// Emits new particles from the particle system. If you
 // want to do this over a set period of time, I would recommend
 // looking into "Logic::add_callback".
-void ParticleSystem::spawn();
+void ParticleSystem::spawn(u32 num_particles=1);
 
 ///*
 // Updates the particle system, and progresses the particles by one time step.
