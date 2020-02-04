@@ -122,12 +122,14 @@ void ParticleSystem::add_sprite(AssetID texture, u32 u, u32 v, u32 w, u32 h){
 }
 
 ParticleSystem create_particle_system(u32 layer, u32 num_particles, Vec2 position) {
+    ASSERT(num_particles > 1, "Too small particle system");
     Util::MemoryArena *arena = Util::request_arena();
     Particle *particles = arena->push<Particle>(num_particles);
     for (u32 i = 0; i < num_particles; i++) {
         particles[i].progress = 2.0;
     }
     ParticleSystem particle_system = {arena, 0, 1};
+    particle_system.head = 1;
     particle_system.max_num_particles = num_particles;
     particle_system.particles = particles;
     particle_system.layer = layer;
