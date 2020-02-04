@@ -74,7 +74,7 @@ def find_all_comments(files):
     """
     Finds all comments in a list of files and creates a documentation "tree"
     where the order of the modules are keept.
-    Kinda structured like this: 
+    Kinda structured like this:
         [modules { submodules: [comments] }]
     Making it easy to create the documentation table and structure the
     comments.
@@ -88,7 +88,7 @@ def find_all_comments(files):
     for region, file_path in sorted(files):
         heading, comments = find_comments(file_path)
         if heading and comments:
-            documentation[region][heading] = comments 
+            documentation[region][heading] = comments
     return [(region, documentation[region]) for region in reversed(regions)]
 
 
@@ -188,7 +188,7 @@ def find_documentation_title(heading, comment, namespace):
     """
     Finds the title for this piece of documentation.
     """
-    for line in comment.split("\n"): 
+    for line in comment.split("\n"):
         if "///*" in line:
             potential_title = line[5:].strip()
             if potential_title:
@@ -200,7 +200,7 @@ def find_documentation_title(heading, comment, namespace):
 
 
 def find_documentation_id(section, comment):
-    for line in comment.split("\n"): 
+    for line in comment.split("\n"):
         if "///*" in line:
             potential_title = line[5:].strip()
             if potential_title:
@@ -228,7 +228,7 @@ def format_heading(heading, comment, namespace, _):
 
 
 def has_content(region_headings):
-    for heading in region_headings: 
+    for heading in region_headings:
         for comment_type, comment, namespace in region_headings[heading]:
             if comment:
                 return True
@@ -264,7 +264,7 @@ def write_documentation(path, documentation):
                     documented_code[text] = html_id
                     f.write(tag("li", link(text, "#" + html_id)))
                 f.write("</li></ul>")
-                    
+
             f.write("</li></ul>")
         f.write("</ul>")
         f.write("</div></nav>")
