@@ -31,13 +31,18 @@
 typedef int8_t s8;
 typedef int16_t s16;
 typedef int32_t s32;
-typedef long long s64;  // We assume these are a thing.
 typedef uint8_t u8;
 typedef uint16_t u16;
 typedef uint32_t u32;
-typedef unsigned long long u64;  // We assume these are a thing.
 typedef float f32;
 typedef double f64;
+
+// Trubble makers
+typedef long long s64;  // We assume these are a thing.
+typedef unsigned long long u64;  // We assume these are a thing.
+static_assert(sizeof(s64) == 8, "Invalid s64 size, change s64 to a int64_t, will produce warnings.");
+static_assert(sizeof(u64) == 8, "Invalid u64 size, change s64 to a uint64_t, will produce warnings.");
+
 
 typedef f32 real;  // Type used in vectors.
 
