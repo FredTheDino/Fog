@@ -31,17 +31,17 @@
 typedef int8_t s8;
 typedef int16_t s16;
 typedef int32_t s32;
-typedef int64_t s64;  // We assume these are a thing.
+typedef long long s64;  // We assume these are a thing.
 typedef uint8_t u8;
 typedef uint16_t u16;
 typedef uint32_t u32;
-typedef uint64_t u64;  // We assume these are a thing.
+typedef unsigned long long u64;  // We assume these are a thing.
 typedef float f32;
 typedef double f64;
 
 typedef f32 real;  // Type used in vectors.
 
-#define PI 3.1419f
+#define PI 3.14159f
 
 #ifndef NAN
 #error "NAN does not seem to be supported by this compiler."
