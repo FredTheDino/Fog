@@ -77,7 +77,7 @@ void report() {
     for (u64 i = 0; i < NUMBER_OF_MARKERS; i++) {
         // TODO(ed): Lock audio thread here.
         volatile Clock *clock = clocks + i;
-        snprintf(buffer, buffer_size, "%s %-17s- %5lu %9.3f %9.3f %9.3f",
+        snprintf(buffer, buffer_size, "%s %-17s- %5llu %9.3f %9.3f %9.3f",
                 clock->other_thread ? "*": " ",
                 clock->name, clock->last_count,
                 clock->last_time / frame_time,
@@ -88,7 +88,7 @@ void report() {
     y -= dy;
 
     Util::debug_text("=== MEMORY ===", y -= dy);
-    snprintf(buffer, buffer_size, "  %-17s: %5ld",
+    snprintf(buffer, buffer_size, "  %-17s: %5lld",
              "FREE ARENAS", Util::global_memory.num_free_regions);
     Util::debug_text(buffer, y -= dy);
 }
