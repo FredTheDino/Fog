@@ -55,6 +55,7 @@ void run_tests() {
         }
     }
     clock_gettime(CLOCK_MONOTONIC, &end);
+    // https://stackoverflow.com/a/49235959
     double elapsed = end.tv_nsec >= start.tv_nsec
                         ? (end.tv_nsec - start.tv_nsec) / 1e6 + (end.tv_sec - start.tv_sec) * 1e3
                         : (start.tv_nsec - end.tv_nsec) / 1e6 + (end.tv_sec - start.tv_sec - 1) * 1e3;
