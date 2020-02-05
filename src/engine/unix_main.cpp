@@ -163,7 +163,7 @@ int main(int argc, char **argv) {
     using namespace Util;
     u32 win_width = 500;
     u32 win_height = 500;
-    u32 index = 1;
+    int index = 1;
     while (index < argc) {
         switch (parse_str_argument(argv[index])) {
         case resolution:

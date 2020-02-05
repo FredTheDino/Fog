@@ -123,7 +123,7 @@ void update(f32 delta) {
     }
     Util::end_tweak_section(&show_audio_tweaks);
     static bool show_various_tweaks = false;
-    static Span span = { 0.3, 0.35};
+    // static Span span = { 0.3, 0.35};
     if (Util::begin_tweak_section("Other tweaks", &show_various_tweaks)) {
         Util::tweak("max_entity", &Logic::_fog_es.max_entity);
         Util::tweak("num_entities", &Logic::_fog_es.num_entities);

@@ -97,6 +97,15 @@ namespace Logic {
         return fetch_type(typeid(T).hash_code());
     }
 
+    void clear_entitysystem() {
+        _fog_es.memory->clear();
+        _fog_es.next_free = 0;
+        _fog_es.entities.clear();
+        _fog_es.max_entity = 0;
+        _fog_es.num_entities = 0;
+        _fog_es.num_removed = 0;
+    }
+
     const ETypeInfo *fetch_entity_type(EntityType type) {
         return fetch_type(meta_data_for(type).hash);
     }
