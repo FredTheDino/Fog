@@ -2,8 +2,8 @@ CXX = g++
 # NOTE: The verbose flag doesn't allow compilation on cirtain mac systems.
 DEBUG_FLAGS = -ggdb -O0 -DDEBUG  # -DFOG_VERBOSE
 WARNINGS = -Wall -Wno-invalid-offsetof -Wno-unused-but-set-variable -Wno-unused-function -Wno-missing-braces -Wno-error
-FLAGS = $(WARNINGS) -std=c++17 -Iinc $(DEBUG_FLAGS)
-LIB_PATH = ./lib/linux 
+FLAGS = -fdiagnostics-color=always $(WARNINGS) -std=c++17 -Iinc $(DEBUG_FLAGS)
+LIB_PATH = ./lib/linux
 LIBS = -lSDL2 -lSDL2main -ldl -lpthread
 BIN_DIR = bin
 ENGINE_PROGRAM_NAME = fog
@@ -60,7 +60,7 @@ clean:
 edit: $(EDITOR_PROGRAM_PATH)
 	cd $(BIN_DIR); ./$(EDITOR_PROGRAM_NAME)
 
-run: $(ENGINE_PROGRAM_PATH) 
+run: $(ENGINE_PROGRAM_PATH)
 	cd $(BIN_DIR); ./$(ENGINE_PROGRAM_NAME)
 
 debug: $(ENGINE_PROGRAM_PATH)

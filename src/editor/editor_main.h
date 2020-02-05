@@ -90,7 +90,7 @@ Logic::EntityID create_entity_from_type(Logic::EntityType type) {
     *((void **) entity_ptr) = Logic::_entity_vtable(type);
     Logic::Entity *entity = (Logic::Entity *) entity_ptr;
     entity->scale = V2(1, 1);
-    entity->position = Renderer::get_camera()->position;
+    entity->position = Renderer::fetch_camera()->position;
     return Logic::add_entity_ptr(entity);
 }
 
