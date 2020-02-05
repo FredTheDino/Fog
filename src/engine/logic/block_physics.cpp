@@ -102,18 +102,21 @@ ShapeID add_shape(List<Vec2> points) {
     return add_shape(points.length, points.data);
 }
 
-Shape find_shape(ShapeID id)
-{
+Shape find_shape(ShapeID id) {
     ASSERT(id < (u32) global_shape_list.length, "Invalid id, shape does not exist.");
     Shape shape = global_shape_list[id];
     ASSERT(id == shape.id, "You have passed in a stale shape ID, this shape doesn't exist.");
     return shape;
 }
 
-void center_body(Body *body)
-{
+void center_body(Body *body) {
     body->offset = find_shape(body->shape).center;
     body->offset = hadamard(body->offset, body->scale);
+}
+
+void swap_shape(Body *body, ShapeID shape) {
+    find_shape(shape);
+    body->shape = shape;
 }
 
 Limit project_shape(Shape shape, Vec2 axis,

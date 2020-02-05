@@ -130,7 +130,7 @@ void setup() {
 
     add(K(a), Name::EDIT_SELECT_ALL);
 
-    Renderer::get_camera()->zoom = 1.0 / 2.0;
+    Renderer::fetch_camera()->zoom = 1.0 / 2.0;
 
     global_editor.selected = Util::create_list<Logic::EntityID>(50);
     global_editor.edits = Util::create_list<EditorEdit>(50);

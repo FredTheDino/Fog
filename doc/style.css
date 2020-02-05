@@ -3,6 +3,7 @@
     margin-left: auto;
     margin-right: auto;
     padding: 1em;
+    padding-bottom: 0.25em;
     display: block;
 }
 
@@ -17,16 +18,28 @@ nav {
     left: 0;
     top: 0;
     width: 30%;
-    max-width: 13em;
+    max-width: 16.5em;
     height: 100%;
     overflow-x: hidden;
     overflow-y: scroll;
     position: fixed;
+    font-family: Monospace;
 }
 
 nav h2 {
     margin-top: 0.5em;
     padding-left: 0.5em;
+    border-bottom: 2px dashed rgba(0, 0, 0, 0.4);
+    margin-bottom: 0.1em;
+}
+
+nav {
+    direction: rtl;
+    box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.75);
+}
+
+.container {
+    direction: ltr;
 }
 
 nav a {
@@ -35,8 +48,17 @@ nav a {
 
 nav ul {
     list-style: none;
+    margin-top: 0.1em;
     padding: 0px;
-    padding-left: 1em;
+    padding-left: 0.1em;
+}
+
+nav #nav>li {
+    border-bottom: 2px dashed rgba(0, 0, 0, 0.1);
+}
+
+nav #nav>li>li {
+    padding-left: 0.3em;
 }
 
 a:hover {
@@ -49,27 +71,48 @@ nav, nav a {
     font-size: 1.2em;
 }
 
-nav>ul>li>ul, nav>ul>li>ul a {
-    background-color: #DDD;
-    font-size: 1.0em;
-    color: #33;
+nav a:hover {
+    text-shadow: 0px 0px 4px #000;
 }
 
-nav>ul>li>ul>li>ul, nav>ul>li>ul>li>ul a {
+
+nav>div>ul>li>ul, nav>div>ul>li>ul a {
+    background-color: #DDD;
+    font-size: 1.0em;
+    color: #333;
+}
+
+nav>div>ul>li>ul>li>ul, nav>div>ul>li>ul>li>ul a {
     font-size: 0.9em;
+}
+
+.hidable::hover {
+    border-bottom: 2px dashed rgba(255, 255, 255, 0.2);
 }
 
 .hideable.hide::before {
     font-family: monospace;
-    content: "▶ ";
+    font-size: 1.0em;
+    margin-top: -0.5em;
+    padding-top: 0.05em;
+    padding-bottom: 0.05em;
+    padding: 0.1em;
+    border-radius: 1em;
+    content: " + ";
 }
 
 .hideable::before {
     font-family: monospace;
-    content: "▼ ";
+    font-size: 1.0em;
+    margin-top: -0.5em;
+    padding-top: 0.05em;
+    padding-bottom: 0.05em;
+    padding: 0.1em;
+    border-radius: 1em;
+    content: " -";
 }
 
-nav>ul>li>ul>li>ul a::before {
+nav>div>ul>li>ul>li>ul a::before {
     content: "• ";
 }
 

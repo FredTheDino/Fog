@@ -1,24 +1,5 @@
 namespace Mixer {
 
-
-enum VoiceType {
-    SINE,
-    NOISE,
-};
-
-struct Instrument {
-    VoiceType voice;
-    f32 time;
-    f32 pitch;
-    f32 pitch_dest;
-    f32 pitch_speed;
-    f32 gain;
-    f32 gain_dest;
-    f32 gain_speed;
-
-    f32 time_to;
-};
-
 struct SoundSource {
     f32 sample;
     AssetID source;
@@ -33,7 +14,6 @@ struct SoundSource {
 };
 
 struct AudioStruct {
-    Instrument instruments[NUM_INSTRUMENTS];
     SoundSource sources[NUM_SOURCES];
     u16 num_free_sources;
     u16 free_sources[NUM_SOURCES];
@@ -47,8 +27,18 @@ struct AudioStruct {
     SDL_AudioDeviceID dev;
 } audio_struct = {};
 
+void add(f32 *value, f32 target, f32 delta) {
+    if (delta > 0 && *value < target) {
+        *value = MIN(*value + delta, target);
+    } else if (delta < 0 && *value > target) {
+        *value = MAX(*value + delta, target);
+    }
+}
+
 void Channel::effect(u32 start, u32 len) {
     if (delay) {
+        add(&delay.feedback, delay.feedback_target, delay.feedback_delta);
+        add(&delay.len_seconds, delay.len_seconds_target, delay.len_seconds_delta);
         if (delay.len_seconds != delay._prev_len_seconds) {
             //TODO(GS) crackling when length is changed while sound is playing
             delay.len = (u32) AUDIO_SAMPLE_RATE * delay.len_seconds * 2;
@@ -60,32 +50,56 @@ void Channel::effect(u32 start, u32 len) {
             buffer[cur_pos] += buffer[pre_pos] * delay.feedback;
         }
     }
+    if (lowpass) {
+        lowpass.weight_target = CLAMP(0, 1, lowpass.weight_target);
+        add(&lowpass.weight, lowpass.weight_target, lowpass.weight_delta);
+        f32 weight = lowpass._SENSITIVITY * pow(2.718,
+                log(lowpass.weight * (1+lowpass._SENSITIVITY) / lowpass._SENSITIVITY)) - lowpass._SENSITIVITY;
+        for (u32 i = 0; i < len; i += 2) {
+            u32 pos = (start + i) % CHANNEL_BUFFER_LENGTH;
+            lowpass.sum[0] -= (weight * (lowpass.sum[0] - buffer[pos+0]));
+            lowpass.sum[1] -= (weight * (lowpass.sum[1] - buffer[pos+1]));
+            buffer[pos+0] = lowpass.sum[0];
+            buffer[pos+1] = lowpass.sum[1];
+        }
+    }
+    if (highpass) {
+        highpass.weight_target = CLAMP(0, 1, highpass.weight_target);
+        add(&highpass.weight, highpass.weight_target, highpass.weight_delta);
+        f32 weight = highpass._SENSITIVITY * pow(2.718,
+                log(highpass.weight * (1+highpass._SENSITIVITY) / highpass._SENSITIVITY)) - highpass._SENSITIVITY;
+        for (u32 i = 0; i < len; i += 2) {
+            u32 pos = (start + i) % CHANNEL_BUFFER_LENGTH;
+            highpass.sum[0] -= ((1 - weight) * (highpass.sum[0] - buffer[pos+0]));
+            highpass.sum[1] -= ((1 - weight) * (highpass.sum[1] - buffer[pos+1]));
+            buffer[pos+0] -= highpass.sum[0];
+            buffer[pos+1] -= highpass.sum[1];
+        }
+    }
 }
 
-void Channel::set_delay(f32 feedback, f32 len_seconds) {
-    delay.feedback = feedback;
-    delay.len_seconds = len_seconds;
+void Channel::set_delay(f32 feedback, f32 len_seconds, f32 in_seconds) {
+    delay.feedback_target = feedback;
+    delay.len_seconds_target = len_seconds;
+    delay.feedback_delta = (delay.feedback_target - delay.feedback) / (in_seconds * AUDIO_SAMPLE_RATE / (AUDIO_SAMPLES_WANT * 2));
+    delay.len_seconds_delta = (delay.len_seconds_target - delay.len_seconds) / (in_seconds * AUDIO_SAMPLE_RATE / (AUDIO_SAMPLES_WANT * 2));
+}
+
+void Channel::set_lowpass(f32 weight, f32 in_seconds) {
+    ASSERT(0 <= weight && weight <= 1, "Weight needs to be between 0 and 1.");
+    lowpass.weight_target = weight;
+    lowpass.weight_delta = (lowpass.weight_target - lowpass.weight) / (in_seconds * AUDIO_SAMPLE_RATE / (AUDIO_SAMPLES_WANT * 2));
+}
+
+void Channel::set_highpass(f32 weight, f32 in_seconds) {
+    ASSERT(0 <= weight && weight <= 1, "Weight needs to be between 0 and 1.");
+    highpass.weight_target = weight;
+    highpass.weight_delta = (highpass.weight_target - highpass.weight) / (in_seconds * AUDIO_SAMPLE_RATE / (AUDIO_SAMPLES_WANT * 2));
 }
 
 Channel *fetch_channel(u32 channel_id) {
     ASSERT(channel_id < NUM_CHANNELS, "Invalid channel");
     return &audio_struct.channels[channel_id];
-}
-
-f32 pitch(s32 tone) {
-    return BASE_TONE * pow(NEXT_TONE, tone);
-}
-
-
-void set_note(u32 instrument_id, f32 new_pitch, f32 new_gain, f32 time=1.0) {
-    ASSERT(instrument_id < NUM_INSTRUMENTS,
-            "Invalid instrument");
-    Instrument *inst = audio_struct.instruments + instrument_id;
-    inst->pitch_dest = new_pitch;
-    inst->pitch_speed = (new_pitch - inst->pitch) / time;
-    inst->gain_dest = new_gain;
-    inst->gain_speed = (new_gain - inst->gain) / time;
-    inst->time_to = time;
 }
 
 AudioID push_sound(SoundSource source) {
@@ -212,7 +226,7 @@ void audio_callback(void* userdata, u8* stream, int len) {
             } else {
                 f32 sample;
                 if (sound->bits_per_sample == 16) {
-                    sample = (f32) sound->samples_16[index] / ((f32) 0xEFFF);
+                    sample = S16_TO_F32(sound->samples_16[index]);
                 } else if (sound->bits_per_sample == 32) {
                     sample = sound->samples_32[index];
                 } else {
@@ -243,6 +257,10 @@ void audio_callback(void* userdata, u8* stream, int len) {
         for (u32 i = 0; i < SAMPLES; i++) {
             output_stream[i] += channel->buffer[(base + i) % CHANNEL_BUFFER_LENGTH];
         }
+
+        for (u32 i = 0; i < SAMPLES; i++) {
+            output_stream[i] = CLAMP(-SAMPLE_LIMIT, SAMPLE_LIMIT, output_stream[i]);
+        }
     }
     STOP_PERF(AUDIO_EFFECTS);
     audio_struct.sample_index += SAMPLES;  // wraps after ~24h
@@ -250,6 +268,10 @@ void audio_callback(void* userdata, u8* stream, int len) {
 }
 
 bool init() {
+    OTHER_THREAD(AUDIO);
+    OTHER_THREAD(AUDIO_SOURCES);
+    OTHER_THREAD(AUDIO_EFFECTS);
+
     audio_mixer.arena = Util::request_arena();
 
     audio_struct.num_free_sources = NUM_SOURCES;
@@ -262,7 +284,7 @@ bool init() {
     SDL_AudioSpec want = {};
     want.freq = AUDIO_SAMPLE_RATE;
     want.format = AUDIO_F32;
-    want.samples = 2048;
+    want.samples = AUDIO_SAMPLES_WANT;
     want.channels = 2;
     want.callback = audio_callback;
     audio_struct.time_step = 1.0 / (f32) AUDIO_SAMPLE_RATE;

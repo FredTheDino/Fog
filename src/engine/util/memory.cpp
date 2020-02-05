@@ -31,11 +31,15 @@ static MemoryAllocationState _fog_mem_alloc_state = MemoryAllocationState::NO_RU
 void _fog_illegal_allocation() {
     static u32 num_errors = 0;
     num_errors++;
-    for (u32 i = 0; i < num_errors; i++) {
-        ERR("Trying to allocate memory outside the main loop. Are you aware of "
-            "what you're doing? Call \"allow_allocation\" before your allocation "
-            "to make this error go away.\nhttps://www.xkcd.com/1495/\n");
-    }
+    ERR("\n!!!!\n!!!!\n!!!!\n!!!!\n"
+        "!!!! Num times this error has happened: %d\n"
+        "!!!! Trying to allocate memory outside the main loop.\n"
+        "!!!! Are you aware of what you're doing?\n"
+        "!!!! Call \"allow_allocation\" before your allocation "
+        "to make this warning go away.\n"
+        "!!!! https://www.xkcd.com/1495/\n"
+        "!!!!\n!!!!\n!!!!\n!!!!\n!!!!\n"
+        ,num_errors);
 }
 
 void allow_allocation() {
@@ -113,6 +117,8 @@ T *MemoryArena::push(u64 count) {
     if (watermark + allocation_size > ARENA_SIZE_IN_BYTES) {
         if (!next) {
             if (only_one) HALT_AND_CATCH_FIRE;
+            // Only complain once.
+            allow_allocation();
             next = request_arena();
         }
         return next->push<T>(count);

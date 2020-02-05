@@ -100,7 +100,7 @@ void strict_allocation_check();
 
 // TODO(ed): We could do system allocations here, it
 // would be faster, but a tad less portable.
-constexpr u64 TOTAL_MEMORY_BUDGET = 1 << 29;  // ~0.5GB
+constexpr u64 TOTAL_MEMORY_BUDGET = 1 << 27;  // ~0.1GB
 constexpr u64 ARENA_SIZE_IN_BYTES = 1 << 21;  // ~2.0MB
 constexpr u64 NUM_ARENAS = TOTAL_MEMORY_BUDGET / ARENA_SIZE_IN_BYTES;
 

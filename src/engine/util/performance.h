@@ -8,6 +8,7 @@ namespace Perf {
 struct Clock {
     const char *name;
     bool active;
+    bool other_thread;
     u64 count;
     u64 start;
     f64 time;
@@ -18,7 +19,9 @@ struct Clock {
     u64 total_count;
 };
 
-Clock clocks[NUMBER_OF_MARKERS] = {};
+// TODO(ed): This makes it kinda slow, but maybe that isn't a
+// problem.
+volatile Clock clocks[NUMBER_OF_MARKERS] = {};
 
 u64 highp_now();
 
@@ -29,6 +32,9 @@ void _start_perf_clock(MarkerID id, const char *name);
 
 #define STOP_PERF(marker) Perf::_stop_perf_clock(Perf::marker)
 void _stop_perf_clock(MarkerID id);
+
+#define OTHER_THREAD(marker) Perf::_mark_perf_clock(Perf::marker)
+void _mark_perf_clock(MarkerID id);
 
 void report();
 

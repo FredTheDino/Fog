@@ -146,7 +146,10 @@ namespace Logic {
                       "You supplied a class that isn't based on Logic::Entity");
         EntityID id = generate_entity_id();
         entity.id = id;
+        Util::allow_allocation();
         _fog_es.entities[id.slot] = _fog_es.memory->push(entity);
+        ASSERT((u64) _fog_es.entities[id.slot] > 1000, "Invalid pointer in entity system.");
+        Util::strict_allocation_check();
         return id;
     }
 
@@ -155,9 +158,12 @@ namespace Logic {
         entity->id = id;
 
         u32 size = Logic::fetch_entity_type(entity->type())->size;
+        Util::allow_allocation();
         Entity *copy = (Entity *) _fog_es.memory->push<u8>(size);
+        Util::strict_allocation_check();
         Util::copy_bytes(entity, copy, size);
         _fog_es.entities[id.slot] = entity;
+        ASSERT((u64) _fog_es.entities[id.slot] > 1000, "Invalid pointer in entity system.");
 
         return id;
     }
@@ -284,17 +290,26 @@ namespace Logic {
             return;
         }
         // This is kinda hacky...
+        Util::allow_allocation();
         Util::MemoryArena *target_arena = Util::request_arena(false);
-        u8 *target = (u8 *) target_arena->memory;
+        u64 memory = 0;
+        ASSERT(offsetof(Entity, id) < 16, "Empty entity is quite large");
         for (s32 i = 0; i <= _fog_es.max_entity; i++) {
             Entity *e = _fog_es.entities[i];
-            if (e->id.slot != i) continue;
-            u32 size = fetch_type(meta_data_for(e->type()).hash)->size;
+            u32 size;
+            if (e->id.slot != i) {
+                size = offsetof(Entity, id) + sizeof(EntityID);
+            } else {
+                size = fetch_type(meta_data_for(e->type()).hash)->size;
+            }
+            memory += size;
+            Util::allow_allocation();
+            u8 *target = target_arena->push<u8>(size);
             Util::copy_bytes(e, target, size);
             _fog_es.entities[i] = (Entity *) target;
-            target += size;
+            ASSERT((u64) _fog_es.entities[i] > 1000, "Invalid pointer in entity system.");
         }
-        target_arena->push<u8>(target - (u8 *) target_arena->memory);
+        ASSERT(memory < Util::ARENA_SIZE_IN_BYTES, "Too large allocations");
         _fog_es.memory->pop();
         _fog_es.memory = target_arena;
         _fog_es.num_removed = 0; // We've not removed any now

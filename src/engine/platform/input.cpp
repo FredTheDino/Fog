@@ -71,6 +71,8 @@ void clear_input_for_frame() {
     global_mapping.mouse.depth = 0;
     global_mapping.mouse.move_x = 0;
     global_mapping.mouse.move_y = 0;
+    global_mapping.mouse.wheel_x = 0;
+    global_mapping.mouse.wheel_y = 0;
     global_mapping.mouse.state[0] = clear_frame_flag(global_mapping.mouse.state[0]);
     global_mapping.mouse.state[1] = clear_frame_flag(global_mapping.mouse.state[1]);
     global_mapping.mouse.state[2] = clear_frame_flag(global_mapping.mouse.state[2]);
@@ -210,7 +212,7 @@ f32 value(Name name, Player player) {
 }
 
 Vec2 scale_screen_to_world(Vec2 p, u32 camera_id = 0) {
-    Renderer::Camera *camera = Renderer::get_camera(camera_id);
+    Renderer::Camera *camera = Renderer::fetch_camera(camera_id);
     const f32 inv_width = 1.0 / Renderer::get_window_width();
     const f32 scale_factor = 1.0 / camera->zoom;
     Vec2 opengl = V2( p.x * 2 * scale_factor * inv_width,
@@ -220,7 +222,7 @@ Vec2 scale_screen_to_world(Vec2 p, u32 camera_id = 0) {
 }
 
 Vec2 screen_to_world(Vec2 p, u32 camera_id = 0) {
-    Renderer::Camera *camera = Renderer::get_camera(camera_id);
+    Renderer::Camera *camera = Renderer::fetch_camera(camera_id);
     return scale_screen_to_world(p, camera_id) - camera->position;
 }
 
@@ -240,8 +242,18 @@ Vec2 mouse_position() {
     return V2(global_mapping.mouse.x, global_mapping.mouse.y);
 }
 
+Vec2 mouse_scroll() {
+    return V2(global_mapping.mouse.wheel_x, global_mapping.mouse.wheel_y);
+}
+
 Vec2 world_mouse_move(u32 camera_id) {
-    return scale_screen_to_world(mouse_move(), camera_id);
+    Vec2 p = mouse_move();
+    Renderer::Camera *camera = Renderer::fetch_camera(camera_id);
+    const f32 inv_width = 1.0 / Renderer::get_window_width();
+    const f32 scale_factor = 1.0 / camera->zoom;
+    Vec2 opengl = V2( p.x * 2 * scale_factor * inv_width,
+            -p.y * 2 * scale_factor * inv_width);
+    return opengl;
 }
 
 Vec2 mouse_move() {
