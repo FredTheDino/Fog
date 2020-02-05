@@ -83,6 +83,17 @@ void entity_registration() {
 // Editor stuff
 //
 
+Logic::EntityID create_entity_from_type(Logic::EntityType type) {
+    Logic::EMeta info = Logic::meta_data_for(type);
+    u8 *entity_ptr = Util::request_temporary_memory<u8>(info.size);
+    // Util::zero_memory(entity_ptr, info.size);
+    *((void **) entity_ptr) = Logic::_entity_vtable(type);
+    Logic::Entity *entity = (Logic::Entity *) entity_ptr;
+    entity->scale = V2(1, 1);
+    entity->position = Renderer::fetch_camera()->position;
+    return Logic::add_entity_ptr(entity);
+}
+
 void draw_outline(Logic::Entity *e, Vec4 color=V4(1, 1, 0, 0.1));
 
 
