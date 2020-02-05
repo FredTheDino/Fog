@@ -331,6 +331,11 @@ void for_entity(MapFuncBool f);
 // type. Returns an invalid id if it fails.
 EntityID fetch_first_of_type(EntityType type);
 
+///*
+// Removes all entities in the entity system, resetting it
+// to its inital state. This is a cheap operation.
+void clear_entitysystem();
+
 // Updates all valid entities.
 void update_es();
 

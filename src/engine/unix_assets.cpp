@@ -376,7 +376,7 @@ void dump_asset_file(AssetFile *file, const char *out_path) {
         const char *asset_name = asset_name_from_file(header->file_path, header->type);
         printf("\tFound asset: %s -> %s\n", header->file_path,
                asset_name);
-        fprintf(source_file, "constexpr Asset::AssetID ASSET_%s = %lu;\n",
+        fprintf(source_file, "constexpr Asset::AssetID ASSET_%s = %llu;\n",
                 asset_name, i);
         free((void *) asset_name);
 
