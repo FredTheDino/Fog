@@ -73,6 +73,10 @@ u64 Perf::highp_now() {
 #   error "No game found"
 #endif
 
+#ifdef RUN_TESTS
+#include "../test/test_main.cpp"
+#endif
+
 #ifdef DEBUG
 static bool show_perf = false;
 static bool debug_view = false;
@@ -200,6 +204,12 @@ int main(int argc, char **argv) {
     Logic::frame(SDL_GetTicks() / 1000.0f);
     setup();
     Util::strict_allocation_check();
+
+#ifdef RUN_TESTS
+    Test::run_tests();
+    return 0;
+#endif
+
     while (SDL::running) {
         Logic::frame(SDL_GetTicks() / 1000.0f);
 

@@ -1,13 +1,16 @@
 CXX = g++
-# NOTE: The verbose flag doesn't allow compilation on cirtain mac systems.
+# NOTE: The verbose flag doesn't allow compilation on certain mac systems.
 DEBUG_FLAGS = -ggdb -O0 -DDEBUG  # -DFOG_VERBOSE
+TESTING_FLAGS = -DRUN_TESTS
 WARNINGS = -Wall -Wno-invalid-offsetof -Wno-unused-but-set-variable -Wno-unused-function -Wno-missing-braces -Wno-error
 FLAGS = -fdiagnostics-color=always $(WARNINGS) -std=c++17 -Iinc $(DEBUG_FLAGS)
 LIB_PATH = ./lib/linux
 LIBS = -lSDL2 -lSDL2main -ldl -lpthread
 BIN_DIR = bin
 ENGINE_PROGRAM_NAME = fog
+ENGINE_TESTING_PROGRAM_NAME = $(ENGINE_PROGRAM_NAME)-test
 ENGINE_PROGRAM_PATH = $(BIN_DIR)/$(ENGINE_PROGRAM_NAME)
+ENGINE_TESTING_PROGRAM_PATH = $(BIN_DIR)/$(ENGINE_TESTING_PROGRAM_NAME)
 ENGINE_SOURCE_FILE = src/engine/unix_main.cpp
 ASSET_BUILDER_PROGRAM_NAME = $(BIN_DIR)/mist
 ASSET_BUILDER_SOURCE_FILE = src/engine/unix_assets.cpp
@@ -24,7 +27,7 @@ DOCUMENTATION = doc/doc.html
 
 TERMINAL = $(echo $TERM)
 
-.PHONY: default run edit asset clean debug valgrind doc
+.PHONY: default run edit asset clean debug test valgrind doc
 
 default: $(ENGINE_PROGRAM_PATH) $(ASSET_OUTPUT) $(DOCUMENTATION)
 
@@ -38,10 +41,14 @@ $(ENGINE_PROGRAM_PATH): $(SOURCE_FILES) $(ASSET_OUTPUT)
 	rm -f $(BIN_DIR)/res
 	$(CXX) $(FLAGS) $(ENGINE_SOURCE_FILE) -o $(ENGINE_PROGRAM_PATH) -L $(LIB_PATH) $(LIBS)
 
+$(ENGINE_TESTING_PROGRAM_PATH): $(SOURCE_FILES) $(ASSET_OUTPUT)
+	mkdir -p $(BIN_DIR)
+	rm -f $(BIN_DIR)/res
+	$(CXX) $(FLAGS) $(TESTING_FLAGS) $(ENGINE_SOURCE_FILE) -o $(ENGINE_TESTING_PROGRAM_PATH) -L $(LIB_PATH) $(LIBS)
+
 $(EDITOR_PROGRAM_PATH): $(SOURCE_FILES) $(ASSET_OUTPUT)
 	mkdir -p $(BIN_DIR)
 	$(CXX) $(FLAGS) -DFOG_EDITOR $(EDITOR_SOURCE_FILE) -o $(EDITOR_PROGRAM_PATH) -L $(LIB_PATH) $(LIBS)
-
 
 $(ASSET_BUILDER_PROGRAM_NAME): $(ASSET_SOURCE_FILES) $(ASSET_BUILDER_SOURCE_FILE)
 	mkdir -p $(BIN_DIR)
@@ -65,6 +72,9 @@ run: $(ENGINE_PROGRAM_PATH)
 
 debug: $(ENGINE_PROGRAM_PATH)
 	cd $(BIN_DIR); gdb -ex "b _fog_assert_failed()" -ex "b _fog_illegal_allocation()" ./$(ENGINE_PROGRAM_NAME)
+
+test: $(ENGINE_TESTING_PROGRAM_PATH)
+	cd $(BIN_DIR); ./$(ENGINE_TESTING_PROGRAM_NAME)
 
 valgrind: $(ENGINE_PROGRAM_PATH)
 	cd $(BIN_DIR); $(TERMINAL) gdb $(ENGINE_PROGRAM_NAME) &
