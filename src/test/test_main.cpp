@@ -1,5 +1,7 @@
 #include <random>
 
+#include "math.cpp"
+
 namespace Test {
 
 struct UnitTest {
@@ -12,49 +14,18 @@ struct UnitTest {
 #define TEST(func) { STR(func), false, func }
 #define FLAKEY(func) { STR(func), true, func }
 
-bool math_type_size() { 
-    int u = 0;
-    for (int i = 0; i < 50000000; i++) {
-        u += i;
-    }
-    return u != 0;
-}
-bool math_type_size_2() {
-    int u = 0;
-    for (int i = 0; i < 50000000; i++) {
-        u += i;
-    }
-    return u == 0;
-}
-
 void run_tests() {
     UnitTest tests[] = {
-        TEST(math_type_size),
-        TEST(math_type_size_2),
-        TEST(math_type_size),
-        TEST(math_type_size),
-        TEST(math_type_size),
-        FLAKEY(math_type_size),
-        TEST(math_type_size),
-        TEST(math_type_size),
-        TEST(math_type_size),
-        TEST(math_type_size),
-        FLAKEY(math_type_size),
-        TEST(math_type_size),
-        TEST(math_type_size),
-        TEST(math_type_size),
-        TEST(math_type_size_2),
-        TEST(math_type_size_2),
-        TEST(math_type_size_2),
-        TEST(math_type_size_2),
-        TEST(math_type_size_2),
-        FLAKEY(math_type_size_2),
-        TEST(math_type_size_2),
-        TEST(math_type_size_2),
-        TEST(math_type_size_2),
-        FLAKEY(math_type_size_2),
-        TEST(math_type_size_2),
-        TEST(math_type_size_2),
+        TEST(math_typedef_s8),
+        TEST(math_typedef_u8),
+        TEST(math_typedef_s16),
+        TEST(math_typedef_u16),
+        TEST(math_typedef_s32),
+        TEST(math_typedef_u32),
+        TEST(math_typedef_f32),
+        TEST(math_typedef_s64),
+        TEST(math_typedef_u64),
+        TEST(math_typedef_f64),
     };
     int size = sizeof(tests) / sizeof(UnitTest);
     int passed = 0;
@@ -64,7 +35,7 @@ void run_tests() {
     std::random_device rd;  // ensures random seed
     std::mt19937 generator(rd());
     std::shuffle(std::begin(tests), std::end(tests), generator);
-    printf("Running %d tests:\n", size);
+    printf("Running %d tests\n", size);
 
     clock_gettime(CLOCK_MONOTONIC, &start);
     int current = 0;
@@ -87,7 +58,10 @@ void run_tests() {
     double elapsed = end.tv_nsec >= start.tv_nsec
                         ? (end.tv_nsec - start.tv_nsec) / 1e6 + (end.tv_sec - start.tv_sec) * 1e3
                         : (start.tv_nsec - end.tv_nsec) / 1e6 + (end.tv_sec - start.tv_sec - 1) * 1e3;
-    printf("%d out of %d tests passed (%d skipped) in %.2f ms (CPU time).\n", passed, size, skipped, elapsed);
+    float percent = 100.0 * passed / (size - skipped);
+    if (percent >= 99.9) printf(GREEN);  // close enough
+    else printf(YELLOW);
+    printf("%d out of %d tests" RESET " (%.0f%%) passed (%d skipped) in %.2f ms (CPU time).\n", passed, size, (100.0 * passed / size), skipped, elapsed);
 }
 
 }  // namespace Test
