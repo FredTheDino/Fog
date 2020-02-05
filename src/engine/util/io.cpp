@@ -18,6 +18,8 @@
 #define BOLDCYAN    "\033[1m\033[36m"
 #define BOLDWHITE   "\033[1m\033[37m"
 #define CLEAR "\033[2K"  // Clears current line. Does not return to the start of the line.
+#define HIDE_CURSOR "\033[?25l"  // Hides the terminal cursor (block, line, beam) until the SHOW_CURSOR control code is sent.
+#define SHOW_CURSOR "\033[?25h"  // Shows the terminal cursor (block, line, beam) until the HIDE_CURSOR control code is sent.
 
 namespace Util {
 

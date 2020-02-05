@@ -37,6 +37,7 @@ void run_tests() {
     std::shuffle(std::begin(tests), std::end(tests), generator);
     printf("Running %d tests\n", size);
 
+    printf(HIDE_CURSOR);
     clock_gettime(CLOCK_MONOTONIC, &start);
     int current = 0;
     for (UnitTest test: tests) {
@@ -63,6 +64,7 @@ void run_tests() {
     if (percent >= 99.9) printf(GREEN);  // close enough
     else printf(YELLOW);
     printf("%d out of %d tests" RESET " (%.0f%%) passed (%d skipped) in %.2f ms (CPU time).\n", passed, size, (100.0 * passed / size), skipped, elapsed);
+    printf(SHOW_CURSOR);
 }
 
 }  // namespace Test
