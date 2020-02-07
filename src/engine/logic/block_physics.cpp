@@ -102,6 +102,14 @@ ShapeID add_shape(List<Vec2> points) {
     return add_shape(points.length, points.data);
 }
 
+ShapeID add_shape_from_sprite(Asset::AssetID sprite_id) {
+    Sprite *sprite = Asset::fetch_sprite(sprite_id);
+    Vec2 *points = Util::request_temporary_memory<Vec2>(sprite->num_points);
+    for (u32 i = 0; i < sprite->num_points; i++)
+        points[i] = V2(sprite->points[i]);
+    return add_shape(sprite->num_points, points);
+}
+
 Shape find_shape(ShapeID id) {
     ASSERT(id < (u32) global_shape_list.length, "Invalid id, shape does not exist.");
     Shape shape = global_shape_list[id];
