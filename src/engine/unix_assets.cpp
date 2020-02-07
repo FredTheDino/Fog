@@ -59,8 +59,6 @@ struct AssetFile {
 
 std::unordered_map<std::string, Asset::Type> valid_endings;
 
-// Generate a source file containing IDs to the source code.
-
 Asset::Header get_asset_header(const std::string *path, Asset::Type type) {
     char *file_path = (char *) malloc(path->size() * sizeof(path[0]));
     const char *from = path->c_str();
@@ -216,8 +214,75 @@ void load_shader(AssetFile *file, Asset::Header *header) {
     add_asset_to_file(file, header, &asset);
 }
 
-void load_atlas(AssetFile *file, Asset::Header *header) {
-    printf("Trying to load atlas, but code is not implemented\n");
+void load_sprite(AssetFile *file, Asset::Header *main_header) {
+    Asset::Header header_template;
+    header_template.type = Asset::Type::SPRITE;
+    header_template.asset_id = Asset::ASSET_ID_NO_ASSET;
+
+    FILE *sprite_file = fopen(main_header->file_path, "rb");
+    while (true) {
+        char *line = nullptr;
+        size_t line_n = 0;
+        getline(&line, &line_n, sprite_file);
+
+        if (feof(sprite_file))
+            break;
+
+        char *ptr = line;
+        u32 i = 0;
+        char *name = ptr + i;
+        for (; i < line_n; i++) if (ptr[i] == ':') { ptr[i] = '\0'; break; }
+        char *res = ptr + i + 1;
+        for (; i < line_n; i++) if (ptr[i] == ':') { ptr[i] = '\0'; break; }
+        char *num = ptr + i + 1;
+        for (; i < line_n; i++) if (ptr[i] == ':') { ptr[i] = '\0'; break; }
+        char *points_str = ptr + i + 1;
+        for (; i < line_n; i++) if (ptr[i] == ':') { ptr[i] = '\0'; break; }
+
+        // TODO(ed): Parse points, and stuff
+#define CHECK_FOR_ERROR(ptr)                                  \
+    do {                                                      \
+        if (ptr == endptr) {                                  \
+            ERR("Failed to parse number in sprite file '%s'", \
+                main_header->file_path);                      \
+            fclose(sprite_file);                              \
+            return;                                           \
+        }                                                     \
+    } while (false);
+
+        char *endptr;
+        u32 num_points = strtol(num, &endptr, 10);
+        CHECK_FOR_ERROR(num);
+        u32 size = sizeof(Vec4) * num_points;
+        Vec4 *points = (Vec4 *) malloc(size);
+        for (u32 p = 0; p < num_points; p++) {
+            char *endptr;
+            Vec4 point;
+            while (isspace(*points_str)) points_str++;
+            points_str += 1; // (
+            for (u32 coord = 0; coord < 4; coord++) {
+                point._[coord] = strtod(points_str, &endptr);
+                CHECK_FOR_ERROR(points_str);
+                points_str = endptr;
+            }
+            points_str += 1; // )
+            points[p] = point;
+        }
+#undef CHECK_FOR_ERROR
+
+        Asset::Header header = header_template;
+        header.file_path = name;
+        header.file_path_length = strlen(name);
+        header.asset_size = sizeof(Asset::Data) + size;
+        Sprite sprite = {
+            Asset::asset_hash(res),
+            num_points,
+            points,
+        };
+        Asset::Data asset = {.sprite = sprite};
+        add_asset_to_file(file, &header, &asset);
+    }
+    fclose(sprite_file);
 }
 
 void load_sound(AssetFile *file, Asset::Header *header) {
@@ -286,7 +351,7 @@ void process_asset(AssetFile *file, const std::string *path) {
         case (Asset::Type::FONT):    load_font(file, &header);    break;
         case (Asset::Type::SOUND):   load_sound(file, &header);   break;
         case (Asset::Type::SHADER):  load_shader(file, &header);  break;
-        case (Asset::Type::ATLAS):   load_atlas(file, &header);   break;
+        case (Asset::Type::SPRITE):  load_sprite(file, &header);  break;
         default:
             printf("!!!! Unhandled asset, unkown type: %s, %d\n", path->c_str(),
                    (int) header.type);
@@ -326,7 +391,6 @@ void make_uppercase(char *str) {
 }
 
 void strip_file_ending(char *str) {
-
     s32 last_dot = -1;
     char *ptr = str;
     for (s32 index = 0; ptr[index]; index++) {
@@ -346,7 +410,7 @@ void append(char *str, const char *postfix) {
 }
 
 char *asset_name_from_file(char *path, Asset::Type type) {
-    u32 start = 3;
+    u32 start = (strncmp(path, "res/", 4) == 0) * 3;
     while (path[start] == '/')
         start++;
     path += start; // Strip leading "res\/*"
@@ -433,6 +497,10 @@ void dump_asset_file(AssetFile *file, const char *out_path) {
                 write_to_file(output_file, &asset);
                 write_to_file(output_file, asset.sound.data, asset.sound.size);
             } break;
+            case (Asset::Type::SPRITE): {
+                write_to_file(output_file, &asset);
+                write_to_file(output_file, asset.sprite.points, asset.sprite.num_points);
+            } break;
             default:
                 printf("UNIMPLEMENTED ASSET TYPE\n");
                 continue;
@@ -464,8 +532,8 @@ int main(int nargs, char **vargs) {
     // Fonts
     valid_endings[".fnt"] = Asset::Type::FONT;
 
-    // Atlas
-    valid_endings[".atl"] = Asset::Type::ATLAS;
+    // Sprite
+    valid_endings[".spr"] = Asset::Type::SPRITE;
 
     // Sound
     valid_endings[".wav"] = Asset::Type::SOUND;

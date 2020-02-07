@@ -36,6 +36,10 @@ Sound *fetch_sound(AssetID id) {
     return &raw_fetch(id, Type::SOUND)->sound;
 }
 
+Sprite *fetch_sprite(AssetID id) {
+    return &raw_fetch(id, Type::SPRITE)->sprite;
+}
+
 template <typename T>
 size_t read_from_file(FILE *stream, void *ptr, size_t num = 1) {
     if (!num) {
@@ -114,6 +118,17 @@ bool load(const char *file_path) {
 
             Renderer::upload_shader(header.asset_id, src);
             Util::pop_memory(src);
+        } break;
+        case Type::SPRITE: {
+            fseek(file, header.offset + sizeof(Data), SEEK_SET);
+            Sprite *sprite = &asset_ptr->sprite;
+            sprite->points = system.arena->push<Vec4>(sprite->num_points);
+            read_from_file<Vec4>(file, sprite->points, sprite->num_points);
+            for (u32 i = 0; i < LEN(_ASSET_HASH_LUT); i++) {
+                if (_ASSET_HASH_LUT[i] == sprite->sprite_sheet) {
+                    sprite->sprite_sheet = i;
+                }
+            }
         } break;
         default:
             ERR("UNKOWN ASSET TYPE %d", header.type);

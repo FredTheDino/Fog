@@ -1,6 +1,5 @@
 #include "../util/types.h"
 
-
 namespace Asset {
 
 ///# Asset System
@@ -25,18 +24,30 @@ namespace Asset {
 // and created by "src/fog_assets.cpp"
 using AssetID = u64;
 
-const u32 ASSET_ID_NO_ASSET = 0xFFFF;
+const AssetID ASSET_ID_NO_ASSET = 0xFFFFFFFF;
+
+}
+
+using AssetID = Asset::AssetID;
+
+struct Sprite {
+    AssetID sprite_sheet;
+    u32 num_points;
+    Vec4 *points; // (dx, dy, u, v)
+};
+
+namespace Asset {
 
 #pragma pack(push, 8) // Standard
 enum class Type {
     NONE,
     TEXTURE,
     FONT,
-    ATLAS,
+    SPRITE,
     SOUND,
     SHADER,
     CONFIG,
-    LEVEL
+    LEVEL,
 };
 
 struct FileHeader {
@@ -111,6 +122,7 @@ struct Data {
         Image image;
         Sound sound;
         char *shader_source;
+        Sprite sprite;
         Font font;
     };
 };
@@ -152,9 +164,15 @@ Font *fetch_font(AssetID id);
 // from it and it's bound to cause headaches.
 Sound *fetch_sound(AssetID id);
 
-};  // namespace Asset
+///*
+// Checks if the passed in "id" is mapped to a sprite,
+// if it is a sprite is returned via pointer. It is
+// not recommended to modify any data received from the
+// asset system, as multiple threads could be reading
+// from it and it's bound to cause headaches.
+Sprite *fetch_sprite(AssetID id);
 
-using AssetID = Asset::AssetID;
+};  // namespace Asset
 
 // The file format:
 //
