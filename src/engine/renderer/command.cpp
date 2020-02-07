@@ -145,3 +145,5 @@ bool is_fullscreen() { return Impl::is_fullscreen; }
 
 }  // namespace Renderer
 
+#include "sprite.cpp"
+

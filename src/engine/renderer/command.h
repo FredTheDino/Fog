@@ -1,3 +1,4 @@
+#include "sprite.h"
 ///# Rendering
 // This section contains all the possible ways to render
 // things. This is is not exsaustive and there are some

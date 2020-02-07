@@ -117,6 +117,17 @@ struct Data {
 
 #pragma pack(pop)
 
+// Hashes a string to a unique identifier that can be
+// used instead of the asset.
+u64 asset_hash(const char *str) {
+    u64 hash = 5351;
+    while (*str) {
+        char c = (*str++);
+        hash = hash * c + c;
+    }
+    return hash % 0x0FFFFFFF;
+}
+
 ///*
 // Checks if the passed in "id" is mapped to an image,
 // if it is an image is returned via pointer. It is
@@ -127,11 +138,19 @@ Image *fetch_image(AssetID id);
 
 ///*
 // Checks if the passed in "id" is mapped to a font,
-// if it is an image is returned via pointer. It is
+// if it is a font is returned via pointer. It is
 // not recommended to modify any data received from the
 // asset system, as multiple threads could be reading
 // from it and it's bound to cause headaches.
 Font *fetch_font(AssetID id);
+
+///*
+// Checks if the passed in "id" is mapped to a sound,
+// if it is a sound is returned via pointer. It is
+// not recommended to modify any data received from the
+// asset system, as multiple threads could be reading
+// from it and it's bound to cause headaches.
+Sound *fetch_sound(AssetID id);
 
 };  // namespace Asset
 
