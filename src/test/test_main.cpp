@@ -29,6 +29,20 @@ void run_tests() {
         PASSING(math_typedef_s64),
         PASSING(math_typedef_u64),
         PASSING(math_typedef_f64),
+        PASSING(math_max),
+        PASSING(math_min),
+        PASSING(math_abs_max),
+        PASSING(math_lerp),
+        PASSING(math_clamp),
+        PASSING(math_sign_no_zero),
+        PASSING(math_sign),
+        PASSING(math_abs),
+        PASSING(math_mod),
+        SKIP(math_eq),
+        PASSING(math_sq),
+
+
+        /*
         PASSING(test_slow_test_false),
         PASSING(test_slow_test_false),
         PASSING(test_slow_test_false),
@@ -44,6 +58,7 @@ void run_tests() {
         FAILING(test_slow_test_true),
         FAILING(test_slow_test_true),
         FAILING(test_slow_test_true),
+        */
     };
     int size = sizeof(tests) / sizeof(UnitTest);
     int passed = 0;  // counts only tests that should pass
@@ -92,15 +107,14 @@ void run_tests() {
     double elapsed = end.tv_nsec >= start.tv_nsec
                         ? (end.tv_nsec - start.tv_nsec) / 1e6 + (end.tv_sec - start.tv_sec) * 1e3
                         : (start.tv_nsec - end.tv_nsec) / 1e6 + (end.tv_sec - start.tv_sec - 1) * 1e3;
-    float percent = 100.0 * passed / (size - skipped);
 
     printf(CLEAR);
     printf(GREEN  "passed:" RESET "                %d\n", passed);
-    printf(RED    "failed:" RESET "                %d\n", failed);
+    printf(RED    "unexpected failures:" RESET "   %d\n", (passed_expected - passed));
     printf(RED    "unexpected successes:" RESET "  %d\n", (failed_expected - failed));
     printf(YELLOW "expected failures:" RESET "     %d\n", failed);
     printf(YELLOW "skipped:" RESET "               %d\n", skipped);
-    printf("%d tests in %.2f ms\n", size, elapsed);
+    printf("%d tests in %.2f ms\n", size - skipped, elapsed);
 }
 
 }  // namespace Test
