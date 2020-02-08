@@ -210,8 +210,6 @@ int main(int argc, char **argv) {
     return 0;
 #endif
 
-    LOG("SHOULD NOT BE HERE");
-
     while (SDL::running) {
         Logic::frame(SDL_GetTicks() / 1000.0f);
 
