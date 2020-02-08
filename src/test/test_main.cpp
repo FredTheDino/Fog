@@ -13,51 +13,51 @@ struct UnitTest {
     bool (* test)();
 };
 
-#define PASSING(func) { STR(func), false, false, func }
-#define FAILING(func) { STR(func), true, false, func }
-#define SKIP(func)    { STR(func), true, true, func }
+#define PASS(func) { STR(func), false, false, func }
+#define FAIL(func) { STR(func), true, false, func }
+#define SKIP(func) { STR(func), true, true, func }
 
 void run_tests() {
     UnitTest tests[] = {
-        PASSING(math_typedef_s8),
-        PASSING(math_typedef_u8),
-        PASSING(math_typedef_s16),
-        PASSING(math_typedef_u16),
-        PASSING(math_typedef_s32),
-        PASSING(math_typedef_u32),
-        PASSING(math_typedef_f32),
-        PASSING(math_typedef_s64),
-        PASSING(math_typedef_u64),
-        PASSING(math_typedef_f64),
-        PASSING(math_max),
-        PASSING(math_min),
-        PASSING(math_abs_max),
-        PASSING(math_lerp),
-        PASSING(math_clamp),
-        PASSING(math_sign_no_zero),
-        PASSING(math_sign),
-        PASSING(math_abs),
-        PASSING(math_mod),
+        PASS(math_typedef_s8),
+        PASS(math_typedef_u8),
+        PASS(math_typedef_s16),
+        PASS(math_typedef_u16),
+        PASS(math_typedef_s32),
+        PASS(math_typedef_u32),
+        PASS(math_typedef_f32),
+        PASS(math_typedef_s64),
+        PASS(math_typedef_u64),
+        PASS(math_typedef_f64),
+        PASS(math_max),
+        PASS(math_min),
+        PASS(math_abs_max),
+        PASS(math_lerp),
+        PASS(math_clamp),
+        PASS(math_sign_no_zero),
+        PASS(math_sign),
+        PASS(math_abs),
+        PASS(math_mod),
         SKIP(math_eq),
-        PASSING(math_sq),
+        PASS(math_sq),
 
 
         /*
-        PASSING(test_slow_test_false),
-        PASSING(test_slow_test_false),
-        PASSING(test_slow_test_false),
-        PASSING(test_slow_test_false),
-        FAILING(test_slow_test_false),
-        FAILING(test_slow_test_false),
-        FAILING(test_slow_test_false),
-        PASSING(test_slow_test_true),
-        PASSING(test_slow_test_true),
-        PASSING(test_slow_test_true),
-        PASSING(test_slow_test_true),
-        FAILING(test_slow_test_true),
-        FAILING(test_slow_test_true),
-        FAILING(test_slow_test_true),
-        FAILING(test_slow_test_true),
+        PASS(test_slow_test_false),
+        PASS(test_slow_test_false),
+        PASS(test_slow_test_false),
+        PASS(test_slow_test_false),
+        FAIL(test_slow_test_false),
+        FAIL(test_slow_test_false),
+        FAIL(test_slow_test_false),
+        PASS(test_slow_test_true),
+        PASS(test_slow_test_true),
+        PASS(test_slow_test_true),
+        PASS(test_slow_test_true),
+        FAIL(test_slow_test_true),
+        FAIL(test_slow_test_true),
+        FAIL(test_slow_test_true),
+        FAIL(test_slow_test_true),
         */
     };
     int size = sizeof(tests) / sizeof(UnitTest);
