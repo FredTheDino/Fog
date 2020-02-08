@@ -1,6 +1,8 @@
 #include <random>
 
 #include "math.cpp"
+#include "logic_callback.cpp"
+
 #include "test_test.cpp"
 
 namespace Test {
@@ -40,7 +42,14 @@ void run_tests() {
         PASS(math_mod),
         SKIP(math_eq),
         PASS(math_sq),
-
+        PASS(logic_callback_add_pre_update),
+        PASS(logic_callback_add_post_update),
+        PASS(logic_callback_add_pre_draw),
+        PASS(logic_callback_add_post_draw),
+        PASS(logic_callback_single_frame),
+        PASS(logic_callback_forever),
+        PASS(logic_callback_remove),
+        PASS(logic_callback_update),
 
         /*
         PASS(test_slow_test_false),
