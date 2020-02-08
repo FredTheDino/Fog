@@ -1,23 +1,13 @@
 #include <random>
 
+#include "test.h"
+
 #include "math.cpp"
 #include "logic_callback.cpp"
 
 #include "test_test.cpp"
 
 namespace Test {
-
-struct UnitTest {
-    const char *name;
-    bool failing;
-    bool skip;
-
-    bool (* test)();
-};
-
-#define PASS(func) { STR(func), false, false, func }
-#define FAIL(func) { STR(func), true, false, func }
-#define SKIP(func) { STR(func), true, true, func }
 
 void run_tests() {
     UnitTest tests[] = {
@@ -42,10 +32,10 @@ void run_tests() {
         PASS(math_mod),
         SKIP(math_eq),
         PASS(math_sq),
-        PASS(logic_callback_add_pre_update),
-        PASS(logic_callback_add_post_update),
-        PASS(logic_callback_add_pre_draw),
-        PASS(logic_callback_add_post_draw),
+        PASS(logic_callback_add_pre_update_once),
+        PASS(logic_callback_add_post_update_once),
+        PASS(logic_callback_add_pre_draw_once),
+        PASS(logic_callback_add_post_draw_once),
         PASS(logic_callback_single_frame),
         PASS(logic_callback_forever),
         PASS(logic_callback_remove),
@@ -95,16 +85,22 @@ void run_tests() {
         printf(CLEAR "\r    %d/%d: " YELLOW " testing " RESET "%s\r", current, size, test.name);
         fflush(stdout);
 
+        Result res = test.test();
+        if (res == FAIL_EXT) {
+            skipped++;
+            printf("    %s fails before actual test\n", test.name);
+            continue;
+        }
         if (test.failing) {
             failed_expected++;
-            if (!test.test()) {
+            if (res == FAIL) {
                 failed++;
             } else {
                 printf("    %s passed even though it shouldn't\n", test.name);
             }
         } else {
             passed_expected++;
-            if (test.test()) {
+            if (res == PASS) {
                 passed++;
             } else {
                 printf("    %s failed even though it shouldn't\n", test.name);
