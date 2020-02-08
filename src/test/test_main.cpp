@@ -53,8 +53,10 @@ void run_tests() {
     int skipped = 0;
     struct timespec start, end;
 
-    // std::random_device rd;  // ensures random seed
-    // std::mt19937 generator(rd());
+    // std::random_device rd;
+    // int seed = rd();
+    // printf("Shuffling with seed %d", seed);
+    // std::mt19937 generator(seed);
     // std::shuffle(std::begin(tests), std::end(tests), generator);
 
     clock_gettime(CLOCK_MONOTONIC, &start);
