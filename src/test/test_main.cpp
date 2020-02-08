@@ -118,11 +118,11 @@ void run_tests() {
                         : (start.tv_nsec - end.tv_nsec) / 1e6 + (end.tv_sec - start.tv_sec - 1) * 1e3;
 
     printf(CLEAR);
-    printf(GREEN  "passed:" RESET "                %d\n", passed);
-    printf(RED    "unexpected failures:" RESET "   %d\n", (passed_expected - passed));
-    printf(RED    "unexpected successes:" RESET "  %d\n", (failed_expected - failed));
-    printf(YELLOW "expected failures:" RESET "     %d\n", failed);
-    printf(YELLOW "skipped:" RESET "               %d\n", skipped);
+    printf(GREEN  "passed:" RESET "               %3d\n", passed);
+    printf(RED    "unexpected failures:" RESET "  %3d\n", (passed_expected - passed));
+    printf(RED    "unexpected successes:" RESET " %3d\n", (failed_expected - failed));
+    printf(YELLOW "expected failures:" RESET "    %3d\n", failed);
+    printf(YELLOW "skipped:" RESET "              %3d\n", skipped);
     printf("%d tests in %.2f ms\n", size - skipped, elapsed);
 }
 
