@@ -137,6 +137,10 @@ bool edit_string(char *text, u32 max_length) {
     return true;
 }
 
+bool using_controller() {
+    return global_mapping.using_controller;
+}
+
 #define BEGIN_BINDINGS_BLOCK                                 \
     if (global_mapping.text_input) return false;               \
     for (u32 p = 0; p < (u32) Player::NUM; p++) {            \
