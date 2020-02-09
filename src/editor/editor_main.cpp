@@ -19,25 +19,83 @@ void draw_outline(Logic::Entity *e, Vec4 color) {
     }
 }
 
-const char *FILE_NAME = "test.ent";
+// Commandline arguments
+// rain [OPTION] .. [FILE]
+//
+// Options:
+// -s, --sprite : Sprite editor <- Default
+// -l, --level : Level editor
+// -?, -h, --help : Show this message
+//
+// File:
+// A file path which is then loaded
 
-void setup() {
+// NOTE(ed): The editors should be swapable between, so
+// don't have unique setup for some and not for the other.
+bool sprite_editor = true;
+const char *path = nullptr;
+
+void setup(int argc, char **argv) {
+
+    // Commandline parsing, sets globalstate
+    for (s32 i = 1; i < argc; i++) {
+        char *val = argv[i];
+        LOG("passed: '%s'", val);
+        if (*val != '-') {
+            if (path) {
+                LOG("Multiple files replacing '%s' with '%s'.", path, argv[i]);
+            }
+            path = argv[i];
+        } else {
+            // Parse flags
+            val++;
+            if (*val == '-') val++;
+            switch (*val) {
+                case 's':
+                case 'S':
+                    sprite_editor = true;
+                    break;
+                case 'l':
+                case 'L':
+                    sprite_editor = false;
+                    break;
+                default:
+                    LOG("Unkown argument '%s', ignoring.", argv[i]);
+            };
+        }
+    }
+
     using namespace Input;
+    // Level editor
     add(K(g), Name::EDIT_MOVE_MODE);
     add(K(b), Name::EDIT_SELECT_BOX);
     add(K(s), Name::EDIT_SCALE_MODE);
     add(K(ESCAPE), Name::EDIT_ABORT);
     add(K(SPACE), Name::EDIT_DO);
-    // start_text_input();
 
     add(K(a), Name::EDIT_SELECT_ALL);
 
-    Renderer::fetch_camera()->zoom = 1.0 / 2.0;
+    // Renderer::fetch_camera()->zoom = 1.0 / 2.0;
 
     global_editor.selected = Util::create_list<Logic::EntityID>(50);
     global_editor.edits = Util::create_list<EditorEdit>(50);
 
-    for (u32 i = 0; i < 3; i++) {
+    // Sprite editor
+    // TODO(ed): Keyboard input
+    add(A(LEFTX, Player::P1), Name::EDIT_MOVE_RIGHT_LEFT);
+    add(A(LEFTY, Player::P1), Name::EDIT_MOVE_UP_DOWN);
+
+
+    if (sprite_editor) {
+        Renderer::fetch_camera()->position = V2(0.5, 0.5);
+
+    } else {
+        // Load a level file
+        FILE *f = fopen(path, "r");
+        if (f) {
+            load_entities(f);
+            fclose(f);
+        }
     }
 }
 
@@ -132,20 +190,8 @@ void set_entity_field(Logic::Entity *e, const char *name, u64 size, void *value)
     ERR("Failed to find field %s", name);
 }
 
-// Main logic
-void update() {
-    static bool first = true;
-    if (first) {
-        FILE *f = fopen(FILE_NAME, "r");
-        if (f) {
-            load_entities(f);
-            fclose(f);
-        }
-        first = false;
-    }
-
-    // if (selected.length == 0)
-    //     current_mode = EditorMode::SELECT_MODE;
+// Logic functions
+void level_editor_update() {
     static EditorMode last_mode = EditorMode::SELECT_MODE;
 
     bool new_state = last_mode != current_mode;
@@ -212,18 +258,44 @@ void update() {
             current_mode = EditorMode::SELECT_MODE;
         }
         if (pressed(Name::EDIT_DO)) {
-            write_entities_to_file(FILE_NAME);
+            write_entities_to_file(path);
             current_mode = EditorMode::SELECT_MODE;
         }
     }
 }
 
-// Main draw
-void draw() {
+void sprite_editor_update() {
+}
+
+void update() {
+    if (sprite_editor)
+        sprite_editor_update();
+    else
+        level_editor_update();
+}
+
+// Draw functions
+void sprite_editor_draw() {
+    Renderer::push_sprite(0, V2(0.5, 0.5), V2(1, 1), 0, Res::TEST, V2(0, 0), V2(1, 1));
+    const Vec4 line_color = V4(1.0, 0.5, 0.0, 1.0);
+    Renderer::push_line(1, V2(0, 0), V2(1, 0), line_color);
+    Renderer::push_line(1, V2(1, 0), V2(1, 1), line_color);
+    Renderer::push_line(1, V2(1, 1), V2(0, 1), line_color);
+    Renderer::push_line(1, V2(0, 1), V2(0, 0), line_color);
+}
+
+void level_editor_draw() {
     using namespace Logic;
     for (u32 i = 0; i < global_editor.selected.length; i++) {
         Entity *e = fetch_entity(global_editor.selected[i]);
         if (e) draw_outline(e);
     }
+}
+
+void draw() {
+    if (sprite_editor)
+        sprite_editor_draw();
+    else
+        level_editor_draw();
 }
 }  // namespace Game

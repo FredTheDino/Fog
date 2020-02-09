@@ -134,11 +134,11 @@ constexpr bool debug_view_is_on() {
 #define SETUP_DEBUG_KEYBINDINGS
 #endif
 
-void setup() {
+void setup(int argc, char **argv) {
 #ifdef FOG_EDITOR
-    Editor::setup();
+    Editor::setup(argc, argv);
 #else
-    Game::setup();
+    Game::setup(argc, argv);
 #endif
 }
 
@@ -172,7 +172,17 @@ int main(int argc, char **argv) {
             index += 3;
             break;
         default:
-            LOG("Invalid argument '%s'", argv[index]);
+            // TODO(ed): The editor wants commandline arguments,
+            // this gets annoying and confusing if both complain...
+            // I'm trying out putting the responsibility on the other
+            // process... You want wanna do some sort of copying, of commands
+            // that isn't handled here, passing them down to the next level.
+            //
+            // It might be smarter to have a centralized place for this,
+            // it would group the functionally together and noone would
+            // accidentally take someones arguments. Needs consideration.
+            //
+            // LOG("Invalid argument '%s'", argv[index]);
             index++;
         }
     }
@@ -198,7 +208,7 @@ int main(int argc, char **argv) {
     Editor::entity_registration();
     Game::entity_registration();
     Logic::frame(SDL_GetTicks() / 1000.0f);
-    setup();
+    setup(argc, argv);
     Util::strict_allocation_check();
     while (SDL::running) {
         Logic::frame(SDL_GetTicks() / 1000.0f);

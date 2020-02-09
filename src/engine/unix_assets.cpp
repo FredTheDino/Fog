@@ -447,7 +447,7 @@ void dump_asset_file(AssetFile *file, const char *out_path) {
         const char *asset_name = asset_name_from_file(header->file_path, header->type);
         printf("\tFound asset: %s -> %s\n", header->file_path,
                asset_name);
-        fprintf(source_file, "    constexpr Asset::AssetID %s = %llu;\n",
+        fprintf(source_file, "constexpr Asset::AssetID %s = %llu;\n",
                 asset_name, i);
         entiries.push_back(asset_name);
         free((void *) asset_name);
@@ -456,6 +456,7 @@ void dump_asset_file(AssetFile *file, const char *out_path) {
         header->file_path = (char *) (string_cur - string_begin);
         string_cur = ftell(output_file);
     }
+    fprintf(source_file, "constexpr u64 NUM_ASSETS = %llu;\n", entiries.size());
 
     fprintf(source_file, "\n// A hashtable for absolute refferences outside\n// the code, used between builds of the engine, don't use these in your\n// game if you can avoid it.\n");
     // Write hashtable

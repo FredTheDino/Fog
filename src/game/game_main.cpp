@@ -1,8 +1,6 @@
 // Tell the engine that this is loaded
 #define FOG_GAME
 
-#include <vector>
-
 namespace Game {
 
 void entity_registration() {}
@@ -10,7 +8,7 @@ void entity_registration() {}
 Physics::ShapeID shape;
 Physics::Body body;
 
-void setup() {
+void setup(int argc, char ** argv) {
     shape = Physics::add_shape_from_sprite(Res::SOME_SPRITE_NAME);
     body = Physics::create_body(shape, 0.0);
     body.offset = V2(-0.5, 0.0);

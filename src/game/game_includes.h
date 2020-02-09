@@ -47,6 +47,15 @@ namespace Input {
         EDIT_MOVE_MODE,
         EDIT_SCALE_MODE,
 
+        EDIT_MOVE_UP,
+        EDIT_MOVE_DOWN,
+        EDIT_MOVE_RIGHT,
+        EDIT_MOVE_LEFT,
+        EDIT_MOVE_UP_DOWN,
+        EDIT_MOVE_RIGHT_LEFT,
+
+        EDIT_NEXT_SPRITE_SHEET,
+
         EDIT_ABORT,
         EDIT_SELECT_ALL,
         EDIT_SELECT_BOX,
