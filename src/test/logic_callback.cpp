@@ -100,14 +100,12 @@ Result logic_callback_forever() {
         i++;
     };
     Logic::LogicID id = Logic::add_callback(Logic::At::PRE_UPDATE, func, 0.0, Logic::FOREVER);
-    Logic::call(Logic::At::PRE_UPDATE);
-    if (i != 1)
-        return FAIL;
-    Logic::call(Logic::At::PRE_UPDATE);
-    if (i != 2)
-        return FAIL;
-    Logic::call(Logic::At::PRE_UPDATE);
-    return i == 3 ? PASS : FAIL;
+    for (int j = 0; j < 100; j++) {
+        if (i != j)
+            return FAIL;
+        Logic::call(Logic::At::PRE_UPDATE);
+    }
+    return PASS;
 }
 
 Result logic_callback_remove() {
