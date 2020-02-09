@@ -116,7 +116,7 @@ void run_tests() {
     printf(RED    "unexpected successes:" RESET " %3d\n", (failed_expected - failed));
     printf(YELLOW "expected failures:" RESET "    %3d\n", failed);
     printf(YELLOW "skipped:" RESET "              %3d\n", skipped);
-    printf("%d tests in %.2f ms\n", size - skipped, (elapsed.count() / 1000.0));
+    printf("%d tests in %.2f ms\n", size - skipped, (elapsed.count() / 1e6));
 }
 
 }  // namespace Test
