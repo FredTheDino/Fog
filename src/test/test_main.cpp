@@ -1,3 +1,4 @@
+#include <chrono>
 #include <random>
 
 #include "test.h"
@@ -65,7 +66,6 @@ void run_tests() {
     int passed_expected = 0;
     int failed_expected = 0;
     int skipped = 0;
-    struct timespec start, end;
 
     // std::random_device rd;
     // int seed = rd();
@@ -73,22 +73,22 @@ void run_tests() {
     // std::mt19937 generator(seed);
     // std::shuffle(std::begin(tests), std::end(tests), generator);
 
-    clock_gettime(CLOCK_MONOTONIC, &start);
+    auto start = std::chrono::steady_clock::now();
     int current = 0;
     for (UnitTest test: tests) {
         current++;
         if (test.skip) {
             skipped++;
-            printf(CLEAR "\r" YELLOW "    skipping " RESET "%s\n", test.name);
+            printf(CLEAR "\r" YELLOW "  skipping " RESET "%s\n", test.name);
             continue;
         }
-        printf(CLEAR "\r    %d/%d: " YELLOW " testing " RESET "%s\r", current, size, test.name);
+        printf(CLEAR "\r  %d/%d: " YELLOW " testing " RESET "%s\r", current, size, test.name);
         fflush(stdout);
 
         Result res = test.test();
         if (res == FAIL_EXT) {
             skipped++;
-            printf("    %s fails before actual test\n", test.name);
+            printf("  %s fails before actual test\n", test.name);
             continue;
         }
         if (test.failing) {
@@ -96,22 +96,19 @@ void run_tests() {
             if (res == FAIL) {
                 failed++;
             } else {
-                printf("    %s passed even though it shouldn't\n", test.name);
+                printf("  %s passed even though it shouldn't\n", test.name);
             }
         } else {
             passed_expected++;
             if (res == PASS) {
                 passed++;
             } else {
-                printf("    %s failed even though it shouldn't\n", test.name);
+                printf("  %s failed even though it shouldn't\n", test.name);
             }
         }
     }
-    clock_gettime(CLOCK_MONOTONIC, &end);
-    // https://stackoverflow.com/a/49235959
-    double elapsed = end.tv_nsec >= start.tv_nsec
-                        ? (end.tv_nsec - start.tv_nsec) / 1e6 + (end.tv_sec - start.tv_sec) * 1e3
-                        : (start.tv_nsec - end.tv_nsec) / 1e6 + (end.tv_sec - start.tv_sec - 1) * 1e3;
+    auto end = std::chrono::steady_clock::now();
+    std::chrono::nanoseconds elapsed = end - start;
 
     printf(CLEAR);
     printf(GREEN  "passed:" RESET "               %3d\n", passed);
@@ -119,7 +116,7 @@ void run_tests() {
     printf(RED    "unexpected successes:" RESET " %3d\n", (failed_expected - failed));
     printf(YELLOW "expected failures:" RESET "    %3d\n", failed);
     printf(YELLOW "skipped:" RESET "              %3d\n", skipped);
-    printf("%d tests in %.2f ms\n", size - skipped, elapsed);
+    printf("%d tests in %.2f ms\n", size - skipped, (elapsed.count() / 1000.0));
 }
 
 }  // namespace Test
