@@ -265,6 +265,17 @@ void level_editor_update() {
 }
 
 void sprite_editor_update() {
+    using namespace Input;
+    const f32 speed = Renderer::fetch_camera(0)->zoom * Logic::delta();
+    f32 move_x = value(Name::EDIT_MOVE_RIGHT_LEFT);
+    move_x += value(Name::EDIT_MOVE_RIGHT);
+    move_x -= value(Name::EDIT_MOVE_LEFT);
+
+    f32 move_y = value(Name::EDIT_MOVE_UP_DOWN);
+    move_y += value(Name::EDIT_MOVE_UP);
+    move_y -= value(Name::EDIT_MOVE_DOWN);
+
+    Renderer::fetch_camera(0)->position += V2(move_x, move_y) * speed;
 }
 
 void update() {
