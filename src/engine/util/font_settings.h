@@ -1,5 +1,5 @@
 namespace Util {
-    const AssetID DEBUG_FONT = ASSET_MONACO_FONT;
+    const AssetID DEBUG_FONT = Res::MONACO_FONT;
     const f32 DEBUG_EDGE = 0.20;
     const Vec4 DEBUG_COLORS[] = {
         V4(1, 1, 1, 1),

@@ -11,7 +11,7 @@ Physics::ShapeID shape;
 Physics::Body body;
 
 void setup() {
-    shape = Physics::add_shape_from_sprite(ASSET_SOME_SPRITE_NAME);
+    shape = Physics::add_shape_from_sprite(Res::SOME_SPRITE_NAME);
     body = Physics::create_body(shape, 0.0);
     body.offset = V2(-0.5, 0.0);
 }
@@ -25,7 +25,7 @@ void draw() {
     Util::tweak("rotation", &rotation);
     body.rotation = rotation;
     Physics::debug_draw_body(&body);
-    Renderer::push_sprite_ex(0, Asset::fetch_sprite(ASSET_SOME_SPRITE_NAME), V2(0, 0),
+    Renderer::push_sprite_ex(0, Asset::fetch_sprite(Res::SOME_SPRITE_NAME), V2(0, 0),
                    V2(1, 1), rotation);
 }
 

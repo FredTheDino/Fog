@@ -124,8 +124,8 @@ bool load(const char *file_path) {
             Sprite *sprite = &asset_ptr->sprite;
             sprite->points = system.arena->push<Vec4>(sprite->num_points);
             read_from_file<Vec4>(file, sprite->points, sprite->num_points);
-            for (u32 i = 0; i < LEN(_ASSET_HASH_LUT); i++) {
-                if (_ASSET_HASH_LUT[i] == sprite->sprite_sheet) {
+            for (u32 i = 0; i < LEN(Res::HASH_LUT); i++) {
+                if (Res::HASH_LUT[i] == sprite->sprite_sheet) {
                     sprite->sprite_sheet = i;
                 }
             }

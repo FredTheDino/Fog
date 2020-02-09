@@ -441,12 +441,13 @@ void dump_asset_file(AssetFile *file, const char *out_path) {
     u64 string_begin = ftell(output_file);
     u64 string_cur = string_begin;
     // Write assets
+    fprintf(source_file, "namespace Res {\n");
     for (u64 i = 0; i < file->asset_headers.size(); i++) {
         auto *header = &file->asset_headers[i];
         const char *asset_name = asset_name_from_file(header->file_path, header->type);
         printf("\tFound asset: %s -> %s\n", header->file_path,
                asset_name);
-        fprintf(source_file, "constexpr Asset::AssetID ASSET_%s = %llu;\n",
+        fprintf(source_file, "    constexpr Asset::AssetID %s = %llu;\n",
                 asset_name, i);
         entiries.push_back(asset_name);
         free((void *) asset_name);
@@ -459,14 +460,15 @@ void dump_asset_file(AssetFile *file, const char *out_path) {
     fprintf(source_file, "\n// A hashtable for absolute refferences outside\n// the code, used between builds of the engine, don't use these in your\n// game if you can avoid it.\n");
     // Write hashtable
     std::unordered_set<u64> collisions;
-    fprintf(source_file, "constexpr u32 _ASSET_HASH_LUT[] = {\n");
+    fprintf(source_file, "constexpr u64 HASH_LUT[] = {\n");
     for (u64 i = 0; i < entiries.size(); i++) {
         const char *c = entiries[i].c_str();
         u64 hash = Asset::asset_hash(c);
         ASSERT(collisions.count(hash) == 0, "Collision in asset system, update the hash function. (asset_hash)");
-        fprintf(source_file, "    [ASSET_%s] = %llu,\n", c, hash);
+        fprintf(source_file, "    [%s] = %llu,\n", c, hash);
     }
     fprintf(source_file, "};");
+    fprintf(source_file, "} // Namespace Res\n");
     fclose(source_file);
     assert(string_cur - string_begin == file->header.size_of_strings);
 
