@@ -28,8 +28,8 @@ static Program compile_shader_program_from_source(const char *source) {
         "#define VERT\n",
         "struct Camera\n"
         "{\n"
-        "    vec2  offset;\n"
         "    vec2  pos;\n"
+        "    vec2  offset;\n"
         "    float zoom;\n"
         "    float aspect_ratio;\n"
         "};"
@@ -366,7 +366,7 @@ bool init(const char *title, int width, int height) {
         sprite_render_queues[i].create(512);
     }
     font_render_queue.create(256);
-    
+
     // Initalize texture indicies
     for (u32 i = 0; i < OPENGL_NUM_CAMERAS; i++)
         _fog_texture_indicies[i] = i;

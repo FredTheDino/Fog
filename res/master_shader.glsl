@@ -13,7 +13,7 @@ out vec4 pass_color;
 void main() {
     Camera camera = cam[current_cam];
     vec2 cam_scale = vec2(camera.zoom, camera.zoom / camera.aspect_ratio);
-    vec2 world_pos = (pos - camera.pos + camera.offset) * cam_scale;
+    vec2 world_pos = (pos - camera.pos - camera.offset) * cam_scale;
     gl_Position = vec4(world_pos, 0.0, 1.0);
     pass_uv = vec3(uv, sprite);
     pass_color = color;
