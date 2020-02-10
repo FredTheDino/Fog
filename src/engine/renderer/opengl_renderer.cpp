@@ -28,8 +28,8 @@ static Program compile_shader_program_from_source(const char *source) {
         "#define VERT\n",
         "struct Camera\n"
         "{\n"
-        "    vec2  offset;\n"
         "    vec2  pos;\n"
+        "    vec2  offset;\n"
         "    float zoom;\n"
         "    float aspect_ratio;\n"
         "};"
