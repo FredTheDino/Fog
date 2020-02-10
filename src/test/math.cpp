@@ -46,6 +46,21 @@ Result math_lerp() {
         ? PASS : FAIL;
 }
 
+Result math_lerp_vec2() {
+    return LERP(V2(0, 0), 0.5, V2(1, 1)) == V2(0.5, 0.5)
+        ? PASS : FAIL;
+}
+
+Result math_lerp_vec3() {
+    return LERP(V3(0, 1, 2), 0.75, V3(4, 5, 6)) == V3(3, 4, 5)
+        ? PASS : FAIL;
+}
+
+Result math_lerp_vec4() {
+    return LERP(V4(0, 1, 2, 3), 0.5, V4(4, 5, 6, 7)) == V4(2, 3, 4, 5)
+        ? PASS : FAIL;
+}
+
 Result math_clamp() {
     return CLAMP(0, 1, 2) == 1
         && CLAMP(-1, 0, 1) == 0
