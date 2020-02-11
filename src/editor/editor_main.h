@@ -153,6 +153,7 @@ EditorEdit::BinaryBlob _copy_field(void *field, u8 size) {
 struct EditorState {
     Util::List<Logic::EntityID> selected;
     Util::List<EditorEdit> edits;
+    Util::List<Vec4> sprite_points;
 
     union {
         f32 delta_f32;

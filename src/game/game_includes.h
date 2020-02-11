@@ -53,6 +53,8 @@ namespace Input {
         EDIT_MOVE_LEFT,
         EDIT_MOVE_UP_DOWN,
         EDIT_MOVE_RIGHT_LEFT,
+        EDIT_ZOOM_IN_OUT,
+        EDIT_PLACE,
 
         EDIT_NEXT_SPRITE_SHEET,
 

@@ -84,11 +84,13 @@ void setup(int argc, char **argv) {
     // TODO(ed): Keyboard input
     add(A(LEFTX, Player::P1), Name::EDIT_MOVE_RIGHT_LEFT);
     add(A(LEFTY, Player::P1), Name::EDIT_MOVE_UP_DOWN);
+    add(A(RIGHTY, Player::P1), Name::EDIT_ZOOM_IN_OUT);
+    add(B(B, Player::P1), Name::EDIT_PLACE);
+    global_editor.sprite_points = Util::create_list<Vec4>(10);
 
 
     if (sprite_editor) {
         Renderer::fetch_camera()->position = V2(0.5, 0.5);
-
     } else {
         // Load a level file
         FILE *f = fopen(path, "r");
@@ -265,8 +267,8 @@ void level_editor_update() {
 }
 
 void sprite_editor_update() {
+    f32 delta = Logic::delta();
     using namespace Input;
-    const f32 speed = Renderer::fetch_camera(0)->zoom * Logic::delta();
     f32 move_x = value(Name::EDIT_MOVE_RIGHT_LEFT);
     move_x += value(Name::EDIT_MOVE_RIGHT);
     move_x -= value(Name::EDIT_MOVE_LEFT);
@@ -275,7 +277,34 @@ void sprite_editor_update() {
     move_y += value(Name::EDIT_MOVE_UP);
     move_y -= value(Name::EDIT_MOVE_DOWN);
 
+    f32 zoom = (1.0 + value(Name::EDIT_ZOOM_IN_OUT) * delta);
+    Renderer::fetch_camera(0)->zoom *= zoom;
+    const f32 speed = delta / Renderer::fetch_camera(0)->zoom;
+
     Renderer::fetch_camera(0)->position += V2(move_x, move_y) * speed;
+    Vec2 cursor = Renderer::fetch_camera(0)->position;
+
+    if (pressed(Name::EDIT_SELECT)) {
+
+    }
+
+    if (pressed(Name::EDIT_PLACE)) {
+        Vec2 point = cursor;
+        u32 best_index = 0;
+        f32 best_dist = 1000;
+        u32 num_points = global_editor.sprite_points.length;
+        for (u32 i = 0; i < num_points; i++) {
+            Vec2 prev = V2(global_editor.sprite_points[i]);
+            Vec2 next = V2(global_editor.sprite_points[(i + 1) % num_points]);
+            f32 new_path = length(prev - point) + length(next - point);
+            f32 change = new_path;
+            if (change < best_dist) {
+                best_index = (i + 1) % num_points;
+                best_dist = change;
+            }
+        }
+        global_editor.sprite_points.insert(best_index, V4(point.x, point.y, point.x, point.y));
+    }
 }
 
 void update() {
@@ -287,12 +316,20 @@ void update() {
 
 // Draw functions
 void sprite_editor_draw() {
+    // TODO(ed): This should be a sprite
     Renderer::push_sprite(0, V2(0.5, 0.5), V2(1, 1), 0, Res::TEST, V2(0, 0), V2(1, 1));
     const Vec4 line_color = V4(1.0, 0.5, 0.0, 1.0);
     Renderer::push_line(1, V2(0, 0), V2(1, 0), line_color);
     Renderer::push_line(1, V2(1, 0), V2(1, 1), line_color);
     Renderer::push_line(1, V2(1, 1), V2(0, 1), line_color);
     Renderer::push_line(1, V2(0, 1), V2(0, 0), line_color);
+
+    const Vec4 shape_color = V4(0.0, 0.5, 1.0, 1.0);
+    for (u32 i = 1; i <= global_editor.sprite_points.length; i++) {
+        Vec4 curr = global_editor.sprite_points[i % global_editor.sprite_points.length];
+        Vec4 next = global_editor.sprite_points[(i + 1) % global_editor.sprite_points.length];
+        Renderer::push_line(2, V2(next), V2(curr), shape_color);
+    }
 }
 
 void level_editor_draw() {
