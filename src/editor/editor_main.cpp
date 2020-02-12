@@ -86,6 +86,8 @@ void setup(int argc, char **argv) {
     add(A(LEFTY, Player::P1), Name::EDIT_MOVE_UP_DOWN);
     add(A(RIGHTY, Player::P1), Name::EDIT_ZOOM_IN_OUT);
     add(B(B, Player::P1), Name::EDIT_PLACE);
+    add(B(LEFTSHOULDER, Player::P1), Name::TWEAK_STEP);
+    add(B(RIGHTSHOULDER, Player::P1), Name::TWEAK_SMOOTH);
     global_editor.sprite_points = Util::create_list<Vec4>(10);
 
 
@@ -280,16 +282,38 @@ void sprite_editor_update() {
     f32 zoom = (1.0 + value(Name::EDIT_ZOOM_IN_OUT) * delta);
     Renderer::fetch_camera(0)->zoom *= zoom;
     const f32 speed = delta / Renderer::fetch_camera(0)->zoom;
+    static Vec2 cursor = V2(0.5, 0.5);
 
-    Renderer::fetch_camera(0)->position += V2(move_x, move_y) * speed;
-    Vec2 cursor = Renderer::fetch_camera(0)->position;
+    if (down(Name::TWEAK_STEP)) {
+        static float step_timer = 0.0;
+        const f32 big_snap = 1.0 / 64.0;
+        const f32 smal_snap = 1.0 / 16.0;
+        const f32 movement_scale = (down(Name::TWEAK_SMOOTH) ? big_snap : smal_snap);
+        for (u32 i = 0; i <= 1.0 / movement_scale; i++) {
+            Renderer::push_line(5, V2(i * movement_scale, 0.0), V2(i * movement_scale, 1.0), V4(1, 0, 1, 0.4));
+            Renderer::push_line(5, V2(0.0, i * movement_scale), V2(1.0, i * movement_scale), V4(1, 0, 1, 0.4));
+        }
+        step_timer += delta;
+        if (step_timer > 0.1) {
+            if (ABS(move_x) > 0.3)
+                cursor.x += SIGN(move_x) * movement_scale * 1.1;
+            if (ABS(move_y) > 0.3)
+                cursor.y += SIGN(move_y) * movement_scale * 1.1;
+            step_timer = 0.0;
+        }
+        Util::precise_snap(&cursor.x, movement_scale, movement_scale);
+        Util::precise_snap(&cursor.y, movement_scale, movement_scale);
+    } else {
+        cursor += V2(move_x, move_y) * speed;
+    }
+    Vec2 point = cursor;
+    Renderer::push_point(10, point, V4(0.0, 1.0, 0.0, 1.0));
 
     if (pressed(Name::EDIT_SELECT)) {
 
     }
 
     if (pressed(Name::EDIT_PLACE)) {
-        Vec2 point = cursor;
         u32 best_index = 0;
         f32 best_dist = 1000;
         u32 num_points = global_editor.sprite_points.length;
@@ -324,11 +348,13 @@ void sprite_editor_draw() {
     Renderer::push_line(1, V2(1, 1), V2(0, 1), line_color);
     Renderer::push_line(1, V2(0, 1), V2(0, 0), line_color);
 
-    const Vec4 shape_color = V4(0.0, 0.5, 1.0, 1.0);
+    const Vec4 shape_color = V4(0.0, 0.5, 1.0, 0.5);
+    const Vec4 point_color = V4(1.0, 0.5, 0.0, 0.75);
     for (u32 i = 1; i <= global_editor.sprite_points.length; i++) {
         Vec4 curr = global_editor.sprite_points[i % global_editor.sprite_points.length];
         Vec4 next = global_editor.sprite_points[(i + 1) % global_editor.sprite_points.length];
         Renderer::push_line(2, V2(next), V2(curr), shape_color);
+        Renderer::push_point(3, V2(curr), point_color, 0.03);
     }
 }
 

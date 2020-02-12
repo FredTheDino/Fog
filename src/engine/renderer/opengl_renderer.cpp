@@ -380,7 +380,7 @@ bool init(const char *title, int width, int height) {
     create_frame_buffers(width, height);
 
     glEnable(GL_BLEND);
-    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glGenTextures(1, &sprite_texture_array);
     glBindTexture(GL_TEXTURE_2D_ARRAY, sprite_texture_array);
