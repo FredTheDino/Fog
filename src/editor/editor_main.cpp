@@ -86,6 +86,8 @@ void setup(int argc, char **argv) {
     add(A(LEFTY, Player::P1), Name::EDIT_MOVE_UP_DOWN);
     add(A(RIGHTY, Player::P1), Name::EDIT_ZOOM_IN_OUT);
     add(B(B, Player::P1), Name::EDIT_PLACE);
+    add(B(A, Player::P1), Name::EDIT_SELECT);
+    add(B(Y, Player::P1), Name::EDIT_REMOVE);
     add(B(LEFTSHOULDER, Player::P1), Name::TWEAK_STEP);
     add(B(RIGHTSHOULDER, Player::P1), Name::TWEAK_SMOOTH);
     global_editor.sprite_points = Util::create_list<Vec4>(10);
@@ -287,7 +289,7 @@ void sprite_editor_update() {
     if (down(Name::TWEAK_STEP)) {
         static float step_timer = 0.0;
         const f32 big_snap = 1.0 / 64.0;
-        const f32 smal_snap = 1.0 / 16.0;
+        const f32 smal_snap = 1.0 / 32.0;
         const f32 movement_scale = (down(Name::TWEAK_SMOOTH) ? big_snap : smal_snap);
         for (u32 i = 0; i <= 1.0 / movement_scale; i++) {
             Renderer::push_line(5, V2(i * movement_scale, 0.0), V2(i * movement_scale, 1.0), V4(1, 0, 1, 0.4));
@@ -309,12 +311,41 @@ void sprite_editor_update() {
     Vec2 point = cursor;
     Renderer::push_point(10, point, V4(0.0, 1.0, 0.0, 1.0));
 
-    if (pressed(Name::EDIT_SELECT)) {
+    // TODO(ed): Highlight closest point
+    if (down(Name::EDIT_SELECT)) {
+        s32 best_index = -1;
+        f32 best_dist = 0.2; // TODO(ed): Base this on zoom
+        u32 num_points = global_editor.sprite_points.length;
+        for (u32 i = 0; i < num_points; i++) {
+            f32 dist = length(point - V2(global_editor.sprite_points[i]));
+            if (dist < best_dist) {
+                best_index = i;
+                best_dist = dist;
+            }
+        }
+        if (best_index >= 0) {
+            global_editor.sprite_points[best_index] = V4(point.x, point.y, point.x, point.y);
+        }
+    }
 
+    if (pressed(Name::EDIT_REMOVE)) {
+        s32 best_index = -1;
+        f32 best_dist = 0.2; // TODO(ed): Base this on zoom
+        u32 num_points = global_editor.sprite_points.length;
+        for (u32 i = 0; i < num_points; i++) {
+            f32 dist = length(point - V2(global_editor.sprite_points[i]));
+            if (dist < best_dist) {
+                best_index = i;
+                best_dist = dist;
+            }
+        }
+        if (best_index >= 0) {
+            global_editor.sprite_points.remove_fast(best_index);
+        }
     }
 
     if (pressed(Name::EDIT_PLACE)) {
-        u32 best_index = 0;
+        s32 best_index = 0;
         f32 best_dist = 1000;
         u32 num_points = global_editor.sprite_points.length;
         for (u32 i = 0; i < num_points; i++) {

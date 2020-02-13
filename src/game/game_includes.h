@@ -57,6 +57,7 @@ namespace Input {
 
         EDIT_PLACE,
         EDIT_SELECT,
+        EDIT_REMOVE,
 
         EDIT_NEXT_SPRITE_SHEET,
 
