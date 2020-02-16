@@ -91,9 +91,12 @@ void add_asset_to_file(AssetFile *file, Asset::Header *header, Asset::Data *asse
     assert(file->asset_headers.size() == file->assets.size());
 }
 
-void load_texture(AssetFile *file, Asset::Header *header) {
+void load_texture(AssetFile *file, Asset::Header *header, bool flip=true) {
     static u16 id = 0;
     int w, h, c;
+    // NOTE(ed): Kinda a ugly hack, the sprite atlases aren't flipped, but the
+    // normal sprites are.
+    stbi_set_flip_vertically_on_load(flip);
     u8 *buffer = stbi_load(header->file_path, &w, &h, &c, 0);
     if (w > 512 || h > 512) {
         printf("Cannot load %s, because it is too large.\n", header->file_path);
@@ -132,7 +135,7 @@ void load_font(AssetFile *file, Asset::Header *header) {
         sdf_header.file_path[header->file_path_length - 2] = 'f';
         sdf_header.file_path[header->file_path_length - 3] = 'd';
         sdf_header.file_path[header->file_path_length - 4] = 's';
-        load_texture(file, &sdf_header);
+        load_texture(file, &sdf_header, false);
         assert(sdf_header.asset_id != 0xFFFFFFF);
         font.texture = file->assets[sdf_header.asset_id].image.id;
     }

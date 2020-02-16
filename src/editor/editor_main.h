@@ -153,8 +153,15 @@ EditorEdit::BinaryBlob _copy_field(void *field, u8 size) {
 struct EditorState {
     Util::List<Logic::EntityID> selected;
     Util::List<EditorEdit> edits;
+
+
     Util::List<Vec4> sprite_points;
     Vec2 cursor;
+    f32 orig_worst_best_distance = 0.2;
+    // Calculated after zoom.
+    f32 worst_best_distance;
+    f32 snapping_scale = 1.0;
+    f32 snapping_scale_step = 1.0 / 4.0;
 
     union {
         f32 delta_f32;

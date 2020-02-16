@@ -54,6 +54,8 @@ namespace Input {
         EDIT_MOVE_UP_DOWN,
         EDIT_MOVE_RIGHT_LEFT,
         EDIT_ZOOM_IN_OUT,
+        EDIT_SNAP_SMALLER,
+        EDIT_SNAP_LARGER,
 
         EDIT_PLACE,
         EDIT_SELECT,
