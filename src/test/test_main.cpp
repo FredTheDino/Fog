@@ -123,6 +123,7 @@ void run_tests() {
     printf(YELLOW "expected failures:" RESET "    %3d\n", failed);
     printf(YELLOW "skipped:" RESET "              %3d\n", skipped);
     printf("%d tests in %.2f ms\n", size - skipped, (elapsed.count() / 1e6));
+    printf("%d illegal allocations\n", Util::num_errors);
 }
 
 }  // namespace Test

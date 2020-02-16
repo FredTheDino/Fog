@@ -6,6 +6,7 @@ namespace Util {
 //
 static const u32 FRAME_LAG_FOR_MEMORY = 2;
 static u32 CURRENT_MEMORY = 0;
+static u32 num_errors = 0;
 static MemoryArena *FRAME_MEMORY[FRAME_LAG_FOR_MEMORY];
 
 enum class MemoryAllocationState {
@@ -29,8 +30,8 @@ static MemoryAllocationState _fog_mem_alloc_state = MemoryAllocationState::NO_RU
     } while (false);
 
 void _fog_illegal_allocation() {
-    static u32 num_errors = 0;
     num_errors++;
+#ifndef RUN_TESTS
     ERR("\n!!!!\n!!!!\n!!!!\n!!!!\n"
         "!!!! Num times this error has happened: %d\n"
         "!!!! Trying to allocate memory outside the main loop.\n"
@@ -40,6 +41,7 @@ void _fog_illegal_allocation() {
         "!!!! https://www.xkcd.com/1495/\n"
         "!!!!\n!!!!\n!!!!\n!!!!\n!!!!\n"
         ,num_errors);
+#endif
 }
 
 void allow_allocation() {
