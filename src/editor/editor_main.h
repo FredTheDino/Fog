@@ -155,15 +155,19 @@ struct EditorState {
     Util::List<Logic::EntityID> selected;
     Util::List<EditorEdit> edits;
 
-    Util::List<Vec4> sprite_points;
-    AssetID sprite_sheet;
+    struct Sprite {
+        Util::List<Vec2> points;
+        AssetID sheet;
+        char name[MAX_TEXT_LENGTH];
+    };
+    Sprite current_sprite;
+
     Vec2 cursor;
     f32 orig_worst_best_distance = 0.2;
     // Calculated after zoom.
     f32 worst_best_distance;
     f32 snapping_scale = 1.0;
     f32 snapping_scale_step = 1.0 / 4.0;
-    char text[MAX_TEXT_LENGTH + 1] = {};
 
     union {
         f32 delta_f32;

@@ -273,12 +273,14 @@ void load_sprite(AssetFile *file, Asset::Header *main_header) {
         }
 #undef CHECK_FOR_ERROR
 
+        u32 resource_hash = res[0] == '#' ? atoi(res + 1): Asset::asset_hash(res);
+
         Asset::Header header = header_template;
         header.file_path = name;
         header.file_path_length = strlen(name);
         header.asset_size = sizeof(Asset::Data) + size;
         Sprite sprite = {
-            Asset::asset_hash(res),
+            resource_hash,
             num_points,
             points,
         };
