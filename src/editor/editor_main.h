@@ -154,6 +154,7 @@ struct EditorState {
     Util::List<Logic::EntityID> selected;
     Util::List<EditorEdit> edits;
     Util::List<Vec4> sprite_points;
+    Vec2 cursor;
 
     union {
         f32 delta_f32;

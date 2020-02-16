@@ -114,6 +114,8 @@ real length_squared(Vec2 a) { return a.x * a.x + a.y * a.y; }
 
 real length(Vec2 a) { return sqrt(length_squared(a)); }
 
+real distance(Vec2 a, Vec2 b) { return length(a - b); }
+
 Vec2 normalize(Vec2 a) {
     // This can be faster if the length is close to one.
     return a / length(a);

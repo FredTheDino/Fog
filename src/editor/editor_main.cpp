@@ -90,7 +90,10 @@ void setup(int argc, char **argv) {
     add(B(Y, Player::P1), Name::EDIT_REMOVE);
     add(B(LEFTSHOULDER, Player::P1), Name::TWEAK_STEP);
     add(B(RIGHTSHOULDER, Player::P1), Name::TWEAK_SMOOTH);
+
+
     global_editor.sprite_points = Util::create_list<Vec4>(10);
+    global_editor.cursor = V2(0.5, 0.5);
 
 
     if (sprite_editor) {
@@ -284,7 +287,7 @@ void sprite_editor_update() {
     f32 zoom = (1.0 + value(Name::EDIT_ZOOM_IN_OUT) * delta);
     Renderer::fetch_camera(0)->zoom *= zoom;
     const f32 speed = delta / Renderer::fetch_camera(0)->zoom;
-    static Vec2 cursor = V2(0.5, 0.5);
+    Vec2 cursor = global_editor.cursor;
 
     if (down(Name::TWEAK_STEP)) {
         static float step_timer = 0.0;
@@ -308,13 +311,17 @@ void sprite_editor_update() {
     } else {
         cursor += V2(move_x, move_y) * speed;
     }
+    cursor = V2(CLAMP(-0.1, 1.1, cursor.x), CLAMP(-0.1, 1.1, cursor.y));
     Vec2 point = cursor;
+    global_editor.cursor = cursor;
     Renderer::push_point(10, point, V4(0.0, 1.0, 0.0, 1.0));
 
+#define WORST_BEST_DIST 0.2;
+    // TODO(ed): Exporting sprites, and multiple sprites
     // TODO(ed): Highlight closest point
     if (down(Name::EDIT_SELECT)) {
         s32 best_index = -1;
-        f32 best_dist = 0.2; // TODO(ed): Base this on zoom
+        f32 best_dist = WORST_BEST_DIST; // TODO(ed): Base this on zoom
         u32 num_points = global_editor.sprite_points.length;
         for (u32 i = 0; i < num_points; i++) {
             f32 dist = length(point - V2(global_editor.sprite_points[i]));
@@ -330,7 +337,7 @@ void sprite_editor_update() {
 
     if (pressed(Name::EDIT_REMOVE)) {
         s32 best_index = -1;
-        f32 best_dist = 0.2; // TODO(ed): Base this on zoom
+        f32 best_dist = WORST_BEST_DIST; // TODO(ed): Base this on zoom
         u32 num_points = global_editor.sprite_points.length;
         for (u32 i = 0; i < num_points; i++) {
             f32 dist = length(point - V2(global_editor.sprite_points[i]));
@@ -381,11 +388,29 @@ void sprite_editor_draw() {
 
     const Vec4 shape_color = V4(0.0, 0.5, 1.0, 0.5);
     const Vec4 point_color = V4(1.0, 0.5, 0.0, 0.75);
-    for (u32 i = 1; i <= global_editor.sprite_points.length; i++) {
-        Vec4 curr = global_editor.sprite_points[i % global_editor.sprite_points.length];
+    const Vec4 closest_point_color = V4(0.0, 0.5, 1.0, 0.75);
+
+    s32 closest = -1;
+    f32 dist = WORST_BEST_DIST;
+    Vec2 point = global_editor.cursor;
+
+    for (s32 i = 0; i < global_editor.sprite_points.length; i++) {
+        Vec4 curr = global_editor.sprite_points[i];
         Vec4 next = global_editor.sprite_points[(i + 1) % global_editor.sprite_points.length];
         Renderer::push_line(2, V2(next), V2(curr), shape_color);
-        Renderer::push_point(3, V2(curr), point_color, 0.03);
+
+        if (distance(point, V2(curr)) < dist) {
+            closest = i;
+            dist = distance(point, V2(curr));
+        }
+    }
+
+    for (s32 i = 0; i < global_editor.sprite_points.length; i++) {
+        Vec2 curr = V2(global_editor.sprite_points[i]);
+        if (closest == i)
+            Renderer::push_point(3, curr, closest_point_color, 0.03);
+        else
+            Renderer::push_point(3, curr, point_color, 0.03);
     }
 }
 
