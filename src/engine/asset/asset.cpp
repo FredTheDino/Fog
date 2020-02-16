@@ -40,6 +40,11 @@ Sprite *fetch_sprite(AssetID id) {
     return &raw_fetch(id, Type::SPRITE)->sprite;
 }
 
+bool asset_of_type(AssetID id, Type type) {
+    if (system.file_header.number_of_assets < id) return false;
+    return type == Type::NONE || system.headers[id].type == type;
+}
+
 template <typename T>
 size_t read_from_file(FILE *stream, void *ptr, size_t num = 1) {
     if (!num) {

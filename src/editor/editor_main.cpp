@@ -35,6 +35,15 @@ void draw_outline(Logic::Entity *e, Vec4 color) {
 bool sprite_editor = true;
 const char *path = nullptr;
 
+AssetID find_next_sheet(AssetID start=0, int dir=1) {
+    for (u32 i = 1; i < Res::NUM_ASSETS; i++) {
+        AssetID curr = (start + i * dir) % Res::NUM_ASSETS;
+        if (Asset::asset_of_type(curr, Asset::Type::TEXTURE))
+            return curr;
+    }
+    return Asset::ASSET_ID_NO_ASSET;
+}
+
 void setup(int argc, char **argv) {
 
     // Commandline parsing, sets globalstate
@@ -89,13 +98,15 @@ void setup(int argc, char **argv) {
     add(B(A, Player::P1), Name::EDIT_SELECT);
     add(B(Y, Player::P1), Name::EDIT_REMOVE);
     add(B(LEFTSHOULDER, Player::P1), Name::TWEAK_STEP);
-    add(B(DPAD_LEFT, Player::P1), Name::EDIT_SNAP_SMALLER);
-    add(B(DPAD_RIGHT, Player::P1), Name::EDIT_SNAP_LARGER);
-
+    add(B(DPAD_DOWN, Player::P1), Name::EDIT_SNAP_SMALLER);
+    add(B(DPAD_UP, Player::P1), Name::EDIT_SNAP_LARGER);
+    add(B(DPAD_RIGHT, Player::P1), Name::EDIT_NEXT_SPRITE);
+    add(B(DPAD_LEFT, Player::P1), Name::EDIT_PREV_SPRITE);
 
     global_editor.sprite_points = Util::create_list<Vec4>(10);
     global_editor.cursor = V2(0.5, 0.5);
-
+    global_editor.sprite_sheet = find_next_sheet(0, 1);
+    LOG("sprite sheet: %d", global_editor.sprite_sheet);
 
     if (sprite_editor) {
         Renderer::fetch_camera()->position = V2(0.5, 0.5);
@@ -275,61 +286,109 @@ void level_editor_update() {
 }
 
 void sprite_editor_update() {
-    f32 delta = Logic::delta();
     using namespace Input;
-    f32 move_x = value(Name::EDIT_MOVE_RIGHT_LEFT);
-    move_x += value(Name::EDIT_MOVE_RIGHT);
-    move_x -= value(Name::EDIT_MOVE_LEFT);
+    Vec2 point;
+    // Input
+    {
+        f32 delta = Logic::delta();
+        f32 move_x = value(Name::EDIT_MOVE_RIGHT_LEFT);
+        move_x += value(Name::EDIT_MOVE_RIGHT);
+        move_x -= value(Name::EDIT_MOVE_LEFT);
 
-    f32 move_y = value(Name::EDIT_MOVE_UP_DOWN);
-    move_y += value(Name::EDIT_MOVE_UP);
-    move_y -= value(Name::EDIT_MOVE_DOWN);
+        f32 move_y = value(Name::EDIT_MOVE_UP_DOWN);
+        move_y += value(Name::EDIT_MOVE_UP);
+        move_y -= value(Name::EDIT_MOVE_DOWN);
 
-    f32 zoom = (1.0 + value(Name::EDIT_ZOOM_IN_OUT) * delta);
-    Renderer::fetch_camera(0)->zoom *= zoom;
-    f32 current_zoom = Renderer::fetch_camera(0)->zoom;
-    const f32 speed = delta / current_zoom;
-    Vec2 cursor = global_editor.cursor;
-    global_editor.worst_best_distance = global_editor.orig_worst_best_distance / current_zoom;
+        f32 zoom = (1.0 + value(Name::EDIT_ZOOM_IN_OUT) * delta);
+        Renderer::fetch_camera(0)->zoom *= zoom;
+        f32 current_zoom = Renderer::fetch_camera(0)->zoom;
+        const f32 speed = delta / current_zoom;
+        Vec2 cursor = global_editor.cursor;
+        global_editor.worst_best_distance = global_editor.orig_worst_best_distance / current_zoom;
 
-    if (pressed(Name::EDIT_SNAP_SMALLER)) {
-        global_editor.snapping_scale *= global_editor.snapping_scale_step;
+        if (pressed(Name::EDIT_SNAP_SMALLER)) {
+            global_editor.snapping_scale *= global_editor.snapping_scale_step;
+        }
+        if (pressed(Name::EDIT_SNAP_LARGER)) {
+            global_editor.snapping_scale /= global_editor.snapping_scale_step;
+        }
+        global_editor.snapping_scale = CLAMP(1.0 / 512.0, 1.0, global_editor.snapping_scale);
+
+        if (down(Name::TWEAK_STEP)) {
+            const f32 snap = global_editor.snapping_scale;
+            static float step_timer = 0.0;
+            step_timer += delta;
+            if (step_timer > 0.1) {
+                if (ABS(move_x) > 0.3)
+                    cursor.x += SIGN(move_x) * snap * 1.1;
+                if (ABS(move_y) > 0.3)
+                    cursor.y += SIGN(move_y) * snap * 1.1;
+                step_timer = 0.0;
+            }
+            Util::precise_snap(&cursor.x, snap, snap);
+            Util::precise_snap(&cursor.y, snap, snap);
+        } else {
+            cursor += V2(move_x, move_y) * speed;
+        }
+        cursor = V2(CLAMP(-0.1, 1.1, cursor.x), CLAMP(-0.1, 1.1, cursor.y));
+        global_editor.cursor = cursor;
+        // Like a return value... but not...
+        point = cursor;
     }
-    if (pressed(Name::EDIT_SNAP_LARGER)) {
-        global_editor.snapping_scale /= global_editor.snapping_scale_step;
-    }
-    global_editor.snapping_scale = CLAMP(1.0 / 512.0, 1.0, global_editor.snapping_scale);
 
-    if (down(Name::TWEAK_STEP)) {
-        static float step_timer = 0.0;
+    // Drawing logic
+    {
+        f32 current_zoom = Renderer::fetch_camera(0)->zoom;
         const f32 snap = global_editor.snapping_scale;
+        const f32 line_width = 0.03 / current_zoom;
+        const Vec4 dim_color = V4(1, 0, 1, 0.05);
+        const Vec4 vis_color = V4(1, 0, 1, 0.2);
+        Vec4 color = down(Name::TWEAK_STEP) ? vis_color : dim_color;
         for (u32 i = 0; i <= 1.0 / snap; i++) {
-            Renderer::push_line(5, V2(i * snap, 0.0), V2(i * snap, 1.0), V4(1, 0, 1, 0.4));
-            Renderer::push_line(5, V2(0.0, i * snap), V2(1.0, i * snap), V4(1, 0, 1, 0.4));
+            Vec2 start, end;
+            start = V2(i * snap, 0.0);
+            end = V2(i * snap, 1.0);
+            Renderer::push_line(5, start, end, color, line_width);
+            start = V2(0.0, i * snap);
+            end = V2(1.0, i * snap);
+            Renderer::push_line(5, start, end, color, line_width);
         }
-        step_timer += delta;
-        if (step_timer > 0.1) {
-            if (ABS(move_x) > 0.3)
-                cursor.x += SIGN(move_x) * snap * 1.1;
-            if (ABS(move_y) > 0.3)
-                cursor.y += SIGN(move_y) * snap * 1.1;
-            step_timer = 0.0;
-        }
-        Util::precise_snap(&cursor.x, snap, snap);
-        Util::precise_snap(&cursor.y, snap, snap);
-    } else {
-        cursor += V2(move_x, move_y) * speed;
+        const Vec4 cursor_color = V4(0.0, 1.0, 0.0, 1.0);
+        Renderer::push_point(10, point, cursor_color, 0.05 / current_zoom);
     }
-    cursor = V2(CLAMP(-0.1, 1.1, cursor.x), CLAMP(-0.1, 1.1, cursor.y));
-    Vec2 point = cursor;
-    global_editor.cursor = cursor;
-    Renderer::push_point(10, point, V4(0.0, 1.0, 0.0, 1.0));
 
-    // TODO(ed): Scale lines depedning on zoom
+    // Camera Movement
+    {
+        Renderer::Camera *camera = Renderer::fetch_camera(0);
+        f32 dist = distance(camera->position, point);
+        f32 threshold = 0.5 / camera->zoom;
+        if (dist > threshold) {
+            f32 speed = 10 * (dist - threshold) * camera->zoom * Logic::delta();
+            camera->position += (point - camera->position) * speed;
+        }
+    }
+
     // TODO(ed): Exporting sprites, and multiple sprites
+    // TODO(ed): Select sprite
     // TODO(ed): Allow multiple sprites to be editable
-    // TODO(ed): Camera controls, they need to follow the cursor or something.
     // TODO(ed): Keyboard support?
+    // TODO(ed): Tweak values for things like, hue of the overlay
+    // and such, so any sprite can be rendered underneath
+
+    // Sprite select
+    {
+        AssetID next = Asset::ASSET_ID_NO_ASSET;
+        if (pressed(Name::EDIT_NEXT_SPRITE)) {
+            next = find_next_sheet(global_editor.sprite_sheet, 1);
+        }
+        if (pressed(Name::EDIT_PREV_SPRITE)) {
+            next = find_next_sheet(global_editor.sprite_sheet, -1);
+        }
+        if (next != Asset::ASSET_ID_NO_ASSET)
+            global_editor.sprite_sheet = next;
+    }
+
+    // Logic
     if (down(Name::EDIT_SELECT)) {
         s32 best_index = -1;
         f32 best_dist = global_editor.worst_best_distance;
@@ -390,12 +449,13 @@ void update() {
 // Draw functions
 void sprite_editor_draw() {
     // TODO(ed): This should be a sprite
-    Renderer::push_sprite(0, V2(0.5, 0.5), V2(1, 1), 0, Res::TEST, V2(0, 0), V2(512, 512));
+    Renderer::push_sprite(0, V2(0.5, 0.5), V2(1, 1), 0, global_editor.sprite_sheet, V2(0, 0), V2(512, 512));
     const Vec4 line_color = V4(1.0, 0.5, 0.0, 1.0);
-    Renderer::push_line(1, V2(0, 0), V2(1, 0), line_color);
-    Renderer::push_line(1, V2(1, 0), V2(1, 1), line_color);
-    Renderer::push_line(1, V2(1, 1), V2(0, 1), line_color);
-    Renderer::push_line(1, V2(0, 1), V2(0, 0), line_color);
+    const f32 line_width = 0.03 / Renderer::fetch_camera(0)->zoom;
+    Renderer::push_line(1, V2(0, 0), V2(1, 0), line_color, line_width);
+    Renderer::push_line(1, V2(1, 0), V2(1, 1), line_color, line_width);
+    Renderer::push_line(1, V2(1, 1), V2(0, 1), line_color, line_width);
+    Renderer::push_line(1, V2(0, 1), V2(0, 0), line_color, line_width);
 
     const Vec4 shape_color = V4(0.0, 0.5, 1.0, 0.5);
     const Vec4 point_color = V4(1.0, 0.5, 0.0, 0.75);
@@ -408,7 +468,7 @@ void sprite_editor_draw() {
     for (s32 i = 0; i < global_editor.sprite_points.length; i++) {
         Vec4 curr = global_editor.sprite_points[i];
         Vec4 next = global_editor.sprite_points[(i + 1) % global_editor.sprite_points.length];
-        Renderer::push_line(2, V2(next), V2(curr), shape_color);
+        Renderer::push_line(2, V2(next), V2(curr), shape_color, line_width);
 
         if (distance(point, V2(curr)) < dist) {
             closest = i;
@@ -416,12 +476,14 @@ void sprite_editor_draw() {
         }
     }
 
+    const f32 point_size = 0.04 / Renderer::fetch_camera(0)->zoom;
+    const f32 point_size_closest = 0.045 / Renderer::fetch_camera(0)->zoom;
     for (s32 i = 0; i < global_editor.sprite_points.length; i++) {
         Vec2 curr = V2(global_editor.sprite_points[i]);
         if (closest == i)
-            Renderer::push_point(3, curr, closest_point_color, 0.03);
+            Renderer::push_point(3, curr, closest_point_color, point_size_closest);
         else
-            Renderer::push_point(3, curr, point_color, 0.03);
+            Renderer::push_point(3, curr, point_color, point_size);
     }
 }
 

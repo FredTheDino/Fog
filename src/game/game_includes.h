@@ -56,12 +56,12 @@ namespace Input {
         EDIT_ZOOM_IN_OUT,
         EDIT_SNAP_SMALLER,
         EDIT_SNAP_LARGER,
+        EDIT_NEXT_SPRITE,
+        EDIT_PREV_SPRITE,
 
         EDIT_PLACE,
         EDIT_SELECT,
         EDIT_REMOVE,
-
-        EDIT_NEXT_SPRITE_SHEET,
 
         EDIT_ABORT,
         EDIT_SELECT_ALL,

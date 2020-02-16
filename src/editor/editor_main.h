@@ -154,8 +154,8 @@ struct EditorState {
     Util::List<Logic::EntityID> selected;
     Util::List<EditorEdit> edits;
 
-
     Util::List<Vec4> sprite_points;
+    AssetID sprite_sheet;
     Vec2 cursor;
     f32 orig_worst_best_distance = 0.2;
     // Calculated after zoom.
