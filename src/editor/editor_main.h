@@ -151,16 +151,18 @@ EditorEdit::BinaryBlob _copy_field(void *field, u8 size) {
     }
 
 #define MAX_TEXT_LENGTH 16
+struct EditableSprite {
+    Util::List<Vec2> points;
+    AssetID sheet;
+    char name[MAX_TEXT_LENGTH];
+};
+
 struct EditorState {
     Util::List<Logic::EntityID> selected;
     Util::List<EditorEdit> edits;
 
-    struct Sprite {
-        Util::List<Vec2> points;
-        AssetID sheet;
-        char name[MAX_TEXT_LENGTH];
-    };
-    Sprite current_sprite;
+    u32 current_sprite;
+    Util::List<EditableSprite> sprites;
 
     Vec2 cursor;
     f32 orig_worst_best_distance = 0.2;

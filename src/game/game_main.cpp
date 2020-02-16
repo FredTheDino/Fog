@@ -23,7 +23,7 @@ void draw() {
     Util::tweak("rotation", &rotation);
     body.rotation = rotation;
     Physics::debug_draw_body(&body);
-    Renderer::push_sprite_ex(0, Asset::fetch_sprite(Res::SOME_SPRITE_NAME), V2(0, 0),
+    Renderer::push_sprite_ex(0, Asset::fetch_sprite(Res::DATA), V2(0, 0),
                    V2(1, 1), rotation);
 }
 

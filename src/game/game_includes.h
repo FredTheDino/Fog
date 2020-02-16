@@ -58,6 +58,8 @@ namespace Input {
         EDIT_SNAP_LARGER,
         EDIT_NEXT_SPRITE,
         EDIT_PREV_SPRITE,
+        EDIT_SAVE,
+        EDIT_ADD_SPRITE,
 
         EDIT_PLACE,
         EDIT_SELECT,
