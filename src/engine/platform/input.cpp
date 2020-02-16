@@ -105,7 +105,7 @@ void type_text(const char *string) {
 
 bool edit_string(char *text, u32 max_length) {
     if (!global_mapping.text_length) return false;
-    u32 text_left = max_length;
+    s32 text_left = max_length;
     char *cursor = text;
     while (*cursor) { cursor++; text_left--; }
     char *edits = global_mapping.text;
@@ -113,22 +113,15 @@ bool edit_string(char *text, u32 max_length) {
         const u32 glyph_size = Util::utf8_size(edits);
         if (*edits == '\b') {
             if (cursor != text) {
-                if (Util::utf8_is_first_char(cursor)) {
-                    do {
-                        cursor--;
-                        max_length++;
-                    } while (!Util::utf8_is_first_char(cursor) && text < cursor);
-                } else {
-                    if (cursor != text) {
-                        cursor--;
-                        max_length++;
-                    }
-                }
+                do {
+                    cursor--;
+                    text_left++;
+                } while (!Util::utf8_is_first_char(cursor) && text < cursor);
             }
         } else {
-            if (Util::utf8_insert_glyph(cursor, edits, max_length)) {
+            if (Util::utf8_insert_glyph(cursor, edits, text_left)) {
                 cursor += glyph_size;
-                max_length -= glyph_size;
+                text_left -= glyph_size;
             }
         }
         edits += glyph_size;

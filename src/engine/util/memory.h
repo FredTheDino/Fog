@@ -86,7 +86,7 @@ void pop_memory(T *data);
 
 ///*
 // Copies the memory from one pointer to the other.
-void copy_bytes(void *from, void *to, u64 size);
+void copy_bytes(const void *from, void *to, u64 size);
 
 ///*
 // Allows a single memory allocation without very verbose complaining.

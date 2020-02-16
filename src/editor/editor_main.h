@@ -150,6 +150,7 @@ EditorEdit::BinaryBlob _copy_field(void *field, u8 size) {
         *((decltype(new_val) *) &edit->after) += new_val; \
     }
 
+#define MAX_TEXT_LENGTH 16
 struct EditorState {
     Util::List<Logic::EntityID> selected;
     Util::List<EditorEdit> edits;
@@ -162,6 +163,7 @@ struct EditorState {
     f32 worst_best_distance;
     f32 snapping_scale = 1.0;
     f32 snapping_scale_step = 1.0 / 4.0;
+    char text[MAX_TEXT_LENGTH + 1] = {};
 
     union {
         f32 delta_f32;

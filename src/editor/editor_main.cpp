@@ -2,8 +2,37 @@
 
 #include "editor_main.h"
 #include "entity_io.cpp"
+#include "stdio.h"
 
 namespace Editor {
+
+void read_with_default(const char *prompt, const char *def, char *val, u32 length) {
+    s32 input_length;
+    do {
+        printf("%s", prompt);
+        if (def)
+            printf(" [%s]", def);
+        printf(": ");
+
+        fgets(val, length, stdin);
+        input_length = Util::str_len(val);
+        if (val[MAX(input_length - 2, 0)] == '\n') {
+            break;
+        }
+
+        printf("You passed in a too long string, try something shorter.\n");
+        do {
+            fgets(val, length, stdin);
+            input_length = Util::str_len(val);
+        } while (val[MAX(input_length - 2, 0)] != '\n');
+    } while (true);
+
+    if (input_length == 2)
+        Util::copy_bytes(def, val, Util::str_len(def));
+    else
+        val[input_length - 2] = '\0';
+
+}
 
 void draw_outline(Logic::Entity *e, Vec4 color) {
     Vec2 corners[] = {
@@ -102,6 +131,11 @@ void setup(int argc, char **argv) {
     add(B(DPAD_UP, Player::P1), Name::EDIT_SNAP_LARGER);
     add(B(DPAD_RIGHT, Player::P1), Name::EDIT_NEXT_SPRITE);
     add(B(DPAD_LEFT, Player::P1), Name::EDIT_PREV_SPRITE);
+
+
+    char in[20] = {};
+    read_with_default(">>", "blargh", in, LEN(in));
+    LOG("Got: '%s'", in);
 
     global_editor.sprite_points = Util::create_list<Vec4>(10);
     global_editor.cursor = V2(0.5, 0.5);
@@ -368,6 +402,7 @@ void sprite_editor_update() {
         }
     }
 
+    // TODO(ed): Naming sprites
     // TODO(ed): Exporting sprites, and multiple sprites
     // TODO(ed): Select sprite
     // TODO(ed): Allow multiple sprites to be editable

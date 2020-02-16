@@ -169,10 +169,10 @@ void pop_memory(T *data) {
     free(data);
 }
 
-void copy_bytes(void *from, void *to, u64 size) {
+void copy_bytes(const void *from, void *to, u64 size) {
     // TODO(ed): memcpy might be like... A lot faster..
     u8 *_to = (u8 *) to;
-    u8 *_from = (u8 *) from;
+    const u8 *_from = (const u8 *) from;
     while(size--) *(_to++) = *(_from++);
 }
 
