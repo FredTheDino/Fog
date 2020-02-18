@@ -106,6 +106,7 @@ void create_new_sprite() {
 }
 
 void setup(int argc, char **argv) {
+    Util::allow_all_allocations();
 
     // Commandline parsing, sets globalstate
     for (s32 i = 1; i < argc; i++) {

@@ -9,9 +9,9 @@ Physics::ShapeID shape;
 Physics::Body body;
 
 void setup(int argc, char ** argv) {
-    shape = Physics::add_shape_from_sprite(Res::SOME_SPRITE_NAME);
+    shape = Physics::add_shape_from_sprite(Res::PELLE);
     body = Physics::create_body(shape, 0.0);
-    body.offset = V2(-0.5, 0.0);
+    //body.offset = V2(-0.5, 0.0);
 }
 
 // Main logic
@@ -23,7 +23,7 @@ void draw() {
     Util::tweak("rotation", &rotation);
     body.rotation = rotation;
     Physics::debug_draw_body(&body);
-    Renderer::push_sprite_ex(0, Asset::fetch_sprite(Res::DATA), V2(0, 0),
+    Renderer::push_sprite_ex(0, Asset::fetch_sprite(Res::PELLE), V2(0, 0),
                    V2(1, 1), rotation);
 }
 

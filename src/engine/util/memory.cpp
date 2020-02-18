@@ -52,6 +52,10 @@ void strict_allocation_check() {
     _fog_mem_alloc_state = MemoryAllocationState::ILLEGAL;
 }
 
+void allow_all_allocations() {
+    _fog_mem_alloc_state = MemoryAllocationState::NO_RULE;
+}
+
 void do_all_allocations() {
     static_assert(TOTAL_MEMORY_BUDGET % ARENA_SIZE_IN_BYTES == 0);
 

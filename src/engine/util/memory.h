@@ -95,6 +95,11 @@ void copy_bytes(const void *from, void *to, u64 size);
 // you know what you're doing. I'm looking at you Erik.
 void allow_allocation();
 
+///*
+// Allows all allocations, if you find it too annoying. Don't call this if
+// you don't know what you're doing.
+void allow_all_allocations();
+
 // Doesn't allow allocations all willy-nilly anymore.
 void strict_allocation_check();
 
