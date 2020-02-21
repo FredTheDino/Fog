@@ -36,6 +36,8 @@ void run_tests() {
         PASS(math_mod),
         SKIP(math_eq),
         PASS(math_sq),
+        PASS(math_random_real),
+        PASS(math_span),
         PASS(logic_callback_add_pre_update_once),
         PASS(logic_callback_add_post_update_once),
         PASS(logic_callback_add_pre_draw_once),

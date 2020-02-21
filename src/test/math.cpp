@@ -121,4 +121,27 @@ Result math_sq() {
         && SQ(-2.5) == 6.25
         ? PASS : FAIL;
 }
+
+//TODO(gu) test distribution
+Result math_random_real() {
+    return random_real(0, 0) == 0
+        && random_real(1, 1) == 1
+        && random_real(-1, -1) == -1
+        && random_real(-1, 1) < 1
+        && random_real(-1, 1) > -1
+        ? PASS : FAIL;
+}
+
+//TODO(gu) test distribution
+Result math_span() {
+    Span sp;
+    sp = {1, 1};
+    if (sp.random() != 1)
+        return FAIL;
+    sp = {-1, -1};
+    if (sp.random() != -1)
+        return FAIL;
+    return PASS;
+}
+
 }  // namespace Test
