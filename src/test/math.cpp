@@ -132,6 +132,14 @@ Result math_random_real() {
         ? PASS : FAIL;
 }
 
+Result math_random_real_multiple() {
+    for (u32 i = 0; i < 1000; i++) {
+        f32 r = random_real(0, 1);
+        if (r < 0 || r > 1) return FAIL;
+    }
+    return PASS;
+}
+
 //TODO(gu) test distribution
 Result math_span() {
     Span sp;
