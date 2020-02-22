@@ -127,8 +127,8 @@ Result math_random_real() {
     return random_real(0, 0) == 0
         && random_real(1, 1) == 1
         && random_real(-1, -1) == -1
-        && random_real(-1, 1) < 1
-        && random_real(-1, 1) > -1
+        && random_real(-1, 1) <= 1
+        && random_real(-1, 1) >= -1
         ? PASS : FAIL;
 }
 
