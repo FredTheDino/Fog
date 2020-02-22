@@ -52,8 +52,8 @@ void write_sprite_to_file(EditableSprite sprite, FILE *file) {
 }
 
 AssetID find_next_sheet(AssetID start=0, int dir=1) {
-    for (u32 i = 1; i < Res::NUM_ASSETS; i++) {
-        AssetID curr = (start + i * dir) % Res::NUM_ASSETS;
+    for (s32 i = 1; i < Res::NUM_ASSETS; i++) {
+        AssetID curr = (start + i * dir + Res::NUM_ASSETS) % Res::NUM_ASSETS;
         if (Asset::asset_of_type(curr, Asset::Type::TEXTURE))
             return curr;
     }
@@ -129,6 +129,16 @@ void setup(int argc, char **argv) {
     using namespace Input;
     // Sprite editor
     // TODO(ed): Keyboard input
+    add(K(a), Name::EDIT_PLACE);
+    add(K(s), Name::EDIT_SELECT);
+    add(K(d), Name::EDIT_REMOVE);
+    add(K(n), Name::EDIT_NEXT_SPRITE);
+    add(K(p), Name::EDIT_PREV_SPRITE);
+    add(K(j), Name::EDIT_SNAP_SMALLER);
+    add(K(k), Name::EDIT_SNAP_LARGER);
+    add(K(w), Name::EDIT_SAVE);
+    add(K(c), Name::EDIT_ADD_SPRITE);
+
     add(A(LEFTX, Player::P1), Name::EDIT_MOVE_RIGHT_LEFT);
     add(A(LEFTY, Player::P1), Name::EDIT_MOVE_UP_DOWN);
     add(A(RIGHTY, Player::P1), Name::EDIT_ZOOM_IN_OUT);
@@ -164,11 +174,19 @@ void sprite_editor_update() {
         move_y += value(Name::EDIT_MOVE_UP);
         move_y -= value(Name::EDIT_MOVE_DOWN);
 
-        f32 zoom = (1.0 + value(Name::EDIT_ZOOM_IN_OUT) * delta);
+        f32 zoom;
+        if (Input::using_controller())
+            zoom = (1.0 + value(Name::EDIT_ZOOM_IN_OUT) * delta);
+        else
+            zoom = (1.0 + (Input::global_mapping.mouse.wheel_y / 0.2) * delta);
         Renderer::fetch_camera(0)->zoom *= zoom;
         f32 current_zoom = Renderer::fetch_camera(0)->zoom;
         const f32 speed = delta / current_zoom;
-        Vec2 cursor = global_editor.cursor;
+        Vec2 cursor;
+        if (Input::using_controller())
+            cursor = global_editor.cursor;
+        else
+            cursor = Input::world_mouse_position();
         global_editor.worst_best_distance = global_editor.orig_worst_best_distance / current_zoom;
 
         if (pressed(Name::EDIT_SNAP_SMALLER)) {
