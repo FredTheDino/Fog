@@ -95,6 +95,25 @@ void poll_events() {
 
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
+            case (SDL_KEYDOWN):
+            case (SDL_KEYUP):
+            case (SDL_TEXTINPUT):
+            case (SDL_MOUSEWHEEL):
+            case (SDL_MOUSEBUTTONDOWN):
+            case (SDL_MOUSEBUTTONUP):
+                Input::global_mapping.using_controller = false;
+                break;
+            case (SDL_CONTROLLERAXISMOTION):
+            case (SDL_CONTROLLERBUTTONDOWN):
+            case (SDL_CONTROLLERBUTTONUP):
+            case (SDL_CONTROLLERDEVICEREMOVED):
+                Input::global_mapping.using_controller = true;
+                break;
+            default:
+                break;
+        }
+
+        switch (event.type) {
             case (SDL_WINDOWEVENT):
                 if (event.window.event == SDL_WINDOWEVENT_CLOSE)
                     running = false;

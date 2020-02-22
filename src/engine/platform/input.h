@@ -191,6 +191,8 @@ struct Mapping {
     char text[TEXT_LENGTH];
 
     VirtualMouse mouse;
+
+    bool using_controller;
 } global_mapping;
 
 struct InputEvent {
@@ -198,6 +200,13 @@ struct InputEvent {
     bool pressed;
     f32 value;
 };
+
+///*
+// Returns the currently prefered input method of the
+// user, which we assume is the IO-unit a action was
+// done to latest. So if the last input was for a controller,
+// this is true, otherwise it's false.
+bool using_controller();
 
 ///*
 // Switches the input to use text input, this disables
