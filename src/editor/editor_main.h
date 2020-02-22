@@ -83,73 +83,6 @@ void entity_registration() {
 // Editor stuff
 //
 
-Logic::EntityID create_entity_from_type(Logic::EntityType type) {
-    Logic::EMeta info = Logic::meta_data_for(type);
-    u8 *entity_ptr = Util::request_temporary_memory<u8>(info.size);
-    // Util::zero_memory(entity_ptr, info.size);
-    *((void **) entity_ptr) = Logic::_entity_vtable(type);
-    Logic::Entity *entity = (Logic::Entity *) entity_ptr;
-    entity->scale = V2(1, 1);
-    entity->position = Renderer::fetch_camera()->position;
-    return Logic::add_entity_ptr(entity);
-}
-
-void draw_outline(Logic::Entity *e, Vec4 color=V4(1, 1, 0, 0.1));
-
-
-struct EditorEdit {
-    Logic::EntityID target;
-    u64 hash;
-    u16 offset;
-
-    struct BinaryBlob {
-        u8 data[8];
-    };
-
-    u8 size;
-    BinaryBlob before;
-    BinaryBlob after;
-
-    void apply(Logic::Entity *e) {
-        u8 *type_ignorer = (u8 *) e;
-        Util::copy_bytes((void *) &after, type_ignorer + offset, size);
-    }
-
-    void revert(Logic::Entity *e) {
-        u8 *type_ignorer = (u8 *) e;
-        Util::copy_bytes((void *) &before, type_ignorer + offset, size);
-    }
-};
-
-EditorEdit::BinaryBlob _copy_field(void *field, u8 size) {
-    ASSERT(size <= sizeof(EditorEdit::BinaryBlob), "Cannot store a field of this size");
-    EditorEdit::BinaryBlob target;
-    Util::copy_bytes(field, target.data, size);
-    return target;
-}
-
-#define MAKE_EDIT(ENT, field)                         \
-    {                                                 \
-        (ENT)->id, \
-        (u64) typeid((ENT)->field).hash_code(),\
-        (u16) offsetof(std::remove_reference<decltype(*(ENT))>::type, field), \
-        sizeof((ENT)->field), \
-        _copy_field(&(ENT)->field, sizeof((ENT)->field)), \
-        _copy_field(&(ENT)->field, sizeof((ENT)->field)), \
-    }
-
-#define SET_EDIT(edit, new_val) \
-    if (edit->size) { \
-        ASSERT(typeid(new_val).hash_code() == edit->hash, "Types doesn't match"); \
-        edit->after = _copy_field(&new_val, sizeof(new_val)); \
-    }
-
-#define ADD_EDIT(edit, new_val) \
-    if (edit->size) { \
-        ASSERT(typeid(new_val).hash_code() == edit->hash, "Types doesn't match"); \
-        *((decltype(new_val) *) &edit->after) += new_val; \
-    }
-
 #define MAX_TEXT_LENGTH 16
 struct EditableSprite {
     Util::List<Vec2> points;
@@ -158,9 +91,6 @@ struct EditableSprite {
 };
 
 struct EditorState {
-    Util::List<Logic::EntityID> selected;
-    Util::List<EditorEdit> edits;
-
     u32 current_sprite;
     Util::List<EditableSprite> sprites;
 
@@ -171,53 +101,6 @@ struct EditorState {
     f32 snapping_scale = 1.0;
     f32 snapping_scale_step = 1.0 / 4.0;
 
-    union {
-        f32 delta_f32;
-        Vec2 delta_vec2;
-    };
 } global_editor;
-
-enum class EditorMode {
-    SELECT_MODE,
-    SELECT_BOX_MODE,
-
-    MOVE_MODE,
-    SCALE_MODE,
-    ROTATE_MODE,
-
-    NUM_MODES,
-};
-
-void select_func(bool clean);
-void select_box_func(bool clean);
-void move_func(bool clean);
-void scale_func(bool clean) {
-    /*
-     * TODO(ed): How should this work? I was thinking, scale outwards from the
-     * center point of all selected entities. But maybe it's more intuative
-     * with the "scale them all relative to each other" approach.
-     */
-}
-void rotate_func(bool clean) {
-    /*
-     * TODO(ed): How should this work? I was thinking it rotates all selected
-     * elements relative to the center, but I don't know.
-     */
-}
-
-
-typedef void (*EditorModeFunc)(bool clean);
-
-#define ID(id) (u32) EditorMode::id
-EditorModeFunc mode_funcs[(u32) EditorMode::NUM_MODES] = {
-    [ID(SELECT_MODE)] = select_func,
-    [ID(SELECT_BOX_MODE)] = select_box_func,
-    [ID(MOVE_MODE)] = move_func,
-    [ID(SCALE_MODE)] = scale_func,
-    [ID(ROTATE_MODE)] = rotate_func,
-};
-#undef ID
-
-EditorMode current_mode = EditorMode::SELECT_MODE;
 
 }  // namespace Editor
