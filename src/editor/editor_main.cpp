@@ -114,20 +114,107 @@ void setup(int argc, char **argv) {
         }
     }
 
-    if (!path)
-        path = "example.spr";
+
+
+    global_editor.sprites = Util::create_list<EditableSprite>(10);
+    global_editor.cursor = V2(0.5, 0.5);
+    bool no_path_passed = true;
+    if (path != nullptr) {
+        // NOTE(ed): Code bellow is copied from the asset loader. Might need to be a
+        // unified function.
+        FILE *sprite_file = fopen(path, "rb");
+        while (sprite_file) {
+            char *line = nullptr;
+            size_t line_n = 0;
+            getline(&line, &line_n, sprite_file);
+
+            if (feof(sprite_file))
+                break;
+
+            char *ptr = line;
+            u32 i = 0;
+            char *name = ptr + i;
+            for (; i < line_n; i++) if (ptr[i] == ':') { ptr[i] = '\0'; break; }
+            char *res = ptr + i + 1;
+            for (; i < line_n; i++) if (ptr[i] == ':') { ptr[i] = '\0'; break; }
+            char *num = ptr + i + 1;
+            for (; i < line_n; i++) if (ptr[i] == ':') { ptr[i] = '\0'; break; }
+            char *points_str = ptr + i + 1;
+            for (; i < line_n; i++) if (ptr[i] == ':') { ptr[i] = '\0'; break; }
+
+            // TODO(ed): Parse points, and stuff
+#define CHECK_FOR_ERROR(ptr)                                  \
+            do {                                                      \
+                if (ptr == endptr) {                                  \
+                    ERR("Failed to parse number in sprite file '%s'", \
+                            path);                      \
+                    fclose(sprite_file);                              \
+                    return;                                           \
+                }                                                     \
+            } while (false);
+
+            char *endptr;
+            u32 num_points = strtol(num, &endptr, 10);
+            CHECK_FOR_ERROR(num);
+            Util::List<Vec2> points = Util::create_list<Vec2>(num_points);
+            for (u32 p = 0; p < num_points; p++) {
+                char *endptr;
+                Vec4 point;
+                while (isspace(*points_str)) points_str++;
+                points_str += 1; // (
+                for (u32 coord = 0; coord < 4; coord++) {
+                    point._[coord] = strtod(points_str, &endptr);
+                    CHECK_FOR_ERROR(points_str);
+                    points_str = endptr;
+                }
+                points_str += 1; // )
+                points.append(V2(point.z, point.w));
+            }
+#undef CHECK_FOR_ERROR
+
+            u32 resource_hash = res[0] == '#' ? atoi(res + 1): Asset::asset_hash(res);
+            // Reverse the hash
+            for (u32 i = 0; i < LEN(Res::HASH_LUT); i++) {
+                if (Res::HASH_LUT[i] == resource_hash) {
+                    resource_hash = i;
+                }
+            }
+
+            EditableSprite sprite = {
+                points,
+                resource_hash,
+            };
+            Util::copy_bytes(name, sprite.name, MIN(MAX_TEXT_LENGTH, Util::str_len(name)));
+            global_editor.sprites.append(sprite);
+            no_path_passed = false;
+            free(line);
+        }
+        if (sprite_file)
+            fclose(sprite_file);
+    } else {
+        path = "default.spr";
+    }
+
+    if (no_path_passed) {
+        create_new_sprite();
+
+    }
 
     using namespace Input;
     // Sprite editor
     add(K(a), Name::EDIT_PLACE);
     add(K(s), Name::EDIT_SELECT);
     add(K(d), Name::EDIT_REMOVE);
-    add(K(n), Name::EDIT_NEXT_SPRITE);
-    add(K(p), Name::EDIT_PREV_SPRITE);
+    add(K(r), Name::EDIT_RENAME);
+    add(K(u), Name::EDIT_NEXT_SPRITE);
+    add(K(i), Name::EDIT_PREV_SPRITE);
+    add(K(n), Name::EDIT_NEXT_SPRITE_SHEET);
+    add(K(p), Name::EDIT_PREV_SPRITE_SHEET);
     add(K(j), Name::EDIT_SNAP_SMALLER);
     add(K(k), Name::EDIT_SNAP_LARGER);
     add(K(w), Name::EDIT_SAVE);
     add(K(c), Name::EDIT_ADD_SPRITE);
+    add(K(r), Name::EDIT_RENAME);
 
     add(A(LEFTX, Player::P1), Name::EDIT_MOVE_RIGHT_LEFT);
     add(A(LEFTY, Player::P1), Name::EDIT_MOVE_UP_DOWN);
@@ -138,14 +225,12 @@ void setup(int argc, char **argv) {
     add(B(LEFTSHOULDER, Player::P1), Name::TWEAK_STEP);
     add(B(DPAD_DOWN, Player::P1), Name::EDIT_SNAP_SMALLER);
     add(B(DPAD_UP, Player::P1), Name::EDIT_SNAP_LARGER);
-    add(B(DPAD_RIGHT, Player::P1), Name::EDIT_NEXT_SPRITE);
-    add(B(DPAD_LEFT, Player::P1), Name::EDIT_PREV_SPRITE);
+    add(A(TRIGGERRIGHT, Player::P1), Name::EDIT_NEXT_SPRITE);
+    add(A(TRIGGERLEFT, Player::P1), Name::EDIT_PREV_SPRITE);
+    add(B(DPAD_RIGHT, Player::P1), Name::EDIT_NEXT_SPRITE_SHEET);
+    add(B(DPAD_LEFT, Player::P1), Name::EDIT_PREV_SPRITE_SHEET);
     add(B(START, Player::P1), Name::EDIT_SAVE);
     add(B(BACK, Player::P1), Name::EDIT_ADD_SPRITE);
-
-    global_editor.sprites = Util::create_list<EditableSprite>(10);
-    global_editor.cursor = V2(0.5, 0.5);
-    create_new_sprite();
 
     Renderer::fetch_camera()->position = V2(0.5, 0.5);
 }
@@ -155,7 +240,26 @@ void sprite_editor_update() {
     Vec2 point;
     // Input
     {
-        f32 delta = Logic::delta();
+        // Rename?
+        if (pressed(Name::EDIT_RENAME)) {
+            read_with_default("sprite rename", nullptr,
+                    global_editor.sprites[global_editor.current_sprite].name,
+                    MAX_TEXT_LENGTH);
+        }
+
+        const u32 num_sprites = global_editor.sprites.length;
+        if (pressed(Name::EDIT_PREV_SPRITE) && num_sprites) {
+            global_editor.current_sprite -= 1;
+            global_editor.current_sprite += num_sprites;
+            global_editor.current_sprite %= num_sprites;
+        }
+        if (pressed(Name::EDIT_NEXT_SPRITE) && num_sprites) {
+            global_editor.current_sprite += 1;
+            global_editor.current_sprite += num_sprites;
+            global_editor.current_sprite %= num_sprites;
+        }
+
+        f32 delta = MAX(Logic::delta(), 0.2);
         f32 move_x = value(Name::EDIT_MOVE_RIGHT_LEFT);
         move_x += value(Name::EDIT_MOVE_RIGHT);
         move_x -= value(Name::EDIT_MOVE_LEFT);
@@ -168,7 +272,7 @@ void sprite_editor_update() {
         if (Input::using_controller())
             zoom = (1.0 + value(Name::EDIT_ZOOM_IN_OUT) * delta);
         else
-            zoom = (1.0 + (Input::global_mapping.mouse.wheel_y / 0.2) * delta);
+            zoom = (1.0 + (mouse_scroll().y * 5) * delta);
         Renderer::fetch_camera(0)->zoom *= zoom;
         f32 current_zoom = Renderer::fetch_camera(0)->zoom;
         const f32 speed = delta / current_zoom;
@@ -254,10 +358,10 @@ void sprite_editor_update() {
     EditableSprite *sprite = global_editor.sprites + global_editor.current_sprite;
     {
         AssetID next = sprite->sheet;
-        if (pressed(Name::EDIT_NEXT_SPRITE)) {
+        if (pressed(Name::EDIT_NEXT_SPRITE_SHEET)) {
             next = find_next_sheet(next, 1);
         }
-        if (pressed(Name::EDIT_PREV_SPRITE)) {
+        if (pressed(Name::EDIT_PREV_SPRITE_SHEET)) {
             next = find_next_sheet(next, -1);
         }
         if (next != Asset::ASSET_ID_NO_ASSET)
@@ -265,7 +369,7 @@ void sprite_editor_update() {
     }
 
     // Logic
-    if (down(Name::EDIT_SELECT)) {
+    if (down(Name::EDIT_SELECT) || mouse_down(0)) {
         s32 best_index = -1;
         f32 best_dist = global_editor.worst_best_distance;
         Util::List<Vec2> points = sprite->points;
@@ -282,7 +386,7 @@ void sprite_editor_update() {
         }
     }
 
-    if (pressed(Name::EDIT_REMOVE)) {
+    if (pressed(Name::EDIT_REMOVE) || mouse_pressed(3)) {
         s32 best_index = -1;
         f32 best_dist = global_editor.worst_best_distance;
         Util::List<Vec2> *points = &sprite->points;
@@ -299,7 +403,7 @@ void sprite_editor_update() {
         }
     }
 
-    if (pressed(Name::EDIT_PLACE)) {
+    if (pressed(Name::EDIT_PLACE) || mouse_pressed(2)) {
         s32 best_index = 0;
         f32 best_dist = 1000;
         Util::List<Vec2> *points = &sprite->points;
@@ -323,7 +427,6 @@ void sprite_editor_update() {
             write_sprite_to_file(global_editor.sprites[i], file);
         }
         fclose(file);
-        LOG("Saved");
     }
 
 }
@@ -373,6 +476,8 @@ void sprite_editor_draw() {
         else
             Renderer::push_point(3, curr, point_color, point_size);
     }
+
+    Util::debug_text(sprite->name, Renderer::fetch_camera()->aspect_ratio);
 }
 
 void draw() {

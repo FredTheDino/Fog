@@ -58,7 +58,7 @@ clean:
 	rm -f doc/doc.html
 
 edit: $(EDITOR_PROGRAM_PATH)
-	cd $(BIN_DIR); ./$(EDITOR_PROGRAM_NAME)
+	
 
 run: $(ENGINE_PROGRAM_PATH)
 	cd $(BIN_DIR); ./$(ENGINE_PROGRAM_NAME)

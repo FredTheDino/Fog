@@ -223,7 +223,7 @@ void load_sprite(AssetFile *file, Asset::Header *main_header) {
     header_template.asset_id = Asset::ASSET_ID_NO_ASSET;
 
     FILE *sprite_file = fopen(main_header->file_path, "rb");
-    while (true) {
+    while (sprite_file) {
         char *line = nullptr;
         size_t line_n = 0;
         getline(&line, &line_n, sprite_file);
