@@ -347,7 +347,7 @@ void update() {
 // Draw functions
 void sprite_editor_draw() {
     EditableSprite *sprite = global_editor.sprites + global_editor.current_sprite;
-    Renderer::push_sprite(0, V2(0.5, 0.5), V2(1, 1), 0, sprite->sheet, V2(0, 0), V2(512, 512));
+    Renderer::push_sprite_rect(0, V2(0.5, 0.5), V2(1, 1), 0, sprite->sheet, V2(0, 0), V2(512, 512));
     const Vec4 line_color = V4(1.0, 0.5, 0.0, 1.0);
     const f32 line_width = 0.03 / Renderer::fetch_camera(0)->zoom;
     Renderer::push_line(1, V2(0, 0), V2(1, 0), line_color, line_width);

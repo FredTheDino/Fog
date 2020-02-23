@@ -35,7 +35,7 @@ void push_sdf_quad(Vec2 min, Vec2 max, Vec2 min_uv, Vec2 max_uv, int sprite,
 // by a simple multiply. The texture supplied has to be a loaded texture asset.
 // Angle is given in radians and is the rotation around the center point
 // of the sprite.
-void push_sprite(u32 layer, Vec2 position, Vec2 dimension, f32 angle,
+void push_sprite_rect(u32 layer, Vec2 position, Vec2 dimension, f32 angle,
                  AssetID texture, Vec2 uv_min, Vec2 uv_dimension,
                  Vec4 color = V4(1, 1, 1, 1));
 

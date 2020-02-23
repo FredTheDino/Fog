@@ -331,7 +331,6 @@ void solve(Overlap overlap)
 
     // Position
     Vec2 relative_position = (a->position + a->offset) - (b->position + b->offset);
-    Vec2 position_direction = normalize(relative_position);
     Vec2 normal = -overlap.normal * (f32) SIGN(dot(relative_position, overlap.normal));
 #if 1
     a->position -= overlap.normal * overlap.depth * total_mass * a->inverse_mass;

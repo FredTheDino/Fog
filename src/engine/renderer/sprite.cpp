@@ -1,11 +1,10 @@
 namespace Renderer {
 
-void push_sprite_ex(u32 layer, Sprite *sprite, Vec2 position,
+void push_sprite(u32 layer, Sprite *sprite, Vec2 position,
                  Vec2 dimension, f32 angle, Vec4 color) {
     // Sprite *sprite = Asset::fetch_sprite(sprite_id);
     u32 slot = Asset::fetch_image(sprite->sprite_sheet)->id;
     ASSERT(sprite->num_points >= 3, "A sprite has to have atleast 3 points");
-    Vec4 first = sprite->points[0];
     // TODO(ed): Here we can brake out the sinus compute to
     // save on doing the same calculation multiple times.
 

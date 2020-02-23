@@ -16,7 +16,7 @@ void Particle::update(f32 delta) {
 
 void Particle::render(u32 layer, Vec2 origin, s32 slot, Vec2 uv_min, Vec2 uv_dim) {
     if (dead()) return;
-    Renderer::push_sprite(
+    Renderer::push_sprite_rect(
         layer,
         slot,
         position + origin,

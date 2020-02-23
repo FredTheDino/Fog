@@ -2,11 +2,6 @@ CXX = g++
 # NOTE: The verbose flag doesn't allow compilation on cirtain mac systems.
 DEBUG_FLAGS = -ggdb -O0 -DDEBUG  # -DFOG_VERBOSE
 WARNINGS = -Wall -Wno-invalid-offsetof -Wno-unused-but-set-variable -Wno-unused-function -Wno-missing-braces -Wno-error
-ifeq ($(FORCE_COLOR),) 
-COLOR = -fdiagnostics-color=always 
-else
-COLOR = 
-endif
 FLAGS = $(WARNINGS) -std=c++17 -Iinc $(DEBUG_FLAGS)
 LIB_PATH = ./lib/linux
 LIBS = -lSDL2 -lSDL2main -ldl -lpthread

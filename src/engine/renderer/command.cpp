@@ -56,9 +56,7 @@ void push_point(u32 layer, Vec2 point, Vec4 color, f32 size) {
     Impl::push_point(layer, point, color, size);
 }
 
-// TODO(ed): It might be smart to seperate out the rotation
-// logic since it adds unnessecary complexity here.
-void push_sprite(u32 layer, s32 slot, Vec2 position, Vec2 dimension, f32 angle,
+void push_sprite_rect(u32 layer, s32 slot, Vec2 position, Vec2 dimension, f32 angle,
                  Vec2 uv_min, Vec2 uv_dimension, Vec4 color) {
     Vec2 inv_dimension = {1.0f / (f32) OPENGL_TEXTURE_WIDTH,
                           1.0f / (f32) OPENGL_TEXTURE_HEIGHT};
@@ -90,9 +88,9 @@ void push_sprite(u32 layer, s32 slot, Vec2 position, Vec2 dimension, f32 angle,
                         color, slot);
 }
 
-void push_sprite(u32 layer, Vec2 position, Vec2 dimension, f32 angle,
+void push_sprite_rect(u32 layer, Vec2 position, Vec2 dimension, f32 angle,
                  AssetID asset, Vec2 uv_min, Vec2 uv_dimension, Vec4 color) {
-    push_sprite(layer, Asset::fetch_image(asset)->id, position, dimension,
+    push_sprite_rect(layer, Asset::fetch_image(asset)->id, position, dimension,
                 angle, uv_min, uv_dimension, color);
 }
 
