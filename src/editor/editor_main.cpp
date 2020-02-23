@@ -52,7 +52,7 @@ void write_sprite_to_file(EditableSprite sprite, FILE *file) {
 }
 
 AssetID find_next_sheet(AssetID start=0, int dir=1) {
-    for (s32 i = 1; i < Res::NUM_ASSETS; i++) {
+    for (s32 i = 1; i < (s32) Res::NUM_ASSETS; i++) {
         AssetID curr = (start + i * dir + Res::NUM_ASSETS) % Res::NUM_ASSETS;
         if (Asset::asset_of_type(curr, Asset::Type::TEXTURE))
             return curr;
