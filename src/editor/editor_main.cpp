@@ -119,7 +119,6 @@ void setup(int argc, char **argv) {
 
     using namespace Input;
     // Sprite editor
-    // TODO(ed): Keyboard input
     add(K(a), Name::EDIT_PLACE);
     add(K(s), Name::EDIT_SELECT);
     add(K(d), Name::EDIT_REMOVE);
@@ -246,10 +245,8 @@ void sprite_editor_update() {
         }
     }
 
-    // TODO(ed): Exporting sprites, and multiple sprites
     // TODO(ed): Select sprite
-    // TODO(ed): Allow multiple sprites to be editable
-    // TODO(ed): Keyboard support?
+    // TODO(ed): Allow multiple sprites to be editable at once
     // TODO(ed): Tweak values for things like, hue of the overlay
     // and such, so any sprite can be rendered underneath
 

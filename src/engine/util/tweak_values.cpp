@@ -72,8 +72,8 @@ Vec2i moved_over_boundry() {
     return {upper_x - lower_x, lower_y - upper_y};
 }
 
-void precise_snap(f32 *value, f32 big_snap=1.0, f32 smal_snap=0.1) {
-    f32 precision = (Input::down(Input::Name::TWEAK_SMOOTH) ? smal_snap : big_snap);
+void precise_snap(f32 *value, f32 big_snap=1.0, f32 small_snap=0.1) {
+    f32 precision = (Input::down(Input::Name::TWEAK_SMOOTH) ? small_snap : big_snap);
     f32 v = (*value) / precision;
     *value = ROUND(v) * precision;
 }
