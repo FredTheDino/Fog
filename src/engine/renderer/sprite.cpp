@@ -1,8 +1,8 @@
 namespace Renderer {
 
-void push_sprite(u32 layer, Sprite *sprite, Vec2 position,
+void push_sprite(u32 layer, AssetID sprite_id, Vec2 position,
                  Vec2 dimension, f32 angle, Vec4 color) {
-    // Sprite *sprite = Asset::fetch_sprite(sprite_id);
+    Sprite *sprite = Asset::fetch_sprite(sprite_id);
     u32 slot = Asset::fetch_image(sprite->sprite_sheet)->id;
     ASSERT(sprite->num_points >= 3, "A sprite has to have atleast 3 points");
     // TODO(ed): Here we can brake out the sinus compute to
