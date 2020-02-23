@@ -463,8 +463,8 @@ void dump_asset_file(AssetFile *file, const char *out_path) {
     }
     fprintf(source_file, "constexpr u64 NUM_ASSETS = %llu;\n", entiries.size());
 
-    fprintf(source_file, "\n// A hashtable for absolute refferences outside\n// the code, used between builds of the engine, don't use these in your\n// game if you can avoid it.\n");
-    // Write hashtable
+    fprintf(source_file, "\n// A hash table for absolute references outside\n// the code, used between builds of the engine, don't use these in your\n// game if you can avoid it.\n");
+    // Write hash table
     std::unordered_set<u64> collisions;
     fprintf(source_file, "constexpr u64 HASH_LUT[] = {\n");
     for (u64 i = 0; i < entiries.size(); i++) {

@@ -19,7 +19,7 @@ void read_with_default(const char *prompt, const char *def, char *val, u32 lengt
             break;
         }
 
-        printf("You passed in a too long string, try something shorter.\n");
+        printf("You passed in a too long string, max length is %d.\n", length);
         do {
             fgets(val, length, stdin);
             input_length = Util::str_len(val);
@@ -76,7 +76,6 @@ AssetID find_next_sheet(AssetID start=0, int dir=1) {
 //
 // It isn't currently though.. Not sure if we should have an
 // editor at all... Maybe just load JSON data, or something?
-// bool sprite_editor = true;
 const char *path = nullptr;
 
 void create_new_sprite() {
@@ -109,14 +108,6 @@ void setup(int argc, char **argv) {
             val++;
             if (*val == '-') val++;
             switch (*val) {
-                case 's':
-                case 'S':
-                    // sprite_editor = true;
-                    break;
-                case 'l':
-                case 'L':
-                    // sprite_editor = false;
-                    break;
                 default:
                     LOG("Unkown argument '%s', ignoring.", argv[i]);
             };
