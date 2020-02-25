@@ -69,6 +69,7 @@ struct ParticleSystem {
     bool one_color;
     bool one_alpha;
     bool one_size;
+    bool drop_oldest;
     Vec2 position;
 
     // Spawning

@@ -28,7 +28,6 @@ void Particle::render(u32 layer, Vec2 origin, s32 slot, Vec2 uv_min, Vec2 uv_dim
     );
 }
 
-//TODO(gu) replace oldest particle when particle system is full ?
 Particle ParticleSystem::generate() {
     ASSERT(particles, "Trying to use uninitalized/destroyed particle system");
 
@@ -87,7 +86,13 @@ Particle ParticleSystem::generate() {
 void ParticleSystem::spawn(u32 num_particles) {
     ASSERT(particles, "Trying to use uninitalized/destroyed particle system");
     for (u32 i = 0; i < num_particles; i++) {
-        if (head == tail) return;
+        if (head == tail) {
+            if (!drop_oldest) {
+                return;
+            } else {
+                head = (head + 1) % max_num_particles;
+            }
+        }
         Particle new_particle = generate();
         particles[tail] = new_particle;
         tail = (tail + 1) % max_num_particles;
@@ -154,6 +159,7 @@ ParticleSystem create_particle_system(u32 layer, u32 num_particles, Vec2 positio
     particle_system.one_color = true;
     particle_system.one_alpha = false;
     particle_system.one_size = false;
+    particle_system.drop_oldest = false;
 
     particle_system.num_sub_sprites = 0;
 
