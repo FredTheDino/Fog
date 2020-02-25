@@ -380,7 +380,7 @@ bool init(const char *title, int width, int height) {
     create_frame_buffers(width, height);
 
     glEnable(GL_BLEND);
-    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glGenTextures(1, &sprite_texture_array);
     glBindTexture(GL_TEXTURE_2D_ARRAY, sprite_texture_array);
@@ -523,17 +523,17 @@ u32 upload_texture(const Image *image, s32 index) {
 
 void upload_shader(AssetID asset, const char *source) {
     switch (asset) {
-        case ASSET_MASTER_SHADER:
+        case Res::MASTER_SHADER:
             master_shader_program = compile_shader_program_from_source(source);
             ASSERT(master_shader_program, "Failed to compile shader");
             master_shader_current_cam_loc =
                 glGetUniformLocation(master_shader_program.id, "current_cam");
             break;
-        case ASSET_FONT_SHADER:
+        case Res::FONT_SHADER:
             font_shader_program = compile_shader_program_from_source(source);
             ASSERT(font_shader_program, "Failed to compile shader");
             break;
-        case ASSET_POST_PROCESS_SHADER:
+        case Res::POST_PROCESS_SHADER:
             source = Util::format(
                     "const int num_screens = " STR(OPENGL_NUM_CAMERAS) ";\n"
                     "uniform int num_active_samplers;\n"

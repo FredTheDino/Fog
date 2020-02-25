@@ -39,7 +39,7 @@ void draw_text(const char *string, f32 x, f32 y, f32 size, AssetID font_id,
                           y + (glyph.h + glyph.y_offset) * -size};
                 Vec2 uv = {glyph.x, glyph.y};
                 Vec2 span = {glyph.w, glyph.h};
-                Renderer::push_sdf_quad(p + offset, p + offset + span * size,
+                push_sdf_quad(p + offset, p + offset + span * size,
                                         uv, uv + span,
                                         font->texture, color, 0.4, 0.4 + edge,
                                         border);
@@ -59,7 +59,7 @@ void draw_text(const char *string, f32 x, f32 y, f32 size, AssetID font_id,
                           y + (glyph.h + glyph.y_offset) * (-size)};
                 Vec2 uv = {glyph.x, glyph.y};
                 Vec2 span = {glyph.w, glyph.h};
-                Renderer::push_sdf_quad(p + offset, p + offset + span * size,
+                push_sdf_quad(p + offset, p + offset + span * size,
                                         uv, uv + span,
                                         font->texture, color, 0.4, 0.4 + edge,
                                         border);

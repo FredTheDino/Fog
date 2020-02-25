@@ -86,7 +86,7 @@ void pop_memory(T *data);
 
 ///*
 // Copies the memory from one pointer to the other.
-void copy_bytes(void *from, void *to, u64 size);
+void copy_bytes(const void *from, void *to, u64 size);
 
 ///*
 // Allows a single memory allocation without very verbose complaining.
@@ -94,6 +94,11 @@ void copy_bytes(void *from, void *to, u64 size);
 // but after the inital setup you shouldn't really be allocating unless
 // you know what you're doing. I'm looking at you Erik.
 void allow_allocation();
+
+///*
+// Allows all allocations, if you find it too annoying. Don't call this if
+// you don't know what you're doing.
+void allow_all_allocations();
 
 // Doesn't allow allocations all willy-nilly anymore.
 void strict_allocation_check();

@@ -52,6 +52,10 @@ void strict_allocation_check() {
     _fog_mem_alloc_state = MemoryAllocationState::ILLEGAL;
 }
 
+void allow_all_allocations() {
+    _fog_mem_alloc_state = MemoryAllocationState::NO_RULE;
+}
+
 void do_all_allocations() {
     static_assert(TOTAL_MEMORY_BUDGET % ARENA_SIZE_IN_BYTES == 0);
 
@@ -169,10 +173,10 @@ void pop_memory(T *data) {
     free(data);
 }
 
-void copy_bytes(void *from, void *to, u64 size) {
+void copy_bytes(const void *from, void *to, u64 size) {
     // TODO(ed): memcpy might be like... A lot faster..
     u8 *_to = (u8 *) to;
-    u8 *_from = (u8 *) from;
+    const u8 *_from = (const u8 *) from;
     while(size--) *(_to++) = *(_from++);
 }
 
