@@ -213,7 +213,7 @@ f32 value(Name name, Player player) {
 
 Vec2 scale_screen_to_world(Vec2 p, u32 camera_id = 0) {
     Renderer::Camera *camera = Renderer::fetch_camera(camera_id);
-    const f32 inv_width = 1.0 / Renderer::get_window_width();
+    const f32 inv_width = 1.0 / Renderer::fetch_window_width();
     const f32 scale_factor = 1.0 / camera->zoom;
     Vec2 opengl = V2( p.x * 2 * scale_factor * inv_width,
                      -p.y * 2 * scale_factor * inv_width);
@@ -231,10 +231,10 @@ Vec2 world_mouse_position(u32 camera_id) {
 }
 
 Vec2 normalized_mouse_position() {
-    const f32 inv_width = 1.0 / Renderer::get_window_width();
+    const f32 inv_width = 1.0 / Renderer::fetch_window_width();
     Vec2 opengl = V2( mouse_position().x * 2 * inv_width,
                      -mouse_position().y * 2 * inv_width);
-    Vec2 normalized = opengl + V2(-1, 1 * Renderer::get_window_aspect_ratio());
+    Vec2 normalized = opengl + V2(-1, 1 * Renderer::fetch_window_aspect_ratio());
     return normalized;
 }
 
@@ -249,7 +249,7 @@ Vec2 mouse_scroll() {
 Vec2 world_mouse_move(u32 camera_id) {
     Vec2 p = mouse_move();
     Renderer::Camera *camera = Renderer::fetch_camera(camera_id);
-    const f32 inv_width = 1.0 / Renderer::get_window_width();
+    const f32 inv_width = 1.0 / Renderer::fetch_window_width();
     const f32 scale_factor = 1.0 / camera->zoom;
     Vec2 opengl = V2( p.x * 2 * scale_factor * inv_width,
             -p.y * 2 * scale_factor * inv_width);

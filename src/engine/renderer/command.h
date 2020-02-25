@@ -113,6 +113,12 @@ bool is_fullscreen();
 // TODO(ed): Add window icons.
 // TODO(ed): Get display size.
 
+///*
+// Fetches all the pixels rendered to the framebuffer from the
+// specified camera. A buffer is returned that should be freed
+// by the caller. The format of the buffer is RGB.
+f32 *fetch_rendered_pixels(u32 camera=0);
+
 // Draw all rendered pixels to the screen.
 void blit();
 

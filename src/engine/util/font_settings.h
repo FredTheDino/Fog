@@ -10,7 +10,7 @@ namespace Util {
     // TODO(ed): Maybe don't calculate the font size this
     // many times per frame...
     f32 debug_font_size() {
-        return 400 / (f32) Renderer::get_window_width();
+        return 400 / (f32) Renderer::fetch_window_width();
     }
 
     f32 debug_line_height() {

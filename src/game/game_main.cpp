@@ -128,28 +128,23 @@ void update(f32 delta) {
 
     Renderer::debug_camera(0);
 
-    if (pressed(Name::UP)) {
-        channel->set_highpass(0.05, 2);
+    if (pressed(Name::LEFT)) {
+        Renderer::fetch_camera(0)->position.x -= delta;
     }
 
     if (pressed(Name::RIGHT)) {
-        channel->set_highpass(0.25, 2);
-    }
-
-    if (pressed(Name::DOWN)) {
-        channel->set_highpass(1, 2);
-    }
-
-    if (pressed(Name::LEFT)) {
+        Renderer::fetch_camera(0)->position.x += delta;
     }
 }
 
 // Main draw
 void draw() {
     const char *some_string = "Wellcome to the other side!";
-    Renderer::draw_text(some_string, 0, -0.2, 1.0, ASSET_MONACO_FONT, 0);
-    Renderer::draw_text(some_string, 0, 0, 1.0, ASSET_MONACO_FONT, -0.5);
-    Renderer::draw_text(some_string, 0, 0.2, 1.0, ASSET_MONACO_FONT, -1.0);
+    Renderer::push_point(0, V2(0, 0), V4(1, 0, 0, 1), 1.0);
+    f32 *colors = Renderer::fetch_rendered_pixels();
+    LOG("%f, %f, %f", colors[0], colors[1], colors[2]);
+    Util::pop_memory(colors);
+
 }
 
 }  // namespace Game

@@ -122,7 +122,7 @@ void set_window_position(int x, int y) {
     SDL_SetWindowPosition(window, x, y);
 }
 
-Vec2 get_window_position() {
+Vec2 fetch_window_position() {
     int x, y;
     SDL_GetWindowPosition(window, &x, &y);
     return V2(x, y);
@@ -132,7 +132,7 @@ void set_window_size(int w, int h) {
     SDL_SetWindowSize(window, w, h);
 }
 
-Vec2 get_window_size() {
+Vec2 fetch_window_size() {
     int x, y;
     SDL_GetWindowSize(window, &x, &y);
     return V2(x, y);

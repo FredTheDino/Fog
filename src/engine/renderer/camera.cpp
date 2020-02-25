@@ -1,13 +1,13 @@
 namespace Renderer {
 
 void recalculate_global_aspect_ratio(int width, int height) {
-    get_window()->width = width;
-    get_window()->height = height;
-    get_window()->aspect_ratio = (f32) height / (f32) width;
+    fetch_window()->width = width;
+    fetch_window()->height = height;
+    fetch_window()->aspect_ratio = (f32) height / (f32) width;
 
 #if OPENGL_AUTO_APPLY_ASPECTRATIO_CHANGE
     for (u32 i = 0; i < OPENGL_NUM_CAMERAS; i++) {
-        fetch_camera(i)->aspect_ratio = get_window()->aspect_ratio;
+        fetch_camera(i)->aspect_ratio = fetch_window()->aspect_ratio;
     }
 #endif
 }
@@ -107,20 +107,20 @@ void debug_camera(u32 camera_id) {
     camera->zoom *= zoom_strength;
 }
 
-Window *get_window() {
+Window *fetch_window() {
     return &_fog_global_window_state.win;
 }
 
-f32 get_window_width() {
-    return get_window()->width;
+f32 fetch_window_width() {
+    return fetch_window()->width;
 }
 
-f32 get_window_height() {
-    return get_window()->height;
+f32 fetch_window_height() {
+    return fetch_window()->height;
 }
 
-f32 get_window_aspect_ratio() {
-    return get_window()->aspect_ratio;
+f32 fetch_window_aspect_ratio() {
+    return fetch_window()->aspect_ratio;
 }
 
 }

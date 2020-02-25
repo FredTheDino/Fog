@@ -123,13 +123,17 @@ void upload_shader(AssetID asset, char *source) {
 // Draw all rendered pixels to the screen.
 void blit() { Impl::blit(); }
 
+f32 *fetch_rendered_pixels(u32 camera_id) {
+    return Impl::fetch_rendered_pixels(camera_id);
+}
+
 void set_window_position(int x, int y) { Impl::set_window_position(x, y); }
 
-Vec2 get_window_position() { return Impl::get_window_position(); }
+Vec2 fetch_window_position() { return Impl::fetch_window_position(); }
 
 void set_window_size(int w, int h) { Impl::set_window_size(w, h); }
 
-Vec2 get_window_size() { return Impl::get_window_size(); }
+Vec2 fetch_window_size() { return Impl::fetch_window_size(); }
 
 void set_window_title(const char *title) {
     return Impl::set_window_title(title);

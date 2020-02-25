@@ -3,7 +3,7 @@ CXX = g++
 DEBUG_FLAGS = -ggdb -O0 -DDEBUG  # -DFOG_VERBOSE
 TESTING_FLAGS = -DRUN_TESTS
 WARNINGS = -Wall -Wno-invalid-offsetof -Wno-unused-but-set-variable -Wno-unused-function -Wno-missing-braces -Wno-error
-FLAGS = -fdiagnostics-color=always $(WARNINGS) -std=c++17 -Iinc $(DEBUG_FLAGS)
+FLAGS = $(WARNINGS) -std=c++17 -Iinc $(DEBUG_FLAGS) # -fdiagnostics-color=always 
 LIB_PATH = ./lib/linux
 LIBS = -lSDL2 -lSDL2main -ldl -lpthread
 BIN_DIR = bin

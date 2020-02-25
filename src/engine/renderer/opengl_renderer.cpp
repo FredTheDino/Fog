@@ -1,4 +1,4 @@
-#define GLSL_ACTIVE_CAM_LOC 2
+#define GLSL_ACTIVE_CAM_LOC 2;
 const static int GLSL_GLOBAL_BLOCK = 0;
 const static u32 ubo_int_size    = sizeof(u32);
 const static u32 ubo_global_size = sizeof(_fog_global_window_state);
@@ -366,7 +366,7 @@ bool init(const char *title, int width, int height) {
         sprite_render_queues[i].create(512);
     }
     font_render_queue.create(256);
-    
+
     // Initalize texture indicies
     for (u32 i = 0; i < OPENGL_NUM_CAMERAS; i++)
         _fog_texture_indicies[i] = i;
@@ -483,6 +483,17 @@ void push_point(u32 layer, Vec2 point, Vec4 color, f32 size) {
     LAYER_CHECK(layer);
     size /= 2.0;
     push_quad(layer, point - V2(size, size), point + V2(size, size), color);
+}
+
+f32 *fetch_rendered_pixels(u32 camera_id) {
+    u32 buffer_size = fetch_window_width() * fetch_window_height();
+
+    Util::allow_allocation();
+    f32 *buffer = Util::push_memory<f32>(buffer_size * 3);
+    glBindFramebuffer(GL_FRAMEBUFFER, screen_fbos[camera_id]);
+    glReadPixels(0, 0, fetch_window_width(), fetch_window_height(),
+                 GL_RGB, GL_FLOAT, buffer);
+    return buffer;
 }
 
 struct StoredImage {

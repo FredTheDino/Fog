@@ -54,14 +54,14 @@ Camera *fetch_camera(u32 camera_id=0);
 ///*
 // Returns the global window, containing dimensions
 // of the window.
-Window *get_window();
+Window *fetch_window();
 
 ///*
 // Returns the corresponding field in the global window,
 // containing dimensions of the window.
-f32 get_window_width();
-f32 get_window_height();
-f32 get_window_aspect_ratio();
+f32 fetch_window_width();
+f32 fetch_window_height();
+f32 fetch_window_aspect_ratio();
 
 ///* camera_shake
 // Shakes the camera in the specified ellipse.
