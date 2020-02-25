@@ -22,13 +22,18 @@ struct Particle {
     Vec2 acceleration;
     f32 damping;
 
-    f32 spawn_size;
-    f32 die_size;
-
+    f32 first_size;
+    f32 first_size_deriv;
+    f32 second_size;
+    f32 second_size_deriv;
+    ProgressFuncF32 *progress_func_size;
     Vec2 dim;
 
-    Vec4 spawn_color;
-    Vec4 die_color;
+    Vec4 first_color;
+    f32 first_color_deriv;
+    Vec4 second_color;
+    f32 second_color_deriv;
+    ProgressFuncVec4 *progress_func_color;
 
     s16 sprite;
 
@@ -81,7 +86,11 @@ struct ParticleSystem {
     Span acceleration;
 
     Span spawn_size;
+    Span spawn_size_deriv;
     Span die_size;
+    Span die_size_deriv;
+
+    ProgressFuncF32 progress_func_size;
 
     Span width;
     Span height;
@@ -90,11 +99,15 @@ struct ParticleSystem {
     Span spawn_green;
     Span spawn_blue;
     Span spawn_alpha;
+    Span spawn_color_deriv;
 
     Span die_red;
     Span die_green;
     Span die_blue;
     Span die_alpha;
+    Span die_color_deriv;
+
+    ProgressFuncVec4 progress_func_color;
 
     // Spawns new particle, used internally.
     Particle generate();
