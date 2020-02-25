@@ -4,9 +4,9 @@
 
 **Under active development**
 
-A "simple" and efficient game engine made with thought, care and OpenSource.
+A "simple" and efficient game engine made with thought, care and open source.
 
-## Quickstart guide
+## Quick-start guide
 To compile, assuming you're on Linux, make sure you have the following
 dependencies installed:
  - OpenGL driver
@@ -42,15 +42,17 @@ so there is no shame in linking in source files and headers, since
 that's what the makefile is set up for.
 
 ### Rain the Sprite Editor
-The sprite editor built into the engine. The sprite editor is simplicitik and not very flexible,
-but it works! The keybindings are as follows:
+
+The sprite editor built into the engine. The sprite editor is simplistic and not
+very flexible, but it works! The keybindings are as follows:
+
 | Keyboard | Controller | Action |
 |:---------|:-----------|-------:|
 | A, or RMB| B          | Place a node |
 | S, or LMB| A          | Select and move node |
 | D        | Y          | Delete the closest node |
 | Mouse    | Left stick | Move around |
-| Left Ctrl| Left Button| Snap to grid |
+| Left ctrl| Left Button| Snap to grid |
 | u        | Right Trig | Next sprite |
 | i        | Left Trig  | Prev sprite |
 | n        | D-Right    | Next sprite sheet |
@@ -73,7 +75,7 @@ OpenGL with some of the ground work for custom platform layers
 and rendering APIs already in place.
 
 ### Open
-If you want to do a unique feature, it shouldn't require changeing
+If you want to do a unique feature, it shouldn't require changing
 a lot of code you don't have access to. Having the full source code
 at hand allows fixing of bugs and easily progressing the project.
 It's frustrating to work with code you can't inspect, and you should
