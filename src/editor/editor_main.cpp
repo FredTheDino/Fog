@@ -259,7 +259,7 @@ void sprite_editor_update() {
             global_editor.current_sprite %= num_sprites;
         }
 
-        f32 delta = MAX(Logic::delta(), 0.2);
+        f32 delta = MIN(Logic::delta(), 0.2);
         f32 move_x = value(Name::EDIT_MOVE_RIGHT_LEFT);
         move_x += value(Name::EDIT_MOVE_RIGHT);
         move_x -= value(Name::EDIT_MOVE_LEFT);
