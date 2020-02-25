@@ -12,6 +12,7 @@ struct Particle {
     f32 progress;
 
     f32 inv_alive_time;
+    bool keep_alive;
     f32 rotation;
     f32 angular_velocity;
     // TODO(ed): Angular damping?
@@ -52,7 +53,6 @@ struct ParticleSystem {
     u32 layer;
     SubSprite sub_sprites[MAX_NUM_SUB_SPRITES];
 
-
     // Utility
     u32 head;
     u32 tail;
@@ -60,6 +60,7 @@ struct ParticleSystem {
     Particle *particles = nullptr;
 
     bool relative;
+    bool keep_alive;
     bool one_color;
     bool one_alpha;
     bool one_size;

@@ -1,7 +1,7 @@
 namespace Renderer {
 
 bool Particle::dead() {
-    return progress > 1.0;
+    return (!keep_alive) && progress > 1.0;
 }
 
 void Particle::update(f32 delta) {
@@ -50,6 +50,7 @@ Particle ParticleSystem::generate() {
     return {
         0,
             1.0f / alive_time.random(),
+            keep_alive,
 
             rotation.random(),
             angular_velocity.random(),
@@ -136,6 +137,7 @@ ParticleSystem create_particle_system(u32 layer, u32 num_particles, Vec2 positio
     particle_system.layer = layer;
 
     particle_system.relative = false;
+    particle_system.keep_alive = false;
     particle_system.one_color = true;
     particle_system.one_alpha = false;
     particle_system.one_size = false;
