@@ -89,10 +89,10 @@ u32 RenderQueue<T>::total_number_of_verticies() const {
 }
 
 template <typename T>
-void RenderQueue<T>::create(u32 triangels_per_buffer) {
+void RenderQueue<T>::create(u32 triangles_per_buffer) {
     ASSERT(gl_draw_hint == 0,
-           "Cannot create same RenderQueue twice without deleteing.");
-    buffer_size = triangels_per_buffer * 3;
+           "Cannot create same RenderQueue twice without deleting.");
+    buffer_size = triangles_per_buffer * 3;
     arena = Util::request_arena(true);
     vertex_buffers = arena->push<GLBuffer>(num_buffers);
 
