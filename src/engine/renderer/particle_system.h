@@ -23,17 +23,17 @@ struct Particle {
     Vec2 acceleration;
     f32 damping;
 
-    f32 first_size;
-    f32 first_size_deriv;
-    f32 second_size;
-    f32 second_size_deriv;
+    f32 spawn_size;
+    f32 spawn_size_deriv;
+    f32 die_size;
+    f32 die_size_deriv;
     ProgressFuncF32 *progress_func_size;
     Vec2 dim;
 
-    Vec4 first_color;
-    f32 first_color_deriv;
-    Vec4 second_color;
-    f32 second_color_deriv;
+    Vec4 spawn_color;
+    f32 spawn_color_deriv;
+    Vec4 die_color;
+    f32 die_color_deriv;
     ProgressFuncVec4 *progress_func_color;
 
     s16 sprite;

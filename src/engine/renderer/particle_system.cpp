@@ -17,39 +17,39 @@ void Particle::render(u32 layer, Vec2 origin, s32 slot, Vec2 uv_min, Vec2 uv_dim
         layer,
         slot,
         position + origin,
-        dim * (*progress_func_size)(first_size, first_size_deriv, second_size, second_size_deriv, progress_mod),
+        dim * (*progress_func_size)(spawn_size, spawn_size_deriv, die_size, die_size_deriv, progress_mod),
         rotation,
         uv_min,
         uv_dim,
-        (*progress_func_color)(first_color, first_color_deriv, second_color, second_color_deriv, progress_mod)
+        (*progress_func_color)(spawn_color, spawn_color_deriv, die_color, die_color_deriv, progress_mod)
     );
 }
 
 Particle ParticleSystem::generate() {
     ASSERT(particles, "Trying to use uninitalized/destroyed particle system");
 
-    f32 first_size = spawn_size.random();
-    f32 first_size_deriv = spawn_size_deriv.random();
-    f32 second_size = one_size ? first_size : die_size.random();
-    f32 second_size_deriv = die_size_deriv.random();
+    f32 particle_spawn_size = spawn_size.random();
+    f32 particle_spawn_size_deriv = spawn_size_deriv.random();
+    f32 particle_die_size = one_size ? particle_spawn_size : die_size.random();
+    f32 particle_die_size_deriv = die_size_deriv.random();
 
-    Vec4 first_color = V4(spawn_red.random(), spawn_green.random(),
+    Vec4 particle_spawn_color = V4(spawn_red.random(), spawn_green.random(),
             spawn_blue.random(), spawn_alpha.random());
-    f32 first_color_deriv = spawn_color_deriv.random();
+    f32 particle_spawn_color_deriv = spawn_color_deriv.random();
 
-    Vec4 second_color;
-    f32 second_color_deriv;
+    Vec4 particle_die_color;
+    f32 particle_die_color_deriv;
     if (one_color) {
-        second_color = first_color;
-        second_color_deriv = first_color_deriv;
+        particle_die_color = particle_spawn_color;
+        particle_die_color_deriv = particle_spawn_color_deriv;
     } else {
-        second_color = V4(die_red.random(), die_green.random(),
-                die_blue.random(), first_color.w);
-        second_color_deriv = die_color_deriv.random();
+        particle_die_color = V4(die_red.random(), die_green.random(),
+                die_blue.random(), particle_spawn_color.w);
+        particle_die_color_deriv = die_color_deriv.random();
     }
 
     if (!one_alpha) {
-        second_color.w = die_alpha.random();
+        particle_die_color.w = die_alpha.random();
     }
     return {
         0,
@@ -65,17 +65,17 @@ Particle ParticleSystem::generate() {
             rotate(V2(1, 0), acceleration_dir.random()) * acceleration.random(),
             damping.random(),
 
-            first_size,
-            first_size_deriv,
-            second_size,
-            second_size_deriv,
+            particle_spawn_size,
+            particle_spawn_size_deriv,
+            particle_die_size,
+            particle_die_size_deriv,
             &progress_func_size,
             V2(width.random(), height.random()),
 
-            first_color,
-            first_color_deriv,
-            second_color,
-            second_color_deriv,
+            particle_spawn_color,
+            particle_spawn_color_deriv,
+            particle_die_color,
+            particle_die_color_deriv,
             &progress_func_color,
             (s16) (num_sub_sprites ?  random_int() % num_sub_sprites : -1),
     };
@@ -85,11 +85,9 @@ void ParticleSystem::spawn(u32 num_particles) {
     ASSERT(particles, "Trying to use uninitalized/destroyed particle system");
     for (u32 i = 0; i < num_particles; i++) {
         if (head == tail) {
-            if (!drop_oldest) {
+            if (!drop_oldest)
                 return;
-            } else {
-                head = (head + 1) % max_num_particles;
-            }
+            head = (head + 1) % max_num_particles;
         }
         Particle new_particle = generate();
         particles[tail] = new_particle;
@@ -177,7 +175,7 @@ ParticleSystem create_particle_system(u32 layer, u32 num_particles, Vec2 positio
 
     particle_system.spawn_size = {0.5, 1.0};
     particle_system.die_size = {0.0, 0.0};
-    particle_system.progress_func_size = get_std_progress_func_f32();
+    particle_system.progress_func_size = std_progress_func_f32;
 
     particle_system.width = {1.0, 1.0};
     particle_system.height = {1.0, 1.0};
@@ -200,7 +198,7 @@ ParticleSystem create_particle_system(u32 layer, u32 num_particles, Vec2 positio
     particle_system.die_blue = {};
     particle_system.die_alpha = {};
 
-    particle_system.progress_func_color = get_std_progress_func_vec4();
+    particle_system.progress_func_color = std_progress_func_vec4;
     return particle_system;
 }
 

@@ -123,14 +123,12 @@ float winding_direction(Vec2 p1, Vec2 p2, Vec2 p3) {
 }
 
 typedef Function<f32(f32, f32, f32, f32, f32)> ProgressFuncF32;
-ProgressFuncF32 get_std_progress_func_f32() {
-    auto func = [](f32 start_value, f32 start_slope, f32 end_value, f32 end_slope, f32 progress) {
-        f32 p = 2*start_value - 2*end_value + start_slope + end_slope;
-        f32 q = -(3*start_value - 3*end_value + 2*start_slope + end_slope);
-        return p*pow(progress, 3) + q*pow(progress, 2) + start_slope*progress + start_value;
-    };
-    return ProgressFuncF32(func);
-}
+ProgressFuncF32 std_progress_func_f32 = []
+        (f32 start_value, f32 start_slope, f32 end_value, f32 end_slope, f32 progress) {
+    f32 p = 2*start_value - 2*end_value + start_slope + end_slope;
+    f32 q = -(3*start_value - 3*end_value + 2*start_slope + end_slope);
+    return p*pow(progress, 3) + q*pow(progress, 2) + start_slope*progress + start_value;
+};
 
 #include "random.h"
 #include "random.cpp"
