@@ -21,16 +21,19 @@ void setup(int argc, char **argv) {
     system.one_color = false;
     system.one_size = false;
     system.drop_oldest = true;
-    system.alive_time = {0.5, 0.5};
+    system.alive_time = {1, 1};
     system.velocity_dir = {0, 2*PI};
     system.spawn_size = {0, 0};
     system.die_size = {0, 0};
     system.spawn_size_deriv = {0.2, 0.2};
     system.die_size_deriv = {0, 0};
-    system.die_red = {0.96, 0.96};
-    system.die_green = {0.894, 0.894};
-    system.die_blue = {0.529, 0.529};
-    system.velocity = {0.2, 0.4};
+    system.spawn_red = {1, 1};
+    system.spawn_green = {0, 0};
+    system.spawn_blue = {0, 0};
+    system.die_red = {0, 0};
+    system.die_green = {1, 1};
+    system.die_blue = {0, 1};
+    system.velocity = {0.15, 0.3};
 }
 
 // Main logic
@@ -38,7 +41,7 @@ void update(f32 delta) {
     system.update(delta);
 
     using namespace Input;
-    if (down(Name::LEFT))
+    if (pressed(Name::LEFT))
         system.spawn();
     if (down(Name::RIGHT))
         system.clear();

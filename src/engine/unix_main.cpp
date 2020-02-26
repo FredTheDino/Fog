@@ -9,6 +9,8 @@ bool debug_values_are_on();
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+#include "util/debug.cpp"
+
 #include "math/block_math.h"
 #include "util/mapmacro.h"
 
@@ -19,7 +21,6 @@ bool debug_values_are_on();
 #include "renderer/text.h"
 
 #include "util/argument.h"
-#include "util/debug.cpp"
 #include "util/tweak_values.h"
 #include "util/types.h"
 #include "util/memory.h"
