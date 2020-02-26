@@ -154,16 +154,16 @@ void destroy_particle_system(ParticleSystem *system);
 #ifdef _EXAMPLE_
 ///* ParticleSystem
 // <p>
-// A particle system is in charge of handling a group of
-// particles, rendering them and updating them. It has a
-// ton of knobs and options to tweak how the particles are
+// A particle system is in charge of handling, rendering and updating a group of
+// particles, It has a ton of knobs and options to tweak how the particles are
 // displayed.
 // </p>
 // <p>
 // The size (scale) and color of the particles is sort-of lerped between a
-// start-value and an end-value. Particles can be kept alive indefinitely with
-// the keep_alive-flag set, in which case the values start over from the
-// beginning instead of the particle disappearing.
+// start-value and an end-value with a set derivative at the beginning and end
+// of a cycle. Particles can be kept alive indefinitely with the
+// keep_alive-flag set, in which case the values start over from the beginning
+// instead of the particle disappearing.
 // <a href="https://www.desmos.com/calculator/kew3h4qg7i">The default function
 // follows the following graph</a> where a is the start value, b is the end
 // value, c is the start slope and d is the end slope. This function can be
@@ -183,14 +183,14 @@ struct ParticleSystem;
 // </p>
 my_system.rotation = {0, PI};
 // <p>
-// This sets the rotation to any number between 0 and PI when
-// sampling, you always have to specify two values.
+// This sets the rotation to a random number between 0 and PI when
+// sampling. You always have to specify the two values, or leave them empty to
+// set both to 0.
 // </p>
 // <p>
-// Here is a comprehensive list of attributes that are
-// interesting. Note that some of the boolean options might
-// disable certain attributes. The default values are given
-// in parenthesis.
+// Here is a comprehensive list of attributes that might be
+// interesting. Some of the boolean options might disable certain attributes.
+// The default values are given in parenthesis.
 // </p>
 // <table class="member-table">
 //    <tr><th width="150">Type</th><th width="50">Name</th><th>Description</th></tr>
@@ -238,27 +238,27 @@ my_system.rotation = {0, PI};
 // </table>
 
 ///*
-// Emits new particles from the particle system. If you
+// Emit new particles from the particle system. If you
 // want to do this over a set period of time, I would recommend
 // looking into "Logic::add_callback".
 void ParticleSystem::spawn(u32 num_particles=1);
 
 ///*
-// Updates the particle system, and progresses the particles by one time step.
+// Update the particle system and progress the particles by one time step.
 void ParticleSystem::update(f32 delta);
 
 ///*
-// Draws the particle system to the screen.
+// Draw the particle system to the screen.
 void ParticleSystem::draw();
 
 ///*
-// Clears the particle system by removing all particles.
+// Clear the particle system by removing all particles.
 void ParticleSystem::clear();
 
 ///*
-// Adds a sprite that can be selected when emitting from the system.
-// There is a hard limit of MAX_NUM_SUB_SPRITES, which is by default
-// set to 32. The coordinates are given in pixel coordinates, and
+// Add a sprite that can be selected when emitting from the system.
+// There is a hard limit of MAX_NUM_SUB_SPRITES, which is set to 32
+// by default. The coordinates are given in pixel coordinates, and
 // the asset id has to be a valid texture.
 void ParticleSystem::add_sprite(AssetID texture, u32 u, u32 v, u32 w, u32 h);
 
