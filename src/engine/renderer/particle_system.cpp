@@ -1,11 +1,8 @@
 namespace Renderer {
 
-bool Particle::dead() {
-    return (!keep_alive) && progress > 1.0;
-}
-
 void Particle::update(f32 delta) {
-    if (dead()) return;
+    alive = alive && (keep_alive || progress < 1.0);
+    if (!alive) return;
     progress += inv_alive_time * delta;
     velocity += acceleration * delta;
     position += velocity * delta;
@@ -14,7 +11,7 @@ void Particle::update(f32 delta) {
 }
 
 void Particle::render(u32 layer, Vec2 origin, s32 slot, Vec2 uv_min, Vec2 uv_dim) {
-    if (dead()) return;
+    if (!alive) return;
     f32 progress_mod = MOD(progress, 1.0);
     Renderer::push_sprite_rect(
         layer,
@@ -58,6 +55,7 @@ Particle ParticleSystem::generate() {
         0,
             1.0f / alive_time.random(),
             keep_alive,
+            true,
 
             rotation.random(),
             angular_velocity.random(),
@@ -105,7 +103,7 @@ void ParticleSystem::update(f32 delta) {
     bool move = true;
     do {
         particles[i].update(delta);
-        if (move && particles[i].dead()) {
+        if (move && !particles[i].alive) {
             u32 new_head = (head + 1) % max_num_particles;
             if (new_head != tail) {
                 head = new_head;
@@ -129,6 +127,14 @@ void ParticleSystem::draw() {
             particles[i].render(layer, p, -1, V2(0, 0), V2(0, 0));
         }
     } while ((i = (i + 1) % max_num_particles) != tail);
+}
+
+void ParticleSystem::clear() {
+    for (u32 i = 0; i < max_num_particles; i++) {
+        particles[i].alive = false;
+    }
+    tail = 0;
+    head = 1;
 }
 
 void ParticleSystem::add_sprite(AssetID texture, u32 u, u32 v, u32 w, u32 h){

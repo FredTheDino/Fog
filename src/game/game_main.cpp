@@ -40,6 +40,8 @@ void update(f32 delta) {
     using namespace Input;
     if (down(Name::LEFT))
         system.spawn();
+    if (down(Name::RIGHT))
+        system.clear();
 }
 
 // Main draw

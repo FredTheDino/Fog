@@ -13,6 +13,7 @@ struct Particle {
 
     f32 inv_alive_time;
     bool keep_alive;
+    bool alive;
     f32 rotation;
     f32 angular_velocity;
     // TODO(ed): Angular damping?
@@ -36,8 +37,6 @@ struct Particle {
     ProgressFuncVec4 *progress_func_color;
 
     s16 sprite;
-
-    bool dead();
 
     void update(f32 delta);
 
@@ -121,6 +120,9 @@ struct ParticleSystem {
 
     // Renders the entire particle system.
     void draw();
+
+    // Clears the entire particle system.
+    void clear();
 
     // Adds a sprite as a potential particle.
     void add_sprite(AssetID texture, u32 u, u32 v, u32 w, u32 h);
@@ -248,6 +250,10 @@ void ParticleSystem::update(f32 delta);
 ///*
 // Draws the particle system to the screen.
 void ParticleSystem::draw();
+
+///*
+// Clears the particle system by removing all particles.
+void ParticleSystem::clear();
 
 ///*
 // Adds a sprite that can be selected when emitting from the system.
