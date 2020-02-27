@@ -12,6 +12,8 @@ struct Particle {
     f32 progress;
 
     f32 inv_alive_time;
+    bool keep_alive;
+    bool alive;
     f32 rotation;
     f32 angular_velocity;
     // TODO(ed): Angular damping?
@@ -22,16 +24,19 @@ struct Particle {
     f32 damping;
 
     f32 spawn_size;
+    f32 spawn_size_deriv;
     f32 die_size;
-
+    f32 die_size_deriv;
+    ProgressFuncF32 *progress_func_size;
     Vec2 dim;
 
     Vec4 spawn_color;
+    f32 spawn_color_deriv;
     Vec4 die_color;
+    f32 die_color_deriv;
+    ProgressFuncVec4 *progress_func_color;
 
     s16 sprite;
-
-    bool dead();
 
     void update(f32 delta);
 
@@ -52,7 +57,6 @@ struct ParticleSystem {
     u32 layer;
     SubSprite sub_sprites[MAX_NUM_SUB_SPRITES];
 
-
     // Utility
     u32 head;
     u32 tail;
@@ -60,9 +64,11 @@ struct ParticleSystem {
     Particle *particles = nullptr;
 
     bool relative;
+    bool keep_alive;
     bool one_color;
     bool one_alpha;
     bool one_size;
+    bool drop_oldest;
     Vec2 position;
 
     // Spawning
@@ -80,7 +86,11 @@ struct ParticleSystem {
     Span acceleration;
 
     Span spawn_size;
+    Span spawn_size_deriv;
     Span die_size;
+    Span die_size_deriv;
+
+    ProgressFuncF32 progress_func_size;
 
     Span width;
     Span height;
@@ -89,11 +99,15 @@ struct ParticleSystem {
     Span spawn_green;
     Span spawn_blue;
     Span spawn_alpha;
+    Span spawn_color_deriv;
 
     Span die_red;
     Span die_green;
     Span die_blue;
     Span die_alpha;
+    Span die_color_deriv;
+
+    ProgressFuncVec4 progress_func_color;
 
     // Spawns new particle, used internally.
     Particle generate();
@@ -106,6 +120,9 @@ struct ParticleSystem {
 
     // Renders the entire particle system.
     void draw();
+
+    // Clears the entire particle system.
+    void clear();
 
     // Adds a sprite as a potential particle.
     void add_sprite(AssetID texture, u32 u, u32 v, u32 w, u32 h);
@@ -137,10 +154,23 @@ void destroy_particle_system(ParticleSystem *system);
 #ifdef _EXAMPLE_
 ///* ParticleSystem
 // <p>
-// A particle system is in charge of handling a group of
-// particles, rendering them and updating them. It has a
-// ton of knobs and options to tweak how the particles are
+// A particle system is in charge of handling, rendering and updating a group of
+// particles, It has a ton of knobs and options to tweak how the particles are
 // displayed.
+// </p>
+// <p>
+// The size (scale) and color of the particles is sort-of lerped between a
+// start-value and an end-value with a set derivative at the beginning and end
+// of a cycle. Particles can be kept alive indefinitely with the
+// keep_alive-flag set, in which case the values start over from the beginning
+// instead of the particle disappearing.
+// <a href="https://www.desmos.com/calculator/kew3h4qg7i">The default function
+// follows the following graph</a> where a is the start value, b is the end
+// value, c is the start slope and d is the end slope. This function can be
+// overwritten by setting <code>progress_func_size</code> and
+// <code>progress_func_color</code> to some other function.
+// Take a look at the current implementation (specified in block_math.h and
+// block_vector.h) if that is something you want to do.
 // </p>
 // <p>
 // The options are set after a particle system is created
@@ -148,28 +178,30 @@ void destroy_particle_system(ParticleSystem *system);
 // </p>
 struct ParticleSystem;
 // <p>
-// Note that all of these are "ranges", which
-// are most easliy like set.
+// Note that most of these are "ranges" which
+// are most easily set like:
 // </p>
 my_system.rotation = {0, PI};
 // <p>
-// This sets the rotation to any number between 0 and PI when
-// sampling, you always have to specify two values.
+// This sets the rotation to a random number between 0 and PI when
+// sampling. You always have to specify the two values, or leave them empty to
+// set both to 0.
 // </p>
 // <p>
-// Here is a comprehensive list of attributes that are
-// interesting. Note that some of the boolean options might
-// disable certain attributes. The default values are given
-// in parenthesis.
+// Here is a comprehensive list of attributes that might be
+// interesting. Some of the boolean options might disable certain attributes.
+// The default values are given in parenthesis.
 // </p>
 // <table class="member-table">
 //    <tr><th width="150">Type</th><th width="50">Name</th><th>Description</th></tr>
 //    <tr><td>Vec2(0.0, 0.0)</td><td>position </td><td> The position of the particle system, where the emitting is relative to.</td></tr>
 //
 //    <tr><td>bool(false)</td><td>relative</td><td> If the positions of the particles should be relative to the particle system.</td></tr>
+//    <tr><td>bool(false)</td><td>keep_alive</td><td> If the particle should die after alive_time or loop size and color forever.</td></tr>
 //    <tr><td>bool(true)</td><td>one_color</td><td> If the particles should have the same color throughout it's lifetime, this ignore the "die_red", "die_green", "die_blue", slots</td></tr>
 //    <tr><td>bool(false)</td><td>one_alpha</td><td> If the particles should have the same alpha throughout it's lifetime, ignores the "die_alpha" slot.</td></tr>
 //    <tr><td>bool(false)</td><td>one_size</td><td> If the size should be the same throughout it's lifetime.</td></tr>
+//    <tr><td>bool(false)</td><td>drop_oldest</td><td> Set to true to replace the oldest particle if the particle system is full when a new particle is created. If set to false, new particles can't be created until another one dies.</td></tr>
 //
 //    <tr><td>Span(2, 2)</td><td>alive_time</td><td> The time the particles should be atrve for, in seconds.</td></tr>
 //
@@ -185,7 +217,9 @@ my_system.rotation = {0, PI};
 //    <tr><td>Span(0, 0)</td><td>acceleration </td><td> The magnitude of the acceleration, given in units per second square.</td></tr>
 //
 //    <tr><td>Span(0.5, 1.0)</td><td>spawn_size </td><td> The scale of the particle when emitted.</td></tr>
+//    <tr><td>Span(0.5, 1.0)</td><td>spawn_size_deriv </td><td> The derivative of the fancy size-"lerp" when the particle is emitted (and, if keep_alive is true, directly after looping).</td></tr>
 //    <tr><td>Span(0.0, 0.0)</td><td>die_size </td><td> The scale of the particle when it dies.</td></tr>
+//    <tr><td>Span(0.5, 1.0)</td><td>die_size_deriv </td><td> The derivative of the fancy size-"lerp" when the particle dies (or, if keep_alive is true, directly before looping).</td></tr>
 //
 //    <tr><td>Span(1.0, 1.0)</td><td>width </td><td> The width of the particle.</td></tr>
 //    <tr><td>Span(1.0, 1.0)</td><td>height </td><td> The height of the particle.</td></tr>
@@ -194,31 +228,37 @@ my_system.rotation = {0, PI};
 //    <tr><td>Span(1.0, 1.0)</td><td>spawn_green </td><td> The amount of green tint the particle should spawn with.</td></tr>
 //    <tr><td>Span(1.0, 1.0)</td><td>spawn_blue </td><td> The amount of blue tint the particle should spawn with.</td></tr>
 //    <tr><td>Span(1.0, 1.0)</td><td>spawn_alpha </td><td> The amount of alpha the particle should spawn with.</td></tr>
+//    <tr><td>Span(0.0, 0.0)</td><td>spawn_color_deriv</td><td> The derivative of the fancy color-"lerp" when the particle is emitted (and, if keep_alive is true, directly after looping).</td></tr>
 //
 //    <tr><td>Span(0.0, 0.0)</td><td>die_red </td><td> The amount of red the particle should die with.</td></tr>
 //    <tr><td>Span(0.0, 0.0)</td><td>die_green </td><td> The amount of green the particle should die with.</td></tr>
 //    <tr><td>Span(0.0, 0.0)</td><td>die_blue </td><td> The amount of blue the particle should die with.</td></tr>
 //    <tr><td>Span(0.0, 0.0)</td><td>die_alpha </td><td> The amount of alpha the particle should die with.</td></tr>
+//    <tr><td>Span(0.0, 0.0)</td><td>die_color_deriv</td><td> The derivative of the fancy color-"lerp" when the particle dies (or, if keep_alive is true, directly before looping).</td></tr>
 // </table>
 
 ///*
-// Emits new particles from the particle system. If you
+// Emit new particles from the particle system. If you
 // want to do this over a set period of time, I would recommend
 // looking into "Logic::add_callback".
 void ParticleSystem::spawn(u32 num_particles=1);
 
 ///*
-// Updates the particle system, and progresses the particles by one time step.
+// Update the particle system and progress the particles by one time step.
 void ParticleSystem::update(f32 delta);
 
 ///*
-// Draws the particle system to the screen.
+// Draw the particle system to the screen.
 void ParticleSystem::draw();
 
 ///*
-// Adds a sprite that can be selected when emitting from the system.
-// There is a hard limit of MAX_NUM_SUB_SPRITES, which is by default
-// set to 32. The coordinates are given in pixel coordinates, and
+// Clear the particle system by removing all particles.
+void ParticleSystem::clear();
+
+///*
+// Add a sprite that can be selected when emitting from the system.
+// There is a hard limit of MAX_NUM_SUB_SPRITES, which is set to 32
+// by default. The coordinates are given in pixel coordinates, and
 // the asset id has to be a valid texture.
 void ParticleSystem::add_sprite(AssetID texture, u32 u, u32 v, u32 w, u32 h);
 

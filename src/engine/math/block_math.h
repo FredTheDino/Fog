@@ -1,5 +1,13 @@
+#include <functional>
 #include <math.h>
 #include <stdint.h>
+
+// TODO(ed): This is a typedef, it would be nice to implement
+// my own version so I don't have to rely on heap
+// allocations during runtime, it's a tad heavy-weight TBH.
+// NOTE(gu): I didn't want to include logic before math and this is where all
+// typedefs are, but I don't really like placing it here either.
+#define Function std::function
 
 ///# Math
 // <p>
@@ -43,7 +51,6 @@ typedef unsigned long long u64;  // We assume these are a thing.
 static_assert(sizeof(s64) == 8, "Invalid s64 size, change s64 to a int64_t, will produce warnings.");
 static_assert(sizeof(u64) == 8, "Invalid u64 size, change s64 to a uint64_t, will produce warnings.");
 
-
 typedef f32 real;  // Type used in vectors.
 
 #define PI 3.14159f
@@ -63,6 +70,7 @@ typedef f32 real;  // Type used in vectors.
 #define ABS_MAX(a, b) ((ABS(a) > ABS(b)) ? (a) : (b))
 #define ABS_MIN(a, b) ((ABS(a) < ABS(b)) ? (a) : (b))
 
+//TODO(gu) change order to (start, stop, lerp)
 #define LERP(a, l, b) ((a) * (1.0f - (l)) + (b) * (l))
 
 #define CLAMP(min, max, v) ((min) > (v) ? (min) : ((max) < (v)) ? (max) : (v))
@@ -113,6 +121,14 @@ float winding_direction(Vec2 p1, Vec2 p2, Vec2 p3) {
     return (p2.y - p1.y) * (p3.x - p2.x) -
            (p2.x - p1.x) * (p3.y - p2.y);
 }
+
+typedef Function<f32(f32, f32, f32, f32, f32)> ProgressFuncF32;
+ProgressFuncF32 std_progress_func_f32 = []
+        (f32 start_value, f32 start_slope, f32 end_value, f32 end_slope, f32 progress) {
+    f32 p = 2*start_value - 2*end_value + start_slope + end_slope;
+    f32 q = -(3*start_value - 3*end_value + 2*start_slope + end_slope);
+    return p*pow(progress, 3) + q*pow(progress, 2) + start_slope*progress + start_value;
+};
 
 #include "random.h"
 #include "random.cpp"

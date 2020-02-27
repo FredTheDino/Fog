@@ -69,7 +69,7 @@ Renderer::draw_text("Hello World!", 0, 0, 1, ASSET_MONACO_FONT);
 //// Creating and using a particle system
 // A particle system is a simple way to handle a lot of
 // particles, they are not automatic but are sufficently
-// complicated to be usable.
+// complex to be usable.
 Renderer::ParticleSystem particle_system = Renderer::create_particle_system(0, 500, V2(0, 0));
 // This creates a particle system on layer 0 at origo, that can hold at most
 // 500 particles emitted at once.
