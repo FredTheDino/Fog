@@ -122,13 +122,38 @@ float winding_direction(Vec2 p1, Vec2 p2, Vec2 p3) {
            (p2.x - p1.x) * (p3.y - p2.y);
 }
 
-typedef Function<f32(f32, f32, f32, f32, f32)> ProgressFuncF32;
-ProgressFuncF32 std_progress_func_f32 = []
-        (f32 start_value, f32 start_slope, f32 end_value, f32 end_slope, f32 progress) {
+///*
+// An intuative progress function for particlesystems. The derivative at the
+// start and the stop can be controller. Ofcourse it doesn't just have to
+// be used in the particle system. This one handles floats.
+f32 std_progress_func_f32(f32 start_value, f32 start_slope,
+                          f32 end_value, f32 end_slope, f32 progress);
+
+
+///*
+// An intuative progress function for particlesystems. The derivative at the
+// start and the stop can be controller. Ofcourse it doesn't just have to
+// be used in the particle system. This one handles colors.
+Vec4 std_progress_func_vec4(Vec4 start_value, f32 start_slope,
+                            Vec4 end_value, f32 end_slope, f32 progress);
+
+typedef f32(*ProgressFuncF32)(f32, f32, f32, f32, f32);
+f32 std_progress_func_f32(f32 start_value, f32 start_slope, f32 end_value, f32 end_slope, f32 progress) {
     f32 p = 2*start_value - 2*end_value + start_slope + end_slope;
     f32 q = -(3*start_value - 3*end_value + 2*start_slope + end_slope);
     return p*pow(progress, 3) + q*pow(progress, 2) + start_slope*progress + start_value;
 };
+
+typedef Vec4(*ProgressFuncVec4)(Vec4, f32, Vec4, f32, f32);
+Vec4 std_progress_func_vec4(Vec4 start_value, f32 start_slope, Vec4 end_value, f32 end_slope, f32 progress) {
+    f32 p = -2 + start_slope + end_slope;
+    f32 q = -(-3 + 2*start_slope + end_slope);
+    f32 y = p*pow(progress, 3) + q*pow(progress, 2) + start_slope*progress;
+    return LERP(start_value, y, end_value);
+};
+
+
+
 
 #include "random.h"
 #include "random.cpp"

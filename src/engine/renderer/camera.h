@@ -4,10 +4,11 @@ namespace Renderer {
 // The camera is very useful when you want to decide what the
 // player looks at. I promise.
 
+#pragma pack(push, 1)
+
 ///* Camera struct
 // The camera struct is how a camera is controlled. This struct can
 // give you fine grain camera control.
-#pragma pack(push, 1)
 struct Camera {
     Vec2 position;
     Vec2 offset;
@@ -15,24 +16,21 @@ struct Camera {
     f32 aspect_ratio; // height / width
     f32 _padding_[2];
 };
-#pragma pack(pop)
 
 // TODO(ed): Would it be nice to have a rotating camera?
 
-#pragma pack(push, 1)
 struct Window {
     f32 width;
     f32 height;
     f32 aspect_ratio;
     f32 _padding_;
 };
-#pragma pack(pop)
 
-#pragma pack(push, 1)
 struct {
     Camera cam[OPENGL_NUM_CAMERAS];
     Window win;
 } _fog_global_window_state;
+
 #pragma pack(pop)
 
 // This limits the number of cameras to 32, which sounds sane...

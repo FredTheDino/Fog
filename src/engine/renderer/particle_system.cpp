@@ -10,19 +10,29 @@ void Particle::update(f32 delta) {
     rotation += angular_velocity * delta;
 }
 
-void Particle::render(u32 layer, Vec2 origin, s32 slot, Vec2 uv_min, Vec2 uv_dim) {
+void Particle::render(u32 layer, Vec2 origin, AssetID sprite) {
     if (!alive) return;
     f32 progress_mod = MOD(progress, 1.0);
-    Renderer::push_sprite_rect(
-        layer,
-        slot,
-        position + origin,
-        dim * (*progress_func_size)(spawn_size, spawn_size_deriv, die_size, die_size_deriv, progress_mod),
-        rotation,
-        uv_min,
-        uv_dim,
-        (*progress_func_color)(spawn_color, spawn_color_deriv, die_color, die_color_deriv, progress_mod)
-    );
+    Vec2 render_dim = dim * (*progress_func_size)(spawn_size, spawn_size_deriv, die_size, die_size_deriv, progress_mod);
+    Vec4 color = (*progress_func_color)(spawn_color, spawn_color_deriv, die_color, die_color_deriv, progress_mod);
+    if (sprite == Asset::ASSET_ID_NO_ASSET) {
+        Renderer::push_sprite_rect(
+                layer,
+                -1,
+                position + origin,
+                render_dim,
+                rotation,
+                V2(0, 0), V2(0, 0),
+                color);
+    } else {
+        Renderer::push_sprite(
+                layer,
+                sprite,
+                position + origin,
+                render_dim,
+                rotation,
+                color);
+    }
 }
 
 Particle ParticleSystem::generate() {
@@ -77,7 +87,7 @@ Particle ParticleSystem::generate() {
             particle_die_color,
             particle_die_color_deriv,
             &progress_func_color,
-            (s16) (num_sub_sprites ?  random_int() % num_sub_sprites : -1),
+            (s16) (num_sprites ?  random_int() % num_sprites : -1),
     };
 }
 
@@ -118,11 +128,11 @@ void ParticleSystem::draw() {
     Vec2 p = relative ? position : V2(0, 0);
     do {
         i %= max_num_particles;
-        if (num_sub_sprites) {
-            SubSprite sprite = sub_sprites[particles[i].sprite];
-            particles[i].render(layer, p, sprite.texture, sprite.min, sprite.dim);
+        if (num_sprites) {
+            AssetID sprite = sprites[particles[i].sprite];
+            particles[i].render(layer, p, sprite);
         } else {
-            particles[i].render(layer, p, -1, V2(0, 0), V2(0, 0));
+            particles[i].render(layer, p, Asset::ASSET_ID_NO_ASSET);
         }
     } while ((i = (i + 1) % max_num_particles) != tail);
 }
@@ -135,14 +145,12 @@ void ParticleSystem::clear() {
     head = 1;
 }
 
-void ParticleSystem::add_sprite(AssetID texture, u32 u, u32 v, u32 w, u32 h){
+void ParticleSystem::add_sprite(AssetID sprite){
     ASSERT(particles, "Trying to use uninitalized/destroyed particle system");
-    SubSprite sub_sprite = {Asset::fetch_image(texture)->id,
-        V2(u, v),
-        V2(w, h)};
-    ASSERT(num_sub_sprites != MAX_NUM_SUB_SPRITES,
+    ASSERT(Asset::is_of_type(sprite, Asset::Type::SPRITE), "Invalid sprite given to particle system.");
+    ASSERT(num_sprites != MAX_NUM_SUB_SPRITES,
             "Too manu subsprites in particle system");
-    sub_sprites[num_sub_sprites++] = sub_sprite;
+    sprites[num_sprites++] = sprite;
 }
 
 ParticleSystem create_particle_system(u32 layer, u32 num_particles, Vec2 position) {
@@ -165,7 +173,7 @@ ParticleSystem create_particle_system(u32 layer, u32 num_particles, Vec2 positio
     particle_system.one_size = false;
     particle_system.drop_oldest = false;
 
-    particle_system.num_sub_sprites = 0;
+    particle_system.num_sprites = 0;
 
     particle_system.position = position;
 

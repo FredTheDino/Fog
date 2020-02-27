@@ -39,31 +39,38 @@ void do_all_allocations();
 // Swaps the temporary memory.
 void swap_frame_memory();
 
-///*
+//
 // Request a block of memory, only_one doesn't allow the arena to grow as the
 // memory usage is increased but caps it at one buffer. This works in a similar
 // way as "malloc".
 MemoryArena *request_arena(bool only_one = false);
 
-///*
+//
 // Returns the memory arean to the pool of all available arenas with. Does the
 // same thing as MemoryArena::pop.
 void return_arean(MemoryArena *arena);
 
-///*
+//
 // Returns a chunk of temporary memory for use over AT MOST
 // FRAME_LAG_FOR_MEMORY frames. These allocations don't need to be freed, and
 // are usually valid for 2 frames.
 template <typename T>
 T *request_temporary_memory(u64 num = 1);
 
-///*
+//
 // Takes a object on the stack and pushes it to the temporary
 // heap.
 template <typename T>
 T *temporary_push(T t);
 
 ///*
+// Gives out a pice of memory, with the size requested,
+// that is valid until the end of next frame. Freeing this
+// memory is an error. The program crashes if it runs
+// out of memory.
+void *temporary_bytes(u64 num);
+
+//
 // Like malloc, but a little bit more C++.
 //
 // Note that "num" is the number of elemnts to
@@ -71,7 +78,7 @@ T *temporary_push(T t);
 template <typename T>
 T *push_memory(u32 num = 1);
 
-///*
+//
 // Like realloc, but a little bit more C++.
 //
 // Note that "num" is the number of elemnts to
@@ -79,7 +86,7 @@ T *push_memory(u32 num = 1);
 template <typename T>
 T *resize_memory(T *data, u32 num);
 
-///*
+//
 // Like free but, not.
 template <typename T>
 void pop_memory(T *data);

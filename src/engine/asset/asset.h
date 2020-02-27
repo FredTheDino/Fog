@@ -140,7 +140,7 @@ u64 asset_hash(const char *str) {
     return hash % 0x0FFFFFFF;
 }
 
-///*
+//
 // Checks if the passed in "id" is mapped to an image,
 // if it is an image is returned via pointer. It is
 // not recommended to modify any data received from the
@@ -148,7 +148,7 @@ u64 asset_hash(const char *str) {
 // from it and it's bound to cause headaches.
 Image *fetch_image(AssetID id);
 
-///*
+//
 // Checks if the passed in "id" is mapped to a font,
 // if it is a font is returned via pointer. It is
 // not recommended to modify any data received from the
@@ -156,7 +156,7 @@ Image *fetch_image(AssetID id);
 // from it and it's bound to cause headaches.
 Font *fetch_font(AssetID id);
 
-///*
+//
 // Checks if the passed in "id" is mapped to a sound,
 // if it is a sound is returned via pointer. It is
 // not recommended to modify any data received from the
@@ -164,7 +164,7 @@ Font *fetch_font(AssetID id);
 // from it and it's bound to cause headaches.
 Sound *fetch_sound(AssetID id);
 
-///*
+//
 // Checks if the passed in "id" is mapped to a sprite,
 // if it is a sprite is returned via pointer. It is
 // not recommended to modify any data received from the

@@ -40,23 +40,16 @@ struct Particle {
 
     void update(f32 delta);
 
-    void render(u32 layer, Vec2 origin, s32 slot, Vec2 uv_min, Vec2 uv_dim);
+    void render(u32 layer, Vec2 origin, AssetID sprite);
 };
 
-// FOG_EXPORT_STRUCT
 struct ParticleSystem {
     Util::MemoryArena *memory;
 
-    struct SubSprite {
-        u16 texture;
-        Vec2 min;
-        Vec2 dim;
-    };
-
     static const u32 MAX_NUM_SUB_SPRITES = 32;
-    u32 num_sub_sprites;
+    u32 num_sprites;
     u32 layer;
-    SubSprite sub_sprites[MAX_NUM_SUB_SPRITES];
+    AssetID sprites[MAX_NUM_SUB_SPRITES];
 
     // Utility
     u32 head;
@@ -126,7 +119,7 @@ struct ParticleSystem {
     void clear();
 
     // Adds a sprite as a potential particle.
-    void add_sprite(AssetID texture, u32 u, u32 v, u32 w, u32 h);
+    void add_sprite(AssetID sprite);
 };
 
 ///*

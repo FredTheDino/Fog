@@ -86,6 +86,10 @@ T *request_temporary_memory(u64 num) {
     return FRAME_MEMORY[CURRENT_MEMORY]->push<T>(num);
 }
 
+void *temporary_bytes(u64 num) {
+    return (void *) request_temporary_memory<u8>(num);
+}
+
 template <typename T>
 T *temporary_push(T t) {
     allow_allocation();
