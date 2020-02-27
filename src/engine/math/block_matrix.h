@@ -114,33 +114,6 @@ Mat4 scale(Mat4 m, real scalar) {
     return m;
 }
 
-Mat4 M4(Q q) {
-    // TODO(ed): We can do some of these calculations only once.
-    return {
-        1.0f - 2.0f * q.y * q.y - 2.0f * q.z * q.z,
-        2.0f * q.x * q.y - 2.0f * q.w * q.z,
-        2.0f * q.w * q.y + 2.0f * q.x * q.z,
-        0.0f,
-
-        2.0f * q.x * q.y + 2.0f * q.w * q.z,
-        1.0f - 2.0f * q.x * q.x - 2.0f * q.z * q.z,
-        2.0f * q.y * q.z - 2.0f * q.w * q.x,
-        0.0f,
-
-        2.0f * q.x * q.z - 2.0f * q.w * q.y,
-        2.0f * q.w * q.x + 2.0f * q.y * q.z,
-        1.0f - 2.0f * q.x * q.x - 2 * q.y * q.y,
-        0.0f,
-
-        0.0f,
-        0.0f,
-        0.0f,
-        1.0f,
-    };
-};
-
-Mat4 rotate(Mat4 m, Quaternion q) { return m * M4(q); }
-
 Mat4 create_skew_symmetric(Vec3 v) {
     Mat4 m;
     m._00 = m._11 = m._22 = m._33 = 0.0f;

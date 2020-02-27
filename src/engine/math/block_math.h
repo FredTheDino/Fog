@@ -89,9 +89,7 @@ typedef f32 real;  // Type used in vectors.
 #define LEN(a) (sizeof(a) / sizeof(a[0]))
 
 #include "block_vector.h"
-#include "block_quaternion.h"
 #include "block_matrix.h"
-#include "block_transform.h"
 
 ///*
 // Returns true if q lies in the bounding box
