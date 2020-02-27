@@ -98,7 +98,7 @@ ShapeID add_shape(u32 points_length, Vec2 *points) {
     return shape.id;
 }
 
-ShapeID add_shape(List<Vec2> points) {
+ShapeID add_shape_list(List<Vec2> points) {
     return add_shape(points.length, points.data);
 }
 
@@ -189,7 +189,7 @@ void debug_draw_body(Body *body) {
     }
 }
 
-bool point_in_box(Vec2 p, Vec2 min, Vec2 max) {
+bool point_in_box_region(Vec2 p, Vec2 min, Vec2 max) {
     return min.x < p.x && p.x < max.x &&
            min.y < p.y && p.y < max.y;
 }

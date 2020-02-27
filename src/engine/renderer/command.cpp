@@ -44,7 +44,7 @@ void push_quad(u32 layer, Vec2 min, Vec2 max, Vec4 color) {
     Impl::push_quad(layer, min, max, color);
 }
 
-void push_line(u32 layer, Vec2 start, Vec2 end, Vec4 start_color,
+void push_line_gradient(u32 layer, Vec2 start, Vec2 end, Vec4 start_color,
                Vec4 end_color, f32 thickness) {
     Impl::push_line(layer, start, end, start_color, end_color, thickness);
 }

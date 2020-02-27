@@ -83,7 +83,7 @@ void destroy();
 // generated from the points you pass in to a more optimal format
 // for collision detection.
 ShapeID add_shape(u32 points_length, Vec2 *points);
-ShapeID add_shape(List<Vec2> points);
+ShapeID add_shape_list(List<Vec2> points);
 
 ///* Overlap
 // The overlap struct holds collision information,
@@ -158,7 +158,7 @@ void solve(Overlap overlap);
 // can be specified using either a min/max or a center, radius
 // and rotation.
 bool point_in_box(Vec2 p, Vec2 center, Vec2 radius, f32 rotation);
-bool point_in_box(Vec2 p, Vec2 min, Vec2 max);
+bool point_in_region(Vec2 p, Vec2 min, Vec2 max);
 
 
 ///*

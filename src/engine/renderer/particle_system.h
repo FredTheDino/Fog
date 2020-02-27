@@ -38,6 +38,7 @@ struct Particle {
     void render(u32 layer, Vec2 origin, s32 slot, Vec2 uv_min, Vec2 uv_dim);
 };
 
+FOG_EXPORT_STRUCT
 struct ParticleSystem {
     Util::MemoryArena *memory;
 

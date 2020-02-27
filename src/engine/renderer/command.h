@@ -55,7 +55,7 @@ void push_rectangle(u32 layer, Vec2 position, Vec2 dimension,
 //
 // The layer field says which layer the rectangle should be drawn on,
 // the order within a layer is thr order they are pushed.
-void push_line(u32 layer, Vec2 start, Vec2 end, Vec4 start_color,
+void push_line_gradient(u32 layer, Vec2 start, Vec2 end, Vec4 start_color,
                Vec4 end_color, f32 thickness = 0.02);
 void push_line(u32 layer, Vec2 start, Vec2 end, Vec4 color,
                f32 thickness = 0.01);

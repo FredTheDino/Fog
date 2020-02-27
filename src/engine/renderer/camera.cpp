@@ -33,7 +33,7 @@ Camera camera_fit(u32 num_points, Vec2 *points, f32 border) {
     ASSERT(num_points, "No points given for camera to fit!");
     Camera camera = {};
     camera.aspect_ratio = fetch_camera()->aspect_ratio;
-    camera_fit(&camera, num_points, points, border);
+    camera_fit_inplace(&camera, num_points, points, border);
     return camera;
 }
 
@@ -50,7 +50,7 @@ Camera camera_smooth(Camera camera_a, Camera camera_b, f32 lerp) {
     return camera_lerp(camera_a, camera_b, lerp * lerp * (1.5 - lerp));
 }
 
-void camera_fit(Camera *camera, u32 num_points, Vec2 *points, f32 border) {
+void camera_fit_inplace(Camera *camera, u32 num_points, Vec2 *points, f32 border) {
     ASSERT(num_points, "No points given for camera to fit!");
     Vec2 min = *points;
     Vec2 max = *points;
@@ -72,13 +72,8 @@ void camera_fit(Camera *camera, u32 num_points, Vec2 *points, f32 border) {
     }
 }
 
-void camera_shake(Camera *camera, f32 shake) {
-    camera_shake(camera, shake, shake);
-}
-
-void camera_shake(Camera *camera, f32 shake_x, f32 shake_y) {
+void camera_shake(Camera *camera, Vec2 shake) {
     f32 scaler = random_real(0.2, 1.0);
-    Vec2 shake = V2(shake_x, shake_y);
     camera->offset = hadamard(random_unit_vec2(), shake) * scaler;
 }
 

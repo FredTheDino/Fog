@@ -33,6 +33,14 @@ bool begin_tweak_section(const char *name, bool *active);
 // active tweak section.
 void end_tweak_section(bool *active);
 
+// Overloaded tweaks
+bool tweak(const char *name, bool *value);
+bool tweak(const char *name, s32 *value);
+bool tweak(const char *name, u32 *value);
+bool tweak(const char *name, f32 *value, f32 modifier=1.0);
+bool tweak(const char *name, Vec2 *value, f32 modifier=1.0);
+bool tweak(const char *name, Span *value, f32 modifier=1.0);
+
 ///* tweak
 // Exposes a value to the tweak GUI, this can be reached when
 // building the game in debug mode and pressing <F3>. These
@@ -47,11 +55,23 @@ void end_tweak_section(bool *active);
 //
 // A cool trick to remember is that the code can verify the values and for
 // example clamp them in a range efter the use has manipulated them.
-bool tweak(const char *name, bool *value);
-bool tweak(const char *name, f32 *value, f32 modifier=1.0);
-bool tweak(const char *name, s32 *value);
-bool tweak(const char *name, u32 *value);
-bool tweak(const char *name, Vec2 *value, f32 modifier=1.0);
-bool tweak(const char *name, Span *value, f32 modifier=1.0);
+bool tweak_bool(const char *name, bool *value);
+bool tweak_s32(const char *name, s32 *value);
+bool tweak_u32(const char *name, u32 *value);
+bool tweak_f32(const char *name, f32 *value, f32 modifier=1.0);
+bool tweak_vec2(const char *name, Vec2 *value, f32 modifier=1.0);
+bool tweak_span(const char *name, Span *value, f32 modifier=1.0);
 
+bool tweak_bool(const char *name, bool *value) { return tweak(name, value); }
+bool tweak_s32(const char *name, s32 *value) { return tweak(name, value); }
+bool tweak_u32(const char *name, u32 *value) { return tweak(name, value); }
+bool tweak_f32(const char *name, f32 *value, f32 modifier) {
+    return tweak(name, value, modifier);
+}
+bool tweak_vec2(const char *name, Vec2 *value, f32 modifier) {
+    return tweak(name, value, modifier);
+}
+bool tweak_span(const char *name, Span *value, f32 modifier) {
+    return tweak(name, value, modifier);
+}
 };
