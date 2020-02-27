@@ -83,7 +83,6 @@ void destroy();
 // generated from the points you pass in to a more optimal format
 // for collision detection.
 ShapeID add_shape(u32 points_length, Vec2 *points);
-ShapeID add_shape_list(List<Vec2> points);
 
 ///* Overlap
 // The overlap struct holds collision information,

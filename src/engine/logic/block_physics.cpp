@@ -98,10 +98,6 @@ ShapeID add_shape(u32 points_length, Vec2 *points) {
     return shape.id;
 }
 
-ShapeID add_shape_list(List<Vec2> points) {
-    return add_shape(points.length, points.data);
-}
-
 ShapeID add_shape_from_sprite(Asset::AssetID sprite_id) {
     Sprite *sprite = Asset::fetch_sprite(sprite_id);
     Vec2 *points = Util::request_temporary_memory<Vec2>(sprite->num_points);

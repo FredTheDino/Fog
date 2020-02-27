@@ -139,14 +139,10 @@ AudioID play_sound_at(u32 channel_id, AssetID asset_id,
 // Stops a sound from playing.
 void stop_sound(AudioID id);
 
-#ifdef _COMMENTS_
-
-///*
+//
 // Returns a pointer to a channel. Returns nullptr if the channel_id isn't
 // valid.
 Channel *fetch_channel(u32 channel_id);
-
-#endif
 
 ///*
 // Sets target delay on the channel with the specified settings. The feedback
