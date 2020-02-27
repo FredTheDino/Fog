@@ -83,6 +83,8 @@ u32 format_inplace(char *out, const char *fmt, ...) {
 
 ///*
 // Returns the byte size of a UTF-8 glyph.
+u8 utf8_size(const char *c);
+
 u8 utf8_size(const char *c) {
     if ((*c & 0b10000000) == 0) return 1;
     if ((*c & 0b11100000) == 0b11000000) return 2;
@@ -95,6 +97,8 @@ u8 utf8_size(const char *c) {
 ///*
 // Returns if the character pointed to is the first in
 // a UTF-8 char.
+bool utf8_is_first_char(const char *c);
+
 bool utf8_is_first_char(const char *c) {
     return (*c & 0b11000000) != 0b10000000;
 }
@@ -102,6 +106,8 @@ bool utf8_is_first_char(const char *c) {
 ///*
 // Inserts the unicode glyph "from" into "to". The length
 // is the length of the "to" string.
+bool utf8_insert_glyph(char *to, const char *from, u32 length);
+
 bool utf8_insert_glyph(char *to, const char *from, u32 length) {
     const u32 glyph_size = utf8_size(from);
     if (glyph_size > length) return false;
@@ -113,6 +119,8 @@ bool utf8_insert_glyph(char *to, const char *from, u32 length) {
 ///*
 // Advances the char pointer to the next
 // unicode character.
+char *utf8_advance(char *c);
+
 char *utf8_advance(char *c) {
     return c + utf8_size(c);
 }

@@ -176,7 +176,7 @@ Sprite *fetch_sprite(AssetID id);
 // Checks if the asset exists, and if the given asset
 // is of the specified type. Does not crash, or halt
 // execution.
-bool asset_of_type(AssetID id, Type type);
+bool is_of_type(AssetID id, Type type);
 
 };  // namespace Asset
 

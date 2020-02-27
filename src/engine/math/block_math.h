@@ -109,6 +109,8 @@ bool inside(Vec2 p1, Vec2 p2, Vec2 q) {
 // = 0 - Colinear
 // < 0 - Clockwise
 // > 0 - Counter Clockwise
+float winding_direction(Vec2 p1, Vec2 p2, Vec2 p3);
+
 float winding_direction(Vec2 p1, Vec2 p2, Vec2 p3) {
     return (p2.y - p1.y) * (p3.x - p2.x) -
            (p2.x - p1.x) * (p3.y - p2.y);
