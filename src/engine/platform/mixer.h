@@ -146,24 +146,24 @@ void stop_sound(AudioID id);
 // valid.
 Channel *fetch_channel(u32 channel_id);
 
+#endif
+
 ///*
 // Sets target delay on the channel with the specified settings. The feedback
 // and length is changed over time and reaches their targets after in_seconds
 // seconds.
-void Channel::set_delay(f32 feedback, f32 len_seconds, f32 in_seconds = 1.0);
+void channel_set_delay(u32 channel_id, f32 feedback, f32 len_seconds, f32 in_seconds = 1.0);
 
 ///*
 // Sets a lowpass filter on the channel with the specified weight reached after
 // in_seconds seconds. A higher weight means less sound filtered. Weight needs
 // to be between 0 and 1. Unset by setting weight to 1.
-void Channel::set_lowpass(f32 weight, f32 in_seconds = 1.0);
+void channel_set_lowpass(u32 channel_id, f32 weight, f32 in_seconds = 1.0);
 
 ///*
 // Sets a highpass filter on the channel with the specified weight reached
 // after in_seconds seconds. A higher weight means less sound filtered. Weight
 // needs to be between 0 and 1. Unset by setting weight to 1.
-void Channel::set_highpass(f32 weight, f32 in_seconds = 1.0);
-
-#endif
+void channel_set_highpass(u32 channel_id, f32 weight, f32 in_seconds = 1.0);
 
 };

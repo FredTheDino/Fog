@@ -102,6 +102,18 @@ Channel *fetch_channel(u32 channel_id) {
     return &audio_struct.channels[channel_id];
 }
 
+void channel_set_delay(u32 channel_id, f32 feedback, f32 len_seconds, f32 in_seconds) {
+   fetch_channel(channel_id)->set_delay(feedback, len_seconds, in_seconds);
+}
+
+void channel_set_lowpass(u32 channel_id, f32 weight, f32 in_seconds) {
+    fetch_channel(channel_id)->set_lowpass(weight, in_seconds);
+}
+
+void channel_set_highpass(u32 channel_id, f32 weight, f32 in_seconds) {
+    fetch_channel(channel_id)->set_highpass(weight, in_seconds);
+}
+
 AudioID push_sound(SoundSource source) {
     lock_audio();
     if (audio_struct.num_free_sources) {
