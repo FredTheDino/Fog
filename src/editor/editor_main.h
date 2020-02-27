@@ -49,36 +49,6 @@ void show_vec4t(char *buffer, void *info) {
     Util::format_inplace(buffer, "%f, %f, %f, %f", data->x, data->y, data->z, data->w);
 }
 
-void entity_registration() {
-    REGISTER_TYPE(u8, show_u8);
-    REGISTER_TYPE(s8, show_s8);
-    REGISTER_TYPE(u16, show_u16);
-    REGISTER_TYPE(s16, show_s16);
-    REGISTER_TYPE(u32, show_u32);
-    REGISTER_TYPE(s32, show_s32);
-    REGISTER_TYPE(u64, show_u64);
-    REGISTER_TYPE(s64, show_s64);
-
-    REGISTER_TYPE(f32, show_f64);
-    REGISTER_TYPE(f64, show_f64);
-
-    REGISTER_TYPE(u8 *, show_u8_ptr);
-    REGISTER_TYPE(s8 *, show_s8_ptr);
-    REGISTER_TYPE(u16 *, show_u16_ptr);
-    REGISTER_TYPE(s16 *, show_s16_ptr);
-    REGISTER_TYPE(u32 *, show_u32_ptr);
-    REGISTER_TYPE(s32 *, show_s32_ptr);
-    REGISTER_TYPE(u64 *, show_u64_ptr);
-    REGISTER_TYPE(s64 *, show_s64_ptr);
-
-    REGISTER_TYPE(f32 *, show_f64_ptr);
-    REGISTER_TYPE(f64 *, show_f64_ptr);
-
-    REGISTER_TYPE(Vec2, show_vec2t);
-    REGISTER_TYPE(Vec3, show_vec3t);
-    REGISTER_TYPE(Vec4, show_vec4t);
-}
-
 //
 // Editor stuff
 //

@@ -30,7 +30,6 @@ bool debug_values_are_on();
 #include "renderer/camera.h"
 #include "renderer/particle_system.h"
 #include "logic/logic.h"
-#include "logic/entity.h"
 #include "logic/block_physics.h"
 
 #include "math.h"
@@ -48,7 +47,6 @@ bool debug_values_are_on();
 #include "util/performance.cpp"
 #include "util/tweak_values.cpp"
 #include "logic/logic.cpp"
-#include "logic/entity.cpp"
 #include "logic/block_physics.cpp"
 
 #include "platform/mixer.h"
@@ -204,9 +202,6 @@ int main(int argc, char **argv) {
 
     SETUP_DEBUG_KEYBINDINGS;
 
-    ASSERT(Logic::init_entity(), "Failed to initalize entites");
-    Editor::entity_registration();
-    Game::entity_registration();
     Logic::frame(SDL_GetTicks() / 1000.0f);
     setup(argc, argv);
     Util::strict_allocation_check();
@@ -229,7 +224,6 @@ int main(int argc, char **argv) {
         Logic::call(Logic::At::PRE_UPDATE);
         // User defined
         update();
-        Logic::update_es();
         Logic::call(Logic::At::POST_UPDATE);
 
         Mixer::audio_struct.position = Renderer::fetch_camera()->position;
@@ -240,13 +234,10 @@ int main(int argc, char **argv) {
         Logic::call(Logic::At::PRE_DRAW);
         // User defined
         draw();
-        Logic::draw_es();
         Logic::call(Logic::At::POST_DRAW);
 
         Renderer::blit();
         STOP_PERF(RENDER);
-
-        Logic::defragment_entity_memory();
 
         STOP_PERF(MAIN);
     }
