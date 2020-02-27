@@ -97,7 +97,7 @@ void setup_debug_keybindings() {
     CHECK(add(K(F3), Name::DEBUG_VALUES),
           "Failed to create mapping");
 
-    const auto debug_callback = []() {
+    const auto debug_callback = [](f32, f32, f32, void*) {
         if (pressed(Name::DEBUG_PERF))
             show_perf = !show_perf;
         if (pressed(Name::DEBUG_VIEW))
