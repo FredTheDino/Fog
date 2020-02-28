@@ -43,10 +43,8 @@ struct Particle {
     void render(u32 layer, Vec2 origin, AssetID sprite);
 };
 
-FOG_EXPORT
-#define MAX_NUM_SUB_SPRITES 32
-
 FOG_EXPORT_STRUCT
+#define MAX_NUM_SUB_SPRITES 32
 struct ParticleSystem {
     Util::MemoryArena *memory;
 

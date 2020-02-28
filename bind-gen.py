@@ -182,8 +182,23 @@ def write_function(namespace, definition):
 if __name__ == "__main__":
     all_files = search("core", "src/")
     all_defs = find_all_defs(all_files)
-    sorting_key = { "STRUCT" : 1, "EXPORT" : 0, "FUNC" : 2 }
-    all_defs = sorted(all_defs, key=lambda a: sorting_key[a[1]])
+    def sorting_key(elem):
+        _, kind, defs = elem
+        if kind == "EXPORT":
+            if "_t" in defs:
+                return 0
+            if "Vec" in defs:
+                return 2
+            if "const " in defs:
+                return 5
+            return 4
+        if kind == "STRUCT":
+            if "struct Vec" in defs:
+                return 1
+            return 3
+        return 10
+
+    all_defs = sorted(all_defs, key=sorting_key)
 
     bodies = []
     heads = []

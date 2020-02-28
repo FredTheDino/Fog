@@ -16,7 +16,9 @@ namespace Physics {
 
 using Util::List;
 
+FOG_EXPORT
 typedef u32 Layer;
+FOG_EXPORT
 typedef u32 ShapeID;
 
 struct Shape {
