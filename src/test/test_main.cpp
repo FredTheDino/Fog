@@ -34,7 +34,7 @@ void run_tests() {
         PASS(math_sign),
         PASS(math_abs),
         PASS(math_mod),
-        SKIP(math_eq),
+        PASS(math_eq),
         PASS(math_sq),
         PASS(math_random_real),
         PASS(math_random_real_multiple),
@@ -83,15 +83,15 @@ void run_tests() {
     int current = 0;
     for (UnitTest test: tests) {
         current++;
-        if (test.skip) {
-            skipped++;
-            printf(CLEAR "\r" YELLOW "  skipping " RESET "%s\n", test.name);
-            continue;
-        }
         printf(CLEAR "\r  %d/%d: " YELLOW " testing " RESET "%s\r", current, size, test.name);
         fflush(stdout);
 
         Result res = test.test();
+        if (res == SKIP) {
+            skipped++;
+            printf(CLEAR "\r" YELLOW "  skipping " RESET "%s\n", test.name);
+            continue;
+        }
         if (res == FAIL_EXT) {
             skipped++;
             printf("  %s fails before actual test\n", test.name);

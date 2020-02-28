@@ -34,6 +34,10 @@ UnitTest tests[] = {
     // ...
 };
 
+//// <code>Pass</code>/<code>fail</code>
+// A test can be marked either <code>PASS</code> or <code>FAIL</code>,
+// depending on if it is expected to pass or fail.
+
 #endif
 
 namespace Test {
@@ -48,13 +52,11 @@ enum Result {
 struct UnitTest {
     const char *name;
     bool failing;
-    bool skip;
 
     Result (*test)();
 };
 
-#define PASS(func) { STR(func), false, false, func }
-#define FAIL(func) { STR(func), true, false, func }
-#define SKIP(func) { STR(func), true, true, func }
+#define PASS(func) { STR(func), false, func }
+#define FAIL(func) { STR(func), true, func }
 
 }  // namespace Test
