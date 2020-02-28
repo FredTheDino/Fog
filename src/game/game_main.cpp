@@ -36,19 +36,19 @@ void setup(int argc, char **argv) {
 
 // Main logic
 void update(f32 delta) {
-    ps_update(&system, delta);
+    particle_update(&system, delta);
 
     using namespace Input;
     if (pressed(Name::LEFT)) {
-        ps_spawn(&system);
+        particle_spawn(&system);
     }
     if (down(Name::RIGHT))
-        ps_clear(&system);
+        particle_clear(&system);
 }
 
 // Main draw
 void draw() {
-    ps_draw(&system);
+    particle_draw(&system);
 }
 
 }  // namespace Game

@@ -1,10 +1,7 @@
+#include "header.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <stb_image.h>
-
-// This allows the exporting of structs in a nice way, this macro does nothing
-// other than marking C++ code for export to the exporter.
-#define FOG_EXPORT_STRUCT
 
 bool debug_view_is_on();
 bool debug_values_are_on();

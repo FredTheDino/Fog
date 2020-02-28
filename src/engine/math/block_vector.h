@@ -67,6 +67,7 @@ s32 dot(Vec2i a, Vec2i b) { return a.x * b.x + a.y * b.y; }
 s32 length_squared(Vec2i a) { return dot(a, a); }
 real length(Vec2i a) { return sqrt((real) length_squared(a)); }
 
+FOG_EXPORT_STRUCT
 struct Vec2 {
     union {
         struct {
@@ -144,6 +145,7 @@ real look_at(Vec2 from, Vec2 to) {
     return angle(to - from);
 }
 
+FOG_EXPORT_STRUCT
 struct Vec3 {
     union {
         struct {
@@ -211,6 +213,10 @@ real length(Vec3 a) { return sqrt(length_squared(a)); }
 
 Vec3 normalize(Vec3 a) { return a / length(a); }
 
+#ifndef FOG_EXPORT_STRUCT
+#error "What?"
+#endif
+FOG_EXPORT_STRUCT
 struct Vec4 {
     union {
         struct {

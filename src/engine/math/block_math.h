@@ -36,21 +36,32 @@
 // but currently the engine has the header pre-included.
 // </p>
 
+FOG_EXPORT
 typedef int8_t s8;
+FOG_EXPORT
 typedef int16_t s16;
+FOG_EXPORT
 typedef int32_t s32;
+FOG_EXPORT
 typedef uint8_t u8;
+FOG_EXPORT
 typedef uint16_t u16;
+FOG_EXPORT
 typedef uint32_t u32;
+FOG_EXPORT
 typedef float f32;
+FOG_EXPORT
 typedef double f64;
 
 // Trubble makers
+FOG_EXPORT
 typedef long long s64;  // We assume these are a thing.
+FOG_EXPORT
 typedef unsigned long long u64;  // We assume these are a thing.
 static_assert(sizeof(s64) == 8, "Invalid s64 size, change s64 to a int64_t, will produce warnings.");
 static_assert(sizeof(u64) == 8, "Invalid u64 size, change s64 to a uint64_t, will produce warnings.");
 
+FOG_EXPORT
 typedef f32 real;  // Type used in vectors.
 
 #define PI 3.14159f
@@ -137,6 +148,7 @@ f32 std_progress_func_f32(f32 start_value, f32 start_slope,
 Vec4 std_progress_func_vec4(Vec4 start_value, f32 start_slope,
                             Vec4 end_value, f32 end_slope, f32 progress);
 
+FOG_EXPORT
 typedef f32(*ProgressFuncF32)(f32, f32, f32, f32, f32);
 f32 std_progress_func_f32(f32 start_value, f32 start_slope, f32 end_value, f32 end_slope, f32 progress) {
     f32 p = 2*start_value - 2*end_value + start_slope + end_slope;
@@ -144,6 +156,7 @@ f32 std_progress_func_f32(f32 start_value, f32 start_slope, f32 end_value, f32 e
     return p*pow(progress, 3) + q*pow(progress, 2) + start_slope*progress + start_value;
 };
 
+FOG_EXPORT
 typedef Vec4(*ProgressFuncVec4)(Vec4, f32, Vec4, f32, f32);
 Vec4 std_progress_func_vec4(Vec4 start_value, f32 start_slope, Vec4 end_value, f32 end_slope, f32 progress) {
     f32 p = -2 + start_slope + end_slope;
@@ -169,55 +182,68 @@ struct Span {
 
 #ifdef _COMMENTS_
 
+FOG_HIDE
 ///*
 // Returns the larger of "a" and "b" using the "<" operator.
 MAX(a, b)
 
+FOG_HIDE
 ///*
 // Returns the smaller of "a" and "b" using the "<" operator.
 MIN(a, b)
 
+FOG_HIDE
 ///*
 // Returns the larger absolut value of "a" and "b" using the "<" operator.
 ABS_MAX(a, b)
 
+FOG_HIDE
 ///*
 // Returns the smaller absolut value of "a" and "b" using the "<" operator.
 ABS_MIN(a, b)
 
+FOG_HIDE
 ///*
 // Lerps between "a" and "b" using the factor "l".
 LERP(a, l, b)
 
+FOG_HIDE
 ///*
 // Clamps the value of "v" between "min" and "max".
 CLAMP(min, max, v)
 
+FOG_HIDE
 ///*
 // Returns the sign of of "n", where n == 0 => 1
 SIGN_NO_ZERO(n)
 
+FOG_HIDE
 ///*
 // Returns the sign of of "n", where n == 0 => 0
 SIGN(n)
 
+FOG_HIDE
 ///*
 // Returns true of "l < v < h""
 IN_RANGE(l, h, v)
 
+FOG_HIDE
 ///*
 // Returns the absolute value of "n".
 ABS(n)
 
+FOG_HIDE
 ///*
 // a mod b, where a and b are allowed to be a float. Not as fast as the built
 // in "%" operator.
 MOD(a, b)
 
+FOG_HIDE
 ///*
 // Returns true if a and b are close enough to be considerd equal.
 EQ(a, b)
 
+FOG_HIDE
 ///*
 // Squares "a" by multiplying it by itself.
 SQ(a)

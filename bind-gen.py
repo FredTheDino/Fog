@@ -18,55 +18,85 @@ def search(region, root):
 
 def find_defs(file_path):
     """
-    Find the definitons and put them in a nice list.
+    Find the definitons and put them in a nice list,
+    if none are found, an empty list is returned.
     """
+    def export_struct(lines, namespace):
+        struct = ""
+        rest = lines
+        depth = 0
+        while rest:
+            line = rest[0]
+            rest = rest[1:]
+            struct += line
+            if "{" in line:
+                depth += 1
+            if "}" in line:
+                depth -= 1
+                if depth == 0:
+                    break
+
+        assert depth == 0, "Invalid bracing."
+        return [(namespace, "STRUCT", struct)] + parse(rest, namespace)
+
+    def export_typedef(lines, namespace):
+        line = lines[0]
+        rest = lines[1:]
+        return [(namespace, "EXPORT", line)] + parse(rest, namespace)
+
+    def export_func(lines, namespace):
+        func = ""
+        rest = lines
+        while rest:
+            line = rest[0]
+            rest = rest[1:]
+            if line.strip() == "":
+                break
+            if "//" in line or "#" in line:
+                continue
+            if not " " in line:
+                continue
+            func += line
+
+
+        result = [(namespace, "FUNC", f.strip() + ";") for f in func.split(";")]
+        return result + parse(rest, namespace)
+
+    def hide(lines, namespace):
+        rest = lines
+        while rest:
+            line = rest[0]
+            rest = rest[1:]
+            if line.strip() == "":
+                break
+        return parse(rest, namespace)
+
+
+    def parse(lines, namespace):
+        if not lines:
+            return []
+        line = lines[0]
+        rest = lines[1:]
+        if "namespace" in line:
+            words = line.split()
+            if words[0] == "namespace" and len(words) <= 3:
+                namespace = words[1]
+        if "#" in line:
+            return parse(rest, namespace)
+        if "///*" in line:
+            return export_func(rest, namespace)
+        if "FOG_EXPORT_STRUCT" in line:
+            return export_struct(rest, namespace)
+        if "FOG_EXPORT" in line:
+            return export_typedef(rest, namespace)
+        if "FOG_HIDE" in line:
+            return hide(rest, namespace)
+        return parse(rest, namespace)
+
     with open(file_path) as f:
-        append_to_def = False
-        defs = []
-        definition = ""
-        namespace = ""
-
-        def add_defs(namespace, definition):
-            nonlocal defs
-            for func in definition.split(";"):
-                if func.strip():
-                    defs.append((func + ";", namespace))
-
-        for line in f:
-            if not append_to_def:
-                add_defs(namespace, definition)
-                definition = ""
-
-                if "namespace" in line and not defs:
-                    words = line.split()
-                    if words[0] == "namespace" and len(words) <= 3:
-                        namespace = words[1]
-                elif "///*" in line:
-                    append_to_def = True
-
-            elif append_to_def:
-                if line.strip() == "":
-                    append_to_def = False
-                elif line.startswith("//"):
-                    continue
-                else:
-                    definition += line
-
-
-        add_defs(namespace, definition)
-    return defs
-
-def find_typedefs(file_path):
-    """
-    Find the type defs
-    """
-    defs = []
-    with open(file_path) as f:
-        for line in f:
-            if line.startswith("typedef"):
-                defs.append(line.strip())
-    return defs
-
+        return parse(f.readlines(), "")
+    print("Failed to open file:", file_path)
+    return []
 
 def find_all_defs(files):
     """
@@ -77,20 +107,10 @@ def find_all_defs(files):
     Making it easy to create the definitons in a nice human readable
     format.
     """
-    # TODO(ed): This can probably be a list comphrehension.
-    regions = []
-    for region, _ in files:
-        if region not in regions:
-            regions.append(region)
-    documentation = {region: [] for region in regions}
-    types = []
-    for region, file_path in sorted(files):
-        defs = find_defs(file_path)
-        types += find_typedefs(file_path)
-        if defs:
-            documentation[region] += defs
-    types = sorted(types, key=lambda s: "_t " not in s)
-    return [(region, documentation[region]) for region in reversed(regions)], types
+    documentation = []
+    for _, file_path in sorted(files):
+        documentation += find_defs(file_path)
+    return filter(lambda a: len(a[2]) > 3, documentation)
 
 GLOBAL_NAMESPACE = "fog_"
 import sys
@@ -109,14 +129,14 @@ def gen_new_name(name, namespace):
         return GLOBAL_NAMESPACE + namespace.lower() + "_" + name.replace("*", "")
     return GLOBAL_NAMESPACE + name.replace("*", "")
 
-def format_function_def(definition, namespace):
+def format_function_def(namespace, definition):
     name = find_func_name(definition, namespace)
     if name is None:
         return None
     new_name = gen_new_name(name, namespace)
     if "*" in name:
         new_name = "*" + new_name
-    return "FOG_EXPORT\n" + definition.replace(name, new_name).strip()
+    return "FOG_IMPORT\n" + definition.replace(name, new_name).strip()
 
 def get_args(definition, name):
     paren = definition.split(name)[1]
@@ -145,7 +165,7 @@ def strip_types(args):
         return ", ".join([arg.split()[-1].replace("*", "") for arg in args.split(",")])
     return ""
 
-def write_function(definition, namespace):
+def write_function(namespace, definition):
     name = find_func_name(definition, namespace)
     if name is None:
         return None
@@ -154,21 +174,26 @@ def write_function(definition, namespace):
     args = get_args(definition, name)
     args_no_type = strip_types(args)
     if namespace:
-        func = "FOG_EXPORT\n" + definition.split(name)[0] + ptr + new_name + "(" + args + ") { return " + namespace + "::" + name[len(ptr):] + "(" + args_no_type + "); }"
+        func = "FOG_IMPORT\n" + definition.split(name)[0] + ptr + new_name + "(" + args + ") { return " + namespace + "::" + name[len(ptr):] + "(" + args_no_type + "); }"
     else:
-        func = "FOG_EXPORT\n" + definition.split(name)[0] + ptr + new_name + "(" + args + ") { return " + name[len(ptr):] + "(" + args_no_type + "); }"
+        func = "FOG_IMPORT\n" + definition.split(name)[0] + ptr + new_name + "(" + args + ") { return " + name[len(ptr):] + "(" + args_no_type + "); }"
     return func
 
 if __name__ == "__main__":
     all_files = search("core", "src/")
-    all_defs, all_types = find_all_defs(all_files)
+    all_defs = find_all_defs(all_files)
+    sorting_key = { "STRUCT" : 1, "EXPORT" : 0, "FUNC" : 2 }
+    all_defs = sorted(all_defs, key=lambda a: sorting_key[a[1]])
 
     bodies = []
     heads = []
-    for region, defs in all_defs:
-        for elem in defs:
-            head = format_function_def(*elem)
-            res = write_function(*elem)
+    for elem in all_defs:
+        _, kind, source = elem
+        if kind == "STRUCT" or kind == "EXPORT":
+            heads.append(source)
+        else:
+            head = format_function_def(elem[0], elem[2])
+            res = write_function(elem[0], elem[2])
             if res is not None and head is not None:
                 heads.append(" ".join(head.split()))
                 bodies.append(" ".join(res.split()))
@@ -180,15 +205,15 @@ if __name__ == "__main__":
     preamble += "// on the next compilation. So maybe don't put stuff in here?\n"
     preamble += "\n"
     preamble += "#ifdef __cplusplus\n"
-    preamble += "#define FOG_EXPORT extern \"C\"\n"
+    preamble += "#define FOG_IMPORT extern \"C\"\n"
     preamble += "#else __cplusplus\n"
-    preamble += "#define FOG_EXPORT\n"
+    preamble += "#define FOG_IMPORT\n"
     preamble += "#endif\n\n"
     if heads:
         with open("bindings.cpp", "w") as f:
             f.write(preamble)
             f.write("\n".join(bodies))
-            f.write("\n#undef FOG_EXPORT")
+            f.write("\n#undef FOG_IMPORT")
         with open("bindings.h", "w") as f:
             f.write(preamble)
             f.write("#include <stdint.h>\n")
@@ -197,7 +222,6 @@ if __name__ == "__main__":
             f.write("#define true 1\n")
             f.write("#define false 0\n")
             f.write("#endif\n")
-            f.write("\n".join(all_types) + "\n\n")
             f.write("\n".join(heads))
-            f.write("\n#undef FOG_EXPORT")
+            f.write("\n#undef FOG_IMPORT")
         print("Successfully generated bindings")

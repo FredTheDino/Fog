@@ -12,6 +12,8 @@
 #include <unordered_set>
 #include <cstring>
 
+#include "header.h"
+
 #include "../game/game_includes.h"
 #include "util/debug.cpp"
 #include "math/block_math.h"

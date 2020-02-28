@@ -6,10 +6,10 @@ namespace Renderer {
 
 #pragma pack(push, 1)
 
+FOG_EXPORT_STRUCT
 ///* Camera struct
 // The camera struct is how a camera is controlled. This struct can
 // give you fine grain camera control.
-FOG_EXPORT_STRUCT
 struct Camera {
     Vec2 position;
     Vec2 offset;

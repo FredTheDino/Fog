@@ -26,20 +26,6 @@ struct Shape {
     List<Vec2> points;
 };
 
-struct Body;
-
-FOG_EXPORT_STRUCT
-struct Overlap {
-    Body *a, *b;
-    f32 depth;
-    Vec2 normal; // Allways points towards a.
-    bool is_valid;
-
-#if __cplusplus
-    operator bool() const { return is_valid; }
-#endif
-};
-
 FOG_EXPORT_STRUCT
 struct Body {
     ShapeID shape;
@@ -63,9 +49,18 @@ struct Body {
     f32 bounce;
 };
 
-struct Limit {
-    f32 lower, upper;
+FOG_EXPORT_STRUCT
+struct Overlap {
+    Body *a, *b;
+    f32 depth;
+    Vec2 normal; // Allways points towards a.
+    bool is_valid;
+
+#if __cplusplus
+    operator bool() const { return is_valid; }
+#endif
 };
+
 
 List<Shape> global_shape_list;
 
@@ -86,6 +81,7 @@ void destroy();
 // for collision detection.
 ShapeID add_shape(u32 points_length, Vec2 *points);
 
+FOG_HIDE
 ///* Overlap
 // The overlap struct holds collision information,
 // passing this to the solve function will move the bodies so

@@ -1,23 +1,23 @@
 namespace Renderer {
 
 // The exported C functions.
-void ps_spawn(ParticleSystem *self, u32 num_particles=1) {
+void particle_spawn(ParticleSystem *self, u32 num_particles=1) {
     ((ParticleSystemInt *) self)->spawn(num_particles);
 }
 
-void ps_update(ParticleSystem *self, f32 delta) {
+void particle_update(ParticleSystem *self, f32 delta) {
     ((ParticleSystemInt *) self)->update(delta);
 }
 
-void ps_draw(ParticleSystem *self) {
+void particle_draw(ParticleSystem *self) {
     ((ParticleSystemInt *) self)->draw();
 }
 
-void ps_clear(ParticleSystem *self) {
+void particle_clear(ParticleSystem *self) {
     ((ParticleSystemInt *) self)->clear();
 }
 
-void ps_add_sprite(ParticleSystem *self, AssetID sprite) {
+void particle_add_sprite(ParticleSystem *self, AssetID sprite) {
     ((ParticleSystemInt *) self)->add_sprite(sprite);
 }
 

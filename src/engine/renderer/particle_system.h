@@ -43,11 +43,13 @@ struct Particle {
     void render(u32 layer, Vec2 origin, AssetID sprite);
 };
 
+FOG_EXPORT
+#define MAX_NUM_SUB_SPRITES 32
+
 FOG_EXPORT_STRUCT
 struct ParticleSystem {
     Util::MemoryArena *memory;
 
-    static const u32 MAX_NUM_SUB_SPRITES = 32;
     u32 num_sprites;
     u32 layer;
     AssetID sprites[MAX_NUM_SUB_SPRITES];
@@ -56,7 +58,11 @@ struct ParticleSystem {
     u32 head;
     u32 tail;
     u32 max_num_particles;
+#ifdef __cplusplus
     Particle *particles = nullptr;
+#else
+    Particle *particles;
+#endif
 
     bool relative;
     bool keep_alive;
@@ -103,7 +109,6 @@ struct ParticleSystem {
     Span die_color_deriv;
 
     ProgressFuncVec4 progress_func_color;
-
 };
 
 // TODO(ed): This is technically UB, but the compiler can't
@@ -158,6 +163,7 @@ ParticleSystem create_particle_system(u32 layer, u32 num_particles, Vec2 positio
 void destroy_particle_system(ParticleSystem *system);
 
 #ifdef _EXAMPLE_
+FOG_HIDE
 ///* ParticleSystem
 // <p>
 // A particle system is in charge of handling, rendering and updating a group of
@@ -247,26 +253,26 @@ my_system.rotation = {0, PI};
 // Emit new particles from the particle system. If you
 // want to do this over a set period of time, I would recommend
 // looking into "Logic::add_callback".
-void ps_spawn(ParticleSystem *self, u32 num_particles=1);
+void particle_spawn(ParticleSystem *self, u32 num_particles=1);
 
 ///*
 // Update the particle system and progress the particles by one time step.
-void ps_update(ParticleSystem *self, f32 delta);
+void particle_update(ParticleSystem *self, f32 delta);
 
 ///*
 // Draw the particle system to the screen.
-void ps_draw(ParticleSystem *self);
+void particle_draw(ParticleSystem *self);
 
 ///*
 // Clear the particle system by removing all particles.
-void ps_clear(ParticleSystem *self);
+void particle_clear(ParticleSystem *self);
 
 ///*
 // Add a sprite that can be selected when emitting from the system.
 // There is a hard limit of MAX_NUM_SUB_SPRITES, which is set to 32
 // by default. The coordinates are given in pixel coordinates, and
 // the asset id has to be a valid texture.
-void ps_add_sprite(ParticleSystem *self, AssetID sprite);
+void particle_add_sprite(ParticleSystem *self, AssetID sprite);
 
 #endif
 };

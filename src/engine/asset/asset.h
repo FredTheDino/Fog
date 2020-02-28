@@ -19,11 +19,18 @@ namespace Asset {
 // actual number might change randomly
 // </p>
 
+FOG_HIDE
 ///* AssetID
 // An AssetID is a simple and easy way to identify an asset, they are unique
 // and created by "src/fog_assets.cpp"
 using AssetID = u64;
 
+#if 0
+FOG_EXPORT
+typedef AssetID u64;
+#endif
+
+FOG_EXPORT
 const AssetID ASSET_ID_NO_ASSET = 0xFFFFFFFF;
 
 }

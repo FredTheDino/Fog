@@ -16,13 +16,17 @@
 
 namespace Logic {
 
-///* FORVERER, ONCE
+//// FORVERER, ONCE
 // Constants for special times.<br>
 // ONCE, calls the function only once.<br>
 // FOREVER, is kept calling until the game is closed.<br>
+
+FOG_EXPORT
 const f32 FOREVER = -1;
+FOG_EXPORT
 const f32 ONCE = 0;
 
+FOG_EXPORT_STRUCT
 enum At {
     PRE_UPDATE,
     POST_UPDATE,
