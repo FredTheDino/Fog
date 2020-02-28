@@ -5,8 +5,6 @@ namespace Game {
 
 Renderer::ParticleSystem system;
 
-void entity_registration() {}
-
 void setup(int argc, char **argv) {
     using namespace Input;
     add(K(a), Name::LEFT);
@@ -38,18 +36,19 @@ void setup(int argc, char **argv) {
 
 // Main logic
 void update(f32 delta) {
-    system.update(delta);
+    ps_update(&system, delta);
 
     using namespace Input;
-    if (pressed(Name::LEFT))
-        system.spawn();
+    if (pressed(Name::LEFT)) {
+        ps_spawn(&system);
+    }
     if (down(Name::RIGHT))
-        system.clear();
+        ps_clear(&system);
 }
 
 // Main draw
 void draw() {
-    system.draw();
+    ps_draw(&system);
 }
 
 }  // namespace Game

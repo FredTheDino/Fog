@@ -43,6 +43,7 @@ struct Particle {
     void render(u32 layer, Vec2 origin, AssetID sprite);
 };
 
+FOG_EXPORT_STRUCT
 struct ParticleSystem {
     Util::MemoryArena *memory;
 
@@ -103,6 +104,17 @@ struct ParticleSystem {
 
     ProgressFuncVec4 progress_func_color;
 
+};
+
+// TODO(ed): This is technically UB, but the compiler can't
+// check it. If it leads to hairy situations it can trivially be rewritten,
+// but there are more important things for me right now. Just note, here
+// be dragons.
+//
+// TODO(ed): This is kinda messy, at least in my opinion,
+// it might need to be refactored later.
+//
+struct ParticleSystemInt : public ParticleSystem {
     // Spawns new particle, used internally.
     Particle generate();
 
@@ -235,26 +247,26 @@ my_system.rotation = {0, PI};
 // Emit new particles from the particle system. If you
 // want to do this over a set period of time, I would recommend
 // looking into "Logic::add_callback".
-void ParticleSystem::spawn(u32 num_particles=1);
+void ps_spawn(ParticleSystem *self, u32 num_particles=1);
 
 ///*
 // Update the particle system and progress the particles by one time step.
-void ParticleSystem::update(f32 delta);
+void ps_update(ParticleSystem *self, f32 delta);
 
 ///*
 // Draw the particle system to the screen.
-void ParticleSystem::draw();
+void ps_draw(ParticleSystem *self);
 
 ///*
 // Clear the particle system by removing all particles.
-void ParticleSystem::clear();
+void ps_clear(ParticleSystem *self);
 
 ///*
 // Add a sprite that can be selected when emitting from the system.
 // There is a hard limit of MAX_NUM_SUB_SPRITES, which is set to 32
 // by default. The coordinates are given in pixel coordinates, and
 // the asset id has to be a valid texture.
-void ParticleSystem::add_sprite(AssetID texture, u32 u, u32 v, u32 w, u32 h);
+void ps_add_sprite(ParticleSystem *self, AssetID sprite);
 
 #endif
 };

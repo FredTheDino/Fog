@@ -9,6 +9,7 @@ namespace Renderer {
 ///* Camera struct
 // The camera struct is how a camera is controlled. This struct can
 // give you fine grain camera control.
+FOG_EXPORT_STRUCT
 struct Camera {
     Vec2 position;
     Vec2 offset;
@@ -19,6 +20,7 @@ struct Camera {
 
 // TODO(ed): Would it be nice to have a rotating camera?
 
+FOG_EXPORT_STRUCT
 struct Window {
     f32 width;
     f32 height;

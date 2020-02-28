@@ -1,5 +1,26 @@
 namespace Renderer {
 
+// The exported C functions.
+void ps_spawn(ParticleSystem *self, u32 num_particles=1) {
+    ((ParticleSystemInt *) self)->spawn(num_particles);
+}
+
+void ps_update(ParticleSystem *self, f32 delta) {
+    ((ParticleSystemInt *) self)->update(delta);
+}
+
+void ps_draw(ParticleSystem *self) {
+    ((ParticleSystemInt *) self)->draw();
+}
+
+void ps_clear(ParticleSystem *self) {
+    ((ParticleSystemInt *) self)->clear();
+}
+
+void ps_add_sprite(ParticleSystem *self, AssetID sprite) {
+    ((ParticleSystemInt *) self)->add_sprite(sprite);
+}
+
 void Particle::update(f32 delta) {
     alive = alive && (keep_alive || progress < 1.0);
     if (!alive) return;
@@ -35,7 +56,7 @@ void Particle::render(u32 layer, Vec2 origin, AssetID sprite) {
     }
 }
 
-Particle ParticleSystem::generate() {
+Particle ParticleSystemInt::generate() {
     ASSERT(particles, "Trying to use uninitalized/destroyed particle system");
 
     f32 particle_spawn_size = spawn_size.random();
@@ -91,7 +112,7 @@ Particle ParticleSystem::generate() {
     };
 }
 
-void ParticleSystem::spawn(u32 num_particles) {
+void ParticleSystemInt::spawn(u32 num_particles) {
     ASSERT(particles, "Trying to use uninitalized/destroyed particle system");
     for (u32 i = 0; i < num_particles; i++) {
         if (head == tail) {
@@ -105,7 +126,7 @@ void ParticleSystem::spawn(u32 num_particles) {
     }
 }
 
-void ParticleSystem::update(f32 delta) {
+void ParticleSystemInt::update(f32 delta) {
     ASSERT(particles, "Trying to use uninitalized/destroyed particle system");
     u32 i = head;
     bool move = true;
@@ -122,7 +143,7 @@ void ParticleSystem::update(f32 delta) {
     } while ((i = (i + 1) % max_num_particles) != tail);
 }
 
-void ParticleSystem::draw() {
+void ParticleSystemInt::draw() {
     ASSERT(particles, "Trying to use uninitalized/destroyed particle system");
     u32 i = head;
     Vec2 p = relative ? position : V2(0, 0);
@@ -137,7 +158,7 @@ void ParticleSystem::draw() {
     } while ((i = (i + 1) % max_num_particles) != tail);
 }
 
-void ParticleSystem::clear() {
+void ParticleSystemInt::clear() {
     for (u32 i = 0; i < max_num_particles; i++) {
         particles[i].alive = false;
     }
@@ -145,7 +166,7 @@ void ParticleSystem::clear() {
     head = 1;
 }
 
-void ParticleSystem::add_sprite(AssetID sprite){
+void ParticleSystemInt::add_sprite(AssetID sprite){
     ASSERT(particles, "Trying to use uninitalized/destroyed particle system");
     ASSERT(Asset::is_of_type(sprite, Asset::Type::SPRITE), "Invalid sprite given to particle system.");
     ASSERT(num_sprites != MAX_NUM_SUB_SPRITES,

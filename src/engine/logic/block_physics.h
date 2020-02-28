@@ -28,17 +28,19 @@ struct Shape {
 
 struct Body;
 
+FOG_EXPORT_STRUCT
 struct Overlap {
     Body *a, *b;
     f32 depth;
     Vec2 normal; // Allways points towards a.
     bool is_valid;
 
-    operator bool() const {
-        return is_valid;
-    }
+#if __cplusplus
+    operator bool() const { return is_valid; }
+#endif
 };
 
+FOG_EXPORT_STRUCT
 struct Body {
     ShapeID shape;
     Layer layer;
