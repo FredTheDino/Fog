@@ -47,9 +47,20 @@ u32 str_len(const char *str) {
 // format string (see printf for more info). Memory
 // is allocated using the frame allocator so it is
 // valid for two frames and does not require freeing.
-char *format(const char *fmt, ...);
+char *format(const char *fmt, va_list args);
 
-char *format(const char *fmt, ...) {
+char *format(const char *fmt, va_list args) {
+    // TODO(ed): Test this function.
+    char c;
+    int size = vsnprintf(&c, 1, fmt, args);
+    ASSERT(size > 0, "Failed to print format string");
+    char *buffer = request_temporary_memory<char>(++size);
+    vsnprintf(buffer, size, fmt, args);
+    va_end(args);
+    return buffer;
+}
+
+char *format_int(const char *fmt, ...) {
     va_list args;
     va_start(args, fmt);
 
@@ -64,12 +75,13 @@ char *format(const char *fmt, ...) {
     return buffer;
 }
 
-///* format_inplace
+// format_inplace
 // Formats a string according to the passed in
 // format string (see printf for more info). The
 // result is written to the "out" buffer.
 //
 // The number of bytes written in returned.
+// TODO(ed): This needs error checking if it's to be exported.
 u32 format_inplace(char *out, const char *fmt, ...);
 
 u32 format_inplace(char *out, const char *fmt, ...) {

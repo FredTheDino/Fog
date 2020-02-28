@@ -252,3 +252,4 @@ void _fog_close_app_responsibly() {
     Renderer::Impl::set_fullscreen(false);
 }
 
+#include "../fog_bindings.cpp"

@@ -308,138 +308,172 @@ Vec3 V3(real x, real y, real z) { return {x, y, z}; }
 Vec4 V4(real x, real y, real z, real w) { return {x, y, z, w}; }
 
 #if _FOG_EXAMPLE
+FOG_HIDE
 ///* Vec2i
 // The integer version of a vector, stores two ints.
 
+FOG_HIDE
 ///*
 // a dot b, component wise multiplication and addition.
 s32 dot(Vec2i a, Vec2i b);
 
+FOG_HIDE
 ///*
 // |a|*|a|
 s32 length_squared(Vec2i a);
 
+FOG_HIDE
 ///*
 // |a|
 real length(Vec2i a);
 
 
+FOG_HIDE
 ///* Vec2
 // Functions that can be called specifically on the Vec2.
 
+FOG_HIDE
 ///*
 // a dot b, component wise multiplication and addition.
 real dot(Vec2 a, Vec2 b);
 
+FOG_HIDE
 ///*
 // |a|*|a|
 real length_squared(Vec2 a);
 
+FOG_HIDE
 ///*
 // |a|
 real length(Vec2 a);
 
+FOG_HIDE
 ///*
 // a / |a|
 Vec2 normalize(Vec2 a);
 
+FOG_HIDE
 ///*
 // Component wise multiplication.
 Vec2 hadamard(Vec2 a, Vec2 b);
 
+FOG_HIDE
 ///*
 // 1.0 / a
 Vec2 inverse(Vec2 a);
 
+FOG_HIDE
 ///*
 // {-y, x}
 Vec2 rotate_ccw(Vec2 p);
 
+FOG_HIDE
 ///*
 // Rotates the vector "p" by "angle"
 Vec2 rotate(Vec2 p, real angle);
 
+FOG_HIDE
 ///*
 // Returns the angle of "p" relative to the x-axis.
 real angle(Vec2 p);
 
+FOG_HIDE
 ///*
 // Returns the angle of the vector going form
 // point p to point
 real look_at(Vec2 from, Vec2 to);
 
+FOG_HIDE
 ///*
 // Constructs a new Vec2, can be used as default argument.
 Vec2 V2(real x, real y);
 
+FOG_HIDE
 ///*
 // Padds out a V3 with zeroes, returning {x, y, 0}
 Vec3 V3(Vec2 a);
 
+FOG_HIDE
 ///*
 // Padds out a V4 using the V2, {x, y, 0, x4}
 Vec4 V4(Vec2 a, real x4=1.0);
 
 
 
+FOG_HIDE
 ///* Vec3
 // Functions that can be called specifically on the Vec3.
 
+FOG_HIDE
 ///*
 // a dot b, component wise multiplication and addition.
 real dot(Vec3 a, Vec3 b);
 
+FOG_HIDE
 ///*
 // Returns a vector perpendicular to "a" and "b".
 Vec3 cross(Vec3 a, Vec3 b) {
 
+FOG_HIDE
 ///*
 // |a|
 real length(Vec3 a);
 
+FOG_HIDE
 ///*
 // |a|*|a|
 real length_squared(Vec3 a);
 
+FOG_HIDE
 ///*
 // |a|*|a|*|a|
 real length_cubed(Vec3 a);
 
+FOG_HIDE
 ///*
 // a / |a|
 Vec3 normalize(Vec3 a);
 
+FOG_HIDE
 ///*
 // Cuts the last value, returning {x, y}
 Vec2 V2(Vec3 a);
 
+FOG_HIDE
 ///*
 // Creates a new Vec3.
 Vec3 V3(real x, real y, real z);
 
+FOG_HIDE
 ///*
 // Padds out a V4 with appropriate lements, {x, y, 0.0, x4}
 Vec4 V4(Vec2 a, x4=1.0);
 
+FOG_HIDE
 ///* Vec4
 // Functions that can be called specifically on the Vec4.
 
+FOG_HIDE
 ///*
 // a dot b, component wise multiplication and addition.
 real dot(Vec4 a, Vec4 b);
 
+FOG_HIDE
 ///*
 // |a|*|a|
 real length_squared(Vec4 a);
 
+FOG_HIDE
 ///*
 // |a|
 real length(Vec4 a);
 
+FOG_HIDE
 ///*
 // a / |a|
 Vec4 normalize(Vec4 a);
 
+FOG_HIDE
 ///*
 // Creates a new Vec4.
 Vec4 V4(real x, real y, real z, real w);
@@ -581,12 +615,6 @@ bool eq_v3(Vec3 self, Vec3 other) { return self == other; }
 // Exported
 ///*
 real dot_v4(Vec4 a, Vec4 b);
-
-///*
-Vec4 cross_v4(Vec4 a, Vec4 b);
-
-///*
-real length_cubed_v4(Vec4 a);
 
 ///*
 real length_squared_v4(Vec4 a);

@@ -534,7 +534,7 @@ void upload_shader(AssetID asset, const char *source) {
             ASSERT(font_shader_program, "Failed to compile shader");
             break;
         case Res::POST_PROCESS_SHADER:
-            source = Util::format(
+            source = Util::format_int(
                     "const int num_screens = " STR(OPENGL_NUM_CAMERAS) ";\n"
                     "uniform int num_active_samplers;\n"
                     "uniform sampler2D screen_samplers[num_screens];\n"

@@ -272,17 +272,17 @@ Vec2 mouse_move();
 
 ///*
 // Converts screen coordinates to world coordinates.
-Vec2 screen_to_world(Vec2 p);
+Vec2 screen_to_world(Vec2 p, u32 camera_id=0);
 
 ///*
 // The position of the mouse in world coordinated,
 // taken into account the current camera transform.
-Vec2 world_mouse_position(u32 camera_id = 0);
+Vec2 world_mouse_position(u32 camera_id=0);
 
 ///*
 // The position of the mouse in the same scale as the world
 // coordinates, but relative to the camera position.
-Vec2 normalised_mouse_position();
+Vec2 normalized_mouse_position();
 
 ///*
 // The movement of the mouse in world coordinated,

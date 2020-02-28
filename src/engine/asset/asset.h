@@ -179,7 +179,7 @@ Sound *fetch_sound(AssetID id);
 // from it and it's bound to cause headaches.
 Sprite *fetch_sprite(AssetID id);
 
-///*
+//
 // Checks if the asset exists, and if the given asset
 // is of the specified type. Does not crash, or halt
 // execution.

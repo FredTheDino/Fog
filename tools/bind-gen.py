@@ -138,29 +138,29 @@ def format_function_def(namespace, definition):
         new_name = "*" + new_name
     return "FOG_IMPORT\n" + definition.replace(name, new_name).strip()
 
-def get_args(definition, name):
-    paren = definition.split(name)[1]
-    assert paren[0] == "(", "Invalid arguments"
-    inside_paren = ""
-    ignore = False
+def get_args(original):
+    args = ""
+    ignoring = False
     depth = 0
-    for c in paren[1:]:
+    for c in original:
         if c == "=":
-            ignore = True
-        if c == "," and depth == 0:
-            ignore = False
+            ignoring = True
         if c == "(":
             depth += 1
+            continue
         if c == ")":
             depth -= 1
-        if not ignore:
-            if c == ")":
+            if not depth:
                 break
-            inside_paren += c
-    inside_paren = paren[paren.index("(")+1:paren.index(")")]
-    return ", ".join([section.split("=")[0].strip() for section in inside_paren.split(",")])
+        if depth == 0 and c == ",":
+            ignoring = False
+        if not ignoring:
+            args += c
+    if args:
+        return ", ".join([arg.strip() for arg in args.split(",")])
+    return ""
 
-def strip_types(args):
+def strip_type(args):
     if args:
         return ", ".join([arg.split()[-1].replace("*", "") for arg in args.split(",")])
     return ""
@@ -171,12 +171,32 @@ def write_function(namespace, definition):
         return None
     ptr = "*" * ("*" in name)
     new_name = gen_new_name(name, namespace)
-    args = get_args(definition, name)
-    args_no_type = strip_types(args)
-    if namespace:
-        func = "FOG_IMPORT\n" + definition.split(name)[0] + ptr + new_name + "(" + args + ") { return " + namespace + "::" + name[len(ptr):] + "(" + args_no_type + "); }"
+    args_raw = definition.split(name)[1]
+    args = get_args(args_raw)
+    args_no_type = strip_type(args)
+    func = "FOG_IMPORT\n"
+    func += definition.split(name)[0]
+    func += ptr
+    func += new_name
+    func += "("
+    func += args
+    func += ") { "
+    if "..." in args:
+        func += "va_list _l; va_start(_l, " + args_no_type.split(",")[-2] + "); "
+        func += "auto _r = "
     else:
-        func = "FOG_IMPORT\n" + definition.split(name)[0] + ptr + new_name + "(" + args + ") { return " + name[len(ptr):] + "(" + args_no_type + "); }"
+        func += "return "
+
+    if namespace:
+        func += namespace
+        func += "::"
+    func += name[len(ptr):]
+    func += "("
+    func += args_no_type.replace("...", "_l")
+    func += "); "
+    if "..." in args:
+        func += "return _r; "
+    func += "}"
     return func
 
 if __name__ == "__main__":
@@ -202,8 +222,11 @@ if __name__ == "__main__":
 
     bodies = []
     heads = []
+    namespaces = set()
     for elem in all_defs:
-        _, kind, source = elem
+        namespace, kind, source = elem
+        if namespace:
+            namespaces.add(namespace)
         if kind == "STRUCT" or kind == "EXPORT":
             heads.append(source)
         else:
@@ -221,15 +244,17 @@ if __name__ == "__main__":
     preamble += "\n"
     preamble += "#ifdef __cplusplus\n"
     preamble += "#define FOG_IMPORT extern \"C\"\n"
-    preamble += "#else __cplusplus\n"
+    preamble += "#else\n"
     preamble += "#define FOG_IMPORT\n"
     preamble += "#endif\n\n"
     if heads:
-        with open("bindings.cpp", "w") as f:
+        with open("src/fog_bindings.cpp", "w") as f:
             f.write(preamble)
+            f.write("\n".join(["using namespace " + ns + ";" for ns in namespaces]))
+            f.write("\n")
             f.write("\n".join(bodies))
             f.write("\n#undef FOG_IMPORT")
-        with open("bindings.h", "w") as f:
+        with open("out/fog.h", "w") as f:
             f.write(preamble)
             f.write("#include <stdint.h>\n")
             f.write("#ifndef __cplusplus\n")
@@ -239,4 +264,5 @@ if __name__ == "__main__":
             f.write("#endif\n")
             f.write("\n".join(heads))
             f.write("\n#undef FOG_IMPORT")
-        print("Successfully generated bindings")
+    else:
+        sys.exit(-1)

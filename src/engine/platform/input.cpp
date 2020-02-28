@@ -218,7 +218,7 @@ Vec2 scale_screen_to_world(Vec2 p, u32 camera_id = 0) {
     return world;
 }
 
-Vec2 screen_to_world(Vec2 p, u32 camera_id = 0) {
+Vec2 screen_to_world(Vec2 p, u32 camera_id) {
     Renderer::Camera *camera = Renderer::fetch_camera(camera_id);
     return scale_screen_to_world(p, camera_id) + camera->position;
 }

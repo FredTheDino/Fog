@@ -63,6 +63,9 @@ struct Overlap {
 #endif
 };
 
+struct Limit {
+    f32 lower, upper;
+};
 
 List<Shape> global_shape_list;
 
@@ -157,7 +160,7 @@ void solve(Overlap overlap);
 // can be specified using either a min/max or a center, radius
 // and rotation.
 bool point_in_box(Vec2 p, Vec2 center, Vec2 radius, f32 rotation);
-bool point_in_region(Vec2 p, Vec2 min, Vec2 max);
+bool point_in_box_region(Vec2 p, Vec2 min, Vec2 max);
 
 
 ///*

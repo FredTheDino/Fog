@@ -292,4 +292,4 @@ def write_documentation(path, documentation):
 if __name__ == "__main__":
     all_files = search("core", "src/")
     documentation = find_all_comments(all_files)
-    write_documentation("doc/doc.html", documentation)
+    write_documentation("tools/doc.html", documentation)

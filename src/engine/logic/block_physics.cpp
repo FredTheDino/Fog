@@ -43,10 +43,10 @@ ShapeID add_shape(u32 points_length, Vec2 *points) {
             negative_cross += 1;
 
         if (positiv_cross != 0 && negative_cross != 0) {
-            char *shape_dump = Util::format("\t%.5f, %.5f\n",
+            char *shape_dump = Util::format_int("\t%.5f, %.5f\n",
                                             points[0].x, points[1].y);
             for (u32 a = 1; a < points_length; a++) {
-                shape_dump = Util::format("%s\t%.5f, %.5f\n",
+                shape_dump = Util::format_int("%s\t%.5f, %.5f\n",
                                           shape_dump, points[a].x, points[a].y);
             }
             ERR("Invalid shape, a given shape is not convex. The shape was:\n %s",

@@ -5,7 +5,7 @@ WARNINGS = -Wall -Wno-invalid-offsetof -Wno-unused-but-set-variable -Wno-unused-
 FLAGS = $(WARNINGS) -std=c++17 -Iinc $(DEBUG_FLAGS)
 LIB_PATH = ./lib/linux
 LIBS = -lSDL2 -lSDL2main -ldl -lpthread
-BIN_DIR = bin
+BIN_DIR = out
 ENGINE_PROGRAM_NAME = fog
 ENGINE_PROGRAM_PATH = $(BIN_DIR)/$(ENGINE_PROGRAM_NAME)
 ENGINE_SOURCE_FILE = src/engine/unix_main.cpp
@@ -19,16 +19,24 @@ EDITOR_PROGRAM_NAME = rain
 EDITOR_PROGRAM_PATH = $(BIN_DIR)/$(EDITOR_PROGRAM_NAME)
 EDITOR_SOURCE_FILE = src/engine/unix_main.cpp
 SOURCE_FILES = $(shell find src/ -type f -name "*.*")
-DOCUMENTATION_GENERATOR = $(shell python3 doc/doc-builder.py)
-DOCUMENTATION = doc/doc.html
+DOCUMENTATION_GENERATOR = $(shell python3 tools/doc-builder.py)
+DOCUMENTATION = tools/doc.html
+BINDING_GENERATOR = $(shell python3 tools/bind-gen.py)
+BINDINGS = $(BIN_DIR)/fog.h 
+BINDINGS += src/fog_bindings.cpp 
 
 TERMINAL = $(echo $TERM)
 
-.PHONY: default run edit asset clean debug valgrind doc
+.PHONY: default run edit asset clean debug valgrind doc bindings
 
 default: $(ENGINE_PROGRAM_PATH) $(ASSET_OUTPUT) $(DOCUMENTATION)
 
 doc: $(DOCUMENTATION)
+
+bindings: $(BINDINGS)
+
+$(BINDINGS):
+	echo $(BINDING_GENERATOR)
 
 $(DOCUMENTATION): $(ENGINE_PROGRAM_PATH)
 	$(DOCUMENTATION_GENERATOR)
@@ -36,7 +44,7 @@ $(DOCUMENTATION): $(ENGINE_PROGRAM_PATH)
 $(BIN_DIR):
 	mkdir -p $(BIN_DIR)
 
-$(ENGINE_PROGRAM_PATH): $(SOURCE_FILES) $(ASSET_OUTPUT) | $(BIN_DIR)
+$(ENGINE_PROGRAM_PATH): $(SOURCE_FILES) $(ASSET_OUTPUT) | $(BIN_DIR) $(BINDINGS)
 	rm -f $(BIN_DIR)/res
 	$(CXX) $(FLAGS) $(ENGINE_SOURCE_FILE) -o $@ -L $(LIB_PATH) $(LIBS)
 
@@ -55,7 +63,8 @@ asset: $(ASSET_OUTPUT)
 clean:
 	rm -rf $(BIN_DIR)
 	rm -f src/fog_assets.cpp
-	rm -f doc/doc.html
+	rm -f src/bindings.cpp
+	rm -f tools/doc.html
 
 edit: $(EDITOR_PROGRAM_PATH)
 	

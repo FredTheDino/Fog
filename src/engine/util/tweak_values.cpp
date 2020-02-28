@@ -80,7 +80,7 @@ void precise_snap(f32 *value, f32 big_snap=1.0, f32 small_snap=0.1) {
 
 bool begin_tweak_section(const char *name, bool *active) {
     if (!debug_values_are_on()) return false;
-    const char *buffer = Util::format(" - %s -", name);
+    const char *buffer = Util::format_int(" - %s -", name);
     debug_value_logic(name, buffer);
 
     if (name == global_tweak.active && Input::mouse_pressed(0))
@@ -106,14 +106,14 @@ bool auto_tweak(const char *name, void *value, u64 hash) {
     CHECK_TYPE(u32);
     CHECK_TYPE(Vec2);
     CHECK_TYPE(Span);
-    const char *buffer = Util::format(" %s: ???", name);
+    const char *buffer = Util::format_int(" %s: ???", name);
     debug_value_logic(name, buffer);
     return false;
 }
 
 bool tweak(const char *name, bool *value) {
     if (!debug_values_are_on()) return false;
-    const char *buffer = Util::format(" %s: %s", name, *value ? "true" : "false");
+    const char *buffer = Util::format_int(" %s: %s", name, *value ? "true" : "false");
     debug_value_logic(name, buffer);
 
     if (name == global_tweak.active && Input::mouse_pressed(0)) {
@@ -125,7 +125,7 @@ bool tweak(const char *name, bool *value) {
 
 bool tweak(const char *name, f32 *value, f32 modifier) {
     if (!debug_values_are_on()) return false;
-    const char *buffer = Util::format(" %s: %.4f", name, *value);
+    const char *buffer = Util::format_int(" %s: %.4f", name, *value);
     debug_value_logic(name, buffer);
 
     if (name == global_tweak.hot) {
@@ -151,7 +151,7 @@ bool tweak(const char *name, f32 *value, f32 modifier) {
 
 bool tweak(const char *name, s32 *value) {
     if (!debug_values_are_on()) return false;
-    const char *buffer = Util::format(" %s: %d", name, *value);
+    const char *buffer = Util::format_int(" %s: %d", name, *value);
     debug_value_logic(name, buffer);
 
     if (name == global_tweak.hot) {
@@ -164,7 +164,7 @@ bool tweak(const char *name, s32 *value) {
 
 bool tweak(const char *name, u32 *value) {
     if (!debug_values_are_on()) return false;
-    const char *buffer = Util::format(" %s: %u", name, *value);
+    const char *buffer = Util::format_int(" %s: %u", name, *value);
     debug_value_logic(name, buffer);
 
     if (name == global_tweak.hot) {
@@ -181,7 +181,7 @@ bool tweak(const char *name, u32 *value) {
 
 bool tweak(const char *name, Vec2 *value, f32 modifier) {
     if (!debug_values_are_on()) return false;
-    const char *buffer = Util::format(" %s: %.4f, %.4f", name, value->x, value->y);
+    const char *buffer = Util::format_int(" %s: %.4f, %.4f", name, value->x, value->y);
     debug_value_logic(name, buffer);
 
     if (name == global_tweak.hot) {
@@ -211,7 +211,7 @@ bool tweak(const char *name, Vec2 *value, f32 modifier) {
 
 bool tweak(const char *name, Span *value, f32 modifier) {
     if (!debug_values_are_on()) return false;
-    const char *buffer = Util::format(" %s: %.4f, %.4f", name, value->min, value->max);
+    const char *buffer = Util::format_int(" %s: %.4f, %.4f", name, value->min, value->max);
     debug_value_logic(name, buffer);
 
     if (name == global_tweak.hot) {
