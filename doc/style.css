@@ -221,6 +221,33 @@ table.member-table td:nth-child(2n) {
     font-size: 1.2em;
 }
 
+table.definition-table td {
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+table.definition-table tr:nth-child(2n) {
+    background-color: rgba(0, 0, 1, 0.1);
+}
+
+table.definition-table * {
+    padding: 0.2em;
+    height: 3em;
+}
+
+table.definition-table th {
+    padding-top: 0.4em;
+    padding-bottom: 0.4em;
+    background-color: #000; /* Cool orange color */
+    color: #f80; /* Cool orange color */
+}
+
+table.definition-table td:nth-child(1) {
+    text-align: center;
+    font-family: monospace;
+    font-size: 1.2em;
+}
+
 .region.heading {
     text-align: center;
     font-size: 3em;
