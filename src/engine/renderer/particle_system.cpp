@@ -181,7 +181,10 @@ ParticleSystem create_particle_system(u32 layer, u32 num_particles, Vec2 positio
     for (u32 i = 0; i < num_particles; i++) {
         particles[i].progress = 2.0;
     }
-    ParticleSystem particle_system = {arena, 0, 1};
+    ParticleSystem particle_system = {};
+    particle_system.memory = arena;
+    particle_system.num_sprites = 0;
+    particle_system.layer = 1;
     particle_system.head = 1;
     particle_system.max_num_particles = num_particles;
     particle_system.particles = particles;

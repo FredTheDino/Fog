@@ -283,6 +283,7 @@ real length(Vec4 a) { return sqrt(length_squared(a)); }
 
 Vec4 normalize(Vec4 a) { return a / length(a); }
 
+// Local helpers
 Vec3 V3(Vec2 v) { return {v.x, v.y, 0.0f}; }
 
 Vec4 V4(Vec2 v, real x4 = 1.0f) { return {v.x, v.y, 0.0f, x4}; }
@@ -301,29 +302,33 @@ Vec2 V2(Vec4 v) { return {v.x, v.y}; }
 
 Vec3 V3(Vec4 v) { return {v.x, v.y, v.z}; }
 
+// Eported variants.
+FOG_EXPORT
+Vec2 V2(real x, real y);
+FOG_EXPORT
+Vec3 V3(real x, real y, real z);
+FOG_EXPORT
+Vec4 V4(real x, real y, real z, real w);
+
 Vec2 V2(real x, real y) { return {x, y}; }
-
 Vec3 V3(real x, real y, real z) { return {x, y, z}; }
-
 Vec4 V4(real x, real y, real z, real w) { return {x, y, z, w}; }
 
 #if _FOG_EXAMPLE
-FOG_HIDE
-///* Vec2i
+//
 // The integer version of a vector, stores two ints.
 
-FOG_HIDE
-///*
+//
 // a dot b, component wise multiplication and addition.
 s32 dot(Vec2i a, Vec2i b);
 
 FOG_HIDE
-///*
+//
 // |a|*|a|
 s32 length_squared(Vec2i a);
 
 FOG_HIDE
-///*
+//
 // |a|
 real length(Vec2i a);
 
@@ -657,13 +662,13 @@ Vec4 div_v4(Vec4 self, real scaler) { return self / scaler; }
 bool eq_v4(Vec4 self, Vec4 other) { return self == other; }
 
 // Vec2i compatibilty layer
-///*
+//
 s32 dot_v2i(Vec2i a, Vec2i b);
 
-///*
+//
 s32 length_squared_v2i(Vec2i a, Vec2i b);
 
-///*
+//
 real length_v2i(Vec2i a);
 
 // Definitions

@@ -101,6 +101,7 @@ typedef f32 real;  // Type used in vectors.
 
 #define SQ(a) ((a) * (a))
 
+FOG_EXPORT
 #define FLOAT_EQ_MARGIN 0.0000001
 
 #define EQ(a, b) (ABS((a) - (b)) < FLOAT_EQ_MARGIN
@@ -165,19 +166,19 @@ Vec4 std_progress_func_vec4(Vec4 start_value, f32 start_slope, Vec4 end_value, f
     return LERP(start_value, y, end_value);
 };
 
-
-
-
 #include "random.h"
 #include "random.cpp"
 
+FOG_EXPORT_STRUCT
 struct Span {
     // TODO(ed): Maybe add different kinds of randomizations.
     f32 min, max;
 
+#ifdef FOG_ENGINE
     f32 random() {
         return random_real(min, max);
     }
+#endif
 };
 
 #ifdef _COMMENTS_

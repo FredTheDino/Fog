@@ -38,6 +38,7 @@ enum At {
 
 // Takes in the timestep, delta and the percentage of the progress
 // as arguments.
+FOG_EXPORT
 typedef void(*Callback)(f32, f32, f32, void *);
 
 //* LogicID
@@ -45,16 +46,19 @@ typedef void(*Callback)(f32, f32, f32, void *);
 // in the future.
 struct LogicID;
 
+FOG_EXPORT_STRUCT
 struct LogicID {
     At at;
     s16 slot;
     u8 gen;
 
+#ifdef __cplusplus
     bool operator==(LogicID &other) const {
         return at == other.at
             && gen == other.gen
             && slot == other.slot;
     }
+#endif
 };
 
 struct Timer {

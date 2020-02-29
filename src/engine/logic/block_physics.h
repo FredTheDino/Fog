@@ -58,7 +58,7 @@ struct Overlap {
     Vec2 normal; // Allways points towards a.
     bool is_valid;
 
-#if __cplusplus
+#ifdef FOG_ENGINE
     operator bool() const { return is_valid; }
 #endif
 };

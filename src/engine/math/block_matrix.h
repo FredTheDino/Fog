@@ -48,7 +48,7 @@ struct Mat4 {
                 (real)v.x * _30 + v.y * _31 + v.z * _32 + v.w * _33};
     }
 
-    Vec3 operator*(Vec3 v) { return V3((*this) * V4(v)); }
+    Vec3 operator*(Vec3 v) { return V3((*this) * V4(v.x, v.y, v.z, 1.0)); }
 
     bool operator==(Mat4 m) {
         for (u8 i = 0; i < 16; i++) {

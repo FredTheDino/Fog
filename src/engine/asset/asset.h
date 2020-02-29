@@ -27,7 +27,7 @@ using AssetID = u64;
 
 #if 0
 FOG_EXPORT
-typedef AssetID u64;
+typedef u64 AssetID;
 #endif
 
 FOG_EXPORT

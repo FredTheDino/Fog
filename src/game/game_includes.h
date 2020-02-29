@@ -25,10 +25,11 @@
 // values when tweaking.
 #define MOUSE_WARP_IF_CLICKED 1
 
+#if 1
 // The possible inputs
 namespace Input {
-    enum class Name {
-        NONE = 0,
+    enum Name {
+        NO_INPUT = 0,
 
         /* --------- Your bindings go bellow this line --------- */
 
@@ -86,6 +87,7 @@ namespace Input {
         COUNT, // Don't write anything after this.
     };
 }
+#endif
 
 // The possible performance timers
 namespace Perf {
@@ -104,18 +106,6 @@ namespace Perf {
         AUDIO_EFFECTS,
 
         NUMBER_OF_MARKERS, // Don't write anything after this.
-    };
-}
-
-
-// This is where you add a new entity
-namespace Logic {
-    enum class EntityType {
-        BASE,
-        A_TYPE,
-        MY_ENT,
-
-        NUM_ENTITY_TYPES, // Don't write anything after this.
     };
 }
 

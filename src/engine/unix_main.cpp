@@ -6,6 +6,13 @@
 bool debug_view_is_on();
 bool debug_values_are_on();
 
+///*
+void test_func();
+
+void test_func() {
+    printf("Called the test func!\n");
+}
+
 #define STBI_ONLY_PNG
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -158,7 +165,7 @@ void draw() {
 #endif
 }
 
-int main(int argc, char **argv) {
+int unix_main(int argc, char **argv) {
     // parse command line arguments
     using namespace Util;
     u32 win_width = 500;

@@ -30,6 +30,7 @@ struct AudioMixer {
     Util::MemoryArena *arena;
 } audio_mixer;
 
+FOG_EXPORT_STRUCT
 struct AudioID {
     u8 gen;
     u16 slot;
@@ -85,7 +86,9 @@ struct Channel {
 // TODO(ed): Some reverb and echo effects would
 // go a long way to create cool atmospheres.
 
+FOG_EXPORT
 constexpr f32 AUDIO_DEFAULT_GAIN = 0.2;
+FOG_EXPORT
 constexpr f32 AUDIO_DEFAULT_VARIANCE = 0.01;
 
 // These should not be called unless you really

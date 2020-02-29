@@ -10,27 +10,36 @@ namespace Input {
     }
 }
 
-namespace SDL {
-static bool running = true;
+#if 0
+FOG_EXPORT
+InputCode key_to_input_code(s32 scancode);
+FOG_EXPORT
+InputCode axis_to_input_code(s32 scancode, s32 which);
+FOG_EXPORT
+InputCode button_to_input_code(s32 scancode, s32 which);
+#endif
 
-#define K(key) (SDL::key_to_input_code((SDLK_##key)))
+#define K(key) (key_to_input_code((SDLK_##key)))
 Input::InputCode key_to_input_code(s32 scancode) {
     return scancode << 5 | 0b001;
 }
 
 #define A(axis, player)\
-    (SDL::axis_to_input_code((SDL_CONTROLLER_AXIS_##axis), toID(player)))
+    (axis_to_input_code((SDL_CONTROLLER_AXIS_##axis), toID(player)))
 Input::InputCode axis_to_input_code(s32 scancode, s32 which) {
     ASSERT(which < 0b100, "Which is too large");
     return scancode << 5 | which << 3 | 0b010;
 }
 
 #define B(button, player)\
-    (SDL::button_to_input_code((SDL_CONTROLLER_BUTTON_##button), toID(player)))
+    (button_to_input_code((SDL_CONTROLLER_BUTTON_##button), toID(player)))
 Input::InputCode button_to_input_code(s32 scancode, s32 which) {
     ASSERT(which < 0b100, "Which is too large");
     return scancode << 5 | which << 3 | 0b011;
 }
+
+namespace SDL {
+static bool running = true;
 
 struct ControllerMapping {
     s32 slot;

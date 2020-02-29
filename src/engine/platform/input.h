@@ -9,7 +9,8 @@ namespace Input {
 // The name is essentially an integer and should be kept in the enum
 // Input::Name.
 
-enum class Player {
+FOG_EXPORT_STRUCT
+enum Player {
     NONE = 0b0000,
 
     P1 = 0b0001,
@@ -117,7 +118,14 @@ constexpr u32 NUM_BINDINGS_PER_CONTROLLER =
 constexpr u32 NUM_TOTAL_BINDINGS =
     (u32)Player::NUM * NUM_BINDINGS_PER_CONTROLLER;
 
+FOG_EXPORT
 typedef u32 InputCode;
+
+#if 0
+FOG_EXPORT
+typedef u32 Name;
+#endif
+
 struct Binding {
     InputCode code;
     Player player;
@@ -125,24 +133,24 @@ struct Binding {
     u8 binding_id;
 
     bool operator==(InputCode &other) const {
-        return name != Name::NONE && code == other;
+        return name != Name::NO_INPUT && code == other;
     }
 
     bool operator<(InputCode &other) const {
-        return name != Name::NONE && code < other;
+        return name != Name::NO_INPUT && code < other;
     }
 
     bool operator>(InputCode &other) const {
-        return name != Name::NONE && code > other;
+        return name != Name::NO_INPUT && code > other;
     }
 
     u32 index() const {
-        ASSERT(name != Name::NONE, "NONE is not a valid name");
+        ASSERT(name != Name::NO_INPUT, "NONE is not a valid name");
         return (u32)name * NUM_ALTERNATIVE_BINDINGS + binding_id;
     }
 
     u32 playerID() const {
-        ASSERT(name != Name::NONE, "NONE is not a valid name");
+        ASSERT(name != Name::NO_INPUT, "NONE is not a valid name");
         return toID(player);
     }
 };
@@ -164,7 +172,7 @@ struct Mapping {
 
         void reset(Name name) { *this = {name}; }
         bool is_down() { return (u32)state & (u32)ButtonState::DOWN; }
-        bool is_used() { return name != Name::NONE; }
+        bool is_used() { return name != Name::NO_INPUT; }
     };
 
     const VirtualButton get(Binding binding) const {
@@ -235,32 +243,32 @@ bool edit_string(char *text, u32 max_length);
 // code, the keycode, should be recived from calling K(DESIRED_KEY), DESIRED_KEY
 // should be lowercase letters for normal keys and UPPERCASE for special keys.
 // Player, the player that has this binding, can be P1, P2, P3, P4.
-bool add(InputCode code, Name name, Player player=Player::P1);
+bool add(InputCode code, Name name, Player player=P1);
 
 ///*
 // Returns true if the input button, stick or key was pressed or released this frame.
-bool triggered(Name name, Player player=Player::ANY);
+bool triggered(Name name, Player player=ANY);
 
 ///*
 // Returns true if the input button, stick or key was pressed this frame.
-bool pressed(Name name, Player player=Player::ANY);
+bool pressed(Name name, Player player=ANY);
 
 ///*
 // Returns true if the input button, stick or key was released this frame.
-bool released(Name name, Player player=Player::ANY);
+bool released(Name name, Player player=ANY);
 
 ///*
 // Returns true if the input button, stick or key is held down.
-bool down(Name name, Player player=Player::ANY);
+bool down(Name name, Player player=ANY);
 
 ///*
 // Returns the value of the input, useful for analog input.
-f32 value(Name name, Player player=Player::ANY);
+f32 value(Name name, Player player=ANY);
 
 ///*
 // Ignores if the input is enabled or not and returns if the button
 // is pressed. Do not use this as a stand in for normal input.
-bool super_pressed(Name name, Player player=Player::ANY);
+bool super_pressed(Name name, Player player=ANY);
 
 ///*
 // Returns the screen coordinates in pixels for the mouse position.

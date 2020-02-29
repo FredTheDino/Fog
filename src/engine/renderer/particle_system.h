@@ -46,7 +46,6 @@ struct Particle {
 FOG_EXPORT_STRUCT
 #define MAX_NUM_SUB_SPRITES 32
 struct ParticleSystem {
-    Util::MemoryArena *memory;
 
     u32 num_sprites;
     u32 layer;
@@ -56,10 +55,12 @@ struct ParticleSystem {
     u32 head;
     u32 tail;
     u32 max_num_particles;
-#ifdef __cplusplus
+#ifdef FOG_ENGINE
     Particle *particles = nullptr;
+    Util::MemoryArena *memory;
 #else
-    Particle *particles;
+    void *particles;
+    void *memory;
 #endif
 
     bool relative;

@@ -205,17 +205,26 @@ if __name__ == "__main__":
     def sorting_key(elem):
         _, kind, defs = elem
         if kind == "EXPORT":
-            if "_t" in defs:
-                return 0
+            if "#" in defs:
+                return -1
+            if "typedef " in defs:
+                if "_t" in defs or "real;" in defs:
+                    return 0
+                if "f32;" in defs or "f64" in defs:
+                    return 0
+                if "u64;" in defs or "s64" in defs:
+                    return 0
             if "Vec" in defs:
                 return 2
             if "const " in defs:
                 return 5
+            if "typedef " in defs:
+                return 3
             return 4
         if kind == "STRUCT":
             if "struct Vec" in defs:
                 return 1
-            return 3
+            return 4
         return 10
 
     all_defs = sorted(all_defs, key=sorting_key)
@@ -257,6 +266,7 @@ if __name__ == "__main__":
         with open("out/fog.h", "w") as f:
             f.write(preamble)
             f.write("#include <stdint.h>\n")
+            f.write("#include <stdarg.h>\n")
             f.write("#ifndef __cplusplus\n")
             f.write("#define bool int\n")
             f.write("#define true 1\n")
