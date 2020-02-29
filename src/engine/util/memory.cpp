@@ -184,4 +184,10 @@ void copy_bytes(const void *from, void *to, u64 size) {
     while(size--) *(_to++) = *(_from++);
 }
 
+void free_all_memory() {
+    for (u64 i = 0; i < NUM_ARENAS - 1; i++) {
+        free((void *) global_memory.all_regions[i].memory);
+    }
+}
+
 }  // namespace Util

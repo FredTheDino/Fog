@@ -21,7 +21,7 @@ Binding *find_first_binding(InputCode code) {
 }
 
 void insert(Binding binding) {
-    ASSERT(global_mapping.used_bindings < NUM_TOTAL_BINDINGS, "Too many bindings");
+    ASSERT(global_mapping.used_bindings < global_mapping.num_total_bindings, "Too many bindings");
 
     Binding *it = global_mapping.bindings + global_mapping.used_bindings;
     while (global_mapping.bindings != it && binding.code < (it - 1)->code) {
@@ -60,7 +60,7 @@ bool add(InputCode code, Name name, Player player) {
 // this saves performance.
 void clear_input_for_frame() {
     for (u32 player = 0; player < (u32) Player::NUM; player++) {
-        for (u32 button_id = 0; button_id < NUM_BINDINGS_PER_CONTROLLER;
+        for (u32 button_id = 0; button_id < global_mapping.num_bindings_per_controller;
              button_id++) {
             auto *button = global_mapping.buttons[player] + button_id;
             button->state = clear_frame_flag(button->state);
@@ -82,7 +82,7 @@ void activate(InputCode code, f32 value) {
     for (Binding *binding = find_first_binding(code);
          binding && (*binding) == code; binding++) {
         u32 index = binding->index();
-        ASSERT(0 <= index && index < NUM_BINDINGS_PER_CONTROLLER, "Invalid index");
+        ASSERT(0 <= index && index < global_mapping.num_bindings_per_controller, "Invalid index");
         u32 player = binding->playerID();
         ASSERT(0 <= (u32) player && player < (u32) Player::NUM, "Invalid player");
         global_mapping.buttons[player][index].set(value);
@@ -284,5 +284,21 @@ void eat_mouse() {
     global_mapping.mouse.depth++;
 }
 
+Name request_name() {
+    ASSERT(global_mapping.next_name, "Invalid mapping name");
+    return global_mapping.next_name++;
+}
+
+bool init() {
+    u32 number_of_bindings = global_mapping.next_name - 1;
+    global_mapping.num_bindings_per_controller = number_of_bindings * NUM_ALTERNATIVE_BINDINGS;
+    global_mapping.num_total_bindings = (u32) Player::NUM * global_mapping.num_bindings_per_controller;
+
+    global_mapping.arena = Util::request_arena();
+    for (u32 i = 0; i < (u32) Player::NUM; i++)
+        global_mapping.buttons[i] = global_mapping.arena->push<Mapping::VirtualButton>(global_mapping.num_bindings_per_controller);
+    global_mapping.bindings = global_mapping.arena->push<Binding>(global_mapping.num_total_bindings);
+    return true;
+}
 
 };  // namespace Input

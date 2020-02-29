@@ -112,19 +112,16 @@ ButtonState generate_from_down(bool down) {
     return down ? ButtonState::PRESSED : ButtonState::DOWN;
 }
 
-constexpr u32 NUM_ALTERNATIVE_BINDINGS = 4;
-constexpr u32 NUM_BINDINGS_PER_CONTROLLER =
-    (u32)Name::COUNT * NUM_ALTERNATIVE_BINDINGS;
-constexpr u32 NUM_TOTAL_BINDINGS =
-    (u32)Player::NUM * NUM_BINDINGS_PER_CONTROLLER;
-
 FOG_EXPORT
 typedef u32 InputCode;
 
-#if 0
 FOG_EXPORT
 typedef u32 Name;
-#endif
+
+static Name NO_INPUT = 0;
+
+// Change this to allow more bindings.
+const u32 NUM_ALTERNATIVE_BINDINGS = 4;
 
 struct Binding {
     InputCode code;
@@ -133,32 +130,36 @@ struct Binding {
     u8 binding_id;
 
     bool operator==(InputCode &other) const {
-        return name != Name::NO_INPUT && code == other;
+        return name != NO_INPUT && code == other;
     }
 
     bool operator<(InputCode &other) const {
-        return name != Name::NO_INPUT && code < other;
+        return name != NO_INPUT && code < other;
     }
 
     bool operator>(InputCode &other) const {
-        return name != Name::NO_INPUT && code > other;
+        return name != NO_INPUT && code > other;
     }
 
     u32 index() const {
-        ASSERT(name != Name::NO_INPUT, "NONE is not a valid name");
+        ASSERT(name != NO_INPUT, "NONE is not a valid name");
         return (u32)name * NUM_ALTERNATIVE_BINDINGS + binding_id;
     }
 
     u32 playerID() const {
-        ASSERT(name != Name::NO_INPUT, "NONE is not a valid name");
+        ASSERT(name != NO_INPUT, "NONE is not a valid name");
         return toID(player);
     }
 };
 
 struct Mapping {
     // A list of all bindings
+    Util::MemoryArena *arena;
+    u32 num_bindings_per_controller;
+    u32 num_total_bindings;
+
     u32 used_bindings;
-    Binding bindings[NUM_TOTAL_BINDINGS];
+    Binding *bindings;
 
     struct VirtualButton {
         Name name;
@@ -172,7 +173,7 @@ struct Mapping {
 
         void reset(Name name) { *this = {name}; }
         bool is_down() { return (u32)state & (u32)ButtonState::DOWN; }
-        bool is_used() { return name != Name::NO_INPUT; }
+        bool is_used() { return name != NO_INPUT; }
     };
 
     const VirtualButton get(Binding binding) const {
@@ -180,7 +181,7 @@ struct Mapping {
     }
 
     // All the states for each button.
-    VirtualButton buttons[(u32)Player::NUM][NUM_BINDINGS_PER_CONTROLLER];
+    VirtualButton *buttons[(u32)Player::NUM];
 
     struct VirtualMouse {
         ButtonState state[3];
@@ -200,14 +201,22 @@ struct Mapping {
 
     VirtualMouse mouse;
 
+    Name next_name = 1;
+
     bool using_controller;
-} global_mapping;
+    bool disallow_adding_of_mappings;
+} global_mapping = {};
 
 struct InputEvent {
     InputCode code;
     bool pressed;
     f32 value;
 };
+
+///*
+// Gives back a new unique name that can be used to
+// react to inputs.
+Name request_name();
 
 ///*
 // Returns the currently prefered input method of the

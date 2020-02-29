@@ -25,7 +25,7 @@
 // values when tweaking.
 #define MOUSE_WARP_IF_CLICKED 1
 
-#if 1
+#if 0
 // The possible inputs
 namespace Input {
     enum Name {

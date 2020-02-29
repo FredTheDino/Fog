@@ -50,7 +50,7 @@ void debug_value_logic(const char *name, const char *buffer) {
 }
 
 f32 movement_scale() {
-    if (Input::down(Input::Name::TWEAK_SMOOTH))
+    if (Input::down(TWEAK_SMOOTH))
         return global_tweak.smooth_pixels_to_unit;
     else
         return global_tweak.pixels_to_unit;
@@ -73,7 +73,7 @@ Vec2i moved_over_boundry() {
 }
 
 void precise_snap(f32 *value, f32 big_snap=1.0, f32 small_snap=0.1) {
-    f32 precision = (Input::down(Input::Name::TWEAK_SMOOTH) ? small_snap : big_snap);
+    f32 precision = (Input::down(TWEAK_SMOOTH) ? small_snap : big_snap);
     f32 v = (*value) / precision;
     *value = ROUND(v) * precision;
 }
@@ -130,10 +130,10 @@ bool tweak(const char *name, f32 *value, f32 modifier) {
 
     if (name == global_tweak.hot) {
         f32 delta;
-        if (Input::down(Input::Name::TWEAK_STEP)) {
+        if (Input::down(TWEAK_STEP)) {
             delta = moved_over_boundry().x;
 
-            if (Input::down(Input::Name::TWEAK_SMOOTH))
+            if (Input::down(TWEAK_SMOOTH))
                 delta *= 0.1;
 
             if (delta) {
@@ -186,10 +186,10 @@ bool tweak(const char *name, Vec2 *value, f32 modifier) {
 
     if (name == global_tweak.hot) {
         Vec2 delta = {};
-        if (Input::down(Input::Name::TWEAK_STEP)) {
+        if (Input::down(TWEAK_STEP)) {
             Vec2i int_delta = moved_over_boundry();
             delta = V2(int_delta.x, int_delta.y);
-            if (Input::down(Input::Name::TWEAK_SMOOTH))
+            if (Input::down(TWEAK_SMOOTH))
                 delta *= 0.1;
             if (delta.x) {
                 value->x += delta.x;
@@ -216,10 +216,10 @@ bool tweak(const char *name, Span *value, f32 modifier) {
 
     if (name == global_tweak.hot) {
         Vec2 delta = {};
-        if (Input::down(Input::Name::TWEAK_STEP)) {
+        if (Input::down(TWEAK_STEP)) {
             Vec2i int_delta = moved_over_boundry();
             delta = V2(int_delta.x, int_delta.y);
-            if (Input::down(Input::Name::TWEAK_SMOOTH))
+            if (Input::down(TWEAK_SMOOTH))
                 delta *= 0.1;
             if (delta.x) {
                 value->min += delta.x;
