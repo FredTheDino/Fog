@@ -19,6 +19,24 @@ struct Clock {
     u64 total_count;
 };
 
+FOG_EXPORT_STRUCT
+enum MarkerID {
+    MAIN,
+    INPUT,
+    RENDER,
+    TEXT,
+
+    ENTITY_UPDATE,
+    ENTITY_DRAW,
+    ENTITY_DEFRAG,
+
+    AUDIO,
+    AUDIO_SOURCES,
+    AUDIO_EFFECTS,
+
+    NUMBER_OF_MARKERS, // Don't write anything after this.
+};
+
 // TODO(ed): This makes it kinda slow, but maybe that isn't a
 // problem.
 volatile Clock clocks[NUMBER_OF_MARKERS] = {};

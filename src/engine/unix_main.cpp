@@ -24,7 +24,6 @@ void test_func() {
 
 #include "asset/asset.h"
 #include "../fog_assets.cpp"
-#include "../game/game_includes.h"
 
 #include "renderer/text.h"
 
