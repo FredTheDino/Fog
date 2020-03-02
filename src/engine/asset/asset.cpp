@@ -131,7 +131,6 @@ bool load(const char *file_path) {
             u64 size = header.asset_size;
             char *src = Util::push_memory<char>(size);
             read_from_file<char>(file, src, size);
-
             Renderer::upload_shader(header.hash, src);
             Util::pop_memory(src);
         } break;

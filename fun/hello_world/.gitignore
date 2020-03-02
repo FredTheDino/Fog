@@ -1,0 +1,47 @@
+hello
+data.*
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+bin/**/*
+out/**/*
+*.exe
+*.out
+*.app
+
+# Other
+.gdb_history
+vgcore.*
+tags
+
+tools/doc.html
+src/fog_assets.cpp
+src/fog_bindings.cpp
+
+*/__pycache__

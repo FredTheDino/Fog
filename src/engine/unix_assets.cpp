@@ -461,6 +461,7 @@ void dump_asset_file(AssetFile *file, const char *out_path) {
         printf("\tFound asset: %s -> %s\n", header->file_path,
                asset_name);
         WRITE_TO_SORUCE("constexpr Asset::AssetID %s = %llu;\n", asset_name, i);
+        header->hash = Asset::asset_hash(asset_name);
         entiries.push_back(asset_name);
         free((void *) asset_name);
 

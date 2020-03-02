@@ -217,6 +217,7 @@ void init(int argc, char **argv) {
     // This way, you have to register all mappings
     // in the setup.
     ASSERT(Input::init(), "Failed to initalize input");
+    ASSERT(Util::init(), "Failed to initalize utilities");
 }
 
 void run(FogCallback update, FogCallback draw) {

@@ -1,0 +1,42 @@
+GAME_NAME = hello
+SOURCE = src/example.cpp
+
+CC = g++
+FLAGS = -ggdb
+LIBS_FOLDER = lib
+FOG_LIB = $(LIBS_FOLDER)/libfog.so
+# Would be nice to remove some of these.
+LIBS = -lfog -lSDL2 -lSDL2main -ldl -lpthread
+INCUDES = -Iinc
+
+ASSET_BUILDER = ../../out/mist
+ASSET_FILE = data.fog
+ASSETS = $(shell find res/ -type f -name "*.*")
+SOURCE_FILES = $(shell find src/ -type f -name "*.*")
+
+.PHONY: default
+
+default: $(ASSET_FILE) $(GAME_NAME)
+
+$(ASSET_FILE): $(ASSETS) $(ASSET_BUILDER)
+	$(ASSET_BUILDER) -o $@ $(ASSETS)
+
+$(GAME_NAME): $(SOURCE_FILES) $(FOG_LIB)
+	$(CC) $(FLAGS) -o $@ $(SOURCE) -L$(LIBS_FOLDER) $(LIBS) $(INCUDES)
+
+
+$(ASSET_BUILDER): $(FOG_LIB)
+
+$(FOG_LIB):
+	echo "What?"
+	make -C ../..
+	cp ../../out/libfog.* lib/
+	cp ../../out/fog.h inc/
+	cp -r ../../inc/SDL2 inc/SDL
+
+clean:
+	make -C ../.. clean
+	rm lib/*
+	rm $(GAME_NAME)
+	rm $(ASSET_FILE)
+
