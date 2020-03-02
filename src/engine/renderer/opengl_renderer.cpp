@@ -525,19 +525,22 @@ u32 upload_texture(const Image *image, s32 index) {
     return index;
 }
 
-void upload_shader(AssetID asset, const char *source) {
-    switch (asset) {
-        case Res::MASTER_SHADER:
+void upload_shader(u64 asset_hash, const char *source) {
+    constexpr u64 master_shader = Asset::asset_hash_comp("MASTER_SHADER");
+    constexpr u64 font_shader = Asset::asset_hash_comp("FONT_SHADER");
+    constexpr u64 post_process_shader = Asset::asset_hash_comp("POST_PROCESS_SHADER");
+    switch (asset_hash) {
+        case master_shader:
             master_shader_program = compile_shader_program_from_source(source);
             ASSERT(master_shader_program, "Failed to compile shader");
             master_shader_current_cam_loc =
                 glGetUniformLocation(master_shader_program.id, "current_cam");
             break;
-        case Res::FONT_SHADER:
+        case font_shader:
             font_shader_program = compile_shader_program_from_source(source);
             ASSERT(font_shader_program, "Failed to compile shader");
             break;
-        case Res::POST_PROCESS_SHADER:
+        case post_process_shader:
             source = Util::format_int(
                     "const int num_screens = " STR(OPENGL_NUM_CAMERAS) ";\n"
                     "uniform int num_active_samplers;\n"
@@ -551,7 +554,7 @@ void upload_shader(AssetID asset, const char *source) {
                 post_process_shader_program.id, "num_active_samplers");
             break;
         default:
-            ERR("Invalid asset passed as shader (%d)", asset);
+            ERR("Invalid asset passed as shader (%d)", asset_hash);
     }
 }
 

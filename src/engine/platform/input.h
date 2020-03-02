@@ -215,8 +215,11 @@ struct InputEvent {
 
 ///*
 // Gives back a new unique name that can be used to
-// react to inputs.
-Name request_name();
+// react to inputs. If multiple names are requested,
+// the first of the names are returned, and the subsekent
+// numbers are registered names. The names allways start
+// at 1 for the first name.
+Name request_name(u32 num=1);
 
 ///*
 // Returns the currently prefered input method of the

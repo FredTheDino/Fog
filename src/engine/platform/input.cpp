@@ -284,9 +284,11 @@ void eat_mouse() {
     global_mapping.mouse.depth++;
 }
 
-Name request_name() {
+Name request_name(u32 num) {
     ASSERT(global_mapping.next_name, "Invalid mapping name");
-    return global_mapping.next_name++;
+    Name name = global_mapping.next_name;
+    global_mapping.next_name += num;
+    return name;
 }
 
 bool init() {

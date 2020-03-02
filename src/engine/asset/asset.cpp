@@ -5,6 +5,7 @@ struct System {
     char *strings;
     Header *headers;
     Data *assets;
+    u64 num_assets;
 
     Util::MemoryArena *arena;
 } system = {};
@@ -45,6 +46,15 @@ bool is_of_type(AssetID id, Type type) {
     return type == Type::NONE || system.headers[id].type == type;
 }
 
+AssetID fetch_id(const char *str) {
+    u64 hash = asset_hash(str);
+    for (u64 i = 0; i < system.num_assets; i++) {
+        Header *headers = system.headers;
+        if (headers[i].hash == hash) return i;
+    }
+    return ASSET_ID_NO_ASSET;
+}
+
 template <typename T>
 size_t read_from_file(FILE *stream, void *ptr, size_t num = 1) {
     if (!num) {
@@ -70,7 +80,8 @@ bool load(const char *file_path) {
     }
 
     read_from_file<FileHeader>(file, &system.file_header);
-    u32 num_assets = system.file_header.number_of_assets;
+    u64 num_assets = system.file_header.number_of_assets;
+    system.num_assets = num_assets;
 
     system.headers = system.arena->push<Header>(num_assets);
     read_from_file<Header>(file, system.headers, num_assets);
@@ -121,7 +132,7 @@ bool load(const char *file_path) {
             char *src = Util::push_memory<char>(size);
             read_from_file<char>(file, src, size);
 
-            Renderer::upload_shader(header.asset_id, src);
+            Renderer::upload_shader(header.hash, src);
             Util::pop_memory(src);
         } break;
         case Type::SPRITE: {
@@ -129,8 +140,8 @@ bool load(const char *file_path) {
             Sprite *sprite = &asset_ptr->sprite;
             sprite->points = system.arena->push<Vec4>(sprite->num_points);
             read_from_file<Vec4>(file, sprite->points, sprite->num_points);
-            for (u32 i = 0; i < LEN(Res::HASH_LUT); i++) {
-                if (Res::HASH_LUT[i] == sprite->sprite_sheet) {
+            for (u32 i = 0; i < num_assets; i++) {
+                if (system.headers[i].hash == sprite->sprite_sheet) {
                     sprite->sprite_sheet = i;
                 }
             }

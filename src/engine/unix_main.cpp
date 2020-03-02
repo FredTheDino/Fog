@@ -23,7 +23,7 @@ void test_func() {
 #include "util/mapmacro.h"
 
 #include "asset/asset.h"
-#include "../fog_assets.cpp"
+// #include "../fog_assets.cpp"
 
 #include "renderer/text.h"
 

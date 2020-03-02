@@ -71,6 +71,7 @@ struct Header {
     u64 file_path_length;
     u64 timestamp;
     u64 offset;
+    u64 hash;
     u32 asset_size;
     u32 asset_id;
 };
@@ -146,6 +147,21 @@ u64 asset_hash(const char *str) {
     }
     return hash % 0x0FFFFFFF;
 }
+
+constexpr u64 asset_hash_comp(const char *str) {
+    u64 hash = 5351;
+    while (*str) {
+        char c = (*str++);
+        hash = hash * c + c;
+    }
+    return hash % 0x0FFFFFFF;
+}
+
+///*
+// Returns the asset id that is connected to the
+// specifified asset. ASSET_ID_NO_ASSET is returned
+// if no asset is found.
+AssetID fetch_id(const char *str);
 
 //
 // Checks if the passed in "id" is mapped to an image,
