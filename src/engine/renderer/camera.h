@@ -13,7 +13,7 @@ FOG_EXPORT_STRUCT
 struct Camera {
     Vec2 position;
     Vec2 offset;
-    f32 zoom = 1.0;
+    f32 zoom;
     f32 aspect_ratio; // height / width
     f32 _padding_[2];
 };

@@ -32,6 +32,7 @@ void turn_off_camera(u32 camera_id) {
 Camera camera_fit(u32 num_points, Vec2 *points, f32 border) {
     ASSERT(num_points, "No points given for camera to fit!");
     Camera camera = {};
+    camera.zoom = 1.0;
     camera.aspect_ratio = fetch_camera()->aspect_ratio;
     camera_fit_inplace(&camera, num_points, points, border);
     return camera;

@@ -1,7 +1,7 @@
 CXX = g++
 # NOTE: The verbose flag doesn't allow compilation on cirtain mac systems.
 DEBUG_FLAGS = -ggdb -O0 -DDEBUG  # -DFOG_VERBOSE
-WARNINGS = -Wall -Wno-unused-function
+WARNINGS = -Wall -Wno-unused-function -Wno-missing-braces
 FLAGS = $(WARNINGS) -std=c++17 -Iinc $(DEBUG_FLAGS)
 LIB_PATH = ./lib/linux
 LIBS = -lSDL2 -lSDL2main -ldl -lpthread
@@ -46,7 +46,7 @@ $(BIN_DIR):
 
 $(ENGINE_PROGRAM_PATH): $(SOURCE_FILES) $(ASSET_OUTPUT) | $(BIN_DIR) $(BINDINGS)
 	rm -f $(BIN_DIR)/res
-	$(CXX) $(FLAGS) -c -fPIC -shared $(ENGINE_SOURCE_FILE) -o $@ -L $(LIB_PATH) $(LIBS)
+	$(CXX) $(FLAGS) -c -fPIC -shared $(ENGINE_SOURCE_FILE) -o $@ # -L $(LIB_PATH) $(LIBS)
 
 $(EDITOR_PROGRAM_PATH): $(SOURCE_FILES) $(ASSET_OUTPUT) | $(BIN_DIR)
 	$(CXX) $(FLAGS) -DFOG_EDITOR $(EDITOR_SOURCE_FILE) -o $@ -L $(LIB_PATH) $(LIBS)

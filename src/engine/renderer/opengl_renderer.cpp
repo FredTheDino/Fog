@@ -336,6 +336,10 @@ void render_post_processing() {
 }
 
 bool init(const char *title, int width, int height) {
+    // Initalize the cameras zoom
+    for (u32 i = 0; i < OPENGL_NUM_CAMERAS; i++) {
+        _fog_global_window_state.cam[i].zoom = 1.0;
+    }
     if (SDL_Init(SDL_INIT_EVERYTHING)) {
         ERR("Failed to initalize SDL");
         return false;
