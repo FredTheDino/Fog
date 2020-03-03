@@ -87,9 +87,9 @@ struct Channel {
 // go a long way to create cool atmospheres.
 
 FOG_EXPORT
-constexpr f32 AUDIO_DEFAULT_GAIN = 0.2;
+const f32 AUDIO_DEFAULT_GAIN = 0.2;
 FOG_EXPORT
-constexpr f32 AUDIO_DEFAULT_VARIANCE = 0.01;
+const f32 AUDIO_DEFAULT_VARIANCE = 0.01;
 
 // These should not be called unless you really
 // know what you're doing.
