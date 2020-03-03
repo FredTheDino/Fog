@@ -1,8 +1,8 @@
 GAME_NAME = hello
-SOURCE = src/example.cpp
+SOURCE = src/example.c
 
-CC = g++
-FLAGS = -ggdb -std=c++17
+CC = gcc
+FLAGS = -ggdb -std=c11
 LIBS_FOLDER = lib
 
 FOG_LIB :=
