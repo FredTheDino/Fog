@@ -136,7 +136,8 @@ def format_function_def(namespace, definition):
     new_name = gen_new_name(name, namespace)
     if "*" in name:
         new_name = "*" + new_name
-    return "FOG_IMPORT\n" + definition.replace(name, new_name).strip()
+    preamble, raw_args = definition.split(name)
+    return ("FOG_IMPORT\n" + preamble + new_name + "(" + get_args(raw_args) + ");") .strip()
 
 def get_args(original):
     args = ""
