@@ -1,5 +1,6 @@
 hello
 data.*
+inc/fog.h
 # Prerequisites
 *.d
 

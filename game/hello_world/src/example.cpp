@@ -1,4 +1,3 @@
-#include <SDL2/SDL.h>
 #include "fog.h"
 
 ParticleSystem p_s;
@@ -18,8 +17,6 @@ void update() {
 void draw() {
     fog_renderer_particle_draw(&p_s);
 }
-
-#define K(key) (key_to_input_code((SDLK_##key)))
 
 int main(int argc, char **argv) {
     LEFT = fog_input_request_name();

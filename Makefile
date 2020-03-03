@@ -6,7 +6,18 @@ FLAGS = $(WARNINGS) -std=c++17 -Iinc $(DEBUG_FLAGS)
 LIB_PATH = ./lib/linux
 LIBS = -lSDL2 -lSDL2main -ldl -lpthread
 BIN_DIR = out
-ENGINE_PROGRAM_NAME = libfog.so
+
+LIB_FLAG :=
+ENGINE_PROGRAM_NAME :=
+ifeq ($(shell uname),Darwin)
+	LIB_FLAG += -dynamiclib
+	ENGINE_PROGRAM_NAME += libfog.dylib
+endif
+ifeq ($(shell uname),Linux)
+	LIB_FLAG += -shared
+	ENGINE_PROGRAM_NAME += libfog.so
+endif
+
 ENGINE_PROGRAM_PATH = $(BIN_DIR)/$(ENGINE_PROGRAM_NAME)
 ENGINE_SOURCE_FILE = src/engine/unix_main.cpp
 ASSET_BUILDER_PROGRAM_NAME = $(BIN_DIR)/mist
@@ -46,7 +57,7 @@ $(BIN_DIR):
 
 $(ENGINE_PROGRAM_PATH): $(SOURCE_FILES) | $(BIN_DIR) $(BINDINGS)
 	rm -f $(BIN_DIR)/res
-	$(CXX) $(FLAGS) -c -fPIC -shared $(ENGINE_SOURCE_FILE) -o $@ # -L $(LIB_PATH) $(LIBS)
+	$(CXX) $(FLAGS) -c -fPIC $(LIB_FLAG) $(ENGINE_SOURCE_FILE) -o $@ # -L $(LIB_PATH) $(LIBS)
 
 $(EDITOR_PROGRAM_PATH): $(SOURCE_FILES) | $(BIN_DIR)
 	$(CXX) $(FLAGS) -DFOG_EDITOR $(EDITOR_SOURCE_FILE) -o $@ -L $(LIB_PATH) $(LIBS)

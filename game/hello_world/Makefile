@@ -4,7 +4,14 @@ SOURCE = src/example.cpp
 CC = g++
 FLAGS = -ggdb
 LIBS_FOLDER = lib
-FOG_LIB = $(LIBS_FOLDER)/libfog.so
+
+FOG_LIB :=
+ifeq ($(shell uname),Darwin)
+	FOG_LIB = $(LIBS_FOLDER)/libfog.dylib
+endif
+ifeq ($(shell uname),Linux)
+	FOG_LIB = $(LIBS_FOLDER)/libfog.so
+endif
 # Would be nice to remove some of these.
 LIBS = -lfog -lSDL2 -lSDL2main -ldl -lpthread
 INCUDES = -Iinc
@@ -28,11 +35,9 @@ $(GAME_NAME): $(SOURCE_FILES) $(FOG_LIB)
 $(ASSET_BUILDER): $(FOG_LIB)
 
 $(FOG_LIB):
-	echo "What?"
 	make -C ../..
 	cp ../../out/libfog.* lib/
 	cp ../../out/fog.h inc/
-	cp -r ../../inc/SDL2 inc/SDL
 
 clean:
 	make -C ../.. clean
