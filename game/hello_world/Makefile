@@ -2,14 +2,14 @@ GAME_NAME = hello
 SOURCE = src/example.cpp
 
 CC = g++
-FLAGS = -ggdb
+FLAGS = -ggdb -std=c++17
 LIBS_FOLDER = lib
 
 FOG_LIB :=
-ifeq ($(shell uname),Darwin)
+ifeq ($(shell uname -s),Darwin)
 	FOG_LIB = $(LIBS_FOLDER)/libfog.dylib
 endif
-ifeq ($(shell uname),Linux)
+ifeq ($(shell uname -s),Linux)
 	FOG_LIB = $(LIBS_FOLDER)/libfog.a
 endif
 # Would be nice to remove some of these...

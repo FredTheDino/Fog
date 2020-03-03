@@ -9,13 +9,13 @@ BIN_DIR = out
 
 LIB_FLAG :=
 ENGINE_PROGRAM_NAME :=
-ifeq ($(shell uname),Darwin)
+ifeq ($(shell uname -s),Darwin)
 	LIB_FLAG += -dynamiclib
-	ENGINE_PROGRAM_NAME += libfog.dylib
+	ENGINE_PROGRAM_NAME = libfog.dylib
 endif
-ifeq ($(shell uname),Linux)
+ifeq ($(shell uname -s),Linux)
 	LIB_FLAG += -static
-	ENGINE_PROGRAM_NAME += libfog.a
+	ENGINE_PROGRAM_NAME = libfog.a
 endif
 
 ENGINE_PROGRAM_PATH = $(BIN_DIR)/$(ENGINE_PROGRAM_NAME)
