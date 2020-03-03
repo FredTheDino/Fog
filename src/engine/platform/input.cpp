@@ -286,13 +286,14 @@ void eat_mouse() {
 
 Name request_name(u32 num) {
     ASSERT(global_mapping.next_name, "Invalid mapping name");
+    ASSERT(global_mapping.num_total_bindings == 0, "Cannot add mappings as game is running");
     Name name = global_mapping.next_name;
     global_mapping.next_name += num;
     return name;
 }
 
 bool init() {
-    u32 number_of_bindings = global_mapping.next_name - 1;
+    u32 number_of_bindings = global_mapping.next_name;
     global_mapping.num_bindings_per_controller = number_of_bindings * NUM_ALTERNATIVE_BINDINGS;
     global_mapping.num_total_bindings = (u32) Player::NUM * global_mapping.num_bindings_per_controller;
 

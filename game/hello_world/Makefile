@@ -21,9 +21,12 @@ ASSET_FILE = data.fog
 ASSETS = $(shell find res/ -type f -name "*.*")
 SOURCE_FILES = $(shell find src/ -type f -name "*.*")
 
-.PHONY: default
+.PHONY: default run
 
 default: $(ASSET_FILE) $(GAME_NAME)
+
+run: default
+	./$(GAME_NAME)
 
 $(ASSET_FILE): $(ASSETS) $(ASSET_BUILDER)
 	$(ASSET_BUILDER) -o $@ $(ASSETS)
@@ -37,6 +40,7 @@ $(ASSET_BUILDER): $(FOG_LIB)
 $(FOG_LIB):
 	make -C ../..
 	cp ../../out/libfog.* lib/
+	mkdir -p inc
 	cp ../../out/fog.h inc/
 
 clean:
