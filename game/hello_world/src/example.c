@@ -23,10 +23,10 @@ int main(int argc, char **argv) {
     RIGHT = fog_input_request_name(1);
     fog_init(argc, argv);
 
-    fog_input_add(K(a), LEFT, P1);
-    fog_input_add(K(d), RIGHT, P1);
+    fog_input_add(fog_key_to_input_code(SDLK_a), LEFT, P1);
+    fog_input_add(fog_key_to_input_code(SDLK_d), RIGHT, P1);
 
-    p_s = fog_renderer_create_particle_system(5, 20, V2(0, 0));
+    p_s = fog_renderer_create_particle_system(5, 20, fog_V2(0, 0));
     p_s.keep_alive = true;
     p_s.one_color = false;
     p_s.one_size = false;

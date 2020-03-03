@@ -300,11 +300,11 @@ Vec2 V2(Vec4 v) { return {v.x, v.y}; }
 Vec3 V3(Vec4 v) { return {v.x, v.y, v.z}; }
 
 // Eported variants.
-FOG_EXPORT
+///*
 Vec2 V2(real x, real y);
-FOG_EXPORT
+///*
 Vec3 V3(real x, real y, real z);
-FOG_EXPORT
+///*
 Vec4 V4(real x, real y, real z, real w);
 
 Vec2 V2(real x, real y) { return {x, y}; }

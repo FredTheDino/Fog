@@ -1,3 +1,12 @@
+#if 0
+///*
+InputCode key_to_input_code(s32 scancode);
+///*
+InputCode axis_to_input_code(s32 scancode, s32 which);
+///*
+InputCode button_to_input_code(s32 scancode, s32 which);
+#endif
+
 namespace Input {
     void start_text_input() {
         global_mapping.text_input = true;
@@ -10,34 +19,20 @@ namespace Input {
     }
 }
 
-#if 0
-FOG_EXPORT
-InputCode key_to_input_code(s32 scancode);
-FOG_EXPORT
-InputCode axis_to_input_code(s32 scancode, s32 which);
-FOG_EXPORT
-InputCode button_to_input_code(s32 scancode, s32 which);
-#endif
-
-FOG_EXPORT
 #define K(key) (key_to_input_code((SDLK_##key)))
+#define A(axis, player) (axis_to_input_code((SDL_CONTROLLER_AXIS_##axis), toID(player)))
+#define B(button, player) (button_to_input_code((SDL_CONTROLLER_BUTTON_##button), toID(player)))
 
 Input::InputCode key_to_input_code(s32 scancode) {
     return scancode << 5 | 0b001;
 }
 
-FOG_EXPORT
-#define A(axis, player)\
-    (axis_to_input_code((SDL_CONTROLLER_AXIS_##axis), toID(player)))
 
 Input::InputCode axis_to_input_code(s32 scancode, s32 which) {
     ASSERT(which < 0b100, "Which is too large");
     return scancode << 5 | which << 3 | 0b010;
 }
 
-FOG_EXPORT
-#define B(button, player)\
-    (button_to_input_code((SDL_CONTROLLER_BUTTON_##button), toID(player)))
 
 Input::InputCode button_to_input_code(s32 scancode, s32 which) {
     ASSERT(which < 0b100, "Which is too large");
