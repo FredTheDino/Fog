@@ -7,7 +7,7 @@ namespace Util {
         V4(0.5, 0.75, 0.5, 1),
     };
 
-    bool init() {
+    b8 init() {
         DEBUG_FONT = Asset::fetch_id("MONACO_FONT");
         return DEBUG_FONT != Asset::ASSET_ID_NO_ASSET;
     }

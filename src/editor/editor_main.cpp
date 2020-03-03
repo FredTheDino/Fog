@@ -118,7 +118,7 @@ void setup(int argc, char **argv) {
 
     global_editor.sprites = Util::create_list<EditableSprite>(10);
     global_editor.cursor = V2(0.5, 0.5);
-    bool no_path_passed = true;
+    b8 no_path_passed = true;
     if (path != nullptr) {
         // NOTE(ed): Code bellow is copied from the asset loader. Might need to be a
         // unified function.

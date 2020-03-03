@@ -50,7 +50,7 @@ struct Mat4 {
 
     Vec3 operator*(Vec3 v) { return V3((*this) * V4(v.x, v.y, v.z, 1.0)); }
 
-    bool operator==(Mat4 m) {
+    b8 operator==(Mat4 m) {
         for (u8 i = 0; i < 16; i++) {
             if (__[i] != m.__[i]) return false;
         }

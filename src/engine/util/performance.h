@@ -7,8 +7,8 @@ namespace Perf {
 
 struct Clock {
     const char *name;
-    bool active;
-    bool other_thread;
+    b8 active;
+    b8 other_thread;
     u64 count;
     u64 start;
     f64 time;

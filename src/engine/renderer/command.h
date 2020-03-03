@@ -11,7 +11,7 @@
 namespace Renderer {
 
 // Initalize the graphics context.
-bool init(const char *title, int width, int height);
+b8 init(const char *title, int width, int height);
 
 // Clear the screen and prepare for rendering.
 void clear();
@@ -25,7 +25,7 @@ void push_quad(u32 layer, Vec2 min, Vec2 max, Vec4 color = V4(1, 1, 1, 1));
 
 // Pushes a quad that will be rendered using SDF.
 void push_sdf_quad(Vec2 min, Vec2 max, Vec2 min_uv, Vec2 max_uv, int sprite,
-                   Vec4 color, f32 low, f32 high, bool border = false);
+                   Vec4 color, f32 low, f32 high, b8 border = false);
 
 ///*
 // Renders a rotated sprite to the screen. The position is the center if the
@@ -100,7 +100,7 @@ void set_window_title(const char *title);
 ///*
 // Makes the window fullscreen or not fullscreen. Note that this
 // changes the inherent resolution of your display.
-void set_fullscreen(bool fullscreen);
+void set_fullscreen(b8 fullscreen);
 
 ///*
 // Toggles fullscreen. Note that this
@@ -109,7 +109,7 @@ void toggle_fullscreen();
 
 ///*
 // Returns if the game is currently in fullscreen mode.
-bool is_fullscreen();
+b8 is_fullscreen();
 
 // TODO(ed): Add window icons.
 // TODO(ed): Get display size.

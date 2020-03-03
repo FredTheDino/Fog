@@ -12,8 +12,8 @@ struct Particle {
     f32 progress;
 
     f32 inv_alive_time;
-    bool keep_alive;
-    bool alive;
+    b8 keep_alive;
+    b8 alive;
     f32 rotation;
     f32 angular_velocity;
     // TODO(ed): Angular damping?
@@ -63,12 +63,12 @@ typedef struct ParticleSystem {
     void *memory;
 #endif
 
-    bool relative;
-    bool keep_alive;
-    bool one_color;
-    bool one_alpha;
-    bool one_size;
-    bool drop_oldest;
+    u8 relative;
+    u8 keep_alive;
+    u8 one_color;
+    u8 one_alpha;
+    u8 one_size;
+    u8 drop_oldest;
     Vec2 position;
 
     // Spawning
@@ -90,8 +90,6 @@ typedef struct ParticleSystem {
     Span die_size;
     Span die_size_deriv;
 
-    ProgressFuncF32 progress_func_size;
-
     Span width;
     Span height;
 
@@ -107,6 +105,7 @@ typedef struct ParticleSystem {
     Span die_alpha;
     Span die_color_deriv;
 
+    ProgressFuncF32 progress_func_size;
     ProgressFuncVec4 progress_func_color;
 } ParticleSystem;
 
@@ -200,19 +199,19 @@ my_system.rotation = {0, PI};
 // </p>
 // <p>
 // Here is a comprehensive list of attributes that might be
-// interesting. Some of the boolean options might disable certain attributes.
+// interesting. Some of the b8ean options might disable certain attributes.
 // The default values are given in parenthesis.
 // </p>
 // <table class="member-table">
 //    <tr><th width="150">Type</th><th width="50">Name</th><th>Description</th></tr>
 //    <tr><td>Vec2(0.0, 0.0)</td><td>position </td><td> The position of the particle system, where the emitting is relative to.</td></tr>
 //
-//    <tr><td>bool(false)</td><td>relative</td><td> If the positions of the particles should be relative to the particle system.</td></tr>
-//    <tr><td>bool(false)</td><td>keep_alive</td><td> If the particle should die after alive_time or loop size and color forever.</td></tr>
-//    <tr><td>bool(true)</td><td>one_color</td><td> If the particles should have the same color throughout it's lifetime, this ignore the "die_red", "die_green", "die_blue", slots</td></tr>
-//    <tr><td>bool(false)</td><td>one_alpha</td><td> If the particles should have the same alpha throughout it's lifetime, ignores the "die_alpha" slot.</td></tr>
-//    <tr><td>bool(false)</td><td>one_size</td><td> If the size should be the same throughout it's lifetime.</td></tr>
-//    <tr><td>bool(false)</td><td>drop_oldest</td><td> Set to true to replace the oldest particle if the particle system is full when a new particle is created. If set to false, new particles can't be created until another one dies.</td></tr>
+//    <tr><td>b8(false)</td><td>relative</td><td> If the positions of the particles should be relative to the particle system.</td></tr>
+//    <tr><td>b8(false)</td><td>keep_alive</td><td> If the particle should die after alive_time or loop size and color forever.</td></tr>
+//    <tr><td>b8(true)</td><td>one_color</td><td> If the particles should have the same color throughout it's lifetime, this ignore the "die_red", "die_green", "die_blue", slots</td></tr>
+//    <tr><td>b8(false)</td><td>one_alpha</td><td> If the particles should have the same alpha throughout it's lifetime, ignores the "die_alpha" slot.</td></tr>
+//    <tr><td>b8(false)</td><td>one_size</td><td> If the size should be the same throughout it's lifetime.</td></tr>
+//    <tr><td>b8(false)</td><td>drop_oldest</td><td> Set to true to replace the oldest particle if the particle system is full when a new particle is created. If set to false, new particles can't be created until another one dies.</td></tr>
 //
 //    <tr><td>Span(2, 2)</td><td>alive_time</td><td> The time the particles should be atrve for, in seconds.</td></tr>
 //

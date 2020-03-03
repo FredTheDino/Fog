@@ -57,7 +57,7 @@ struct Vec2i {
 
     void operator/=(s32 scaler) { *this = (*this) / scaler; }
 
-    bool operator==(Vec2i other) {
+    b8 operator==(Vec2i other) {
         return x == other.x && y == other.y;
     }
 #endif
@@ -103,7 +103,7 @@ typedef struct Vec2 {
 
     void operator/=(real scaler) { *this = (*this) / scaler; }
 
-    bool operator==(Vec2 other) {
+    b8 operator==(Vec2 other) {
         return (x - other.x) * (x - other.x) < FLOAT_EQ_MARGIN &&
                (y - other.y) * (y - other.y) < FLOAT_EQ_MARGIN;
     }
@@ -188,7 +188,7 @@ typedef struct Vec3 {
 
     void operator/=(real scaler) { *this = (*this) / scaler; }
 
-    bool operator==(Vec3 other) {
+    b8 operator==(Vec3 other) {
         return (x - other.x) * (x - other.x) < FLOAT_EQ_MARGIN &&
                (y - other.y) * (y - other.y) < FLOAT_EQ_MARGIN &&
                (z - other.z) * (z - other.z) < FLOAT_EQ_MARGIN;
@@ -259,7 +259,7 @@ typedef struct Vec4 {
 
     void operator/=(real scaler) { *this = (*this) / scaler; }
 
-    bool operator==(Vec4 other) {
+    b8 operator==(Vec4 other) {
         return (x - other.x) * (x - other.x) < FLOAT_EQ_MARGIN &&
                (y - other.y) * (y - other.y) < FLOAT_EQ_MARGIN &&
                (z - other.z) * (z - other.z) < FLOAT_EQ_MARGIN &&
@@ -533,7 +533,7 @@ Vec2 mul_v2(Vec2 self, real scaler);
 Vec2 div_v2(Vec2 self, real scaler);
 
 ///*
-bool eq_v2(Vec2 self, Vec2 other);
+b8 eq_v2(Vec2 self, Vec2 other);
 
 // Wrapper
 real dot_v2(Vec2 a, Vec2 b) { return dot(a, b); }
@@ -554,7 +554,7 @@ Vec2 add_v2(Vec2 self, Vec2 other) { return self + other; }
 Vec2 sub_v2(Vec2 self, Vec2 other) { return self - other; }
 Vec2 mul_v2(Vec2 self, real scaler)  { return self * scaler; }
 Vec2 div_v2(Vec2 self, real scaler)  { return self / scaler; }
-bool eq_v2(Vec2 self, Vec2 other) { return self == other; }
+b8 eq_v2(Vec2 self, Vec2 other) { return self == other; }
 
 
 // Vec3 compatibility layer
@@ -592,7 +592,7 @@ Vec3 mul_v3(Vec3 self, real scaler);
 Vec3 div_v3(Vec3 self, real scaler);
 
 ///*
-bool eq_v3(Vec3 self, Vec3 other);
+b8 eq_v3(Vec3 self, Vec3 other);
 
 // Implementation
 real dot_v3(Vec3 a, Vec3 b) { return dot(a, b); }
@@ -607,7 +607,7 @@ Vec3 add_v3(Vec3 self, Vec3 other) { return self + other; }
 Vec3 sub_v3(Vec3 self, Vec3 other) { return self - other; }
 Vec3 mul_v3(Vec3 self, real scaler) { return self * scaler; }
 Vec3 div_v3(Vec3 self, real scaler) { return self / scaler; }
-bool eq_v3(Vec3 self, Vec3 other) { return self == other; }
+b8 eq_v3(Vec3 self, Vec3 other) { return self == other; }
 
 // Actual
 
@@ -643,7 +643,7 @@ Vec4 mul_v4(Vec4 self, real scaler);
 Vec4 div_v4(Vec4 self, real scaler);
 
 ///*
-bool eq_v4(Vec4 self, Vec4 other);
+b8 eq_v4(Vec4 self, Vec4 other);
 
 // Implementation
 real dot_v4(Vec4 a, Vec4 b) { return dot(a, b); }
@@ -656,7 +656,7 @@ Vec4 add_v4(Vec4 self, Vec4 other) { return self + other; }
 Vec4 sub_v4(Vec4 self, Vec4 other) { return self - other; }
 Vec4 mul_v4(Vec4 self, real scaler) { return self * scaler; }
 Vec4 div_v4(Vec4 self, real scaler) { return self / scaler; }
-bool eq_v4(Vec4 self, Vec4 other) { return self == other; }
+b8 eq_v4(Vec4 self, Vec4 other) { return self == other; }
 
 // Vec2i compatibilty layer
 //

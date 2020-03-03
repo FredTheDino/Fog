@@ -13,6 +13,7 @@
 #include <cstring>
 
 #include "header.h"
+#include "util/typedef.h"
 
 #include "util/debug.cpp"
 #include "math/block_math.h"
@@ -93,7 +94,7 @@ void add_asset_to_file(AssetFile *file, Asset::Header *header, Asset::Data *asse
     assert(file->asset_headers.size() == file->assets.size());
 }
 
-void load_texture(AssetFile *file, Asset::Header *header, bool flip=true) {
+void load_texture(AssetFile *file, Asset::Header *header, b8 flip=true) {
     static u16 id = 0;
     int w, h, c;
     // NOTE(ed): Kinda a ugly hack, the sprite atlases aren't flipped, but the
@@ -121,7 +122,7 @@ long read_next_long(char **read_head) {
     return strtol(*read_head, read_head, 10);
 }
 
-bool starts_with(const char *a, const char *b) {
+b8 starts_with(const char *a, const char *b) {
     while (*b && *(a) == *(b)) {a++; b++;};
     return *b == '\0';
 }

@@ -40,7 +40,7 @@ Input::InputCode button_to_input_code(s32 scancode, s32 which) {
 }
 
 namespace SDL {
-static bool running = true;
+static b8 running = true;
 
 struct ControllerMapping {
     s32 slot;
@@ -201,7 +201,7 @@ void poll_events() {
                     // on Linux, this filters out the second one
                     // which looks to be useless (I think it's the
                     // motion controlls).
-                    static bool skipp = false;
+                    static b8 skipp = false;
                     if (skipp) {
                         skipp = false;
                         break;

@@ -17,7 +17,7 @@ struct TweakState {
 void clear_tweak_values();
 
 // A helper function to say if we are highlighted or not.
-bool mouse_in_range(f32 height, f32 offset);
+b8 mouse_in_range(f32 height, f32 offset);
 
 // A generic drawing function, works for most debug_values,
 // used only internally.
@@ -26,20 +26,20 @@ void debug_value_logic(const char *name, const char *buffer);
 ///*
 // Starts an expandable indentation block that can be
 // used to hide cirtain tweak variables.
-bool begin_tweak_section(const char *name, bool *active);
+b8 begin_tweak_section(const char *name, b8 *active);
 
 ///*
 // Ends the current block of indentation for the last
 // active tweak section.
-void end_tweak_section(bool *active);
+void end_tweak_section(b8 *active);
 
 // Overloaded tweaks
-bool tweak(const char *name, bool *value);
-bool tweak(const char *name, s32 *value);
-bool tweak(const char *name, u32 *value);
-bool tweak(const char *name, f32 *value, f32 modifier=1.0);
-bool tweak(const char *name, Vec2 *value, f32 modifier=1.0);
-bool tweak(const char *name, Span *value, f32 modifier=1.0);
+b8 tweak(const char *name, b8 *value);
+b8 tweak(const char *name, s32 *value);
+b8 tweak(const char *name, u32 *value);
+b8 tweak(const char *name, f32 *value, f32 modifier=1.0);
+b8 tweak(const char *name, Vec2 *value, f32 modifier=1.0);
+b8 tweak(const char *name, Span *value, f32 modifier=1.0);
 
 ///* tweak
 // Exposes a value to the tweak GUI, this can be reached when
@@ -55,23 +55,23 @@ bool tweak(const char *name, Span *value, f32 modifier=1.0);
 //
 // A cool trick to remember is that the code can verify the values and for
 // example clamp them in a range efter the use has manipulated them.
-bool tweak_bool(const char *name, bool *value);
-bool tweak_s32(const char *name, s32 *value);
-bool tweak_u32(const char *name, u32 *value);
-bool tweak_f32(const char *name, f32 *value, f32 modifier=1.0);
-bool tweak_vec2(const char *name, Vec2 *value, f32 modifier=1.0);
-bool tweak_span(const char *name, Span *value, f32 modifier=1.0);
+b8 tweak_b8(const char *name, b8 *value);
+b8 tweak_s32(const char *name, s32 *value);
+b8 tweak_u32(const char *name, u32 *value);
+b8 tweak_f32(const char *name, f32 *value, f32 modifier=1.0);
+b8 tweak_vec2(const char *name, Vec2 *value, f32 modifier=1.0);
+b8 tweak_span(const char *name, Span *value, f32 modifier=1.0);
 
-bool tweak_bool(const char *name, bool *value) { return tweak(name, value); }
-bool tweak_s32(const char *name, s32 *value) { return tweak(name, value); }
-bool tweak_u32(const char *name, u32 *value) { return tweak(name, value); }
-bool tweak_f32(const char *name, f32 *value, f32 modifier) {
+b8 tweak_b8(const char *name, b8 *value) { return tweak(name, value); }
+b8 tweak_s32(const char *name, s32 *value) { return tweak(name, value); }
+b8 tweak_u32(const char *name, u32 *value) { return tweak(name, value); }
+b8 tweak_f32(const char *name, f32 *value, f32 modifier) {
     return tweak(name, value, modifier);
 }
-bool tweak_vec2(const char *name, Vec2 *value, f32 modifier) {
+b8 tweak_vec2(const char *name, Vec2 *value, f32 modifier) {
     return tweak(name, value, modifier);
 }
-bool tweak_span(const char *name, Span *value, f32 modifier) {
+b8 tweak_span(const char *name, Span *value, f32 modifier) {
     return tweak(name, value, modifier);
 }
 };

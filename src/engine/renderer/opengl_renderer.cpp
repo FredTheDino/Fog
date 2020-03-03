@@ -335,7 +335,7 @@ void render_post_processing() {
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-bool init(const char *title, int width, int height) {
+b8 init(const char *title, int width, int height) {
     // Initalize the cameras zoom
     for (u32 i = 0; i < OPENGL_NUM_CAMERAS; i++) {
         _fog_global_window_state.cam[i].zoom = 1.0;
@@ -414,7 +414,7 @@ void push_verticies(u32 layer, u32 num_verticies, Vertex *verticies) {
 
 void push_sdf_quad(Vec2 min, Vec2 max, Vec2 min_uv, Vec2 max_uv,
                           f32 sprite, Vec4 color, f32 low, f32 high,
-                          bool border) {
+                          b8 border) {
     SdfVertex verticies[] = {
         {V2(min.x, min.y), V2(min_uv.x, max_uv.y), sprite, color, low, high,
          border},

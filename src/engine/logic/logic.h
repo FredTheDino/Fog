@@ -53,7 +53,7 @@ typedef struct LogicID {
     u8 gen;
 
 #ifdef __cplusplus
-    bool operator==(LogicID &other) const {
+    b8 operator==(LogicID &other) const {
         return at == other.at
             && gen == other.gen
             && slot == other.slot;
@@ -72,7 +72,7 @@ struct Timer {
     Callback callback;
     void *aux;
 
-    bool done(f32 time) {
+    b8 done(f32 time) {
         return start <= time && end <= time && end != FOREVER;
     }
 

@@ -21,7 +21,7 @@ void draw_text(const char *string, f32 x, f32 y, f32 size, AssetID font_id,
                f32 alignment,
                Vec4 color,
                f32 edge,
-               bool border) {
+               b8 border) {
     START_PERF(TEXT);
     Asset::Font *font = Asset::fetch_font(font_id);
     ASSERT(font, "Cannot find font, the \"id\" passed in should end with _FONT");

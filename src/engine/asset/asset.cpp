@@ -41,7 +41,7 @@ Sprite *fetch_sprite(AssetID id) {
     return &raw_fetch(id, Type::SPRITE)->sprite;
 }
 
-bool is_of_type(AssetID id, Type type) {
+b8 is_of_type(AssetID id, Type type) {
     if (system.file_header.number_of_assets < id) return false;
     return type == Type::NONE || system.headers[id].type == type;
 }
@@ -71,7 +71,7 @@ size_t read_from_file(FILE *stream, void *ptr, size_t num = 1) {
     return read;
 }
 
-bool load(const char *file_path) {
+b8 load(const char *file_path) {
     system.arena = Util::request_arena();
     FILE *file = fopen(file_path, "rb");
     if (!file) {

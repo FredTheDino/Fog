@@ -11,7 +11,7 @@ struct String {
     char *data;
     u64 length;
 
-    operator bool() const { return data && length; }
+    operator b8() const { return data && length; }
     operator const char *() const { return data; }
 
     operator char *() const { return data; }
@@ -24,8 +24,8 @@ struct Image {
     const u8 components;
     const u16 id;
 
-    operator bool () const {
-        return data;
+    operator b8 () const {
+        return data != nullptr;
     }
 
     u64 size() const {

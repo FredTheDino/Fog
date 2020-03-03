@@ -29,7 +29,7 @@ namespace Util {
 // NOTE(ed): These functions aren't really recomended
 // for usage... If you're in a spot they might help though.
 
-bool str_eq(const char *a, const char *b) {
+b8 str_eq(const char *a, const char *b) {
     while (*a && *b && *(a++) == *(b++)) {
         if (*a == '\0' && *b == '\0') return true;
     }
@@ -109,18 +109,18 @@ u8 utf8_size(const char *c) {
 ///*
 // Returns if the character pointed to is the first in
 // a UTF-8 char.
-bool utf8_is_first_char(const char *c);
+b8 utf8_is_first_char(const char *c);
 
-bool utf8_is_first_char(const char *c) {
+b8 utf8_is_first_char(const char *c) {
     return (*c & 0b11000000) != 0b10000000;
 }
 
 ///*
 // Inserts the unicode glyph "from" into "to". The length
 // is the length of the "to" string.
-bool utf8_insert_glyph(char *to, const char *from, u32 length);
+b8 utf8_insert_glyph(char *to, const char *from, u32 length);
 
-bool utf8_insert_glyph(char *to, const char *from, u32 length) {
+b8 utf8_insert_glyph(char *to, const char *from, u32 length) {
     const u32 glyph_size = utf8_size(from);
     if (glyph_size > length) return false;
     for (u32 i = 0; i < glyph_size; i++)
@@ -137,7 +137,7 @@ char *utf8_advance(char *c) {
     return c + utf8_size(c);
 }
 
-bool contains_substr(const char *str, const char *substr) {
+b8 contains_substr(const char *str, const char *substr) {
     for (; *str; str++) {
         for (u32 i = 0; str[i] == substr[i]; i++) {
             if (substr[i+1] == '\0')

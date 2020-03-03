@@ -32,14 +32,14 @@ void insert(Binding binding) {
     global_mapping.used_bindings += 1;
 }
 
-bool add(InputCode code, Name name, Player player) {
+b8 add(InputCode code, Name name, Player player) {
     Binding binding = {code, player, name, 0};
 
     // Check if there is a free binding.
     ASSERT(is_valid_player(player), "");
     auto buttons = global_mapping.buttons[toID(player)];
     u32 index = binding.index();
-    bool valid = false;
+    b8 valid = false;
     for (u32 i = 0; i < NUM_ALTERNATIVE_BINDINGS; i++) {
         if (buttons[index + i].is_used()) continue;
         binding.binding_id = i;
@@ -103,7 +103,7 @@ void type_text(const char *string) {
     }
 }
 
-bool edit_string(char *text, u32 max_length) {
+b8 edit_string(char *text, u32 max_length) {
     if (!global_mapping.text_length) return false;
     s32 text_left = max_length;
     char *cursor = text;
@@ -130,7 +130,7 @@ bool edit_string(char *text, u32 max_length) {
     return true;
 }
 
-bool using_controller() {
+b8 using_controller() {
     return global_mapping.using_controller;
 }
 
@@ -148,8 +148,8 @@ bool using_controller() {
     }                      \
     }
 
-bool super_pressed(Name name, Player player) {
-    bool remember = global_mapping.text_input;
+b8 super_pressed(Name name, Player player) {
+    b8 remember = global_mapping.text_input;
     global_mapping.text_input = false;
     BEGIN_BINDINGS_BLOCK {
         if ((u32) button.state & (u32) ButtonState::TRIGGERED) {
@@ -163,7 +163,7 @@ bool super_pressed(Name name, Player player) {
 }
 
 
-bool triggered(Name name, Player player) {
+b8 triggered(Name name, Player player) {
     BEGIN_BINDINGS_BLOCK {
         if ((u32) button.state & (u32) ButtonState::TRIGGERED) return true;
     }
@@ -171,7 +171,7 @@ bool triggered(Name name, Player player) {
     return false;
 }
 
-bool pressed(Name name, Player player) {
+b8 pressed(Name name, Player player) {
     BEGIN_BINDINGS_BLOCK {
         if (button.state == ButtonState::PRESSED) return true;
     }
@@ -179,7 +179,7 @@ bool pressed(Name name, Player player) {
     return false;
 }
 
-bool released(Name name, Player player) {
+b8 released(Name name, Player player) {
     BEGIN_BINDINGS_BLOCK {
         if (button.state == ButtonState::RELEASED) return true;
     }
@@ -187,7 +187,7 @@ bool released(Name name, Player player) {
     return false;
 }
 
-bool down(Name name, Player player) {
+b8 down(Name name, Player player) {
     BEGIN_BINDINGS_BLOCK {
         if (button.is_down()) return true;
     }
@@ -257,19 +257,19 @@ Vec2 mouse_move() {
     return V2(global_mapping.mouse.move_x, global_mapping.mouse.move_y);
 }
 
-bool mouse_triggered(u8 button) {
+b8 mouse_triggered(u8 button) {
     return (u32) global_mapping.mouse.state[button] & (u32) ButtonState::TRIGGERED;
 }
 
-bool mouse_pressed(u8 button) {
+b8 mouse_pressed(u8 button) {
     return (u32) global_mapping.mouse.state[button] == (u32) ButtonState::PRESSED;
 }
 
-bool mouse_released(u8 button) {
+b8 mouse_released(u8 button) {
     return (u32) global_mapping.mouse.state[button] == (u32) ButtonState::RELEASED;
 }
 
-bool mouse_down(u8 button) {
+b8 mouse_down(u8 button) {
     return (u32) global_mapping.mouse.state[button] & (u32) ButtonState::DOWN;
 }
 
@@ -292,7 +292,7 @@ Name request_name(u32 num) {
     return name;
 }
 
-bool init() {
+b8 init() {
     u32 number_of_bindings = global_mapping.next_name;
     global_mapping.num_bindings_per_controller = number_of_bindings * NUM_ALTERNATIVE_BINDINGS;
     global_mapping.num_total_bindings = (u32) Player::NUM * global_mapping.num_bindings_per_controller;

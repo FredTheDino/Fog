@@ -12,7 +12,7 @@ namespace Util {
 // compared to a garbage collector.
 
 struct MemoryArena {
-    bool only_one;
+    b8 only_one;
     u64 watermark;
     MemoryArena *next;
     void *memory;
@@ -43,7 +43,7 @@ void swap_frame_memory();
 // Request a block of memory, only_one doesn't allow the arena to grow as the
 // memory usage is increased but caps it at one buffer. This works in a similar
 // way as "malloc".
-MemoryArena *request_arena(bool only_one = false);
+MemoryArena *request_arena(b8 only_one = false);
 
 //
 // Returns the memory arean to the pool of all available arenas with. Does the

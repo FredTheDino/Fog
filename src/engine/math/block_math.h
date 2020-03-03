@@ -1,5 +1,4 @@
 #include <math.h>
-#include <stdint.h>
 
 // TODO(ed): This is a typedef, it would be nice to implement
 // my own version so I don't have to rely on heap
@@ -34,34 +33,6 @@
 // The goal in the long run is to move away from the C-std math library,
 // but currently the engine has the header pre-included.
 // </p>
-
-FOG_EXPORT
-typedef int8_t s8;
-FOG_EXPORT
-typedef int16_t s16;
-FOG_EXPORT
-typedef int32_t s32;
-FOG_EXPORT
-typedef uint8_t u8;
-FOG_EXPORT
-typedef uint16_t u16;
-FOG_EXPORT
-typedef uint32_t u32;
-FOG_EXPORT
-typedef float f32;
-FOG_EXPORT
-typedef double f64;
-
-// Trubble makers
-FOG_EXPORT
-typedef long long s64;  // We assume these are a thing.
-FOG_EXPORT
-typedef unsigned long long u64;  // We assume these are a thing.
-static_assert(sizeof(s64) == 8, "Invalid s64 size, change s64 to a int64_t, will produce warnings.");
-static_assert(sizeof(u64) == 8, "Invalid u64 size, change s64 to a uint64_t, will produce warnings.");
-
-FOG_EXPORT
-typedef f32 real;  // Type used in vectors.
 
 #define PI 3.14159f
 
@@ -113,9 +84,9 @@ FOG_EXPORT
 ///*
 // Returns true if q lies in the bounding box
 // p1, p2.
-bool inside(Vec2 p1, Vec2 p2, Vec2 q);
+b8 inside(Vec2 p1, Vec2 p2, Vec2 q);
 
-bool inside(Vec2 p1, Vec2 p2, Vec2 q) {
+b8 inside(Vec2 p1, Vec2 p2, Vec2 q) {
     Vec2 min = V2(MIN(p1.x, p2.x), MIN(p1.y, p2.y));
     Vec2 max = V2(MAX(p1.x, p2.x), MAX(p1.y, p2.y));
     return min.x <= q.x && min.y <= q.y && q.x <= max.x && q.y <= max.y;

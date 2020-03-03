@@ -1,6 +1,6 @@
 namespace Logic {
 
-bool init() {
+b8 init() {
     logic_system.arena = Util::request_arena();
     for (s32 i = 0; i < At::COUNT; i++) {
         TimerBucket *bucket = logic_system.buckets + i;

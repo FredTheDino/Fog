@@ -5,7 +5,7 @@ namespace Physics {
 using Util::create_list;
 using Util::destroy_list;
 
-bool init() {
+b8 init() {
     global_shape_list = create_list<Shape>(32);
     return true;
 }
@@ -34,7 +34,7 @@ ShapeID add_shape(u32 points_length, Vec2 *points) {
         Vec2 c = points[(i + 1) % points_length];
         Vec2 ab = b - a;
         Vec2 bc = c - b;
-        auto winding_is_positive = [](Vec2 a, Vec2 b) -> bool {
+        auto winding_is_positive = [](Vec2 a, Vec2 b) -> b8 {
             return (a.x * b.y - a.y * b.x) > 0;
         };
         if (winding_is_positive(ab, bc))
@@ -185,12 +185,12 @@ void debug_draw_body(Body *body) {
     }
 }
 
-bool point_in_box_region(Vec2 p, Vec2 min, Vec2 max) {
+b8 point_in_box_region(Vec2 p, Vec2 min, Vec2 max) {
     return min.x < p.x && p.x < max.x &&
            min.y < p.y && p.y < max.y;
 }
 
-bool point_in_box(Vec2 p, Vec2 center, Vec2 dim, f32 rotation) {
+b8 point_in_box(Vec2 p, Vec2 center, Vec2 dim, f32 rotation) {
     p = rotate(p, -rotation);
     center = rotate(center, -rotation);
     Vec2 delta = p - center;

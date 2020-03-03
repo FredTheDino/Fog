@@ -1,10 +1,12 @@
 #include "header.h"
+#include <stdint.h>
+#include "util/typedef.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <stb_image.h>
 
-bool debug_view_is_on();
-bool debug_values_are_on();
+b8 debug_view_is_on();
+b8 debug_values_are_on();
 
 ///*
 void test_func();
@@ -43,15 +45,15 @@ void test_func() {
 #include "math.h"
 
 #ifdef DEBUG
-static bool show_perf = false;
-static bool debug_view = false;
-static bool show_debug_values = true;
+static b8 show_perf = false;
+static b8 debug_view = false;
+static b8 show_debug_values = true;
 
-bool debug_view_is_on() {
+b8 debug_view_is_on() {
     return debug_view;
 }
 
-bool debug_values_are_on() {
+b8 debug_values_are_on() {
     return show_debug_values;
 }
 
@@ -62,14 +64,14 @@ Input::Name DEBUG_PERF;
 Input::Name DEBUG_VIEW;
 Input::Name DEBUG_VALUES;
 #else
-constexpr bool show_perf = false;
-constexpr bool show_debug_values = false;
+constexpr b8 show_perf = false;
+constexpr b8 show_debug_values = false;
 
-constexpr bool debug_values_are_on() {
+constexpr b8 debug_values_are_on() {
     return false;
 }
 
-constexpr bool debug_view_is_on() {
+constexpr b8 debug_view_is_on() {
     return false;
 }
 #endif

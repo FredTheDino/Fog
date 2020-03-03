@@ -96,7 +96,7 @@ T *temporary_push(T t) {
     return FRAME_MEMORY[CURRENT_MEMORY]->push(t);
 }
 
-MemoryArena *request_arena(bool only_one) {
+MemoryArena *request_arena(b8 only_one) {
     CHECK_ILLEGAL_ALLOC;
     ASSERT(global_memory.free_regions, "No more memory");
     ASSERT(global_memory.num_free_regions, "No more memory");

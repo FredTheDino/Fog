@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "fog.h"
 
 ParticleSystem p_s;

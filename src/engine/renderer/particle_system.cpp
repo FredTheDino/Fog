@@ -85,7 +85,7 @@ Particle ParticleSystemInt::generate() {
     return {
         0,
             1.0f / alive_time.random(),
-            keep_alive,
+            (b8) keep_alive,
             true,
 
             rotation.random(),
@@ -129,7 +129,7 @@ void ParticleSystemInt::spawn(u32 num_particles) {
 void ParticleSystemInt::update(f32 delta) {
     ASSERT(particles, "Trying to use uninitalized/destroyed particle system");
     u32 i = head;
-    bool move = true;
+    b8 move = true;
     do {
         particles[i].update(delta);
         if (move && !particles[i].alive) {
@@ -178,6 +178,7 @@ ParticleSystem create_particle_system(u32 layer, u32 num_particles, Vec2 positio
     ASSERT(num_particles > 1, "Too small particle system");
     Util::MemoryArena *arena = Util::request_arena();
     Particle *particles = arena->push<Particle>(num_particles);
+
     for (u32 i = 0; i < num_particles; i++) {
         particles[i].progress = 2.0;
     }
@@ -231,6 +232,7 @@ ParticleSystem create_particle_system(u32 layer, u32 num_particles, Vec2 positio
     particle_system.die_alpha = {};
 
     particle_system.progress_func_color = std_progress_func_vec4;
+
     return particle_system;
 }
 

@@ -18,7 +18,7 @@ void init_random();
 
 ///*
 // Returns a random bit, not cryptographically safe.
-bool random_bit();
+b8 random_bit();
 
 ///*
 // Returns 32 random bytes, not cryptographically safe.

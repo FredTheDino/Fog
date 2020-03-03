@@ -26,11 +26,11 @@ void _fog_debug_log(const char* type, FILE* stream, const char* file,
 
 void _fog_close_app_responsibly();
 #define HALT_AND_CATCH_FIRE do { _fog_close_app_responsibly(); exit(-1); } while (false)
-#define ASSERT(expr, msg) _fog_assert(__FILE__, __LINE__, "" STR(expr) "" ": " msg, expr)
+#define ASSERT(expr, msg) _fog_assert(__FILE__, __LINE__, "" STR(expr) "" ": " msg, (expr) != 0)
 
 void _fog_assert_failed() {HALT_AND_CATCH_FIRE;}
 void _fog_assert(const char* file, int line, const char* expr,
-                     bool assumed) {
+                     b8 assumed) {
     if (assumed) return;
     _fog_debug_log("!ASSERT!", stderr, file, line, "ASSERT", expr);
     _fog_assert_failed();
@@ -40,9 +40,9 @@ void _fog_assert(const char* file, int line, const char* expr,
                 __func__, "Reached unreachable code");       \
     HALT_AND_CATCH_FIRE;
 
-#define CHECK(expr, msg) _fog_check(__FILE__, __LINE__, "" #expr "" ": " #msg, expr)
+#define CHECK(expr, msg) _fog_check(__FILE__, __LINE__, "" #expr "" ": " #msg, (expr) != 0)
 void _fog_check(const char* file, int line, const char* expr,
-                    bool assumed) {
+                    b8 assumed) {
     if (assumed) return;
     _fog_debug_log("?CHECK?", stderr, file, line, "CHECK", expr);
 }

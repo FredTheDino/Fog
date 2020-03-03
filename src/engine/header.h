@@ -2,7 +2,7 @@
 // other than marking C++ code for export to the exporter.
 #define FOG_HIDE
 #define FOG_EXPORT
-#define FOG_EXPORT_STRUCT
+#define FOG_EXPORT_STRUCT extern "C"
 
 // Is set when the engine is compiled as an engine.
 #define FOG_ENGINE

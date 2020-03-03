@@ -16,7 +16,7 @@ namespace Impl {
 
 using Impl::Vertex;
 
-bool init(const char *title, int width, int height) {
+b8 init(const char *title, int width, int height) {
     return Impl::init(title, width, height);
 }
 
@@ -100,7 +100,7 @@ void push_rectangle(u32 layer, Vec2 position, Vec2 dimension, Vec4 color) {
 }
 
 void push_sdf_quad(Vec2 min, Vec2 max, Vec2 min_uv, Vec2 max_uv, int sprite,
-                   Vec4 color, f32 low, f32 high, bool border) {
+                   Vec4 color, f32 low, f32 high, b8 border) {
     Impl::push_sdf_quad(min, max, min_uv, max_uv, sprite, color, low, high,
                         border);
 }
@@ -133,13 +133,13 @@ void set_window_title(const char *title) {
     return Impl::set_window_title(title);
 }
 
-void set_fullscreen(bool fullscreen) {
+void set_fullscreen(b8 fullscreen) {
     return Impl::set_fullscreen(fullscreen);
 }
 
 void toggle_fullscreen() { return Impl::toggle_fullscreen(); }
 
-bool is_fullscreen() { return Impl::is_fullscreen; }
+b8 is_fullscreen() { return Impl::is_fullscreen; }
 
 }  // namespace Renderer
 
