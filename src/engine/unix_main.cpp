@@ -156,6 +156,14 @@ void setup_debug_keybinds() {
 // be able to be played.
 void init(int argc, char **argv);
 
+///*
+// Quits the game.
+void quit();
+
+void quit() {
+    SDL::running = false;
+}
+
 ////
 // The type for fog callbacks, these are
 // entry-points for fog into your code.
