@@ -10,10 +10,10 @@ ifeq ($(shell uname),Darwin)
 	FOG_LIB = $(LIBS_FOLDER)/libfog.dylib
 endif
 ifeq ($(shell uname),Linux)
-	FOG_LIB = $(LIBS_FOLDER)/libfog.so
+	FOG_LIB = $(LIBS_FOLDER)/libfog.a
 endif
-# Would be nice to remove some of these.
-LIBS = -lfog -lSDL2 -lSDL2main -ldl -lpthread
+# Would be nice to remove some of these...
+LIBS = -lfog -lSDL2 -lSDL2main -ldl -lpthread -lc -lm
 INCUDES = -Iinc
 
 ASSET_BUILDER = ../../out/mist

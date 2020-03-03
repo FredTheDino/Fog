@@ -68,7 +68,7 @@ s32 length_squared(Vec2i a) { return dot(a, a); }
 real length(Vec2i a) { return sqrt((real) length_squared(a)); }
 
 FOG_EXPORT_STRUCT
-struct Vec2 {
+typedef struct Vec2 {
     union {
         struct {
             real x, y;
@@ -108,7 +108,7 @@ struct Vec2 {
                (y - other.y) * (y - other.y) < FLOAT_EQ_MARGIN;
     }
 #endif
-};
+} Vec2;
 
 real dot(Vec2 a, Vec2 b) { return a.x * b.x + a.y * b.y; }
 
@@ -146,7 +146,7 @@ real look_at(Vec2 from, Vec2 to) {
 }
 
 FOG_EXPORT_STRUCT
-struct Vec3 {
+typedef struct Vec3 {
     union {
         struct {
             real x, y, z;
@@ -194,7 +194,7 @@ struct Vec3 {
                (z - other.z) * (z - other.z) < FLOAT_EQ_MARGIN;
     }
 #endif
-};
+} Vec3;
 
 real dot(Vec3 a, Vec3 b) { return a.x * b.x + a.y * b.y + a.z * b.z; }
 
@@ -213,11 +213,8 @@ real length(Vec3 a) { return sqrt(length_squared(a)); }
 
 Vec3 normalize(Vec3 a) { return a / length(a); }
 
-#ifndef FOG_EXPORT_STRUCT
-#error "What?"
-#endif
 FOG_EXPORT_STRUCT
-struct Vec4 {
+typedef struct Vec4 {
     union {
         struct {
             real x, y, z, w;
@@ -269,7 +266,7 @@ struct Vec4 {
                (w - other.w) * (w - other.w) < FLOAT_EQ_MARGIN;
     }
 #endif
-};
+} Vec4;
 
 real dot(Vec4 a, Vec4 b) {
     return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;

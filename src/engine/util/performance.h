@@ -20,7 +20,7 @@ struct Clock {
 };
 
 FOG_EXPORT_STRUCT
-enum MarkerID {
+typedef enum {
     MAIN,
     INPUT,
     RENDER,
@@ -35,7 +35,7 @@ enum MarkerID {
     AUDIO_EFFECTS,
 
     NUMBER_OF_MARKERS, // Don't write anything after this.
-};
+} MarkerID;
 
 // TODO(ed): This makes it kinda slow, but maybe that isn't a
 // problem.

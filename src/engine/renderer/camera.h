@@ -10,23 +10,23 @@ FOG_EXPORT_STRUCT
 ///* Camera struct
 // The camera struct is how a camera is controlled. This struct can
 // give you fine grain camera control.
-struct Camera {
+typedef struct Camera {
     Vec2 position;
     Vec2 offset;
     f32 zoom;
     f32 aspect_ratio; // height / width
     f32 _padding_[2];
-};
+} Camera;
 
 // TODO(ed): Would it be nice to have a rotating camera?
 
 FOG_EXPORT_STRUCT
-struct Window {
+typedef struct Window {
     f32 width;
     f32 height;
     f32 aspect_ratio;
     f32 _padding_;
-};
+} Window;
 
 struct {
     Camera cam[OPENGL_NUM_CAMERAS];

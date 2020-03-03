@@ -31,10 +31,10 @@ struct AudioMixer {
 } audio_mixer;
 
 FOG_EXPORT_STRUCT
-struct AudioID {
+typedef struct AudioID {
     u8 gen;
     u16 slot;
-};
+} AudioID;
 
 struct Channel {
     f32 *buffer;

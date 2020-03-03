@@ -29,7 +29,7 @@ struct Shape {
 };
 
 FOG_EXPORT_STRUCT
-struct Body {
+typedef struct Body {
     ShapeID shape;
     Layer layer;
 
@@ -49,10 +49,10 @@ struct Body {
     f32 inverse_mass;
     f32 damping;
     f32 bounce;
-};
+} Body;
 
 FOG_EXPORT_STRUCT
-struct Overlap {
+typedef struct Overlap {
     Body *a, *b;
     f32 depth;
     Vec2 normal; // Allways points towards a.
@@ -61,7 +61,7 @@ struct Overlap {
 #ifdef FOG_ENGINE
     operator bool() const { return is_valid; }
 #endif
-};
+} Overlap;
 
 struct Limit {
     f32 lower, upper;

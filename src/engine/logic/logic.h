@@ -27,14 +27,14 @@ FOG_EXPORT
 const f32 ONCE = 0;
 
 FOG_EXPORT_STRUCT
-enum At {
+typedef enum {
     PRE_UPDATE,
     POST_UPDATE,
     PRE_DRAW,
     POST_DRAW,
 
     COUNT,
-};
+} At;
 
 // Takes in the timestep, delta and the percentage of the progress
 // as arguments.
@@ -47,7 +47,7 @@ typedef void(*Callback)(f32, f32, f32, void *);
 struct LogicID;
 
 FOG_EXPORT_STRUCT
-struct LogicID {
+typedef struct LogicID {
     At at;
     s16 slot;
     u8 gen;
@@ -59,7 +59,7 @@ struct LogicID {
             && slot == other.slot;
     }
 #endif
-};
+} LogicID;
 
 struct Timer {
     s16 forward;

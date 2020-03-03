@@ -45,7 +45,7 @@ struct Particle {
 
 FOG_EXPORT_STRUCT
 #define MAX_NUM_SUB_SPRITES 32
-struct ParticleSystem {
+typedef struct ParticleSystem {
 
     u32 num_sprites;
     u32 layer;
@@ -108,7 +108,7 @@ struct ParticleSystem {
     Span die_color_deriv;
 
     ProgressFuncVec4 progress_func_color;
-};
+} ParticleSystem;
 
 // TODO(ed): This is technically UB, but the compiler can't
 // check it. If it leads to hairy situations it can trivially be rewritten,

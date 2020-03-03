@@ -10,7 +10,7 @@ namespace Input {
 // Input::Name.
 
 FOG_EXPORT_STRUCT
-enum Player {
+typedef enum {
     NONE = 0b0000,
 
     P1 = 0b0001,
@@ -22,7 +22,7 @@ enum Player {
     NUM = 4,
 
     ANY = 0b1111,
-};
+} Player;
 
 bool is_valid_player(Player p) {
     return (p == Player::P1 || p == Player::P2 || p == Player::P3 ||

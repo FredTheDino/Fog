@@ -1,4 +1,3 @@
-#include <functional>
 #include <math.h>
 #include <stdint.h>
 
@@ -170,7 +169,7 @@ Vec4 std_progress_func_vec4(Vec4 start_value, f32 start_slope, Vec4 end_value, f
 #include "random.cpp"
 
 FOG_EXPORT_STRUCT
-struct Span {
+typedef struct Span {
     // TODO(ed): Maybe add different kinds of randomizations.
     f32 min, max;
 
@@ -179,7 +178,7 @@ struct Span {
         return random_real(min, max);
     }
 #endif
-};
+} Span;
 
 #ifdef _COMMENTS_
 

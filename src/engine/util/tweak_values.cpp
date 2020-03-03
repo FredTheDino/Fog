@@ -96,21 +96,6 @@ void end_tweak_section(bool *active) {
     global_tweak.indentation -= *active;
 }
 
-bool auto_tweak(const char *name, void *value, u64 hash) {
-    if (!debug_values_are_on()) return false;
-#define CHECK_TYPE(t) \
-    if (hash == typeid(t).hash_code()) { return tweak(name, (t *) value); }
-    CHECK_TYPE(bool);
-    CHECK_TYPE(f32);
-    CHECK_TYPE(s32);
-    CHECK_TYPE(u32);
-    CHECK_TYPE(Vec2);
-    CHECK_TYPE(Span);
-    const char *buffer = Util::format_int(" %s: ???", name);
-    debug_value_logic(name, buffer);
-    return false;
-}
-
 bool tweak(const char *name, bool *value) {
     if (!debug_values_are_on()) return false;
     const char *buffer = Util::format_int(" %s: %s", name, *value ? "true" : "false");
