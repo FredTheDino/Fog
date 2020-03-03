@@ -1,74 +1,22 @@
 #include <chrono>
 #include <random>
+#include <vector>
 
 #include "test.h"
 
 #include "math.cpp"
 #include "logic_callback.cpp"
 
-#include "test_test.cpp"
-
 namespace Test {
 
 void run_tests() {
-    UnitTest tests[] = {
-        PASS(math_typedef_s8),
-        PASS(math_typedef_u8),
-        PASS(math_typedef_s16),
-        PASS(math_typedef_u16),
-        PASS(math_typedef_s32),
-        PASS(math_typedef_u32),
-        PASS(math_typedef_f32),
-        PASS(math_typedef_s64),
-        PASS(math_typedef_u64),
-        PASS(math_typedef_f64),
-        PASS(math_max),
-        PASS(math_min),
-        PASS(math_abs_max),
-        PASS(math_lerp),
-        PASS(math_lerp_vec2),
-        PASS(math_lerp_vec3),
-        PASS(math_lerp_vec4),
-        PASS(math_clamp),
-        PASS(math_sign_no_zero),
-        PASS(math_sign),
-        PASS(math_abs),
-        PASS(math_mod),
-        PASS(math_eq),
-        PASS(math_sq),
-        PASS(math_random_real),
-        PASS(math_random_real_multiple),
-        PASS(math_span),
-        PASS(logic_callback_add_pre_update_once),
-        PASS(logic_callback_add_post_update_once),
-        PASS(logic_callback_add_pre_draw_once),
-        PASS(logic_callback_add_post_draw_once),
-        PASS(logic_callback_single_frame),
-        PASS(logic_callback_forever),
-        PASS(logic_callback_remove),
-        PASS(logic_callback_update),
+    std::vector<UnitTest> tests;
 
-        /*
-        PASS(test_slow_test_false),
-        PASS(test_slow_test_false),
-        PASS(test_slow_test_false),
-        PASS(test_slow_test_false),
-        FAIL(test_slow_test_false),
-        FAIL(test_slow_test_false),
-        FAIL(test_slow_test_false),
-        PASS(test_slow_test_true),
-        PASS(test_slow_test_true),
-        PASS(test_slow_test_true),
-        PASS(test_slow_test_true),
-        FAIL(test_slow_test_true),
-        FAIL(test_slow_test_true),
-        FAIL(test_slow_test_true),
-        FAIL(test_slow_test_true),
-        */
-    };
-    int size = sizeof(tests) / sizeof(UnitTest);
-    int passed = 0;  // counts only tests that should pass
-    int failed = 0;  // counts only tests that should fail
+    init_math(&tests);
+    init_logic_callback(&tests);
+
+    int passed = 0;  // counts only tests that should pass, not unexpected passes
+    int failed = 0;  // counts only tests that should fail, not unexpected fails
     int passed_expected = 0;
     int failed_expected = 0;
     int skipped = 0;
@@ -83,18 +31,18 @@ void run_tests() {
     int current = 0;
     for (UnitTest test: tests) {
         current++;
-        printf(CLEAR "\r  %d/%d: " YELLOW " testing " RESET "%s\r", current, size, test.name);
+        printf(CLEAR "\r%d/%d: " YELLOW " testing " RESET "%s\r", current, tests.size(), test.name);
         fflush(stdout);
 
         Result res = test.test();
         if (res == SKIP) {
             skipped++;
-            printf(CLEAR "\r" YELLOW "  skipping " RESET "%s\n", test.name);
+            printf(CLEAR "\r" YELLOW "s " RESET "%s skipped\n", test.name);
             continue;
         }
         if (res == FAIL_EXT) {
             skipped++;
-            printf("  %s fails before actual test\n", test.name);
+            printf(CLEAR "\r" YELLOW "s " RESET "%s fails before actual test\n", test.name);
             continue;
         }
         if (test.failing) {
@@ -102,14 +50,14 @@ void run_tests() {
             if (res == FAIL) {
                 failed++;
             } else {
-                printf("  %s passed even though it shouldn't\n", test.name);
+                printf(CLEAR "\r" RED "p " RESET "%s passed even though it shouldn't\n", test.name);
             }
         } else {
             passed_expected++;
             if (res == PASS) {
                 passed++;
             } else {
-                printf("  %s failed even though it shouldn't\n", test.name);
+                printf(CLEAR "\r" RED "f " RESET "%s failed even though it shouldn't\n", test.name);
             }
         }
     }
@@ -122,7 +70,7 @@ void run_tests() {
     printf(RED    "unexpected successes:" RESET " %3d\n", (failed_expected - failed));
     printf(YELLOW "expected failures:" RESET "    %3d\n", failed);
     printf(YELLOW "skipped:" RESET "              %3d\n", skipped);
-    printf("%d tests in %.2f ms\n", size - skipped, (elapsed.count() / 1e6));
+    printf("%d tests in %.2f ms\n", tests.size() - skipped, (elapsed.count() / 1e6));
     printf("%d illegal allocations\n", Util::num_errors);
 }
 

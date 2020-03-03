@@ -1,3 +1,5 @@
+#include <vector>
+
 namespace Test {
 
 Result math_typedef_s8() { return sizeof(s8) == 1 ? PASS : FAIL; }
@@ -150,6 +152,38 @@ Result math_span() {
     if (sp.random() != -1)
         return FAIL;
     return PASS;
+}
+
+void init_math(std::vector<UnitTest> *tests) {
+    tests->push_back(PASS(math_typedef_s8));
+    tests->push_back(PASS(math_typedef_u8));
+    tests->push_back(PASS(math_typedef_s16));
+    tests->push_back(PASS(math_typedef_u16));
+    tests->push_back(PASS(math_typedef_s32));
+    tests->push_back(PASS(math_typedef_u32));
+    tests->push_back(PASS(math_typedef_f32));
+    tests->push_back(PASS(math_typedef_s64));
+    tests->push_back(PASS(math_typedef_u64));
+    tests->push_back(PASS(math_typedef_f64));
+    tests->push_back(PASS(math_max));
+    tests->push_back(PASS(math_min));
+    tests->push_back(PASS(math_abs_max));
+    tests->push_back(PASS(math_abs_min));
+    tests->push_back(PASS(math_lerp));
+    tests->push_back(PASS(math_lerp_vec2));
+    tests->push_back(PASS(math_lerp_vec3));
+    tests->push_back(PASS(math_lerp_vec4));
+    tests->push_back(PASS(math_clamp));
+    tests->push_back(PASS(math_sign_no_zero));
+    tests->push_back(PASS(math_sign));
+    tests->push_back(PASS(math_in_range));
+    tests->push_back(PASS(math_abs));
+    tests->push_back(PASS(math_mod));
+    tests->push_back(PASS(math_eq));
+    tests->push_back(PASS(math_sq));
+    tests->push_back(PASS(math_random_real));
+    tests->push_back(PASS(math_random_real_multiple));
+    tests->push_back(PASS(math_span));
 }
 
 }  // namespace Test

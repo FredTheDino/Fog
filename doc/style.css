@@ -226,8 +226,12 @@ table.definition-table td {
     padding-right: 1em;
 }
 
-table.definition-table tr:nth-child(2n) {
-    background-color: rgba(0, 0, 1, 0.1);
+table.definition-table tr:nth-child(even) {
+    background-color: rgba(0, 0, 1, 0.15);
+}
+
+table.definition-table tr:nth-child(odd) {
+    background-color: rgba(0, 0, 1, 0.05);
 }
 
 table.definition-table * {
@@ -238,7 +242,7 @@ table.definition-table * {
 table.definition-table th {
     padding-top: 0.4em;
     padding-bottom: 0.4em;
-    background-color: #000; /* Cool orange color */
+    background-color: #000;
     color: #f80; /* Cool orange color */
 }
 

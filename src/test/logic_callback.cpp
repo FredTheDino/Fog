@@ -142,4 +142,15 @@ Result logic_callback_update() {
 //TODO(gu)
 // - step
 
+void init_logic_callback(std::vector<UnitTest> *tests) {
+    tests->push_back(PASS(logic_callback_add_pre_update_once));
+    tests->push_back(PASS(logic_callback_add_post_update_once));
+    tests->push_back(PASS(logic_callback_add_pre_draw_once));
+    tests->push_back(PASS(logic_callback_add_post_draw_once));
+    tests->push_back(PASS(logic_callback_single_frame));
+    tests->push_back(PASS(logic_callback_forever));
+    tests->push_back(PASS(logic_callback_remove));
+    tests->push_back(PASS(logic_callback_update));
+}
+
 }
