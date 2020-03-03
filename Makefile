@@ -1,14 +1,15 @@
 CXX = g++
 # NOTE: The verbose flag doesn't allow compilation on cirtain mac systems.
-DEBUG_FLAGS = -ggdb -O0 -DDEBUG  # -DFOG_VERBOSE
 WARNINGS = -Wall -Wno-unused-function -Wno-missing-braces
-FLAGS = $(WARNINGS) -std=c++17 -Iinc $(DEBUG_FLAGS)
+FLAGS = $(WARNINGS) -std=c++17 -Iinc
+DEBUG_FLAGS = $(FLAGS) -ggdb -O0 -DDEBUG  # -DFOG_VERBOSE
+#RELEASE_FLAGS = $(FLAGS) -O3  #TODO(gu)
 LIB_PATH = ./lib/linux
 LIBS = # -lSDL2 -lSDL2main -ldl -lpthread -lc -lm
 BIN_DIR = out
 
-LIB_FLAG :=
-ENGINE_PROGRAM_NAME :=
+LIB_FLAG =
+ENGINE_PROGRAM_NAME =
 ifeq ($(shell uname -s),Darwin)
 	LIB_FLAG += -dynamiclib
 	ENGINE_PROGRAM_NAME = libfog.dylib
@@ -37,16 +38,21 @@ BINDINGS += src/fog_bindings.cpp
 
 TERMINAL = $(echo $TERM)
 
-.PHONY: default clean doc bindings # run edit asset debug valgrind 
+.PHONY: default engine doc bindings clean # run edit asset debug valgrind
 
-default: $(ENGINE_PROGRAM_PATH) $(DOCUMENTATION) $(ASSET_BUILDER_PROGRAM_NAME)
+default: engine
+engine: $(ENGINE_PROGRAM_PATH) $(DOCUMENTATION) $(ASSET_BUILDER_PROGRAM_NAME)
+
+#release: $(SOURCE_FILES) $(ASSET_BUILDER_PROGRAM_NAME) | $(BIN_DIR) $(BINDINGS)
+#	rm -f $(BIN_DIR)/res
+#	$(CXX) $(RELEASE_FLAGS) -c -fPIC $(LIB_FLAG) $(ENGINE_SOURCE_FILE) -o $(ENGINE_PROGRAM_PATH) -L $(LIB_PATH) $(LIBS)
 
 doc: $(DOCUMENTATION)
 
 bindings: $(BINDINGS)
 
 $(BINDINGS):
-	echo $(BINDING_GENERATOR)
+	$(BINDING_GENERATOR)
 
 $(DOCUMENTATION): $(ENGINE_PROGRAM_PATH)
 	$(DOCUMENTATION_GENERATOR)
@@ -55,15 +61,13 @@ $(BIN_DIR):
 	mkdir -p $(BIN_DIR)
 
 $(ENGINE_PROGRAM_PATH): $(SOURCE_FILES) | $(BIN_DIR) $(BINDINGS)
-	rm -f $(BIN_DIR)/res
-	$(CXX) $(FLAGS) -c -fPIC $(LIB_FLAG) $(ENGINE_SOURCE_FILE) -o $@ -L $(LIB_PATH) $(LIBS)
+	$(CXX) $(DEBUG_FLAGS) -c -fPIC $(LIB_FLAG) $(ENGINE_SOURCE_FILE) -o $@ -L $(LIB_PATH) $(LIBS)
 
-# $(EDITOR_PROGRAM_PATH): $(SOURCE_FILES) | $(BIN_DIR)
-# 	$(CXX) $(FLAGS) -DFOG_EDITOR $(EDITOR_SOURCE_FILE) -o $@ -L $(LIB_PATH) $(LIBS)
-
+#$(EDITOR_PROGRAM_PATH): $(SOURCE_FILES) | $(BIN_DIR)
+#	$(CXX) $(DEBUG_FLAGS) -DFOG_EDITOR $(EDITOR_SOURCE_FILE) -o $@ -L $(LIB_PATH) $(LIBS)
 
 $(ASSET_BUILDER_PROGRAM_NAME): $(ASSET_SOURCE_FILES) $(ASSET_BUILDER_SOURCE_FILE) | $(BIN_DIR)
-	$(CXX) $(FLAGS) $(ASSET_BUILDER_SOURCE_FILE) -o $(ASSET_BUILDER_PROGRAM_NAME) -L $(LIB_PATH) $(LIBS)
+	$(CXX) $(DEBUG_FLAGS) $(ASSET_BUILDER_SOURCE_FILE) -o $(ASSET_BUILDER_PROGRAM_NAME) -L $(LIB_PATH) $(LIBS)
 
 clean:
 	rm -rf $(BIN_DIR)
