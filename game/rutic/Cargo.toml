@@ -1,0 +1,13 @@
+[package]
+name = "rutic"
+version = "0.1.0"
+authors = ["Edvard Thörnros <edvard.thornros@gmail.com>"]
+edition = "2018"
+build = "build.rs"
+
+[lints]
+non_camel_case_types = "allow"
+non_upper_case_globals = "allow"
+
+[dependencies]
+#libc = "0.2.0"

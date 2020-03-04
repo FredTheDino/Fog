@@ -174,8 +174,64 @@ typedef void(*FogCallback)(void);
 
 ///*
 // Starts the game, calls the supplied update function
-// when
+// when an update is needed, and calls draw when a draw
+// is needed. (Don't use this together with draw and update and post_init)
 void run(FogCallback update, FogCallback draw);
+
+///*
+// Call this to finish the initalization, if you aren't using
+// the run function. (Don't use this together with run)
+void post_init();
+
+///*
+// Draws the current game to the window. This
+// does the draw part of the engine update. Call
+// this before all your logic, to get a smoother
+// game. (Don't use this together with run)
+void update();
+
+void update() {
+    Logic::frame(SDL_GetTicks() / 1000.0f);
+
+    if (show_perf)
+        Perf::report();
+    Util::clear_tweak_values();
+    Perf::clear();
+    START_PERF(MAIN);
+    START_PERF(INPUT);
+    Input::clear_input_for_frame();
+    STOP_PERF(INPUT);
+    SDL::poll_events();
+
+    Logic::call(Logic::At::PRE_UPDATE);
+    Logic::call(Logic::At::POST_UPDATE);
+
+    Mixer::audio_struct.position = Renderer::fetch_camera()->position;
+}
+
+///*
+// Draws the current game to the window. This
+// does the draw part of the engine update. Call
+// this after your update logic to get a smoother
+// game. (Don't use this together with run)
+void draw();
+
+void draw() {
+    START_PERF(RENDER);
+    Renderer::clear();
+
+    Logic::call(Logic::At::PRE_DRAW);
+    // User defined
+    Logic::call(Logic::At::POST_DRAW);
+
+    Renderer::blit();
+    STOP_PERF(RENDER);
+
+    STOP_PERF(MAIN);
+}
+
+///*
+// Draws the current game to the window.
 
 void init(int argc, char **argv) {
     // parse command line arguments
@@ -230,12 +286,16 @@ void init(int argc, char **argv) {
     ASSERT(Util::init(), "Failed to initalize utilities");
 }
 
-void run(FogCallback update, FogCallback draw) {
+void post_init() {
 #ifdef DEBUG
     setup_debug_keybinds();
 #endif
     Util::strict_allocation_check();
     Logic::frame(SDL_GetTicks() / 1000.0f);
+}
+
+void run(FogCallback user_update, FogCallback user_draw) {
+    post_init();
     while (SDL::running) {
         Logic::frame(SDL_GetTicks() / 1000.0f);
 
@@ -254,7 +314,7 @@ void run(FogCallback update, FogCallback draw) {
 
         Logic::call(Logic::At::PRE_UPDATE);
         // User defined
-        update();
+        user_update();
         Logic::call(Logic::At::POST_UPDATE);
 
         Mixer::audio_struct.position = Renderer::fetch_camera()->position;
@@ -264,7 +324,7 @@ void run(FogCallback update, FogCallback draw) {
 
         Logic::call(Logic::At::PRE_DRAW);
         // User defined
-        draw();
+        user_draw();
         Logic::call(Logic::At::POST_DRAW);
 
         Renderer::blit();
