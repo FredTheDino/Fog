@@ -114,6 +114,18 @@ void channel_set_highpass(u32 channel_id, f32 weight, f32 in_seconds) {
     fetch_channel(channel_id)->set_highpass(weight, in_seconds);
 }
 
+b8 channel_has_highpass(u32 channel_id) {
+    return fetch_channel(channel_id)->highpass;
+}
+
+b8 channel_has_lowpass(u32 channel_id) {
+    return fetch_channel(channel_id)->lowpass;
+}
+
+b8 channel_has_delay(u32 channel_id) {
+    return fetch_channel(channel_id)->delay;
+}
+
 AudioID push_sound(SoundSource source) {
     lock_audio();
     if (audio_struct.num_free_sources) {

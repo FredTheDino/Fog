@@ -154,15 +154,27 @@ Channel *fetch_channel(u32 channel_id);
 void channel_set_delay(u32 channel_id, f32 feedback, f32 len_seconds, f32 in_seconds = 1.0);
 
 ///*
+// Returns true if the delay is active.
+b8 channel_has_delay(u32 channel_id);
+
+///*
 // Sets a lowpass filter on the channel with the specified weight reached after
 // in_seconds seconds. A higher weight means less sound filtered. Weight needs
 // to be between 0 and 1. Unset by setting weight to 1.
 void channel_set_lowpass(u32 channel_id, f32 weight, f32 in_seconds = 1.0);
 
 ///*
+// Returns true if the lowpass is active.
+b8 channel_has_lowpass(u32 channel_id);
+
+///*
 // Sets a highpass filter on the channel with the specified weight reached
 // after in_seconds seconds. A higher weight means less sound filtered. Weight
 // needs to be between 0 and 1. Unset by setting weight to 1.
 void channel_set_highpass(u32 channel_id, f32 weight, f32 in_seconds = 1.0);
+
+///*
+// Returns true if the lowpass is active.
+b8 channel_has_highpass(u32 channel_id);
 
 };
