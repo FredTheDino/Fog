@@ -134,6 +134,7 @@ struct Data {
 // Hashes a string to a unique identifier that can be
 // used instead of the asset.
 u64 asset_hash(const char *str) {
+    // This number is pretty arbitrary, it's prime and that's nice.
     u64 hash = 5351;
     while (*str) {
         char c = (*str++);
