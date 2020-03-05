@@ -63,12 +63,12 @@ typedef struct ParticleSystem {
     void *memory;
 #endif
 
-    u8 relative;
-    u8 keep_alive;
-    u8 one_color;
-    u8 one_alpha;
-    u8 one_size;
-    u8 drop_oldest;
+    b8 relative;
+    b8 keep_alive;
+    b8 one_color;
+    b8 one_alpha;
+    b8 one_size;
+    b8 drop_oldest;
     Vec2 position;
 
     // Spawning
