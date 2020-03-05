@@ -7,7 +7,7 @@
 // Is set when the engine is compiled as an engine.
 #define FOG_ENGINE
 
-// Bellow here are the settings for the engine
+// Below here are the settings for the engine
 // NOTE(ed): There are currently no alternatives here...
 #define OPENGL_RENDERER
 #define SDL
@@ -32,4 +32,3 @@
 // If the mouse should warp around the screen allowing you to continue scrolling
 // values when tweaking.
 #define MOUSE_WARP_IF_CLICKED 1
-
