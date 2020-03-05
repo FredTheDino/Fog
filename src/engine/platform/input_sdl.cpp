@@ -1,3 +1,12 @@
+#if 0
+///*
+InputCode key_to_input_code(s32 scancode);
+///*
+InputCode axis_to_input_code(s32 scancode, s32 which);
+///*
+InputCode button_to_input_code(s32 scancode, s32 which);
+#endif
+
 namespace Input {
     void start_text_input() {
         global_mapping.text_input = true;
@@ -10,27 +19,28 @@ namespace Input {
     }
 }
 
-namespace SDL {
-static bool running = true;
+#define K(key) (key_to_input_code((SDLK_##key)))
+#define A(axis, player) (axis_to_input_code((SDL_CONTROLLER_AXIS_##axis), toID(player)))
+#define B(button, player) (button_to_input_code((SDL_CONTROLLER_BUTTON_##button), toID(player)))
 
-#define K(key) (SDL::key_to_input_code((SDLK_##key)))
 Input::InputCode key_to_input_code(s32 scancode) {
     return scancode << 5 | 0b001;
 }
 
-#define A(axis, player)\
-    (SDL::axis_to_input_code((SDL_CONTROLLER_AXIS_##axis), toID(player)))
+
 Input::InputCode axis_to_input_code(s32 scancode, s32 which) {
     ASSERT(which < 0b100, "Which is too large");
     return scancode << 5 | which << 3 | 0b010;
 }
 
-#define B(button, player)\
-    (SDL::button_to_input_code((SDL_CONTROLLER_BUTTON_##button), toID(player)))
+
 Input::InputCode button_to_input_code(s32 scancode, s32 which) {
     ASSERT(which < 0b100, "Which is too large");
     return scancode << 5 | which << 3 | 0b011;
 }
+
+namespace SDL {
+static b8 running = true;
 
 struct ControllerMapping {
     s32 slot;
@@ -191,7 +201,7 @@ void poll_events() {
                     // on Linux, this filters out the second one
                     // which looks to be useless (I think it's the
                     // motion controlls).
-                    static bool skipp = false;
+                    static b8 skipp = false;
                     if (skipp) {
                         skipp = false;
                         break;

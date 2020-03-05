@@ -7,8 +7,8 @@ namespace Perf {
 
 struct Clock {
     const char *name;
-    bool active;
-    bool other_thread;
+    b8 active;
+    b8 other_thread;
     u64 count;
     u64 start;
     f64 time;
@@ -18,6 +18,24 @@ struct Clock {
     f64 total_time;
     u64 total_count;
 };
+
+FOG_EXPORT_STRUCT
+typedef enum {
+    MAIN,
+    INPUT,
+    RENDER,
+    TEXT,
+
+    ENTITY_UPDATE,
+    ENTITY_DRAW,
+    ENTITY_DEFRAG,
+
+    AUDIO,
+    AUDIO_SOURCES,
+    AUDIO_EFFECTS,
+
+    NUMBER_OF_MARKERS, // Don't write anything after this.
+} MarkerID;
 
 // TODO(ed): This makes it kinda slow, but maybe that isn't a
 // problem.

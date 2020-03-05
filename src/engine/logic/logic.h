@@ -16,42 +16,50 @@
 
 namespace Logic {
 
-///* FORVERER, ONCE
+//// FORVERER, ONCE
 // Constants for special times.<br>
 // ONCE, calls the function only once.<br>
 // FOREVER, is kept calling until the game is closed.<br>
+
+FOG_EXPORT
 const f32 FOREVER = -1;
+FOG_EXPORT
 const f32 ONCE = 0;
 
-enum At {
+FOG_EXPORT_STRUCT
+typedef enum {
     PRE_UPDATE,
     POST_UPDATE,
     PRE_DRAW,
     POST_DRAW,
 
     COUNT,
-};
+} At;
 
 // Takes in the timestep, delta and the percentage of the progress
 // as arguments.
-typedef Function<void(f32, f32, f32)> Callback;
+FOG_EXPORT
+typedef void(*Callback)(f32, f32, f32, void *);
 
 //* LogicID
 // An ID representing a callback that is being called
 // in the future.
 struct LogicID;
 
-struct LogicID {
+FOG_EXPORT_STRUCT
+typedef struct LogicID {
     At at;
     s16 slot;
     u8 gen;
 
-    bool operator==(LogicID &other) const {
+#ifdef __cplusplus
+    b8 operator==(LogicID &other) const {
         return at == other.at
             && gen == other.gen
             && slot == other.slot;
     }
-};
+#endif
+} LogicID;
 
 struct Timer {
     s16 forward;
@@ -62,20 +70,21 @@ struct Timer {
     f32 end;
     f32 spacing;
     Callback callback;
+    void *aux;
 
-    bool done(f32 time) {
+    b8 done(f32 time) {
         return start <= time && end <= time && end != FOREVER;
     }
 
     void call(f32 time, f32 delta) {
         if (next <= time && next != -1) {
             if (end == FOREVER) {
-                callback(delta, time, 0);
+                callback(delta, time, 0, aux);
             } else if (end == ONCE) {
-                callback(delta, time, 1);
+                callback(delta, time, 1, aux);
             } else {
                 f32 percent = CLAMP(0, 1, (time - start) / (end - start));
-                callback(delta, time, percent);
+                callback(delta, time, percent, aux);
             }
             next += spacing;
         }
@@ -101,7 +110,6 @@ struct TimerBucket {
 
 struct LogicSystem {
     Util::MemoryArena *arena;
-    Callback non_function;
 
     TimerBucket buckets[At::COUNT];
 
@@ -128,30 +136,13 @@ struct LogicSystem {
 // checks if the "start" time has passed before updating, stopping
 // all execution after the "end" has been reached.
 LogicID add_callback(At at, Callback callback, f32 start = 0.0,
-                            f32 end = ONCE, f32 spacing = 0.0);
-
-LogicID add_callback(At at, Function<void(f32, f32)> callback,
-                            f32 start = 0.0, f32 end = ONCE, f32 spacing = 0.0);
-LogicID add_callback(At at, Function<void(f32)> callback,
-                            f32 start = 0.0, f32 end = ONCE, f32 spacing = 0.0);
-LogicID add_callback(At at, Function<void()> callback, f32 start = 0.0,
-                            f32 end = ONCE, f32 spacing = 0.0);
+                            f32 end = ONCE, f32 spacing = 0.0, void *aux=nullptr);
 
 ///*
 // Replaces a callback with another one, thus removing one and replacing
 // the old one with the new callback.
 void update_callback(LogicID id, Callback callback, f32 start, f32 end,
-                            f32 spacing);
-
-void update_callback(LogicID at, Function<void(f32, f32)> callback,
-                               f32 start = 0.0, f32 end = ONCE,
-                               f32 spacing = 0.0);
-void update_callback(LogicID at, Function<void(f32)> callback,
-                               f32 start = 0.0, f32 end = ONCE,
-                               f32 spacing = 0.0);
-void update_callback(LogicID at, Function<void()> callback,
-                               f32 start = 0.0, f32 end = ONCE,
-                               f32 spacing = 0.0);
+                            f32 spacing, void *aux=nullptr);
 
 ///*
 // Stops a callback from being called, making sure it is never updated again.

@@ -22,8 +22,9 @@ namespace Asset {
 ///* AssetID
 // An AssetID is a simple and easy way to identify an asset, they are unique
 // and created by "src/fog_assets.cpp"
-using AssetID = u64;
+typedef u64 AssetID;
 
+FOG_EXPORT
 const AssetID ASSET_ID_NO_ASSET = 0xFFFFFFFF;
 
 }
@@ -64,6 +65,7 @@ struct Header {
     u64 file_path_length;
     u64 timestamp;
     u64 offset;
+    u64 hash;
     u32 asset_size;
     u32 asset_id;
 };
@@ -82,7 +84,7 @@ struct Font {
         u16 key;
         f32 ammount;
 
-        bool operator< (const Kerning &other) const {
+        b8 operator< (const Kerning &other) const {
             return key < other.key;
         }
     };
@@ -132,6 +134,16 @@ struct Data {
 // Hashes a string to a unique identifier that can be
 // used instead of the asset.
 u64 asset_hash(const char *str) {
+    // This number is pretty arbitrary, it's prime and that's nice.
+    u64 hash = 5351;
+    while (*str) {
+        char c = (*str++);
+        hash = hash * c + c;
+    }
+    return hash % 0x0FFFFFFF;
+}
+
+constexpr u64 asset_hash_comp(const char *str) {
     u64 hash = 5351;
     while (*str) {
         char c = (*str++);
@@ -141,6 +153,12 @@ u64 asset_hash(const char *str) {
 }
 
 ///*
+// Returns the asset id that is connected to the
+// specifified asset. ASSET_ID_NO_ASSET is returned
+// if no asset is found.
+AssetID fetch_id(const char *str);
+
+//
 // Checks if the passed in "id" is mapped to an image,
 // if it is an image is returned via pointer. It is
 // not recommended to modify any data received from the
@@ -148,7 +166,7 @@ u64 asset_hash(const char *str) {
 // from it and it's bound to cause headaches.
 Image *fetch_image(AssetID id);
 
-///*
+//
 // Checks if the passed in "id" is mapped to a font,
 // if it is a font is returned via pointer. It is
 // not recommended to modify any data received from the
@@ -156,7 +174,7 @@ Image *fetch_image(AssetID id);
 // from it and it's bound to cause headaches.
 Font *fetch_font(AssetID id);
 
-///*
+//
 // Checks if the passed in "id" is mapped to a sound,
 // if it is a sound is returned via pointer. It is
 // not recommended to modify any data received from the
@@ -164,7 +182,7 @@ Font *fetch_font(AssetID id);
 // from it and it's bound to cause headaches.
 Sound *fetch_sound(AssetID id);
 
-///*
+//
 // Checks if the passed in "id" is mapped to a sprite,
 // if it is a sprite is returned via pointer. It is
 // not recommended to modify any data received from the
@@ -172,11 +190,11 @@ Sound *fetch_sound(AssetID id);
 // from it and it's bound to cause headaches.
 Sprite *fetch_sprite(AssetID id);
 
-///*
+//
 // Checks if the asset exists, and if the given asset
 // is of the specified type. Does not crash, or halt
 // execution.
-bool asset_of_type(AssetID id, Type type);
+b8 is_of_type(AssetID id, Type type);
 
 };  // namespace Asset
 

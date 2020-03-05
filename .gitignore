@@ -28,6 +28,7 @@
 
 # Executables
 bin/**/*
+out/**/*
 *.exe
 *.out
 *.app
@@ -37,7 +38,8 @@ bin/**/*
 vgcore.*
 tags
 
-doc/doc.html
+tools/doc.html
 src/fog_assets.cpp
+src/fog_bindings.cpp
 
 */__pycache__

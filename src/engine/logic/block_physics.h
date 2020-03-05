@@ -16,7 +16,9 @@ namespace Physics {
 
 using Util::List;
 
+FOG_EXPORT
 typedef u32 Layer;
+FOG_EXPORT
 typedef u32 ShapeID;
 
 struct Shape {
@@ -26,20 +28,8 @@ struct Shape {
     List<Vec2> points;
 };
 
-struct Body;
-
-struct Overlap {
-    Body *a, *b;
-    f32 depth;
-    Vec2 normal; // Allways points towards a.
-    bool is_valid;
-
-    operator bool() const {
-        return is_valid;
-    }
-};
-
-struct Body {
+FOG_EXPORT_STRUCT
+typedef struct Body {
     ShapeID shape;
     Layer layer;
 
@@ -59,7 +49,19 @@ struct Body {
     f32 inverse_mass;
     f32 damping;
     f32 bounce;
-};
+} Body;
+
+FOG_EXPORT_STRUCT
+typedef struct Overlap {
+    Body *a, *b;
+    f32 depth;
+    Vec2 normal; // Allways points towards a.
+    b8 is_valid;
+
+#ifdef FOG_ENGINE
+    operator b8() const { return is_valid; }
+#endif
+} Overlap;
 
 struct Limit {
     f32 lower, upper;
@@ -72,7 +74,7 @@ List<Shape> global_shape_list;
 //
 
 // Set up everything needed for physics simulation.
-bool init();
+b8 init();
 
 // Clean up after the world.
 void destroy();
@@ -83,8 +85,8 @@ void destroy();
 // generated from the points you pass in to a more optimal format
 // for collision detection.
 ShapeID add_shape(u32 points_length, Vec2 *points);
-ShapeID add_shape(List<Vec2> points);
 
+FOG_HIDE
 ///* Overlap
 // The overlap struct holds collision information,
 // passing this to the solve function will move the bodies so
@@ -96,10 +98,10 @@ ShapeID add_shape(List<Vec2> points);
 //    <tr><td>Body *</td><td>body_b</td><td>The second body of the collision, the normal points away from this body.</td>
     f32 depth;
     Vec2 normal; // Allways points towards a.
-    bool is_valid;
+    b8 is_valid;
 //    <tr><td>f32</td><td>depth</td><td>The depth of the collision</td>
 //    <tr><td>Vec2</td><td>normal</td><td>The vector pointing out of the face for this collision</td>
-//    <tr><td>bool</td><td>is_valid</td><td>If the collision is an actual collision, this is what is returned when the struct is cast to a bool.</td>
+//    <tr><td>b8</td><td>is_valid</td><td>If the collision is an actual collision, this is what is returned when the struct is cast to a b8.</td>
 // </table>
 
 ///* Body
@@ -150,15 +152,15 @@ Overlap check_overlap(Body *body_a, Body *body_b);
 // situations but is a good start.
 // <span class="note"></span> It's not valid to solve an overlap
 // that isn't overlapping, you can check this by casting the overlap
-// to a bool, doing this will result in an error.
+// to a b8, doing this will result in an error.
 void solve(Overlap overlap);
 
 ///*
 // Check if the point "p" lies in the specified box. The box
 // can be specified using either a min/max or a center, radius
 // and rotation.
-bool point_in_box(Vec2 p, Vec2 center, Vec2 radius, f32 rotation);
-bool point_in_box(Vec2 p, Vec2 min, Vec2 max);
+b8 point_in_box(Vec2 p, Vec2 center, Vec2 radius, f32 rotation);
+b8 point_in_box_region(Vec2 p, Vec2 min, Vec2 max);
 
 
 ///*

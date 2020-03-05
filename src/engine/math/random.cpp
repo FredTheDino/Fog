@@ -29,7 +29,7 @@ u32 xorwow() {
     return t + random_state.counter;
 }
 
-bool random_bit() {
+b8 random_bit() {
     // Choose some bit in the middle to hopefully
     // mitigate the unnoisy noise.
     return (xorwow() & 0b100000000) == 0;

@@ -7,7 +7,7 @@ struct Program {
 
     static Program ERROR() { return {-1}; }
 
-    operator bool() const { return id != ERROR().id; }
+    operator b8() const { return id != ERROR().id; }
 };
 
 #pragma pack(push, 1)
@@ -142,8 +142,8 @@ void set_window_title(const char *title) {
     SDL_SetWindowTitle(window, title);
 }
 
-bool is_fullscreen = false;
-void set_fullscreen(bool fullscreen) {
+b8 is_fullscreen = false;
+void set_fullscreen(b8 fullscreen) {
     is_fullscreen = fullscreen;
     if (is_fullscreen) {
         SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);

@@ -7,7 +7,7 @@ size_t read_from_file(FILE *stream, T *ptr, size_t num=1) {
     return read * sizeof(T);
 }
 
-constexpr u32 MAXIMUM_NAME_LENGTH = 64;
+const u32 MAXIMUM_NAME_LENGTH = 64;
 Logic::Entity *read_entity(FILE *stream) {
     Logic::EntityType type;
     ASSERT(read_from_file(stream, &type) == sizeof(type),

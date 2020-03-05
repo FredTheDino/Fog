@@ -1,11 +1,16 @@
 namespace Util {
-    const AssetID DEBUG_FONT = Res::MONACO_FONT;
+    AssetID DEBUG_FONT;
     const f32 DEBUG_EDGE = 0.20;
     const Vec4 DEBUG_COLORS[] = {
         V4(1, 1, 1, 1),
         V4(0.75, 0.75, 0.5, 1),
         V4(0.5, 0.75, 0.5, 1),
     };
+
+    b8 init() {
+        DEBUG_FONT = Asset::fetch_id("MONACO_FONT");
+        return DEBUG_FONT != Asset::ASSET_ID_NO_ASSET;
+    }
 
     // TODO(ed): Maybe don't calculate the font size this
     // many times per frame...

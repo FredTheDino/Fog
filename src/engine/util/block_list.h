@@ -9,7 +9,7 @@ struct List
     u32 length; // Length of list
     T *data;
 
-    bool initalized; // Only in debug.
+    b8 initalized; // Only in debug.
 
     List() : capacity(0), length(0), data(0), initalized(0) {};
 
@@ -92,7 +92,7 @@ struct List
         return -1;
     }
 
-    bool contains(T element) {
+    b8 contains(T element) {
         return index(element) != -1;
     }
 

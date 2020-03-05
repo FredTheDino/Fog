@@ -1,6 +1,6 @@
 namespace Logic {
 
-bool init() {
+b8 init() {
     logic_system.arena = Util::request_arena();
     for (s32 i = 0; i < At::COUNT; i++) {
         TimerBucket *bucket = logic_system.buckets + i;
@@ -36,7 +36,7 @@ void TimerBucket::update(f32 time, f32 delta) {
     s16 *slot = &active;
     while (*slot != TimerBucket::NONE) {
         Timer *timer = timers + *slot;
-        timer->call(time, delta);
+        if (timer->next != FOREVER) timer->call(time, delta);
         if (timer->done(time)) {
             s16 forward = timer->forward;
             timer->forward = free;
@@ -86,30 +86,12 @@ Timer *TimerBucket::get_timer(LogicID id) {
 }
 
 LogicID add_callback(At at, Callback callback, f32 start, f32 end,
-                            f32 spacing) {
-    ASSERT(start != FOREVER, "I'm sorry Dave, I can't let you do that.");
-    Timer t = {0, 0, start, start, end, spacing, callback};
+                            f32 spacing, void *aux) {
+    ASSERT(start != FOREVER, "I'm sorry Dave, I can't let you do that, I have to start some time!");
+    Timer t = {0, 0, start, start, end, spacing, callback, aux};
     LogicID id = logic_system.buckets[at].add_timer(&t);
     id.at = at;
     return id;
-}
-
-LogicID add_callback(At at, Function<void(f32, f32)> callback, f32 start,
-                            f32 end, f32 spacing) {
-    Callback f = [callback](f32 a, f32 b, f32 c) { callback(a, b); };
-    return add_callback(at, f, start, end, spacing);
-}
-
-LogicID add_callback(At at, Function<void(f32)> callback, f32 start,
-                            f32 end, f32 spacing) {
-    Callback f = [callback](f32 a, f32 b, f32 c) { callback(a); };
-    return add_callback(at, f, start, end, spacing);
-}
-
-LogicID add_callback(At at, Function<void()> callback, f32 start,
-                            f32 end, f32 spacing) {
-    Callback f = [callback](f32 a, f32 b, f32 c) { callback(); };
-    return add_callback(at, f, start, end, spacing);
 }
 
 void remove_callback(LogicID id) {
@@ -117,7 +99,8 @@ void remove_callback(LogicID id) {
 }
 
 void update_callback(LogicID id, Callback callback,
-                            f32 start, f32 end, f32 spacing) {
+                            f32 start, f32 end, f32 spacing, void *aux) {
+    ASSERT(start != FOREVER, "I'm sorry Dave, I can't let you do that, I have to start some time!");
     Timer *timer = logic_system.buckets[id.at].get_timer(id);
     CHECK(timer, "Failed to find timer");
     timer->start = start;
@@ -125,24 +108,8 @@ void update_callback(LogicID id, Callback callback,
     timer->end = end;
     timer->spacing = spacing;
     timer->callback = callback;
-}
-
-void update_callback(LogicID id, Function<void(f32, f32)> callback, f32 start,
-                            f32 end, f32 spacing) {
-    Callback f = [callback](f32 a, f32 b, f32 c) { callback(a, b); };
-    update_callback(id, f, start, end, spacing);
-}
-
-void update_callback(LogicID id, Function<void(f32)> callback, f32 start,
-                            f32 end, f32 spacing) {
-    Callback f = [callback](f32 a, f32 b, f32 c) { callback(a); };
-    update_callback(id, f, start, end, spacing);
-}
-
-void update_callback(LogicID id, Function<void()> callback, f32 start,
-                            f32 end, f32 spacing) {
-    Callback f = [callback](f32 a, f32 b, f32 c) { callback(); };
-    update_callback(id, f, start, end, spacing);
+    if (aux)
+        timer->aux = aux;
 }
 
 void call(At at) {

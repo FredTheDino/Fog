@@ -19,7 +19,7 @@ void clear_tweak_values() {
 
 }
 
-bool mouse_in_range(f32 height, f32 offset) {
+b8 mouse_in_range(f32 height, f32 offset) {
     const f32 BASE_OFFSET = 1.2;
     f32 min = offset - height * (1.0 + BASE_OFFSET);
     f32 max = offset - height * (0.0 + BASE_OFFSET);
@@ -30,7 +30,7 @@ bool mouse_in_range(f32 height, f32 offset) {
 // A generic drawing function, works for most debug_values
 void debug_value_logic(const char *name, const char *buffer) {
     f32 height = debug_line_height();
-    bool in_range = mouse_in_range(height, global_tweak.yoffset);
+    b8 in_range = mouse_in_range(height, global_tweak.yoffset);
 
     if (global_tweak.active == nullptr && in_range)
         global_tweak.active = name;
@@ -50,7 +50,7 @@ void debug_value_logic(const char *name, const char *buffer) {
 }
 
 f32 movement_scale() {
-    if (Input::down(Input::Name::TWEAK_SMOOTH))
+    if (Input::down(TWEAK_SMOOTH))
         return global_tweak.smooth_pixels_to_unit;
     else
         return global_tweak.pixels_to_unit;
@@ -73,14 +73,14 @@ Vec2i moved_over_boundry() {
 }
 
 void precise_snap(f32 *value, f32 big_snap=1.0, f32 small_snap=0.1) {
-    f32 precision = (Input::down(Input::Name::TWEAK_SMOOTH) ? small_snap : big_snap);
+    f32 precision = (Input::down(TWEAK_SMOOTH) ? small_snap : big_snap);
     f32 v = (*value) / precision;
     *value = ROUND(v) * precision;
 }
 
-bool begin_tweak_section(const char *name, bool *active) {
+b8 begin_tweak_section(const char *name, b8 *active) {
     if (!debug_values_are_on()) return false;
-    const char *buffer = Util::format(" - %s -", name);
+    const char *buffer = Util::format_int(" - %s -", name);
     debug_value_logic(name, buffer);
 
     if (name == global_tweak.active && Input::mouse_pressed(0))
@@ -91,29 +91,14 @@ bool begin_tweak_section(const char *name, bool *active) {
     return *active;
 }
 
-void end_tweak_section(bool *active) {
+void end_tweak_section(b8 *active) {
     if (!debug_values_are_on()) return;
     global_tweak.indentation -= *active;
 }
 
-bool auto_tweak(const char *name, void *value, u64 hash) {
+b8 tweak(const char *name, b8 *value) {
     if (!debug_values_are_on()) return false;
-#define CHECK_TYPE(t) \
-    if (hash == typeid(t).hash_code()) { return tweak(name, (t *) value); }
-    CHECK_TYPE(bool);
-    CHECK_TYPE(f32);
-    CHECK_TYPE(s32);
-    CHECK_TYPE(u32);
-    CHECK_TYPE(Vec2);
-    CHECK_TYPE(Span);
-    const char *buffer = Util::format(" %s: ???", name);
-    debug_value_logic(name, buffer);
-    return false;
-}
-
-bool tweak(const char *name, bool *value) {
-    if (!debug_values_are_on()) return false;
-    const char *buffer = Util::format(" %s: %s", name, *value ? "true" : "false");
+    const char *buffer = Util::format_int(" %s: %s", name, *value ? "true" : "false");
     debug_value_logic(name, buffer);
 
     if (name == global_tweak.active && Input::mouse_pressed(0)) {
@@ -123,17 +108,17 @@ bool tweak(const char *name, bool *value) {
     return false;
 }
 
-bool tweak(const char *name, f32 *value, f32 modifier) {
+b8 tweak(const char *name, f32 *value, f32 modifier) {
     if (!debug_values_are_on()) return false;
-    const char *buffer = Util::format(" %s: %.4f", name, *value);
+    const char *buffer = Util::format_int(" %s: %.4f", name, *value);
     debug_value_logic(name, buffer);
 
     if (name == global_tweak.hot) {
         f32 delta;
-        if (Input::down(Input::Name::TWEAK_STEP)) {
+        if (Input::down(TWEAK_STEP)) {
             delta = moved_over_boundry().x;
 
-            if (Input::down(Input::Name::TWEAK_SMOOTH))
+            if (Input::down(TWEAK_SMOOTH))
                 delta *= 0.1;
 
             if (delta) {
@@ -149,9 +134,9 @@ bool tweak(const char *name, f32 *value, f32 modifier) {
     return false;
 }
 
-bool tweak(const char *name, s32 *value) {
+b8 tweak(const char *name, s32 *value) {
     if (!debug_values_are_on()) return false;
-    const char *buffer = Util::format(" %s: %d", name, *value);
+    const char *buffer = Util::format_int(" %s: %d", name, *value);
     debug_value_logic(name, buffer);
 
     if (name == global_tweak.hot) {
@@ -162,9 +147,9 @@ bool tweak(const char *name, s32 *value) {
     return false;
 }
 
-bool tweak(const char *name, u32 *value) {
+b8 tweak(const char *name, u32 *value) {
     if (!debug_values_are_on()) return false;
-    const char *buffer = Util::format(" %s: %u", name, *value);
+    const char *buffer = Util::format_int(" %s: %u", name, *value);
     debug_value_logic(name, buffer);
 
     if (name == global_tweak.hot) {
@@ -179,17 +164,17 @@ bool tweak(const char *name, u32 *value) {
     return true;
 }
 
-bool tweak(const char *name, Vec2 *value, f32 modifier) {
+b8 tweak(const char *name, Vec2 *value, f32 modifier) {
     if (!debug_values_are_on()) return false;
-    const char *buffer = Util::format(" %s: %.4f, %.4f", name, value->x, value->y);
+    const char *buffer = Util::format_int(" %s: %.4f, %.4f", name, value->x, value->y);
     debug_value_logic(name, buffer);
 
     if (name == global_tweak.hot) {
         Vec2 delta = {};
-        if (Input::down(Input::Name::TWEAK_STEP)) {
+        if (Input::down(TWEAK_STEP)) {
             Vec2i int_delta = moved_over_boundry();
             delta = V2(int_delta.x, int_delta.y);
-            if (Input::down(Input::Name::TWEAK_SMOOTH))
+            if (Input::down(TWEAK_SMOOTH))
                 delta *= 0.1;
             if (delta.x) {
                 value->x += delta.x;
@@ -209,17 +194,17 @@ bool tweak(const char *name, Vec2 *value, f32 modifier) {
     return false;
 }
 
-bool tweak(const char *name, Span *value, f32 modifier) {
+b8 tweak(const char *name, Span *value, f32 modifier) {
     if (!debug_values_are_on()) return false;
-    const char *buffer = Util::format(" %s: %.4f, %.4f", name, value->min, value->max);
+    const char *buffer = Util::format_int(" %s: %.4f, %.4f", name, value->min, value->max);
     debug_value_logic(name, buffer);
 
     if (name == global_tweak.hot) {
         Vec2 delta = {};
-        if (Input::down(Input::Name::TWEAK_STEP)) {
+        if (Input::down(TWEAK_STEP)) {
             Vec2i int_delta = moved_over_boundry();
             delta = V2(int_delta.x, int_delta.y);
-            if (Input::down(Input::Name::TWEAK_SMOOTH))
+            if (Input::down(TWEAK_SMOOTH))
                 delta *= 0.1;
             if (delta.x) {
                 value->min += delta.x;

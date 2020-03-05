@@ -6,8 +6,8 @@ struct SoundSource {
     u32 channel;
     f32 pitch;
     f32 gain;
-    bool looping;
-    bool positional;
+    b8 looping;
+    b8 positional;
     Vec2 position;
 
     u8 gen;
@@ -102,6 +102,30 @@ Channel *fetch_channel(u32 channel_id) {
     return &audio_struct.channels[channel_id];
 }
 
+void channel_set_delay(u32 channel_id, f32 feedback, f32 len_seconds, f32 in_seconds) {
+   fetch_channel(channel_id)->set_delay(feedback, len_seconds, in_seconds);
+}
+
+void channel_set_lowpass(u32 channel_id, f32 weight, f32 in_seconds) {
+    fetch_channel(channel_id)->set_lowpass(weight, in_seconds);
+}
+
+void channel_set_highpass(u32 channel_id, f32 weight, f32 in_seconds) {
+    fetch_channel(channel_id)->set_highpass(weight, in_seconds);
+}
+
+b8 channel_has_highpass(u32 channel_id) {
+    return fetch_channel(channel_id)->highpass;
+}
+
+b8 channel_has_lowpass(u32 channel_id) {
+    return fetch_channel(channel_id)->lowpass;
+}
+
+b8 channel_has_delay(u32 channel_id) {
+    return fetch_channel(channel_id)->delay;
+}
+
 AudioID push_sound(SoundSource source) {
     lock_audio();
     if (audio_struct.num_free_sources) {
@@ -119,14 +143,14 @@ AudioID push_sound(SoundSource source) {
 }
 
 AudioID play_sound(u32 channel_id, AssetID asset_id, f32 pitch, f32 gain, f32 pitch_variance,
-                   f32 gain_variance, bool loop) {
+                   f32 gain_variance, b8 loop) {
     ASSERT(channel_id < NUM_CHANNELS, "Invalid channel");
     return push_sound({0, asset_id, channel_id, pitch + random_real(-1, 1) * pitch_variance,
                        gain + random_real(-1, 1) * gain_variance, loop});
 }
 
 AudioID play_sound_at(u32 channel_id, AssetID asset_id, Vec2 position, f32 pitch, f32 gain,
-                      f32 pitch_variance, f32 gain_variance, bool loop) {
+                      f32 pitch_variance, f32 gain_variance, b8 loop) {
     ASSERT(channel_id < NUM_CHANNELS, "Invalid channel");
     return push_sound({0, asset_id, channel_id, pitch + random_real(-1, 1) * pitch_variance,
                        gain + random_real(-1, 1) * gain_variance, loop, true,
@@ -267,7 +291,7 @@ void audio_callback(void* userdata, u8* stream, int len) {
     STOP_PERF(AUDIO);
 }
 
-bool init() {
+b8 init() {
     OTHER_THREAD(AUDIO);
     OTHER_THREAD(AUDIO_SOURCES);
     OTHER_THREAD(AUDIO_EFFECTS);

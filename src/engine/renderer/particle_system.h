@@ -12,8 +12,8 @@ struct Particle {
     f32 progress;
 
     f32 inv_alive_time;
-    bool keep_alive;
-    bool alive;
+    b8 keep_alive;
+    b8 alive;
     f32 rotation;
     f32 angular_velocity;
     // TODO(ed): Angular damping?
@@ -40,35 +40,35 @@ struct Particle {
 
     void update(f32 delta);
 
-    void render(u32 layer, Vec2 origin, s32 slot, Vec2 uv_min, Vec2 uv_dim);
+    void render(u32 layer, Vec2 origin, AssetID sprite);
 };
 
-struct ParticleSystem {
-    Util::MemoryArena *memory;
+FOG_EXPORT_STRUCT
+#define MAX_NUM_SUB_SPRITES 32
+typedef struct ParticleSystem {
 
-    struct SubSprite {
-        u16 texture;
-        Vec2 min;
-        Vec2 dim;
-    };
-
-    static const u32 MAX_NUM_SUB_SPRITES = 32;
-    u32 num_sub_sprites;
+    u32 num_sprites;
     u32 layer;
-    SubSprite sub_sprites[MAX_NUM_SUB_SPRITES];
+    AssetID sprites[MAX_NUM_SUB_SPRITES];
 
     // Utility
     u32 head;
     u32 tail;
     u32 max_num_particles;
+#ifdef FOG_ENGINE
     Particle *particles = nullptr;
+    Util::MemoryArena *memory;
+#else
+    void *particles;
+    void *memory;
+#endif
 
-    bool relative;
-    bool keep_alive;
-    bool one_color;
-    bool one_alpha;
-    bool one_size;
-    bool drop_oldest;
+    b8 relative;
+    b8 keep_alive;
+    b8 one_color;
+    b8 one_alpha;
+    b8 one_size;
+    b8 drop_oldest;
     Vec2 position;
 
     // Spawning
@@ -90,8 +90,6 @@ struct ParticleSystem {
     Span die_size;
     Span die_size_deriv;
 
-    ProgressFuncF32 progress_func_size;
-
     Span width;
     Span height;
 
@@ -107,8 +105,19 @@ struct ParticleSystem {
     Span die_alpha;
     Span die_color_deriv;
 
+    ProgressFuncF32 progress_func_size;
     ProgressFuncVec4 progress_func_color;
+} ParticleSystem;
 
+// TODO(ed): This is technically UB, but the compiler can't
+// check it. If it leads to hairy situations it can trivially be rewritten,
+// but there are more important things for me right now. Just note, here
+// be dragons.
+//
+// TODO(ed): This is kinda messy, at least in my opinion,
+// it might need to be refactored later.
+//
+struct ParticleSystemInt : public ParticleSystem {
     // Spawns new particle, used internally.
     Particle generate();
 
@@ -125,7 +134,7 @@ struct ParticleSystem {
     void clear();
 
     // Adds a sprite as a potential particle.
-    void add_sprite(AssetID texture, u32 u, u32 v, u32 w, u32 h);
+    void add_sprite(AssetID sprite);
 };
 
 ///*
@@ -152,6 +161,7 @@ ParticleSystem create_particle_system(u32 layer, u32 num_particles, Vec2 positio
 void destroy_particle_system(ParticleSystem *system);
 
 #ifdef _EXAMPLE_
+FOG_HIDE
 ///* ParticleSystem
 // <p>
 // A particle system is in charge of handling, rendering and updating a group of
@@ -189,19 +199,19 @@ my_system.rotation = {0, PI};
 // </p>
 // <p>
 // Here is a comprehensive list of attributes that might be
-// interesting. Some of the boolean options might disable certain attributes.
+// interesting. Some of the b8ean options might disable certain attributes.
 // The default values are given in parenthesis.
 // </p>
 // <table class="member-table">
 //    <tr><th width="150">Type</th><th width="50">Name</th><th>Description</th></tr>
 //    <tr><td>Vec2(0.0, 0.0)</td><td>position </td><td> The position of the particle system, where the emitting is relative to.</td></tr>
 //
-//    <tr><td>bool(false)</td><td>relative</td><td> If the positions of the particles should be relative to the particle system.</td></tr>
-//    <tr><td>bool(false)</td><td>keep_alive</td><td> If the particle should die after alive_time or loop size and color forever.</td></tr>
-//    <tr><td>bool(true)</td><td>one_color</td><td> If the particles should have the same color throughout it's lifetime, this ignore the "die_red", "die_green", "die_blue", slots</td></tr>
-//    <tr><td>bool(false)</td><td>one_alpha</td><td> If the particles should have the same alpha throughout it's lifetime, ignores the "die_alpha" slot.</td></tr>
-//    <tr><td>bool(false)</td><td>one_size</td><td> If the size should be the same throughout it's lifetime.</td></tr>
-//    <tr><td>bool(false)</td><td>drop_oldest</td><td> Set to true to replace the oldest particle if the particle system is full when a new particle is created. If set to false, new particles can't be created until another one dies.</td></tr>
+//    <tr><td>b8(false)</td><td>relative</td><td> If the positions of the particles should be relative to the particle system.</td></tr>
+//    <tr><td>b8(false)</td><td>keep_alive</td><td> If the particle should die after alive_time or loop size and color forever.</td></tr>
+//    <tr><td>b8(true)</td><td>one_color</td><td> If the particles should have the same color throughout it's lifetime, this ignore the "die_red", "die_green", "die_blue", slots</td></tr>
+//    <tr><td>b8(false)</td><td>one_alpha</td><td> If the particles should have the same alpha throughout it's lifetime, ignores the "die_alpha" slot.</td></tr>
+//    <tr><td>b8(false)</td><td>one_size</td><td> If the size should be the same throughout it's lifetime.</td></tr>
+//    <tr><td>b8(false)</td><td>drop_oldest</td><td> Set to true to replace the oldest particle if the particle system is full when a new particle is created. If set to false, new particles can't be created until another one dies.</td></tr>
 //
 //    <tr><td>Span(2, 2)</td><td>alive_time</td><td> The time the particles should be atrve for, in seconds.</td></tr>
 //
@@ -241,26 +251,26 @@ my_system.rotation = {0, PI};
 // Emit new particles from the particle system. If you
 // want to do this over a set period of time, I would recommend
 // looking into "Logic::add_callback".
-void ParticleSystem::spawn(u32 num_particles=1);
+void particle_spawn(ParticleSystem *self, u32 num_particles=1);
 
 ///*
 // Update the particle system and progress the particles by one time step.
-void ParticleSystem::update(f32 delta);
+void particle_update(ParticleSystem *self, f32 delta);
 
 ///*
 // Draw the particle system to the screen.
-void ParticleSystem::draw();
+void particle_draw(ParticleSystem *self);
 
 ///*
 // Clear the particle system by removing all particles.
-void ParticleSystem::clear();
+void particle_clear(ParticleSystem *self);
 
 ///*
 // Add a sprite that can be selected when emitting from the system.
 // There is a hard limit of MAX_NUM_SUB_SPRITES, which is set to 32
 // by default. The coordinates are given in pixel coordinates, and
 // the asset id has to be a valid texture.
-void ParticleSystem::add_sprite(AssetID texture, u32 u, u32 v, u32 w, u32 h);
+void particle_add_sprite(ParticleSystem *self, AssetID sprite);
 
 #endif
 };

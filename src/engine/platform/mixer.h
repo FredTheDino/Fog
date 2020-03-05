@@ -30,10 +30,11 @@ struct AudioMixer {
     Util::MemoryArena *arena;
 } audio_mixer;
 
-struct AudioID {
+FOG_EXPORT_STRUCT
+typedef struct AudioID {
     u8 gen;
     u16 slot;
-};
+} AudioID;
 
 struct Channel {
     f32 *buffer;
@@ -47,7 +48,7 @@ struct Channel {
         f32 len_seconds_target;
         f32 len_seconds_delta;
         f32 _prev_len_seconds;
-        operator bool() const {
+        operator b8() const {
             return len_seconds > 0 || len_seconds_target > 0 || feedback > 0 || feedback_target > 0;
         }
     } delay = {};
@@ -59,7 +60,7 @@ struct Channel {
         f32 weight_target = 1;
         f32 weight_delta;
         const f32 _SENSITIVITY = 0.03;
-        operator bool() const {
+        operator b8() const {
             return weight < 1 || weight_target < 1;
         }
     } lowpass = {};
@@ -71,7 +72,7 @@ struct Channel {
         f32 weight_target = 1;
         f32 weight_delta;
         const f32 _SENSITIVITY = 0.03;
-        operator bool() const {
+        operator b8() const {
             return weight < 1 || weight_target < 1;
         }
     } highpass = {};
@@ -85,15 +86,17 @@ struct Channel {
 // TODO(ed): Some reverb and echo effects would
 // go a long way to create cool atmospheres.
 
-constexpr f32 AUDIO_DEFAULT_GAIN = 0.2;
-constexpr f32 AUDIO_DEFAULT_VARIANCE = 0.01;
+FOG_EXPORT
+const f32 AUDIO_DEFAULT_GAIN = 0.2;
+FOG_EXPORT
+const f32 AUDIO_DEFAULT_VARIANCE = 0.01;
 
 // These should not be called unless you really
 // know what you're doing.
 void lock_audio();
 void unlock_audio();
 
-bool init();
+b8 init();
 
 ///*
 // Plays a sound in the game world, the sound should have been
@@ -112,7 +115,7 @@ AudioID play_sound(u32 channel_id, AssetID asset_id,
                    f32 gain = AUDIO_DEFAULT_GAIN,
                    f32 pitch_variance = AUDIO_DEFAULT_VARIANCE,
                    f32 gain_variance = AUDIO_DEFAULT_VARIANCE,
-                   bool loop = false);
+                   b8 loop = false);
 
 ///*
 // Plays a sound in the game world at a specific place thus the sound
@@ -133,15 +136,13 @@ AudioID play_sound_at(u32 channel_id, AssetID asset_id,
                       f32 gain = AUDIO_DEFAULT_GAIN,
                       f32 pitch_variance = AUDIO_DEFAULT_VARIANCE,
                       f32 gain_variance = AUDIO_DEFAULT_VARIANCE,
-                      bool loop = false);
+                      b8 loop = false);
 
 ///*
 // Stops a sound from playing.
 void stop_sound(AudioID id);
 
-#ifdef _COMMENTS_
-
-///*
+//
 // Returns a pointer to a channel. Returns nullptr if the channel_id isn't
 // valid.
 Channel *fetch_channel(u32 channel_id);
@@ -150,20 +151,30 @@ Channel *fetch_channel(u32 channel_id);
 // Sets target delay on the channel with the specified settings. The feedback
 // and length is changed over time and reaches their targets after in_seconds
 // seconds.
-void Channel::set_delay(f32 feedback, f32 len_seconds, f32 in_seconds = 1.0);
+void channel_set_delay(u32 channel_id, f32 feedback, f32 len_seconds, f32 in_seconds = 1.0);
+
+///*
+// Returns true if the delay is active.
+b8 channel_has_delay(u32 channel_id);
 
 ///*
 // Sets a lowpass filter on the channel with the specified weight reached after
 // in_seconds seconds. A higher weight means less sound filtered. Weight needs
 // to be between 0 and 1. Unset by setting weight to 1.
-void Channel::set_lowpass(f32 weight, f32 in_seconds = 1.0);
+void channel_set_lowpass(u32 channel_id, f32 weight, f32 in_seconds = 1.0);
+
+///*
+// Returns true if the lowpass is active.
+b8 channel_has_lowpass(u32 channel_id);
 
 ///*
 // Sets a highpass filter on the channel with the specified weight reached
 // after in_seconds seconds. A higher weight means less sound filtered. Weight
 // needs to be between 0 and 1. Unset by setting weight to 1.
-void Channel::set_highpass(f32 weight, f32 in_seconds = 1.0);
+void channel_set_highpass(u32 channel_id, f32 weight, f32 in_seconds = 1.0);
 
-#endif
+///*
+// Returns true if the lowpass is active.
+b8 channel_has_highpass(u32 channel_id);
 
 };

@@ -4,35 +4,35 @@ namespace Renderer {
 // The camera is very useful when you want to decide what the
 // player looks at. I promise.
 
+#pragma pack(push, 1)
+
+FOG_EXPORT_STRUCT
 ///* Camera struct
 // The camera struct is how a camera is controlled. This struct can
 // give you fine grain camera control.
-#pragma pack(push, 1)
-struct Camera {
+typedef struct Camera {
     Vec2 position;
     Vec2 offset;
-    f32 zoom = 1.0;
+    f32 zoom;
     f32 aspect_ratio; // height / width
     f32 _padding_[2];
-};
-#pragma pack(pop)
+} Camera;
 
 // TODO(ed): Would it be nice to have a rotating camera?
 
-#pragma pack(push, 1)
-struct Window {
+FOG_EXPORT_STRUCT
+typedef struct Window {
     f32 width;
     f32 height;
     f32 aspect_ratio;
     f32 _padding_;
-};
-#pragma pack(pop)
+} Window;
 
-#pragma pack(push, 1)
 struct {
     Camera cam[OPENGL_NUM_CAMERAS];
     Window win;
 } _fog_global_window_state;
+
 #pragma pack(pop)
 
 // This limits the number of cameras to 32, which sounds sane...
@@ -65,8 +65,7 @@ f32 get_window_aspect_ratio();
 
 ///* camera_shake
 // Shakes the camera in the specified ellipse.
-void camera_shake(Camera *camera, f32 shake);
-void camera_shake(Camera *camera, f32 shake_x, f32 shake_y);
+void camera_shake(Camera *camera, Vec2 shake);
 
 ///* camera_lerp
 // Creates a new camera that lerps between the values of the
@@ -85,8 +84,8 @@ Camera camera_smooth(Camera camera_a, Camera camera_b, f32 slerp);
 ///*
 // Fits the cameras zoom and position to focus on the points passed in.
 // The border is the amount of space around each point to the border.
-void camera_fit(Camera *camera, u32 num_points, Vec2 *points, f32 border=0.0);
 Camera camera_fit(u32 num_points, Vec2 *points, f32 border=0.0);
+void camera_fit_inplace(Camera *camera, u32 num_points, Vec2 *points, f32 border=0.0);
 
 ///*
 // Gives you simple debug controls for the camera that can be used to

@@ -86,13 +86,17 @@ T *request_temporary_memory(u64 num) {
     return FRAME_MEMORY[CURRENT_MEMORY]->push<T>(num);
 }
 
+void *temporary_bytes(u64 num) {
+    return (void *) request_temporary_memory<u8>(num);
+}
+
 template <typename T>
 T *temporary_push(T t) {
     allow_allocation();
     return FRAME_MEMORY[CURRENT_MEMORY]->push(t);
 }
 
-MemoryArena *request_arena(bool only_one) {
+MemoryArena *request_arena(b8 only_one) {
     CHECK_ILLEGAL_ALLOC;
     ASSERT(global_memory.free_regions, "No more memory");
     ASSERT(global_memory.num_free_regions, "No more memory");
@@ -178,6 +182,12 @@ void copy_bytes(const void *from, void *to, u64 size) {
     u8 *_to = (u8 *) to;
     const u8 *_from = (const u8 *) from;
     while(size--) *(_to++) = *(_from++);
+}
+
+void free_all_memory() {
+    for (u64 i = 0; i < NUM_ARENAS - 1; i++) {
+        free((void *) global_memory.all_regions[i].memory);
+    }
 }
 
 }  // namespace Util

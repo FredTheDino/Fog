@@ -9,7 +9,8 @@ namespace Input {
 // The name is essentially an integer and should be kept in the enum
 // Input::Name.
 
-enum class Player {
+FOG_EXPORT_STRUCT
+typedef enum {
     NONE = 0b0000,
 
     P1 = 0b0001,
@@ -21,14 +22,14 @@ enum class Player {
     NUM = 4,
 
     ANY = 0b1111,
-};
+} Player;
 
-bool is_valid_player(Player p) {
+b8 is_valid_player(Player p) {
     return (p == Player::P1 || p == Player::P2 || p == Player::P3 ||
             p == Player::P4);
 }
 
-bool is(Player p, Player filter) { return (bool)((u8)p & (u8)filter); }
+b8 is(Player p, Player filter) { return (b8)((u8)p & (u8)filter); }
 
 u32 toID(Player p) {
     switch (p) {
@@ -107,50 +108,58 @@ ButtonState clear_frame_flag(ButtonState state) {
     return (ButtonState)((u8)state & 0b01);
 }
 
-ButtonState generate_from_down(bool down) {
+ButtonState generate_from_down(b8 down) {
     return down ? ButtonState::PRESSED : ButtonState::DOWN;
 }
 
-constexpr u32 NUM_ALTERNATIVE_BINDINGS = 4;
-constexpr u32 NUM_BINDINGS_PER_CONTROLLER =
-    (u32)Name::COUNT * NUM_ALTERNATIVE_BINDINGS;
-constexpr u32 NUM_TOTAL_BINDINGS =
-    (u32)Player::NUM * NUM_BINDINGS_PER_CONTROLLER;
-
+FOG_EXPORT
 typedef u32 InputCode;
+
+FOG_EXPORT
+typedef u32 Name;
+
+static Name NO_INPUT = 0;
+
+// Change this to allow more bindings.
+const u32 NUM_ALTERNATIVE_BINDINGS = 4;
+
 struct Binding {
     InputCode code;
     Player player;
     Name name;
     u8 binding_id;
 
-    bool operator==(InputCode &other) const {
-        return name != Name::NONE && code == other;
+    b8 operator==(InputCode &other) const {
+        return name != NO_INPUT && code == other;
     }
 
-    bool operator<(InputCode &other) const {
-        return name != Name::NONE && code < other;
+    b8 operator<(InputCode &other) const {
+        return name != NO_INPUT && code < other;
     }
 
-    bool operator>(InputCode &other) const {
-        return name != Name::NONE && code > other;
+    b8 operator>(InputCode &other) const {
+        return name != NO_INPUT && code > other;
     }
 
     u32 index() const {
-        ASSERT(name != Name::NONE, "NONE is not a valid name");
+        ASSERT(name != NO_INPUT, "NONE is not a valid name");
         return (u32)name * NUM_ALTERNATIVE_BINDINGS + binding_id;
     }
 
     u32 playerID() const {
-        ASSERT(name != Name::NONE, "NONE is not a valid name");
+        ASSERT(name != NO_INPUT, "NONE is not a valid name");
         return toID(player);
     }
 };
 
 struct Mapping {
     // A list of all bindings
+    Util::MemoryArena *arena;
+    u32 num_bindings_per_controller;
+    u32 num_total_bindings;
+
     u32 used_bindings;
-    Binding bindings[NUM_TOTAL_BINDINGS];
+    Binding *bindings;
 
     struct VirtualButton {
         Name name;
@@ -163,8 +172,8 @@ struct Mapping {
         }
 
         void reset(Name name) { *this = {name}; }
-        bool is_down() { return (u32)state & (u32)ButtonState::DOWN; }
-        bool is_used() { return name != Name::NONE; }
+        b8 is_down() { return (u32)state & (u32)ButtonState::DOWN; }
+        b8 is_used() { return name != NO_INPUT; }
     };
 
     const VirtualButton get(Binding binding) const {
@@ -172,7 +181,7 @@ struct Mapping {
     }
 
     // All the states for each button.
-    VirtualButton buttons[(u32)Player::NUM][NUM_BINDINGS_PER_CONTROLLER];
+    VirtualButton *buttons[(u32)Player::NUM];
 
     struct VirtualMouse {
         ButtonState state[3];
@@ -184,7 +193,7 @@ struct Mapping {
         //TODO(er): Add moved
     };
 
-    bool text_input;
+    b8 text_input;
 
     static const u32 TEXT_LENGTH = 32;
     u32 text_length;
@@ -192,21 +201,32 @@ struct Mapping {
 
     VirtualMouse mouse;
 
-    bool using_controller;
-} global_mapping;
+    Name next_name = 1;
+
+    b8 using_controller;
+    b8 disallow_adding_of_mappings;
+} global_mapping = {};
 
 struct InputEvent {
     InputCode code;
-    bool pressed;
+    b8 pressed;
     f32 value;
 };
+
+///*
+// Gives back a new unique name that can be used to
+// react to inputs. If multiple names are requested,
+// the first of the names are returned, and the subsequent
+// numbers are registered names. The names allways start
+// at 1 for the first name.
+Name request_name(u32 num=1);
 
 ///*
 // Returns the currently prefered input method of the
 // user, which we assume is the IO-unit a action was
 // done to latest. So if the last input was for a controller,
 // this is true, otherwise it's false.
-bool using_controller();
+b8 using_controller();
 
 ///*
 // Switches the input to use text input, this disables
@@ -228,39 +248,39 @@ void type_text(const char *string);
 // is supplied. "max_length" is the maximum allocated
 // length of the string. Returns true if the length
 // is changed.
-bool edit_string(char *text, u32 max_length);
+b8 edit_string(char *text, u32 max_length);
 
 ///* add
 // Register a new mapping to the input system.<br>
 // code, the keycode, should be recived from calling K(DESIRED_KEY), DESIRED_KEY
 // should be lowercase letters for normal keys and UPPERCASE for special keys.
 // Player, the player that has this binding, can be P1, P2, P3, P4.
-bool add(InputCode code, Name name, Player player=Player::P1);
+b8 add(InputCode code, Name name, Player player=P1);
 
 ///*
 // Returns true if the input button, stick or key was pressed or released this frame.
-bool triggered(Name name, Player player=Player::ANY);
+b8 triggered(Name name, Player player=ANY);
 
 ///*
 // Returns true if the input button, stick or key was pressed this frame.
-bool pressed(Name name, Player player=Player::ANY);
+b8 pressed(Name name, Player player=ANY);
 
 ///*
 // Returns true if the input button, stick or key was released this frame.
-bool released(Name name, Player player=Player::ANY);
+b8 released(Name name, Player player=ANY);
 
 ///*
 // Returns true if the input button, stick or key is held down.
-bool down(Name name, Player player=Player::ANY);
+b8 down(Name name, Player player=ANY);
 
 ///*
 // Returns the value of the input, useful for analog input.
-f32 value(Name name, Player player=Player::ANY);
+f32 value(Name name, Player player=ANY);
 
 ///*
 // Ignores if the input is enabled or not and returns if the button
 // is pressed. Do not use this as a stand in for normal input.
-bool super_pressed(Name name, Player player=Player::ANY);
+b8 super_pressed(Name name, Player player=ANY);
 
 ///*
 // Returns the screen coordinates in pixels for the mouse position.
@@ -272,17 +292,17 @@ Vec2 mouse_move();
 
 ///*
 // Converts screen coordinates to world coordinates.
-Vec2 screen_to_world(Vec2 p);
+Vec2 screen_to_world(Vec2 p, u32 camera_id=0);
 
 ///*
 // The position of the mouse in world coordinated,
 // taken into account the current camera transform.
-Vec2 world_mouse_position(u32 camera_id = 0);
+Vec2 world_mouse_position(u32 camera_id=0);
 
 ///*
 // The position of the mouse in the same scale as the world
 // coordinates, but relative to the camera position.
-Vec2 normalised_mouse_position();
+Vec2 normalized_mouse_position();
 
 ///*
 // The movement of the mouse in world coordinated,
@@ -307,18 +327,18 @@ Vec2 mouse_scroll();
 
 ///*
 // Returns true if the mouse button was pressed or released this frame.
-bool mouse_triggered(u8 button);
+b8 mouse_triggered(u8 button);
 
 ///*
 // Returns true if the mouse button was pressed this frame.
-bool mouse_pressed(u8 button);
+b8 mouse_pressed(u8 button);
 
 ///*
 // Returns true if the mouse button was released this frame.
-bool mouse_released(u8 button);
+b8 mouse_released(u8 button);
 
 ///*
 // Returns true if the mouse button is held down.
-bool mouse_down(u8 button);
+b8 mouse_down(u8 button);
 
 };  // namespace Input
