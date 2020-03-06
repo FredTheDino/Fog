@@ -21,6 +21,13 @@ def find_defs(file_path):
     Find the definitons and put them in a nice list,
     if none are found, an empty list is returned.
     """
+    def to_def_tuple(namespace, block):
+        if "struct" in block or "enum" in block:
+            return (namespace, "STRUCT", block)
+        if "typedef" in block or "#define" in block.lower() or (block.startswith("const") and not "(" in block):
+            return (namespace, "EXPORT", block)
+        return (namespace, "FUNC", block)
+
     def export_struct(lines, namespace):
         struct = ""
         rest = lines
@@ -37,12 +44,12 @@ def find_defs(file_path):
                     break
 
         assert depth == 0, "Invalid bracing."
-        return [(namespace, "STRUCT", struct)] + parse(rest, namespace)
+        return [to_def_tuple(namespace, struct)] + parse(rest, namespace)
 
-    def export_typedef(lines, namespace):
+    def export_line(lines, namespace):
         line = lines[0]
         rest = lines[1:]
-        return [(namespace, "EXPORT", line)] + parse(rest, namespace)
+        return [to_def_tuple(namespace, line)] + parse(rest, namespace)
 
     def export_func(lines, namespace):
         func = ""
@@ -59,7 +66,7 @@ def find_defs(file_path):
             func += line
 
 
-        result = [(namespace, "FUNC", f.strip() + ";") for f in func.split(";")]
+        result = [to_def_tuple(namespace, f.strip() + ";") for f in func.split(";")]
         return result + parse(rest, namespace)
 
     def hide(lines, namespace):
@@ -88,7 +95,7 @@ def find_defs(file_path):
         if "FOG_EXPORT_STRUCT" in line:
             return export_struct(rest, namespace)
         if "FOG_EXPORT" in line:
-            return export_typedef(rest, namespace)
+            return export_line(rest, namespace)
         if "FOG_HIDE" in line:
             return hide(rest, namespace)
         return parse(rest, namespace)
@@ -215,6 +222,8 @@ if __name__ == "__main__":
                     return 0
                 if "u64;" in defs or "s64" in defs:
                     return 0
+            if defs.endswith("AssetID;"):
+                return 1
             if "Vec" in defs:
                 return 2
             if "const " in defs:

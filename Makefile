@@ -3,7 +3,7 @@ CXX = g++
 WARNINGS = -Wall -Wno-unused-function -Wno-missing-braces
 FLAGS = $(WARNINGS) -std=c++17 -Iinc
 DEBUG_FLAGS = $(FLAGS) -ggdb -O0 -DDEBUG  # -DFOG_VERBOSE
-#RELEASE_FLAGS = $(FLAGS) -O3  #TODO(gu)
+RELEASE_FLAGS = $(FLAGS) -O3  #TODO(gu)
 LIB_PATH = ./lib/linux
 LIBS = # -lSDL2 -lSDL2main -ldl -lpthread -lc -lm
 BIN_DIR = out
