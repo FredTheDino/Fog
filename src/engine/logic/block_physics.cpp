@@ -316,7 +316,6 @@ Overlap check_overlap(Body *body_a, Body *body_b) {
 void solve(Overlap overlap)
 {
     if (!overlap) {
-        ERR("You are trying to solve an overlap that isn't overlapping.");
         return;
     }
 

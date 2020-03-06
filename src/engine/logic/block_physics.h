@@ -133,8 +133,7 @@ FOG_HIDE
 // Create a new body that can be simulated, collideded with
 // and solved for. The mass, bounce and damping are only interesting
 // if you are integrating the body or solving the overlapps.
-Body create_body(ShapeID shape_id, f32 mass = 1.0f, u32 layer=0xFFFFFFFF,
-                 f32 bounce = 0.1f, f32 damping = 0.1f);
+Body create_body(ShapeID shape_id, f32 mass=1.0f, u32 layer=0xFFFFFFFF, f32 bounce=0.1f, f32 damping=0.1f);
 
 ///*
 // Make sure the shape is centerd to where the body is.
