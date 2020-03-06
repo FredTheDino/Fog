@@ -86,6 +86,10 @@ void destroy();
 // for collision detection.
 ShapeID add_shape(u32 points_length, Vec2 *points);
 
+///*
+// Generate a shape from a given sprite asset.
+ShapeID add_shape_from_sprite(AssetID sprite_id);
+
 FOG_HIDE
 ///* Overlap
 // The overlap struct holds collision information,
