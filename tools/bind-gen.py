@@ -241,13 +241,17 @@ if __name__ == "__main__":
 
     bodies = []
     heads = []
+    consts = []
     namespaces = set()
     for elem in all_defs:
         namespace, kind, source = elem
         if namespace:
             namespaces.add(namespace)
         if kind == "STRUCT" or kind == "EXPORT":
-            heads.append(source)
+            if kind == "EXPORT" and source.startswith("const "):
+                consts.append(source)
+            else:
+                heads.append(source)
         else:
             head = format_function_def(elem[0], elem[2])
             res = write_function(elem[0], elem[2])
@@ -284,6 +288,11 @@ if __name__ == "__main__":
             f.write("#define false 0\n")
             f.write("#endif\n")
             f.write("\n".join(heads))
+            f.write("\n#ifdef FOG_IMPL\n")
+            f.write("\n".join([line for line in consts]))
+            f.write("\n#else\n")
+            f.write("\n".join(["extern " + line.split("=")[0].strip() + ";" for line in consts]))
+            f.write("\n#endif\n")
             f.write("\n#undef FOG_IMPORT")
     else:
         sys.exit(-1)
