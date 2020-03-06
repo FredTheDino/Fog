@@ -9,7 +9,10 @@ namespace Util {
 
     b8 init() {
         DEBUG_FONT = Asset::fetch_id("MONACO_FONT");
-        return DEBUG_FONT != Asset::ASSET_ID_NO_ASSET;
+        if (DEBUG_FONT != Asset::ASSET_ID_NO_ASSET)
+            return true;
+        LOG("Failed to load the default font.");
+        return false;
     }
 
     // TODO(ed): Maybe don't calculate the font size this

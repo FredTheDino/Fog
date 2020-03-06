@@ -52,6 +52,7 @@ AssetID fetch_id(const char *str) {
         Header *headers = system.headers;
         if (headers[i].hash == hash) return i;
     }
+    LOG("Failed to load asset: '%s', check that the correct .fog file is loaded.", str);
     return ASSET_ID_NO_ASSET;
 }
 
@@ -75,7 +76,7 @@ b8 load(const char *file_path) {
     system.arena = Util::request_arena();
     FILE *file = fopen(file_path, "rb");
     if (!file) {
-        ERR("Failed to open resource file!");
+        ERR("Failed to open resource file! (%s)", file_path);
         return false;
     }
 
