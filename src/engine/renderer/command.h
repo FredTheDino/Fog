@@ -1,4 +1,3 @@
-#include "sprite.h"
 ///# Rendering
 // This section contains all the possible ways to render
 // things. This is is not exsaustive and there are some
@@ -38,6 +37,11 @@ void push_sdf_quad(Vec2 min, Vec2 max, Vec2 min_uv, Vec2 max_uv, int sprite,
 void push_sprite_rect(u32 layer, Vec2 position, Vec2 dimension, f32 angle,
                  AssetID texture, Vec2 uv_min, Vec2 uv_dimension,
                  Vec4 color = V4(1, 1, 1, 1));
+
+///*
+// Draw a sprite to the screen.
+void push_sprite(u32 layer, AssetID sprite_id, Vec2 position,
+        Vec2 dimension, f32 angle, Vec4 color = V4(1, 1, 1, 1));
 
 ///*
 // Renders a rectangle to the screen. The position is the center if the
