@@ -274,6 +274,7 @@ if __name__ == "__main__":
             f.write("\n".join(bodies))
             f.write("\n#undef FOG_IMPORT")
         with open("out/fog.h", "w") as f:
+            f.write("#pragma once")
             f.write(preamble)
             f.write("#include <stdint.h>\n")
             f.write("#include <stdarg.h>\n")
