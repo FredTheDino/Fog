@@ -299,17 +299,21 @@ Vec2 V2(Vec4 v) { return {v.x, v.y}; }
 
 Vec3 V3(Vec4 v) { return {v.x, v.y, v.z}; }
 
-// Eported variants.
+// Exported variants.
 ///*
 Vec2 V2(real x, real y);
 ///*
 Vec3 V3(real x, real y, real z);
 ///*
 Vec4 V4(real x, real y, real z, real w);
+///*
+Vec3 V3_from_v2(Vec2 v);
 
 Vec2 V2(real x, real y) { return {x, y}; }
 Vec3 V3(real x, real y, real z) { return {x, y, z}; }
 Vec4 V4(real x, real y, real z, real w) { return {x, y, z, w}; }
+
+Vec3 V3_from_v2(Vec2 v) { return {v.x, v.y, 0}; }
 
 #if _FOG_EXAMPLE
 //
