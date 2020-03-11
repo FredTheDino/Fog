@@ -147,6 +147,7 @@ def format_function_def(namespace, definition):
     return ("FOG_IMPORT\n" + preamble + new_name + "(" + get_args(raw_args) + ");") .strip()
 
 def get_args(original):
+    original = " ".join(original.split())
     args = ""
     ignoring = False
     depth = 0
@@ -160,7 +161,7 @@ def get_args(original):
             depth -= 1
             if not depth:
                 break
-        if depth == 0 and c == ",":
+        if depth == 1 and c == ",":
             ignoring = False
         if not ignoring:
             args += c
