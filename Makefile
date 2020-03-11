@@ -43,9 +43,8 @@ TERMINAL = $(echo $TERM)
 default: engine
 engine: $(ENGINE_PROGRAM_PATH) $(DOCUMENTATION) $(ASSET_BUILDER_PROGRAM_NAME)
 
-#release: $(SOURCE_FILES) $(ASSET_BUILDER_PROGRAM_NAME) | $(BIN_DIR) $(BINDINGS)
-#	rm -f $(BIN_DIR)/res
-#	$(CXX) $(RELEASE_FLAGS) -c -fPIC $(LIB_FLAG) $(ENGINE_SOURCE_FILE) -o $(ENGINE_PROGRAM_PATH) -L $(LIB_PATH) $(LIBS)
+release: $(SOURCE_FILES) $(ASSET_BUILDER_PROGRAM_NAME) | $(BIN_DIR) $(BINDINGS)
+	$(CXX) $(RELEASE_FLAGS) -c -fPIC $(LIB_FLAG) $(ENGINE_SOURCE_FILE) -o $(ENGINE_PROGRAM_PATH) -L $(LIB_PATH) $(LIBS)
 
 doc: $(DOCUMENTATION)
 
@@ -75,10 +74,4 @@ clean:
 	rm -f tools/doc.html
 
 edit: $(EDITOR_PROGRAM_PATH)
-	
-#debug: $(ENGINE_PROGRAM_PATH)
-#	cd $(BIN_DIR); gdb -ex "b _fog_assert_failed()" -ex "b _fog_illegal_allocation()" ./$(ENGINE_PROGRAM_NAME)
-#
-#valgrind: $(ENGINE_PROGRAM_PATH)
-#	cd $(BIN_DIR); $(TERMINAL) gdb $(ENGINE_PROGRAM_NAME) &
-#	cd $(BIN_DIR); valgrind --vgdb-error=0 --suppressions=useable.supp $(ENGINE_PROGRAM_NAME)
+

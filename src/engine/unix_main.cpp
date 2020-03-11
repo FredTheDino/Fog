@@ -64,14 +64,18 @@ Input::Name DEBUG_PERF;
 Input::Name DEBUG_VIEW;
 Input::Name DEBUG_VALUES;
 #else
+
+Input::Name TWEAK_SMOOTH;
+Input::Name TWEAK_STEP;
+
 constexpr b8 show_perf = false;
 constexpr b8 show_debug_values = false;
 
-constexpr b8 debug_values_are_on() {
+b8 debug_values_are_on() {
     return false;
 }
 
-constexpr b8 debug_view_is_on() {
+b8 debug_view_is_on() {
     return false;
 }
 #endif
@@ -309,8 +313,10 @@ void run(FogCallback user_update, FogCallback user_draw) {
         STOP_PERF(INPUT);
         SDL::poll_events();
 
+#if DEBUG
         if (value(QUIT, Input::ANY))
             SDL::running = false;
+#endif
 
         Logic::call(Logic::At::PRE_UPDATE);
         // User defined
