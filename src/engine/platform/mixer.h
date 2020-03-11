@@ -98,6 +98,8 @@ void unlock_audio();
 
 b8 init();
 
+void deinit();
+
 ///*
 // Plays a sound in the game world, the sound should have been
 // loaded by the asset system:<br>

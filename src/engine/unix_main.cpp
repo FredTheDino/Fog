@@ -336,6 +336,7 @@ void run(FogCallback user_update, FogCallback user_draw) {
 }
 
 void _fog_close_app_responsibly() {
+    Mixer::deinit();
     Renderer::Impl::set_fullscreen(false);
     Util::free_all_memory();
 }

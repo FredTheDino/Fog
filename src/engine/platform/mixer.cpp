@@ -326,4 +326,8 @@ b8 init() {
     return true;
 }
 
+void deinit() {
+    SDL_CloseAudioDevice(audio_struct.dev);
+}
+
 };  // namespace Mixer
