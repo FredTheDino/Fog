@@ -1,12 +1,12 @@
-void init_random() {
+void random_seed(u32 seed) {
     // Generated random numbers from random.org.
     //
     // This makes it deterministic, which you might
     // not want.
-    random_state.a = 398973565;
-    random_state.b = 141307319;
-    random_state.c =  15804145;
-    random_state.d = 296129167;
+    random_state.a = 398973565 ^ seed;
+    random_state.b = 141307319 ^ seed;
+    random_state.c =  15804145 ^ seed;
+    random_state.d = 296129167 ^ seed;
     random_state.counter = 100;
 }
 

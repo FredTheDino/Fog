@@ -260,7 +260,7 @@ void init(int argc, char **argv) {
     }
 
     using namespace Input;
-    init_random();
+    random_seed(FOG_RANDOM_SEED);
 
     Util::do_all_allocations();
     ASSERT(Renderer::init("Hello there", win_width, win_height),

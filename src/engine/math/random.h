@@ -10,11 +10,16 @@ struct XORWOWState {
     u32 counter;
 } random_state;
 
+FOG_EXPORT
+#define FOG_RANDOM_SEED 0xCAFEBABE
+
 constexpr u32 RANDOM_MAX = 0xFFFFFFFF;
 constexpr f32 RANDOM_INV = 1.0f / (f32) RANDOM_MAX;
 
-// Initalizes the random number generator.
-void init_random();
+///*
+// Seeds the random number generator, is initalized
+// to the FOG_RANDOM_SEED seed on start.
+void random_seed(u32 seed);
 
 ///*
 // Returns a random bit, not cryptographically safe.
