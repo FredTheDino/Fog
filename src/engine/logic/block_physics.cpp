@@ -139,7 +139,8 @@ Limit project_shape(Shape shape, Vec2 axis,
 
 Body create_body(ShapeID shape_id, f32 mass, u32 layer, f32 bounce,
                  f32 damping) {
-    ASSERT(shape_id >= 0, "Invalid ID");
+    ASSERT(shape_id >= 0, "Invalid shape ID");
+    ASSERT(shape_id < global_shape_list.length, "Invalid shape ID");
 
     Body body = {};
     body.scale = V2(1, 1);
