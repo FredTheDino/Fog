@@ -137,17 +137,16 @@ Limit project_shape(Shape shape, Vec2 axis,
     return limit;
 }
 
-Body create_body(ShapeID shape_id, f32 mass, u32 layer, f32 bounce,
-                 f32 damping) {
+Body create_body(ShapeID shape_id, f32 mass, f32 bounce, f32 damping) {
     ASSERT(shape_id >= 0, "Invalid shape ID");
     ASSERT(shape_id < global_shape_list.length, "Invalid shape ID");
 
     Body body = {};
     body.scale = V2(1, 1);
+    body.layer = 0xFFFFFFFF;
     body.damping = damping;
     body.shape = shape_id;
     body.bounce = bounce;
-    body.layer = layer;
     if (mass == 0.0)
         body.inverse_mass = 0.0f;
     else
