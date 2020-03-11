@@ -40,10 +40,10 @@ Camera camera_fit(u32 num_points, Vec2 *points, f32 border) {
 
 Camera camera_lerp(Camera camera_a, Camera camera_b, f32 lerp) {
     return {
-        LERP(camera_a.position    , lerp, camera_b.position),
-        LERP(camera_a.offset      , lerp, camera_b.offset),
-        (f32) LERP(camera_a.zoom        , lerp, camera_b.zoom),
-        LERP(camera_a.aspect_ratio, lerp, camera_b.aspect_ratio),
+        LERP(camera_a.position    , camera_b.position, lerp),
+        LERP(camera_a.offset      , camera_b.offset, lerp),
+        (f32) LERP(camera_a.zoom  , camera_b.zoom, lerp),
+        LERP(camera_a.aspect_ratio, camera_b.aspect_ratio, lerp),
     };
 }
 

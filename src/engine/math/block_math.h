@@ -51,8 +51,7 @@
 #define ABS_MAX(a, b) ((ABS(a) > ABS(b)) ? (a) : (b))
 #define ABS_MIN(a, b) ((ABS(a) < ABS(b)) ? (a) : (b))
 
-//TODO(gu) change order to (start, stop, lerp)
-#define LERP(a, l, b) ((a) * (1.0f - (l)) + (b) * (l))
+#define LERP(a, b, l) ((a) * (1.0f - (l)) + (b) * (l))
 
 #define CLAMP(min, max, v) ((min) > (v) ? (min) : ((max) < (v)) ? (max) : (v))
 
@@ -131,9 +130,9 @@ FOG_EXPORT
 typedef Vec4(*ProgressFuncVec4)(Vec4, f32, Vec4, f32, f32);
 Vec4 std_progress_func_vec4(Vec4 start_value, f32 start_slope, Vec4 end_value, f32 end_slope, f32 progress) {
     f32 p = -2 + start_slope + end_slope;
-    f32 q = -(-3 + 2*start_slope + end_slope);
-    f32 y = p*pow(progress, 3) + q*pow(progress, 2) + start_slope*progress;
-    return LERP(start_value, y, end_value);
+    f32 q = -(-3 + 2 * start_slope + end_slope);
+    f32 y = p * pow(progress, 3) + q * pow(progress, 2) + start_slope*progress;
+    return LERP(start_value, end_value, y);
 };
 
 #include "random.h"
@@ -176,7 +175,7 @@ ABS_MIN(a, b)
 FOG_HIDE
 ///*
 // Lerps between "a" and "b" using the factor "l".
-LERP(a, l, b)
+LERP(a, b, l)
 
 FOG_HIDE
 ///*
