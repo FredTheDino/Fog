@@ -3,9 +3,10 @@
 
 ///# Documentation
 // The Fog engine offers a way to automatically generate documentation for
-// the engine, it can of course be used when making a game aswell. The syntax
-// is very simple, inspired by markdown, and can be written without problems
-// in a C++ file.
+// the engine. The syntax is very simple, inspired by markdown, and can be
+// written without problems in a C++ file.
+// If you wish to use this in your game, you will have to use the doc-gen.py
+// python script, which requires python.
 
 
 //// Different kinds of semantic comments
