@@ -225,5 +225,41 @@ b8 tweak(const char *name, Span *value, f32 modifier) {
     return false;
 }
 
+// READ-ONLY VARIANTS
 
+void tweak_r(const char *name, b8 value) {
+    if (!debug_values_are_on()) return;
+    const char *buffer = Util::format_int(" %s: %s", name, value ? "true" : "false");
+    debug_value_logic(name, buffer);
+}
+
+void tweak_r(const char *name, f32 value) {
+    if (!debug_values_are_on()) return;
+    const char *buffer = Util::format_int(" %s: %.4f", name, value);
+    debug_value_logic(name, buffer);
+}
+
+void tweak_r(const char *name, s32 value) {
+    if (!debug_values_are_on()) return;
+    const char *buffer = Util::format_int(" %s: %d", name, value);
+    debug_value_logic(name, buffer);
+}
+
+void tweak_r(const char *name, u32 value) {
+    if (!debug_values_are_on()) return;
+    const char *buffer = Util::format_int(" %s: %u", name, value);
+    debug_value_logic(name, buffer);
+}
+
+void tweak_r(const char *name, Vec2 value) {
+    if (!debug_values_are_on()) return;
+    const char *buffer = Util::format_int(" %s: %.4f, %.4f", name, value.x, value.y);
+    debug_value_logic(name, buffer);
+}
+
+void tweak_r(const char *name, Span value) {
+    if (!debug_values_are_on()) return;
+    const char *buffer = Util::format_int(" %s: %.4f, %.4f", name, value.min, value.max);
+    debug_value_logic(name, buffer);
+}
 };
