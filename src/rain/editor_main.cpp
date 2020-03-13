@@ -1,9 +1,5 @@
-// Tell the engine that this is loaded
-
 #include "editor_main.h"
 #include "stdio.h"
-
-namespace Editor {
 
 void read_with_default(const char *prompt, const char *def, char *val, u32 length) {
     s32 input_length;
@@ -156,7 +152,7 @@ void setup(int argc, char **argv) {
             char *endptr;
             u32 num_points = strtol(num, &endptr, 10);
             CHECK_FOR_ERROR(num);
-            Util::List<Vec2> points = Util::create_list<Vec2>(num_points);
+            List<Vec2> points = Util::create_list<Vec2>(num_points);
             for (u32 p = 0; p < num_points; p++) {
                 char *endptr;
                 Vec4 point;
@@ -372,10 +368,10 @@ void sprite_editor_update() {
     if (down(Name::EDIT_SELECT) || mouse_down(0)) {
         s32 best_index = -1;
         f32 best_dist = global_editor.worst_best_distance;
-        Util::List<Vec2> points = sprite->points;
-        u32 num_points = points.length;
+        List<Vec2> *points = &sprite->points;
+        u32 num_points = points->size();
         for (u32 i = 0; i < num_points; i++) {
-            f32 dist = length(point - points[i]);
+            f32 dist = length(point - (*points)[i]);
             if (dist < best_dist) {
                 best_index = i;
                 best_dist = dist;
@@ -389,7 +385,7 @@ void sprite_editor_update() {
     if (pressed(Name::EDIT_REMOVE) || mouse_pressed(3)) {
         s32 best_index = -1;
         f32 best_dist = global_editor.worst_best_distance;
-        Util::List<Vec2> *points = &sprite->points;
+        List<Vec2> *points = &sprite->points;
         u32 num_points = points->length;
         for (u32 i = 0; i < num_points; i++) {
             f32 dist = length(point - (*points)[i]);
@@ -431,10 +427,6 @@ void sprite_editor_update() {
 
 }
 
-void update() {
-    sprite_editor_update();
-}
-
 // Draw functions
 void sprite_editor_draw() {
     EditableSprite *sprite = global_editor.sprites + global_editor.current_sprite;
@@ -454,7 +446,7 @@ void sprite_editor_draw() {
     f32 dist = global_editor.worst_best_distance;
     Vec2 point = global_editor.cursor;
 
-    Util::List<Vec2> points = sprite->points;
+    List<Vec2> points = sprite->points;
     s32 num_points = points.length;
     for (s32 i = 0; i < num_points; i++) {
         Vec2 curr = points[i];
@@ -480,7 +472,9 @@ void sprite_editor_draw() {
     Util::debug_text(sprite->name, Renderer::fetch_camera()->aspect_ratio);
 }
 
-void draw() {
-    sprite_editor_draw();
+int main(int argc, char *argv[]) {
+    fog_input_request_name((u32) Name::EDIT_NUM_BINDINGS);
+    fog_init();
+
+    fog_run(sprite_editor_update, sprite_editor_draw);
 }
-}  // namespace Game
