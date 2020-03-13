@@ -13,7 +13,7 @@ def search(region, root):
     files_in_lists = [search(f, path.join(root, f)) for f in ls(root)
                                     if path.isdir(path.join(root, f))] +\
                      [[(region, path.join(root, f)) for f in ls(root)
-                                    if path.isfile(path.join(root, f))]]
+                                    if path.isfile(path.join(root, f)) and "." in f]]
     return reduce(lambda a, b: a + b, files_in_lists)
 
 

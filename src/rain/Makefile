@@ -1,4 +1,5 @@
 TARGET = ../../out/rain
+TARGET = rain
 
 CC = g++
 FLAGS = -ggdb -std=c++17

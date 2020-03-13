@@ -11,7 +11,7 @@ namespace Input {
 
 FOG_EXPORT_STRUCT
 typedef enum {
-    NONE = 0b0000,
+    NO_ONE = 0b0000,
 
     P1 = 0b0001,
     P2 = 0b0010,

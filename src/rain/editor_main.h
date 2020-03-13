@@ -1,18 +1,16 @@
 #include "fog.h"
 #include <vector>
 
-using List = std::vector;
-
 #define MAX_TEXT_LENGTH 16
 struct EditableSprite {
-    List<Vec2> points;
+    std::vector<Vec2> points;
     AssetID sheet;
     char name[MAX_TEXT_LENGTH];
 };
 
 struct EditorState {
     u32 current_sprite;
-    List<EditableSprite> sprites;
+    std::vector<EditableSprite> sprites;
 
     Vec2 cursor;
     f32 orig_worst_best_distance = 0.2;
@@ -24,7 +22,7 @@ struct EditorState {
 } global_editor;
 
 
-enum class Name {
+enum class In {
     EDIT_NONE,
     EDIT_PLACE,
     EDIT_SELECT,
@@ -38,7 +36,11 @@ enum class Name {
     EDIT_SNAP_LARGER,
     EDIT_SAVE,
     EDIT_ADD_SPRITE,
-    EDIT_RENAME,
+    EDIT_MOVE_RIGHT_LEFT,
+    EDIT_MOVE_UP_DOWN,
+    EDIT_ZOOM_IN_OUT,
+
+    TWEAK_STEP,
 
     EDIT_NUM_BINDINGS,
 };

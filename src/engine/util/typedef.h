@@ -14,9 +14,8 @@ FOG_EXPORT
 typedef float f32;
 FOG_EXPORT
 typedef double f64;
-
 FOG_EXPORT
-typedef u8 b8;
+typedef uint8_t b8;
 
 // Trubble makers
 FOG_EXPORT

@@ -168,7 +168,7 @@ void ParticleSystemInt::clear() {
 
 void ParticleSystemInt::add_sprite(AssetID sprite){
     ASSERT(particles, "Trying to use uninitalized/destroyed particle system");
-    ASSERT(Asset::is_of_type(sprite, Asset::Type::SPRITE), "Invalid sprite given to particle system.");
+    ASSERT(Asset::is(sprite, Asset::Type::SPRITE), "Invalid sprite given to particle system.");
     ASSERT(num_sprites != MAX_NUM_SUB_SPRITES,
             "Too manu subsprites in particle system");
     sprites[num_sprites++] = sprite;

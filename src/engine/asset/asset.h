@@ -40,7 +40,9 @@ struct Sprite {
 namespace Asset {
 
 #pragma pack(push, 8) // Standard
-enum class Type {
+
+FOG_EXPORT_STRUCT
+enum Type {
     NONE,
     TEXTURE,
     FONT,
@@ -131,8 +133,11 @@ struct Data {
 
 #pragma pack(pop)
 
+///*
 // Hashes a string to a unique identifier that can be
 // used instead of the asset.
+u64 asset_hash(const char *str);
+
 u64 asset_hash(const char *str) {
     // This number is pretty arbitrary, it's prime and that's nice.
     u64 hash = 5351;
@@ -157,6 +162,20 @@ constexpr u64 asset_hash_comp(const char *str) {
 // specifified asset. ASSET_ID_NO_ASSET is returned
 // if no asset is found.
 AssetID fetch_id(const char *str);
+
+///*
+// Returns true if the type of the asset
+// matches that of the supplied type.
+b8 is(AssetID id, Type type);
+
+///*
+// Returns the numbers of assets in total.
+u64 num();
+
+///*
+// Returns the asset hash for the specified
+// asset.
+u64 hash(AssetID id);
 
 //
 // Checks if the passed in "id" is mapped to an image,

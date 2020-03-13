@@ -41,9 +41,18 @@ Sprite *fetch_sprite(AssetID id) {
     return &raw_fetch(id, Type::SPRITE)->sprite;
 }
 
-b8 is_of_type(AssetID id, Type type) {
+b8 is(AssetID id, Type type) {
     if (system.file_header.number_of_assets < id) return false;
     return type == Type::NONE || system.headers[id].type == type;
+}
+
+u64 num() {
+    return system.num_assets;
+}
+
+u64 hash(AssetID id) {
+    ASSERT(system.num_assets <= id, "Invalid asset id");
+    return system.headers[id].hash;
 }
 
 AssetID fetch_id(const char *str) {
