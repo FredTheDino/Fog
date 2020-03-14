@@ -42,7 +42,7 @@ namespace Asset {
 #pragma pack(push, 8) // Standard
 
 FOG_EXPORT_STRUCT
-enum Type {
+typedef enum {
     NONE,
     TEXTURE,
     FONT,
@@ -51,7 +51,7 @@ enum Type {
     SHADER,
     CONFIG,
     LEVEL,
-};
+} Type;
 
 struct FileHeader {
     u64 number_of_assets;
