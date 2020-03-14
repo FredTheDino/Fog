@@ -43,7 +43,8 @@ void read_with_default(const char *prompt, const char *def, char *val, u32 lengt
 
         fgets(val, length, stdin);
         input_length = strlen(val);
-        if (val[MAX(input_length - 2, 0)] == '\n') {
+        printf("%d\n", input_length);
+        if (val[MAX(input_length - 1, 0)] == '\n') {
             break;
         }
 
@@ -51,7 +52,7 @@ void read_with_default(const char *prompt, const char *def, char *val, u32 lengt
         do {
             fgets(val, length, stdin);
             input_length = strlen(val);
-        } while (val[MAX(input_length - 2, 0)] != '\n');
+        } while (val[MAX(input_length - 1, 0)] != '\n');
     } while (true);
 
     if (input_length == 2)
@@ -498,6 +499,7 @@ void sprite_editor_draw() {
 int main(int argc, char *argv[]) {
     fog_input_request_name((u32) In::EDIT_NUM_BINDINGS);
     fog_init(argc, argv);
+    setup(argc, argv);
 
     fog_run(sprite_editor_update, sprite_editor_draw);
 }
