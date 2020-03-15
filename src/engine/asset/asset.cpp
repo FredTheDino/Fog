@@ -51,7 +51,7 @@ u64 num() {
 }
 
 u64 hash(AssetID id) {
-    ASSERT(system.num_assets <= id, "Invalid asset id");
+    ASSERT(id < system.num_assets, "Invalid asset id");
     return system.headers[id].hash;
 }
 

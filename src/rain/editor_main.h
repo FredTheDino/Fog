@@ -41,6 +41,7 @@ enum class In {
     EDIT_ZOOM_IN_OUT,
 
     TWEAK_STEP,
+    TWEAK_SMOOTH,
 
     EDIT_NUM_BINDINGS,
 };

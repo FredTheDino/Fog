@@ -29,6 +29,10 @@ u32 toID(Player p) {
 #define SIGN(a) ((a) > 0) ? 1 : -1
 
 
+f32 floor(f32 a) {
+    return (s64) a;
+}
+
 #define K(key) (fog_key_to_input_code((SDLK_##key)))
 #define A(axis, player) (fog_axis_to_input_code((SDL_CONTROLLER_AXIS_##axis), toID(player)))
 #define B(button, player) (fog_button_to_input_code((SDL_CONTROLLER_BUTTON_##button), toID(player)))
@@ -43,7 +47,6 @@ void read_with_default(const char *prompt, const char *def, char *val, u32 lengt
 
         fgets(val, length, stdin);
         input_length = strlen(val);
-        printf("%d\n", input_length);
         if (val[MAX(input_length - 1, 0)] == '\n') {
             break;
         }
@@ -58,7 +61,7 @@ void read_with_default(const char *prompt, const char *def, char *val, u32 lengt
     if (input_length == 2)
         memcpy((void *) def, (void *) val, strlen(def));
     else
-        val[input_length - 2] = '\0';
+        val[input_length - 1] = '\0';
 
 }
 
@@ -89,6 +92,12 @@ AssetID find_next_sheet(AssetID start=0, int dir=1) {
     return -1;
 }
 
+void precise_snap(f32 *value, f32 big_snap=1.0, f32 small_snap=0.1) {
+    f32 precision = (fog_input_down((s32) In::TWEAK_SMOOTH, Player::ANY) ? small_snap : big_snap);
+    f32 v = (*value) / precision;
+    *value = floor(v + 0.5) * precision;
+}
+
 // Commandline arguments
 // rain [OPTION] .. [FILE]
 //
@@ -109,7 +118,7 @@ const char *path = nullptr;
 
 void create_new_sprite() {
     EditableSprite new_sprite = {
-        std::vector<Vec2>(10),
+        std::vector<Vec2>(0),
         find_next_sheet(0, 1),
     };
     read_with_default("sprite name",
@@ -143,8 +152,9 @@ void setup(int argc, char **argv) {
 
 
 
-    global_editor.sprites = std::vector<EditableSprite>(10);
+    global_editor.sprites = std::vector<EditableSprite>();
     global_editor.cursor = fog_V2(0.5, 0.5);
+    global_editor.current_sprite = 0;
     b8 no_path_passed = true;
     if (path != nullptr) {
         // NOTE(ed): Code bellow is copied from the asset loader. Might need to be a
@@ -195,7 +205,7 @@ void setup(int argc, char **argv) {
                     points_str = endptr;
                 }
                 points_str += 1; // )
-                points.push_back(fog_V2(point.z, point.w));
+                points[p] = fog_V2(point.z, point.w);
             }
 #undef CHECK_FOR_ERROR
 
@@ -241,6 +251,8 @@ void setup(int argc, char **argv) {
     fog_input_add(K(w), (u32) In::EDIT_SAVE, Player::P1);
     fog_input_add(K(c), (u32) In::EDIT_ADD_SPRITE, Player::P1);
     fog_input_add(K(r), (u32) In::EDIT_RENAME, Player::P1);
+    fog_input_add(K(LSHIFT), (u32) In::TWEAK_STEP, Player::P1);
+    fog_input_add(K(LCTRL), (u32) In::TWEAK_SMOOTH, Player::P1);
 
     fog_input_add(A(LEFTX, Player::P1), (u32) In::EDIT_MOVE_RIGHT_LEFT, Player::P1);
     fog_input_add(A(LEFTY, Player::P1), (u32) In::EDIT_MOVE_UP_DOWN, Player::P1);
@@ -248,7 +260,7 @@ void setup(int argc, char **argv) {
     fog_input_add(B(B, Player::P1), (u32) In::EDIT_PLACE, Player::P1);
     fog_input_add(B(A, Player::P1), (u32) In::EDIT_SELECT, Player::P1);
     fog_input_add(B(Y, Player::P1), (u32) In::EDIT_REMOVE, Player::P1);
-    // fog_input_add(B(LEFTSHOULDER, Player::P1), (u32) In::TWEAK_STEP, Player::P1);
+    fog_input_add(B(LEFTSHOULDER, Player::P1), (u32) In::TWEAK_STEP, Player::P1);
     fog_input_add(B(DPAD_DOWN, Player::P1), (u32) In::EDIT_SNAP_SMALLER, Player::P1);
     fog_input_add(B(DPAD_UP, Player::P1), (u32) In::EDIT_SNAP_LARGER, Player::P1);
     fog_input_add(A(TRIGGERRIGHT, Player::P1), (u32) In::EDIT_NEXT_SPRITE, Player::P1);
@@ -322,8 +334,8 @@ void sprite_editor_update() {
                     cursor.y += SIGN(move_y) * snap * 1.1;
                 step_timer = 0.0;
             }
-            // fog_util_precise_snap(&cursor.x, snap, snap);
-            // fog_util_precise_snap(&cursor.y, snap, snap);
+            precise_snap(&cursor.x, snap, snap);
+            precise_snap(&cursor.y, snap, snap);
         } else {
             cursor += fog_V2(move_x, move_y) * speed;
         }
