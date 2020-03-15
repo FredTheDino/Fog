@@ -39,7 +39,7 @@ RAIN = $(BIN_DIR)/rain
 
 TERMINAL = $(echo $TERM)
 
-.PHONY: default engine doc bindings clean # run edit asset debug valgrind
+.PHONY: default engine doc bindings clean rain # run edit asset debug valgrind
 
 default: engine
 engine: $(ENGINE_PROGRAM_PATH) $(DOCUMENTATION) $(ASSET_BUILDER_PROGRAM_NAME) $(RAIN)
@@ -49,6 +49,9 @@ $(RAIN):
 
 release: $(SOURCE_FILES) $(ASSET_BUILDER_PROGRAM_NAME) | $(BIN_DIR) $(BINDINGS)
 	$(CXX) $(RELEASE_FLAGS) -c -fPIC $(LIB_FLAG) $(ENGINE_SOURCE_FILE) -o $(ENGINE_PROGRAM_PATH) -L $(LIB_PATH) $(LIBS)
+
+$(RAIN):
+	make -C src/rain
 
 doc: $(DOCUMENTATION)
 
