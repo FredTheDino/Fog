@@ -69,6 +69,7 @@ typedef struct ParticleSystem {
     b8 one_alpha;
     b8 one_size;
     b8 drop_oldest;
+    b8 padding[2];
     Vec2 position;
 
     // Spawning
