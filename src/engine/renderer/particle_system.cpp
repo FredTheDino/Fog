@@ -33,7 +33,9 @@ void Particle::update(f32 delta) {
 
 void Particle::render(u32 layer, Vec2 origin, AssetID sprite) {
     if (!alive) return;
-    f32 progress_mod = MOD(progress, 1.0);
+    f32 progress_mod;
+    if (keep_alive) progress_mod = MOD(progress, 1.0);
+    else progress_mod = MIN(progress, 1.0);
     Vec2 render_dim = dim * (*progress_func_size)(spawn_size, spawn_size_deriv, die_size, die_size_deriv, progress_mod);
     Vec4 color = (*progress_func_color)(spawn_color, spawn_color_deriv, die_color, die_color_deriv, progress_mod);
     if (sprite == Asset::ASSET_ID_NO_ASSET) {
