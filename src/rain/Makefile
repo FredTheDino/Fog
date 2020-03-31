@@ -6,7 +6,7 @@ LIBS_FOLDER = ../../out
 
 LIBS = -lfog -lSDL2 -lSDL2main -ldl -lpthread -lc -lm# -lc++
 INCLUDES = -I$(LIBS_FOLDER)
-SOURCE_FILES = $(shell find *.{cpp,h})
+SOURCE_FILES = $(shell find *.{cpp})
 
 .PHONY: default rain
 default: rain
