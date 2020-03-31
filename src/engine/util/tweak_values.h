@@ -81,6 +81,10 @@ void tweak_f32_r(const char *name, f32 value);
 void tweak_vec2_r(const char *name, Vec2 value);
 void tweak_span_r(const char *name, Span value);
 
+///* Pass a string as a tweak
+// This prints out the string as a tweak.
+// Useful if you want your own formatting.
+void tweak_show(char *str);
 
 b8 tweak_b8(const char *name, b8 *value) { return tweak(name, value); }
 b8 tweak_s32(const char *name, s32 *value) { return tweak(name, value); }

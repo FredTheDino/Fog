@@ -262,4 +262,10 @@ void tweak_r(const char *name, Span value) {
     const char *buffer = Util::format_int(" %s: %.4f, %.4f", name, value.min, value.max);
     debug_value_logic(name, buffer);
 }
+
+void tweak_show(char *str) {
+    if (!debug_values_are_on()) return;
+    f32 height = debug_line_height();
+    debug_text(str, -1 + global_tweak.indentation * height, global_tweak.yoffset -= height, 0);
+}
 };
