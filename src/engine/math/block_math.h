@@ -135,6 +135,24 @@ Vec4 std_progress_func_vec4(Vec4 start_value, f32 start_slope, Vec4 end_value, f
     return LERP(start_value, end_value, y);
 };
 
+///*
+// Binomial coefficient
+u32 binomial(u32 n, u32 k);
+
+u32 binomial(u32 n, u32 k) {
+    u32 res = 1;
+
+    // k and n-k have the same binomial coeff so only calculate the "shorter"
+    if (k > n - k)
+        k = n - k;
+
+    for (u32 i = 0; i < k; i++) {
+        res *= (n - i);
+        res /= (i + 1);
+    }
+    return res;
+}
+
 #include "random.h"
 #include "random.cpp"
 
