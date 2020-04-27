@@ -1,6 +1,4 @@
-ifndef CXX
-	CXX = g++
-endif
+CXX = g++
 # NOTE: The verbose flag doesn't allow compilation on cirtain mac systems.
 WARNINGS = -Wall -Wno-unused-function -Wno-missing-braces
 FLAGS = $(WARNINGS) -std=c++17 -Iinc

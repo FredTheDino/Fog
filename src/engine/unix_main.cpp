@@ -102,18 +102,12 @@ b8 debug_view_is_on() {
 #error "No other platform layer than SDL supported."
 #endif
 
-#ifdef _WIN32
-u64 Perf::highp_now() {
-    return 0;
-}
-#else
 #include <ctime>
 u64 Perf::highp_now() {
     timespec tp;
     clock_gettime(CLOCK_REALTIME, &tp);
     return (tp.tv_sec * 1000000000 + tp.tv_nsec) / 1000;
 }
-#endif
 
 #ifdef DEBUG
 void register_debug_keybinds() {
