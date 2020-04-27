@@ -1,4 +1,4 @@
-TARGET = ../../out/rain
+RAIN = ../../out/rain
 
 CC = g++
 FLAGS = -ggdb -std=c++17
@@ -11,10 +11,10 @@ SOURCE_FILES = $(shell find *.cpp)
 .PHONY: default rain
 default: rain
 
-rain: $(TARGET)
-$(TARGET): $(SOURCE_FILES)
+rain: $(RAIN)
+$(RAIN): $(SOURCE_FILES)
 	$(CC) $(FLAGS) -o $@ $(SOURCE_FILES) -L$(LIBS_FOLDER) $(LIBS) $(INCLUDES)
 
 clean:
-	rm -f $(TARGET)
+	rm -f $(RAIN)
 

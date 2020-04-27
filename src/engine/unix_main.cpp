@@ -4,6 +4,8 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stb_image.h>
+#include <stdlib.h>
+#include <errno.h>
 
 b8 debug_view_is_on();
 b8 debug_values_are_on();
@@ -11,6 +13,9 @@ b8 debug_values_are_on();
 #define STBI_ONLY_PNG
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+
+#include "util/getline.c"
+#include "util/printf.c"
 
 #include "util/debug.cpp"
 

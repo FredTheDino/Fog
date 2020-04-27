@@ -1,12 +1,5 @@
 #include <math.h>
 
-// TODO(ed): This is a typedef, it would be nice to implement
-// my own version so I don't have to rely on heap
-// allocations during runtime, it's a tad heavy-weight TBH.
-// NOTE(gu): I didn't want to include logic before math and this is where all
-// typedefs are, but I don't really like placing it here either.
-#define Function std::function
-
 ///# Math
 // <p>
 // The math module holds a ton of usefull math operations.

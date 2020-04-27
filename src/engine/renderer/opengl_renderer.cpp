@@ -16,7 +16,7 @@ static Program compile_shader_program_from_source(const char *source) {
             ERR("%s: %s\n", "\"" #SHDR "\"", buffer);        \
             glDeleteShader(frag);                            \
             glDeleteShader(vert);                            \
-            return Program::ERROR();                         \
+            return Program::invalid_prog();                         \
         }                                                    \
     } while (false);
 
@@ -70,7 +70,7 @@ static Program compile_shader_program_from_source(const char *source) {
         char buffer[512];
         glGetProgramInfoLog(shader.id, 500, NULL, &buffer[0]);
         ERR("Program: %s\n", buffer);
-        return Program::ERROR();
+        return Program::invalid_prog();
     }
 
     unsigned int block = glGetUniformBlockIndex(shader, "Camera");

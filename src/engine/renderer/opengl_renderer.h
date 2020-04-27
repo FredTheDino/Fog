@@ -5,9 +5,9 @@ struct Program {
 
     void bind() const { glUseProgram(id); }
 
-    static Program ERROR() { return {-1}; }
+    static Program invalid_prog() { return {-1}; }
 
-    operator b8() const { return id != ERROR().id; }
+    operator b8() const { return id != invalid_prog().id; }
 };
 
 #pragma pack(push, 1)
@@ -74,10 +74,6 @@ struct RenderQueue {
 
     // Add more verticies to render.
     void push(u32 num_new_verticies, T *new_verticies);
-
-    // Expands the current queue by |GROW_BY| new buffers
-    // with |buffer_size| elements in them.
-    const u32 GROW_BY = 3;
     void expand();
 
     // Enable the Attrib Pointers, this is the only
@@ -91,6 +87,10 @@ struct RenderQueue {
     // Free all resources used by the queue.
     void destroy();
 };
+
+// Expands the current queue by |GROW_BY| new buffers
+// with |buffer_size| elements in them.
+const u32 GROW_BY = 3;
 
 // Render state
 Program master_shader_program;

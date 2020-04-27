@@ -4,20 +4,12 @@ WARNINGS = -Wall -Wno-unused-function -Wno-missing-braces
 FLAGS = $(WARNINGS) -std=c++17 -Iinc
 DEBUG_FLAGS = $(FLAGS) -ggdb -O0 -DDEBUG  # -DFOG_VERBOSE
 RELEASE_FLAGS = $(FLAGS) -O3  #TODO(gu)
-LIB_PATH = ./lib/linux
-LIBS = # -lSDL2 -lSDL2main -ldl -lpthread -lc -lm
+LIB_PATH = ./lib
+LIBS = -LSDL2 -LSDL2main -lc -ldl
 BIN_DIR = out
 
-LIB_FLAG =
-ENGINE_PROGRAM_NAME =
-ifeq ($(shell uname -s),Darwin)
-	LIB_FLAG += -dynamiclib
-	ENGINE_PROGRAM_NAME = libfog.dylib
-endif
-ifeq ($(shell uname -s),Linux)
-	LIB_FLAG += -static
-	ENGINE_PROGRAM_NAME = libfog.a
-endif
+LIB_FLAG = -static
+ENGINE_PROGRAM_NAME = libfog.a
 
 ENGINE_PROGRAM_PATH = $(BIN_DIR)/$(ENGINE_PROGRAM_NAME)
 ENGINE_SOURCE_FILE = src/engine/unix_main.cpp
@@ -39,12 +31,17 @@ RAIN = $(BIN_DIR)/rain
 
 TERMINAL = $(echo $TERM)
 
-.PHONY: default engine doc bindings clean rain # run edit asset debug valgrind
+.PHONY: default engine doc bindings clean rain mist # run edit asset debug valgrind
 
-default: engine
-engine: $(ENGINE_PROGRAM_PATH) $(DOCUMENTATION) $(ASSET_BUILDER_PROGRAM_NAME) $(RAIN)
+default: all
+all: $(ENGINE_PROGRAM_PATH) $(DOCUMENTATION) $(ASSET_BUILDER_PROGRAM_NAME) $(RAIN)
 
-$(RAIN):
+engine: $(ENGINE_PROGRAM_PATH)
+
+rain: $(RAIN)
+mist: $(ASSET_BUILDER_PROGRAM_NAME)
+
+$(RAIN): $(ENGINE_PROGRAM_PATH)
 	make -C src/rain
 
 release: $(SOURCE_FILES) $(ASSET_BUILDER_PROGRAM_NAME) | $(BIN_DIR) $(BINDINGS)

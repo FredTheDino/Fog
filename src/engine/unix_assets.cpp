@@ -1,9 +1,11 @@
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
+// #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <dirent.h>
+#include <errno.h>
+#include <stdint.h>
+// #include <dirent.h>
 
 #include <string>
 #include <vector>
@@ -14,6 +16,8 @@
 
 #include "header.h"
 #include "util/typedef.h"
+
+#include "util/getline.c"
 
 #include "util/debug.cpp"
 #include "math/block_math.h"
