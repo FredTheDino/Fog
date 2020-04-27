@@ -8,6 +8,10 @@ LIB_PATH = ./lib
 LIBS = -LSDL2 -LSDL2main -lc -ldl
 BIN_DIR = out
 
+ifeq ($(shell uname -s | cut -c -5),MINGW)
+    LIBS = -L/mingw64/lib -LSDL2 -LSDL2main 
+endif
+
 LIB_FLAG = -static
 ENGINE_PROGRAM_NAME = libfog.a
 
