@@ -1,12 +1,12 @@
 @echo off
-SET _DEBUG_FLAGS=/Zi /Od /W2
-SET _FLAGS=/nologo /std:c++14 /FC
-SET _INC=
+SET _DEBUG_FLAGS=/Zi /Od /W0
+SET _FLAGS=/nologo /std:c++17 /FC
+SET _INC=inc
 REM The lib directory is changed if you don't run the 64 bit one.
 SET _LINK_FLAGS=/SUBSYSTEM:console
-SET _LIBDIR=
-SET _LIB=
-SET _NAME=out.exe
+SET _LIBDIR=lib
+SET _LIB=SDL2.lib SDL2Main.lib
+SET _NAME=fog.dll
 
 SET _PATH=""
 SET _RUN=""
@@ -35,7 +35,8 @@ REM PUSHD %_LIBDIR%
 REM COPY /Y *.dll "../../bin" >nul 2>nul
 REM POPD
 ECHO  ====== COMPILE ====== 
-cl %_DEBUG_FLAGS% %_FLAGS% ../src/windows_main.cpp /Fe%_NAME% /I%_INC% "/link /LIBPATH:%_LIBDIR% %_LIB%"
+cl.exe %_DEBUG_FLAGS% %_FLAGS% /LD src/engine/unix_main.cpp /Fe%_NAME% /I%_INC% "/link /LIBPATH:%_LIBDIR% %_LIB%"
+cl.exe %_DEBUG_FLAGS% %_FLAGS% /LD src/engine/unix_assets.cpp /Fe%_NAME% /I%_INC% "/link /LIBPATH:%_LIBDIR% %_LIB%"
 
 @if not %ErrorLevel% == 0 (
 	ECHO ====== FAILED ======

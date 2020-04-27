@@ -16,6 +16,10 @@
 #define BOLDCYAN    "\033[1m\033[36m"      /* Bold Cyan */
 #define BOLDWHITE   "\033[1m\033[37m"      /* Bold White */
 
+void _putchar(char c) {
+    putchar(c);
+}
+
 namespace Util {
 
 ///# Misc utility
@@ -60,17 +64,18 @@ char *format(const char *fmt, va_list args) {
     return buffer;
 }
 
+// NOTE(gu): the gcc-mingw cross compiler breaks (v)snprintf
+// so we use an external printf-dependency (vsnprintf_)
 char *format_int(const char *fmt, ...) {
     va_list args;
     va_start(args, fmt);
-
     char c;
-    int size = vsnprintf(&c, 1, fmt, args);
+    int size = vsnprintf_(&c, 1, fmt, args);
     ASSERT(size > 0, "Failed to print format string");
     va_end(args);
     char *buffer = request_temporary_memory<char>(++size);
     va_start(args, fmt);
-    vsnprintf(buffer, size, fmt, args);
+    vsnprintf_(buffer, size, fmt, args);
     va_end(args);
     return buffer;
 }

@@ -4,6 +4,8 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stb_image.h>
+#include <stdlib.h>
+#include <errno.h>
 
 b8 debug_view_is_on();
 b8 debug_values_are_on();
@@ -11,6 +13,9 @@ b8 debug_values_are_on();
 #define STBI_ONLY_PNG
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+
+#include "util/getline.c"
+#include "util/printf.c"
 
 #include "util/debug.cpp"
 
@@ -97,12 +102,18 @@ b8 debug_view_is_on() {
 #error "No other platform layer than SDL supported."
 #endif
 
+#ifdef _WIN32
+u64 Perf::highp_now() {
+    return 0;
+}
+#else
 #include <ctime>
 u64 Perf::highp_now() {
     timespec tp;
     clock_gettime(CLOCK_REALTIME, &tp);
     return (tp.tv_sec * 1000000000 + tp.tv_nsec) / 1000;
 }
+#endif
 
 #ifdef DEBUG
 void register_debug_keybinds() {
