@@ -12,17 +12,15 @@ ifeq ($(shell uname -s | cut -c -5),MINGW)
     LIBS = -L/mingw64/lib -LSDL2 -LSDL2main 
 endif
 
-LIB_FLAG = -static
-ENGINE_PROGRAM_NAME = libfog.a
 ENGINE_SOURCE = src/engine/unix_main.cpp
 ENGINE_LIBRARY_NAME = libfog.a
 ENGINE_LIBRARY = $(BIN_DIR)/$(ENGINE_LIBRARY_NAME)
-SOURCES = $(shell find src/ -type f -name "*.*")
+SOURCES := $(shell find src/ -type f -name "*.*")
 
 ASSET_BUILDER = $(BIN_DIR)/mist
 ASSET_BUILDER_SOURCE = src/engine/unix_assets.cpp
-ASSET_FILES = $(shell find res/ -type f -name "*.*")
-ASSET_SOURCE_FILES = $(shell find src/engine/asset/ -type f -name "*.*")
+ASSET_FILES := $(shell find res/ -type f -name "*.*")
+ASSET_SOURCE_FILES := $(shell find src/engine/asset/ -type f -name "*.*")
 ASSET_SOURCE_FILES += $(ASSET_BUILDER_SOURCE)
 
 EDITOR_NAME = rain
