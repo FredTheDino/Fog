@@ -177,9 +177,7 @@ def format_comment(section, comment, namespace, docs):
     Formats the code according to how a comment should be formatted.
     """
     title = find_comment_title(comment)
-    if namespace:
-        namespace = tag("span", namespace, html_class="namespace")
-    return tag("div", tag("h3", namespace + title ) + process_comment_section(comment.split("\n")[1:], docs),
+    return tag("div", tag("h3", title) + process_comment_section(comment.split("\n")[1:], docs),
                "block comment",
                find_comment_id(section, comment))
 
