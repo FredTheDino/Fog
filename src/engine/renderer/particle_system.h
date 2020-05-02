@@ -163,7 +163,7 @@ void destroy_particle_system(ParticleSystem *system);
 
 #ifdef _EXAMPLE_
 FOG_HIDE
-///* ParticleSystem
+//// ParticleSystem
 // <p>
 // A particle system is in charge of handling, rendering and updating a group of
 // particles, It has a ton of knobs and options to tweak how the particles are

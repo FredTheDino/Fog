@@ -48,7 +48,7 @@ u32 toID(Player p) {
     return 0;
 }
 
-///* Player type
+//// Player type
 // <p>
 // Player is an enum bit-field, with enums for P1, P2, P3 and P4. There
 // are also pseudo-players like "ANY" player, which is all players and "NONE"
