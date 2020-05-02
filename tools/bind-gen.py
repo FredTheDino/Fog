@@ -133,7 +133,7 @@ def find_func_name(definition, namespace):
 
 def gen_new_name(name, namespace):
     if namespace:
-        return GLOBAL_NAMESPACE + namespace.lower() + "_" + name.replace("*", "")
+        return GLOBAL_NAMESPACE + (namespace.lower() + "_" if namespace.lower() != "fog" else "") + name.replace("*", "")
     return GLOBAL_NAMESPACE + name.replace("*", "")
 
 def format_function_def(namespace, definition):
@@ -279,7 +279,7 @@ if __name__ == "__main__":
             f.write("\n".join(bodies))
             f.write("\n#undef FOG_IMPORT")
         with open("out/fog.h", "w") as f:
-            f.write("#pragma once")
+            f.write("#pragma once\n")
             f.write(preamble)
             f.write("#include <stdint.h>\n")
             f.write("#include <stdarg.h>\n")
