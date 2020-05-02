@@ -91,7 +91,7 @@ ShapeID add_shape(u32 points_length, Vec2 *points);
 ShapeID add_shape_from_sprite(AssetID sprite_id);
 
 FOG_HIDE
-///* Overlap
+//// Overlap
 // The overlap struct holds collision information,
 // passing this to the solve function will move the bodies so
 // they don't collide anymore and calculate some new velocities.
@@ -101,14 +101,14 @@ FOG_HIDE
 //    <tr><td>Body *</td><td>body_a</td><td>The first body of the collision, the normal points towards this body.</td>
 //    <tr><td>Body *</td><td>body_b</td><td>The second body of the collision, the normal points away from this body.</td>
     f32 depth;
-    Vec2 normal; // Allways points towards a.
+    Vec2 normal;  // Always points towards a.
     b8 is_valid;
 //    <tr><td>f32</td><td>depth</td><td>The depth of the collision</td>
 //    <tr><td>Vec2</td><td>normal</td><td>The vector pointing out of the face for this collision</td>
 //    <tr><td>b8</td><td>is_valid</td><td>If the collision is an actual collision, this is what is returned when the struct is cast to a b8.</td>
 // </table>
 
-///* Body
+//// Body
 // A body is a physical object, anything that can move
 // is a body. They are used to react to collisions and
 // simulate movement if asked for. Some interesting

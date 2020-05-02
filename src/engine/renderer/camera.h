@@ -7,7 +7,7 @@ namespace Renderer {
 #pragma pack(push, 1)
 
 FOG_EXPORT_STRUCT
-///* Camera struct
+//// Camera struct
 // The camera struct is how a camera is controlled. This struct can
 // give you fine grain camera control.
 typedef struct Camera {

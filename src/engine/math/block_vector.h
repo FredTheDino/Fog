@@ -301,12 +301,19 @@ Vec3 V3(Vec4 v) { return {v.x, v.y, v.z}; }
 
 // Exported variants.
 ///*
+//
 Vec2 V2(real x, real y);
+
 ///*
+//
 Vec3 V3(real x, real y, real z);
+
 ///*
+//
 Vec4 V4(real x, real y, real z, real w);
+
 ///*
+//
 Vec3 V3_from_v2(Vec2 v);
 
 Vec2 V2(real x, real y) { return {x, y}; }
@@ -335,7 +342,7 @@ real length(Vec2i a);
 
 
 FOG_HIDE
-///* Vec2
+//// Vec2
 // Functions that can be called specifically on the Vec2.
 
 FOG_HIDE
@@ -456,7 +463,7 @@ FOG_HIDE
 Vec4 V4(Vec2 a, x4=1.0);
 
 FOG_HIDE
-///* Vec4
+//// Vec4
 // Functions that can be called specifically on the Vec4.
 
 FOG_HIDE
@@ -489,54 +496,71 @@ Vec4 V4(real x, real y, real z, real w);
 
 // Vec2 compatibility layer
 ///*
+//
 real dot_v2(Vec2 a, Vec2 b);
 
 ///*
+//
 real length_squared_v2(Vec2 a);
 
 ///*
+//
 real length_v2(Vec2 a);
 
 ///*
+//
 real distance_v2(Vec2 a, Vec2 b);
 
 ///*
+//
 Vec2 normalize_v2(Vec2 a);
 
 ///*
+//
 Vec2 hadamard_v2(Vec2 a, Vec2 b);
 
 ///*
+//
 Vec2 inverse_v2(Vec2 a);
 
 ///*
+//
 Vec2 rotate_ccw_v2(Vec2 p);
 
 ///*
+//
 Vec2 rotate_v2(Vec2 p, real angle);
 
 ///*
+//
 real angle_v2(Vec2 p);
 
 ///*
+//
 real look_at_v2(Vec2 from, Vec2 to);
 
 ///*
+//
 Vec2 neg_v2(Vec2 self);
 
 ///*
+//
 Vec2 add_v2(Vec2 self, Vec2 other);
 
 ///*
+//
 Vec2 sub_v2(Vec2 self, Vec2 other);
 
 ///*
+//
 Vec2 mul_v2(Vec2 self, real scaler);
 
 ///*
+//
 Vec2 div_v2(Vec2 self, real scaler);
 
 ///*
+//
 b8 eq_v2(Vec2 self, Vec2 other);
 
 // Wrapper
@@ -563,39 +587,51 @@ b8 eq_v2(Vec2 self, Vec2 other) { return self == other; }
 
 // Vec3 compatibility layer
 ///*
+//
 real dot_v3(Vec3 a, Vec3 b);
 
 ///*
+//
 Vec3 cross_v3(Vec3 a, Vec3 b);
 
 ///*
+//
 real length_cubed_v3(Vec3 a);
 
 ///*
+//
 real length_squared_v3(Vec3 a);
 
 ///*
+//
 real length_v3(Vec3 a);
 
 ///*
+//
 Vec3 normalize_v3(Vec3 a);
 
 ///*
+//
 Vec3 neg_v3(Vec3 self);
 
 ///*
+//
 Vec3 add_v3(Vec3 self, Vec3 other);
 
 ///*
+//
 Vec3 sub_v3(Vec3 self, Vec3 other);
 
 ///*
+//
 Vec3 mul_v3(Vec3 self, real scaler);
 
 ///*
+//
 Vec3 div_v3(Vec3 self, real scaler);
 
 ///*
+//
 b8 eq_v3(Vec3 self, Vec3 other);
 
 // Implementation
@@ -619,34 +655,45 @@ b8 eq_v3(Vec3 self, Vec3 other) { return self == other; }
 
 // Vec4 compatibility layer
 // Exported
+
 ///*
+//
 real dot_v4(Vec4 a, Vec4 b);
 
 ///*
+//
 real length_squared_v4(Vec4 a);
 
 ///*
+//
 real length_v4(Vec4 a);
 
 ///*
+//
 Vec4 normalize_v4(Vec4 a);
 
 ///*
+//
 Vec4 neg_v4(Vec4 self);
 
 ///*
+//
 Vec4 add_v4(Vec4 self, Vec4 other);
 
 ///*
+//
 Vec4 sub_v4(Vec4 self, Vec4 other);
 
 ///*
+//
 Vec4 mul_v4(Vec4 self, real scaler);
 
 ///*
+//
 Vec4 div_v4(Vec4 self, real scaler);
 
 ///*
+//
 b8 eq_v4(Vec4 self, Vec4 other);
 
 // Implementation

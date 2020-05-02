@@ -177,9 +177,7 @@ def format_comment(section, comment, namespace, docs):
     Formats the code according to how a comment should be formatted.
     """
     title = find_comment_title(comment)
-    if namespace:
-        namespace = tag("span", namespace, html_class="namespace")
-    return tag("div", tag("h3", namespace + title ) + process_comment_section(comment.split("\n")[1:], docs),
+    return tag("div", tag("h3", title) + process_comment_section(comment.split("\n")[1:], docs),
                "block comment",
                find_comment_id(section, comment))
 
@@ -205,18 +203,20 @@ def find_documentation_id(section, comment):
             potential_title = line[5:].strip()
             if potential_title:
                 return potential_title
-        if "(" in line and not "//" in line:
+        if "(" in line and "//" not in line:
             return make_id_friendly(line)
     return "ERROR-NO-ID"
 
 
 def format_documentation(section, comment, namespace, docs):
     """
-    Formants the code according to how a comment should be formatted.
+    Formats the code according to how a comment should be formatted.
     """
     title = find_documentation_title(section, comment, namespace)
     if namespace:
-        namespace = tag("span", namespace, html_class="namespace")
+        namespace = tag("span", "fog_" + namespace.lower() + "_", html_class="namespace")
+    else:
+        namespace = tag("span", "fog_", html_class="namespace")
     return tag("div", tag("h3", namespace + title) + process_comment_section(comment.split("\n")[1:], docs),
                "block doc",
                find_documentation_id(section, comment))

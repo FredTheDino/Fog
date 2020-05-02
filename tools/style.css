@@ -129,15 +129,10 @@ article {
 
 .namespace {
     font-style: bold;
-    color: rgba(0, 0, 0, 0.50);
+    color: rgba(0, 0, 0, 0.66);
     padding-left: 2px;
-    padding-right: 2px;
     font-weight: bold;
     display: inline-block;
-}
-
-.namespace::after {
-    content: "::";
 }
 
 .code-link {
