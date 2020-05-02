@@ -109,6 +109,8 @@ u64 Perf::highp_now() {
     return (tp.tv_sec * 1000000000 + tp.tv_nsec) / 1000;
 }
 
+namespace Fog {
+
 #ifdef DEBUG
 void register_debug_keybinds() {
     using namespace Input;
@@ -339,6 +341,8 @@ void run(FogCallback user_update, FogCallback user_draw) {
 
     _fog_close_app_responsibly();
 }
+
+}  // namespace Fog
 
 void _fog_close_app_responsibly() {
     Mixer::deinit();
