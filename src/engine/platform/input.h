@@ -68,33 +68,6 @@ u32 toID(Player p) {
 // </ul>
 // </p>
 
-#if 0
-///* K(...) macro
-// The K() macro generates a keyboard input code for a specific key,
-// it's usefull to make the code more readable. You give it the last
-// part of a SDLK_* name. (<a href="https://wiki.libsdl.org/SDL_Keycode">link to all possible values</a>)
-K(...)
-
-///* A(...) macro
-// The same as K, but for controller axis, like the left/right sticks
-// and the two triggers. Here it's the SDL_CONTROLLER_AXIS_* part of the
-// name. (<a href="https://wiki.libsdl.org/SDL_GameControllerAxis">link to all possible values</a>)
-A(...)
-
-///* B(...) macro
-// The same as K and A, but for controller buttons, the buttons are given
-// using the Xbox layout. Here it's the SDL_CONTROLLER_BUTTON_* part of the
-// name. (<a href="https://wiki.libsdl.org/SDL_GameControllerButton">link to all possible values</a>)
-B(...)
-
-#endif
-
-//*
-// To add a new "key" or "name" to the input system, an enum in the engine has
-// to be updated. This enum is called "Input::Name" an lives in
-// "/src/engine/platform/input.h". Adding a new name should be done before
-// the "COUNT" element.
-
 enum class ButtonState {
     RELEASED = 0b10,
     UP = 0b00,
