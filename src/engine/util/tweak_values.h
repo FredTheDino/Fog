@@ -42,12 +42,12 @@ b8 tweak(const char *name, Vec2 *value, f32 modifier=1.0);
 b8 tweak(const char *name, Span *value, f32 modifier=1.0);
 
 // Overloaded tweaks without pointers
-void tweak_r(const char *name, b8 value);
-void tweak_r(const char *name, s32 value);
-void tweak_r(const char *name, u32 value);
-void tweak_r(const char *name, f32 value);
-void tweak_r(const char *name, Vec2 value);
-void tweak_r(const char *name, Span value);
+void show(const char *name, b8 value);
+void show(const char *name, s32 value);
+void show(const char *name, u32 value);
+void show(const char *name, f32 value);
+void show(const char *name, Vec2 value);
+void show(const char *name, Span value);
 
 ///* tweak
 // Exposes a value to the tweak GUI, this can be reached when
@@ -74,17 +74,17 @@ b8 tweak_span(const char *name, Span *value, f32 modifier=1.0);
 // Sometimes you just want to show the value of a variable
 // without being able to change it. They are shown in the UI
 // the same as the above tweaks.
-void tweak_b8_r(const char *name, b8 value);
-void tweak_s32_r(const char *name, s32 value);
-void tweak_u32_r(const char *name, u32 value);
-void tweak_f32_r(const char *name, f32 value);
-void tweak_vec2_r(const char *name, Vec2 value);
-void tweak_span_r(const char *name, Span value);
+void show_b8(const char *name, b8 value);
+void show_s32(const char *name, s32 value);
+void show_u32(const char *name, u32 value);
+void show_f32(const char *name, f32 value);
+void show_vec2(const char *name, Vec2 value);
+void show_span(const char *name, Span value);
 
 ///* Pass a string as a tweak
 // This prints out the string as a tweak.
 // Useful if you want your own formatting.
-void tweak_show(char *str);
+void show(char *str);
 
 b8 tweak_b8(const char *name, b8 *value) { return tweak(name, value); }
 b8 tweak_s32(const char *name, s32 *value) { return tweak(name, value); }
@@ -93,10 +93,10 @@ b8 tweak_f32(const char *name, f32 *value, f32 modifier) { return tweak(name, va
 b8 tweak_vec2(const char *name, Vec2 *value, f32 modifier) { return tweak(name, value, modifier); }
 b8 tweak_span(const char *name, Span *value, f32 modifier) { return tweak(name, value, modifier); }
 
-void tweak_b8_r(const char *name, b8 value) { return tweak_r(name, value); }
-void tweak_s32_r(const char *name, s32 value) { return tweak_r(name, value); }
-void tweak_u32_r(const char *name, u32 value) { return tweak_r(name, value); }
-void tweak_f32_r(const char *name, f32 value) { return tweak_r(name, value); }
-void tweak_vec2_r(const char *name, Vec2 value) { return tweak_r(name, value); }
-void tweak_span_r(const char *name, Span value) { return tweak_r(name, value); }
+void show_b8(const char *name, b8 value) { return show(name, value); }
+void show_s32(const char *name, s32 value) { return show(name, value); }
+void show_u32(const char *name, u32 value) { return show(name, value); }
+void show_f32(const char *name, f32 value) { return show(name, value); }
+void show_vec2(const char *name, Vec2 value) { return show(name, value); }
+void show_span(const char *name, Span value) { return show(name, value); }
 };
