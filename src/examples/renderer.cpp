@@ -33,12 +33,13 @@
 // Mist) loads the file. If you are using the default configuration, placing it
 // in the <code>res/</code> folder will suffice.
 // </p>
+AssetID my_sprite_id = fog_asset_fetch_id("MY_SPRITE");
 fog_renderer_push_sprite(
-        0,                  // layer
-        ASSET_MY_SPRITE     // asset id
-        fog_V2(0, 0),       // position
-        fog_V2(1, 1),       // dimension (scaling)
-        0                   // rotation [rad]
+        0,  // layer
+        my_sprite_id,  // asset id
+        fog_V2(0, 0),  // position
+        fog_V2(1, 1),  // dimension (scaling)
+        0,  // rotation [rad]
         fog_V4(1, 1, 1, 1)  // color
 );
 // <p>
@@ -49,9 +50,9 @@ fog_renderer_push_sprite(
 //// Drawing a rectangle
 //
 fog_renderer_push_rectangle(
-        0,                  // layer
-        fog_V2(2, 2),       // position
-        fog_V2(1, 1),       // dimension
+        0,  // layer
+        fog_V2(2, 2),  // position
+        fog_V2(1, 1),  // dimension
         fog_V4(1, 0, 0, 1)  // color
 );
 // <p>
@@ -62,9 +63,19 @@ fog_renderer_push_rectangle(
 
 //// Drawing text
 // Text is always rendered on top of everything else.
-fog_renderer_draw_text("Hello World!", 0, 0, 1, ASSET_MONACO_FONT, ...
-// This will render "Hello World!" at (0, 0) with the height being 1 unit
-// in world coordinates. <span class="note"></span> Still need to check other parameters
+fog_renderer_draw_text(
+        "Hello World!",  // duh
+        0,  // x position (top left corner)
+        0,  // y position (top left corner)
+        1,  // character height
+        monaco_font_id,  // font asset id
+        0,  // alignment
+        fog_V4(1, 1, 1, 1),  // color
+        0,  // edge size
+        1  // border (true/false)
+);
+// The alignment can for example be set to -0.5 in order to
+// make the (x,y) specify the horizontal center.
 
 //// Creating and using a particle system
 // A particle system is a simple way to handle a lot of
