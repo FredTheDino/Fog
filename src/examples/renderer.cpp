@@ -47,6 +47,7 @@ fog_renderer_push_sprite(
 // <p>
 
 //// Drawing a rectangle
+//
 fog_renderer_push_rectangle(
         0,                  // layer
         fog_V2(2, 2),       // position
