@@ -16,8 +16,7 @@ if (fog_input_down(NAME(MY_INPUT), P2) {
     do_more_stuff();
 }
 // <p>
-// <code>do_stuff</code> will be called if the <code>a</code> or <code>b</code> key was pressed
-// THIS FRAME. Since we don't specify a player, it checks for any player.
+// <code>do_stuff</code> will be called if the <code>a</code> or <code>b</code> key was pressed THIS FRAME.
 // </p>
 // <p>
 // <code>do_more_stuff</code> will be called while the <code>b</code> key is held down, since we
