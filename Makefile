@@ -15,7 +15,7 @@ endif
 ENGINE_SOURCE = src/engine/unix_main.cpp
 ENGINE_LIBRARY_NAME = libfog.a
 ENGINE_LIBRARY = $(BIN_DIR)/$(ENGINE_LIBRARY_NAME)
-SOURCES := $(shell find src/ -type f -name "*.*")
+SOURCES := $(shell find src/ -type f -name "*.*" | grep -v "fog_bindings.cpp")
 
 ASSET_BUILDER = $(BIN_DIR)/mist
 ASSET_BUILDER_SOURCE = src/engine/unix_assets.cpp
@@ -35,12 +35,12 @@ BINDINGS = $(BIN_DIR)/fog.h
 BINDINGS += src/fog_bindings.cpp
 
 default: all
-
 all: engine docs mist rain
 
 .NOTPARALLEL: $(ENGINE_LIBRARY)
 engine: $(ENGINE_LIBRARY)
-$(ENGINE_LIBRARY): $(ENGINE_SOURCE) $(SOURCES) | $(BIN_DIR) $(BINDINGS)
+$(ENGINE_LIBRARY): $(ENGINE_SOURCE) $(SOURCES) | $(BIN_DIR)
+	make bindings
 	$(CXX) $(DEBUG_FLAGS) -c -fpic -static $< -o $@ $(LIBS)
 
 rain: $(ENGINE_LIBRARY)
@@ -50,7 +50,8 @@ mist: $(ASSET_BUILDER)
 $(ASSET_BUILDER): $(ASSET_BUILDER_SOURCE) $(ASSET_SOURCE_FILES) | $(BIN_DIR)
 	$(CXX) $(DEBUG_FLAGS) $< -o $@ $(LIBS)
 
-$(BINDINGS):
+.PHONY: bindings
+bindings: | $(BIN_DIR)
 	python3 $(BINDING_GENERATOR)
 
 .PHONY: docs
