@@ -19,7 +19,7 @@ namespace Asset {
 // actual number might change randomly
 // </p>
 
-//// Asset ID
+///* Asset ID
 // An AssetID is a simple and easy way to identify an asset.
 typedef u64 AssetID;
 
