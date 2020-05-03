@@ -1,35 +1,29 @@
 ///# Input examples
 
 //// Adding and using input mappings
-// To add an input mapping, first add the name for the input in the struct
-// "Input::Name" in "/src/engine/platform/input.h". Then the rest is simple,
-// just remember to call it in the initialization function for the game.
-Input::add(K(a), Input::Name::MY_INPUT);
-Input::add(K(LEFT), Input::Name::MY_INPUT, Input::Player::P2);
+// If you're reading this, it's probably easiest to use the input-code from the
+// given templates.
+fog_input_add(fog_key_to_input_code(SDLK_a), NAME(MY_INPUT), P1);
+fog_input_add(fog_key_to_input_code(SDLK_b), NAME(MY_INPUT), P2);
 // This call adds a new mapping, mapping the key "a" on the keyboard
 // to player 1's "MY_INPUT" and mapping left arrow on the keyboard to
 // player 2's "MY_INPUT". To see if the input was activated this
 // frame, simply call:
-if (Input::pressed(Input::Name::MY_INPUT)) {
+if (fog_input_pressed(NAME(MY_INPUT), ANY) {
     do_stuff();
 }
-if (Input::down(Input::Name::MY_INPUT, Input::Player::P2)) {
+if (fog_input_down(NAME(MY_INPUT), P2) {
     do_more_stuff();
 }
 // <p>
-// "do_stuff" will be called if the "a" or "left arrow" key was pressed
+// <code>do_stuff</code> will be called if the <code>a</code> or <code>b</code> key was pressed
 // THIS FRAME. Since we don't specify a player, it checks for any player.
 // </p>
 // <p>
-// "do_more_stuff" will be called while the "left arrow" key is held down, since we
+// <code>do_more_stuff</code> will be called while the <code>b</code> key is held down, since we
 // add the requirement of it being player 2.
 // </p>
-// Assuming the previous section where
-// the mapping was added was called off course.
-// <br>
-// <span class="note"></span>
-// It might be a good idea to "using namespace Input;" if you are going
-// to do a lot of input calls, since it quite quickly becomes very noise.
-
-
-
+// <p>
+// (Assuming the previous section where
+// the mapping was added of course.)
+// </p>

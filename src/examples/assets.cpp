@@ -20,4 +20,4 @@
 // the actual font data, when passing in fonts you want the one ending with
 // "*_FONT". So usage would look like:
 // </p>
-Renderer::draw_text("Blargh!", 0, 0, 1, ASSET_DROID_SANS_FONT);
+fog_renderer_draw_text("Blargh!", 0, 0, 1, ASSET_DROID_SANS_FONT, 0, fog_V4(1, 1, 1, 1), 0, 0);

@@ -11,7 +11,7 @@
 // <p>
 // Playing a sound is really quite simple.
 // </p>
-Mixer::play_sound(0, ASSET_MY_SOUND_FILE);
+fog_mixer_play_sound(0, ASSET_MY_SOUND, 1.0, AUDIO_DEFAULT_GAIN, AUDIO_DEFAULT_VARIANCE, AUDIO_DEFAULT_VARIANCE, 0);
 // This line will play an omnipresent audio source on channel 0 that can be
 // heard unrelated to where the camera is placed in the game world.
 
@@ -19,11 +19,15 @@ Mixer::play_sound(0, ASSET_MY_SOUND_FILE);
 // Every sound is played on a channel. Effects can be enabled on specific
 // channels, so sound A can be played with delay at the same time as sound B
 // which is played without delay.
-Mixer::fetch_channel(0)->set_delay(0.3, 0.2);
-// <p>This will activate a delay on channel 0 with a feedback of 0.3 and length of
+fog_mixer_channel_set_delay(0, 0.3, 0.2, 0);
+// <p>This will immediatly activate a delay on channel 0 with a feedback of 0.3 and length of
 // 0.2 seconds, which means that every sound played is played again 0.2 seconds
 // later with only 30% of the original volume.</p>
 // <p>The delay can then be de-activated at a later point in time.</p>
-Mixer::fetch_channel(0)->delay.active = false;
+fog_mixer_channel_set_delay(0, 0, 0, 0);
 // The effect-parameters can also be changed at any time.
-Mixer::fetch_channel(0)->delay.feedback = 0.5;
+// Since the delay takes two parameters (compared to the one parameter of
+// highpass and lowpass) negative values are ignored for the delay feedback
+// and lengh. This makes you able to change only one value and leave the other
+// intact.
+fog_mixer_channel_set_delay(0, 0.5, -1, 0);

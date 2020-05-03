@@ -31,46 +31,46 @@
 // Drawing a sprite is quite simple, they consist of two main things. A
 // texture, and a quad. To load the quad, make sure the asset loader (called
 // Mist) loads the file. If you are using the default configuration, placing it
-// in the "res/" folder will suffice.
+// in the <code>res/</code> folder will suffice.
 // </p>
-// <p>
-// After recompiling, (or rebuilding the asset file if we are to be precise)
-// a new constant should appear in "src/fog_assets.cpp". This constant should
-// roughly map to the filepath.
-// <p>
-// <p>
-// The rest is now simple, to draw the sprite, you just need to say how
-// you want it drawn.
-// </p>
-Renderer::push_sprite(V2(0, 0), V2(1, 1), V2(32, 32), V2(16, 16), ASSET_MY_SPRITE);
+fog_renderer_push_sprite(
+        0,                  // layer
+        ASSET_MY_SPRITE     // asset id
+        fog_V2(0, 0),       // position
+        fog_V2(1, 1),       // dimension (scaling)
+        0                   // rotation [rad]
+        fog_V4(1, 1, 1, 1)  // color
+);
 // <p>
 // This will draw a sprite with a center position of (0, 0) and where each side
-// is 1 unit long in world coordinates. The sprite will be the sub-image of
-// the supplied image, using the region made by the in the rectangle starting
-// at (32, 32) and going (16, 16) in pixel coordinates.
+// is 1 unit long in world coordinates. 
 // <p>
 
 //// Drawing a rectangle
-// Drawing a rectangle is really quite easy.
-Renderer::push_rectangle(V2(2, 2), V2(2, 2), V4(1, 0, 0, 1));
+fog_renderer_push_rectangle(
+        0,                  // layer
+        fog_V2(2, 2),       // position
+        fog_V2(1, 1),       // dimension
+        fog_V4(1, 0, 0, 1)  // color
+);
 // <p>
-// This call will result in a rectangles, rendered in the world with a center
-// on (2, 2). The four corners of the rectangle will land on (1, 1), (3, 1),
-// (3, 3) and (1, 3). And it will be colord a really ugly red.
+// This call will result in a rectangle rendered in the world with a center
+// in (2, 2). The four corners of the rectangle will land on (1, 1), (3, 1),
+// (3, 3) and (1, 3) and it will be colored a really ugly red.
 // </p>
 
 //// Drawing text
-// Text is really simple to draw and is allways rendered on top of everything
-// else.
-Renderer::draw_text("Hello World!", 0, 0, 1, ASSET_MONACO_FONT);
+// Text is always rendered on top of everything else.
+fog_renderer_draw_text("Hello World!", 0, 0, 1, ASSET_MONACO_FONT, ...
 // This will render "Hello World!" at (0, 0) with the height being 1 unit
-// in world coordinates.
+// in world coordinates. <span class="note"></span> Still need to check other parameters
 
 //// Creating and using a particle system
 // A particle system is a simple way to handle a lot of
 // particles, they are not automatic but are sufficently
 // complex to be usable.
-Renderer::ParticleSystem particle_system = Renderer::create_particle_system(0, 500, V2(0, 0));
+ParticleSystem ps = fog_renderer_create_particle_system(0, 500, fog_V2(0, 0));
 // This creates a particle system on layer 0 at origo, that can hold at most
 // 500 particles emitted at once.
-
+fog_renderer_particle_spawn(&ps, 10);
+// This spawns 10 particles with parameters taken from the particle system.

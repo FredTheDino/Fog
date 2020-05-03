@@ -41,19 +41,20 @@ all: engine docs mist rain
 .NOTPARALLEL: $(ENGINE_LIBRARY)
 engine: $(ENGINE_LIBRARY)
 $(ENGINE_LIBRARY): $(ENGINE_SOURCE) $(SOURCES) | $(BIN_DIR) $(BINDINGS)
-	$(CXX) $(DEBUG_FLAGS) -c -fpic -static $< -o $@ -L$(LIB_DIR) $(LIBS)
+	$(CXX) $(DEBUG_FLAGS) -c -fpic -static $< -o $@ $(LIBS)
 
 rain: $(ENGINE_LIBRARY)
 	make -C src/rain
 
 mist: $(ASSET_BUILDER)
 $(ASSET_BUILDER): $(ASSET_BUILDER_SOURCE) $(ASSET_SOURCE_FILES) | $(BIN_DIR)
-	$(CXX) $(DEBUG_FLAGS) $< -o $@ -L$(LIB_DIR) $(LIBS)
+	$(CXX) $(DEBUG_FLAGS) $< -o $@ $(LIBS)
 
 $(BINDINGS):
 	python3 $(BINDING_GENERATOR)
 
-docs: $(ENGINE_LIBRARY)
+.PHONY: docs
+docs:
 	python3 $(DOCUMENTATION_GENERATOR)
 
 .PHONY: clean

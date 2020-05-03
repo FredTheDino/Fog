@@ -1,4 +1,7 @@
 ///# Logic examples
+// <span class="note"></span>
+// This hasn't yet been updated with C-linkage in mind.
+// <br>
 // Some examples showing how to interface with the
 // logic system, adding and removing callbacks and
 // making the use of them practical and efficent.
