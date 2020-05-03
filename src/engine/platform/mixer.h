@@ -153,6 +153,7 @@ Channel *fetch_channel(u32 channel_id);
 // Sets target delay on the channel with the specified settings. The feedback
 // and length is changed over time and reaches their targets after in_seconds
 // seconds.
+// Negative values for feedback and/or len_seconds are ignored.
 void channel_set_delay(u32 channel_id, f32 feedback, f32 len_seconds, f32 in_seconds = 1.0);
 
 ///*
