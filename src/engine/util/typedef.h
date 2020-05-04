@@ -17,13 +17,22 @@ typedef double f64;
 FOG_EXPORT
 typedef uint8_t b8;
 
-// Trubble makers
+// Trouble makers
+
 FOG_EXPORT
 typedef long long s64;  // We assume these are a thing.
+
 FOG_EXPORT
 typedef unsigned long long u64;  // We assume these are a thing.
+
 static_assert(sizeof(s64) == 8, "Invalid s64 size, change s64 to a int64_t, will produce warnings.");
 static_assert(sizeof(u64) == 8, "Invalid u64 size, change s64 to a uint64_t, will produce warnings.");
 
 FOG_EXPORT
 typedef f32 real;  // Type used in vectors.
+
+////
+// The type for fog callbacks, these are
+// entry-points for fog into your code.
+FOG_EXPORT
+typedef void(*FogCallback)(void);

@@ -170,12 +170,6 @@ void quit() {
     SDL::running = false;
 }
 
-////
-// The type for fog callbacks, these are
-// entry-points for fog into your code.
-FOG_EXPORT
-typedef void(*FogCallback)(void);
-
 ///*
 // Starts the game, calls the supplied update function
 // when an update is needed, and calls draw when a draw

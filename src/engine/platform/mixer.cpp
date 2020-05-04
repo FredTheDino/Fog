@@ -1,18 +1,5 @@
 namespace Mixer {
 
-struct SoundSource {
-    f32 sample;
-    AssetID source;
-    u32 channel;
-    f32 pitch;
-    f32 gain;
-    b8 looping;
-    b8 positional;
-    Vec2 position;
-
-    u8 gen;
-};
-
 struct AudioStruct {
     SoundSource sources[NUM_SOURCES];
     u16 num_free_sources;
@@ -142,6 +129,12 @@ AudioID push_sound(SoundSource source) {
     return {0, NUM_SOURCES};
 }
 
+SoundSource *fetch_source(AudioID id) {
+    SoundSource *source = audio_struct.sources + id.slot;
+    CHECK(source->gen == id.gen, "Invalid AudioID, the handle is outdated");
+    return source;
+}
+
 AudioID play_sound(u32 channel_id, AssetID asset_id, f32 pitch, f32 gain, f32 pitch_variance,
                    f32 gain_variance, b8 loop) {
     ASSERT(channel_id < NUM_CHANNELS, "Invalid channel");
@@ -160,13 +153,24 @@ AudioID play_sound_at(u32 channel_id, AssetID asset_id, Vec2 position, f32 pitch
 void stop_sound(AudioID id) {
     ASSERT(id.slot < NUM_SOURCES, "Invalid index in ID");
     lock_audio();
-    SoundSource *source = audio_struct.sources + id.slot;
-    CHECK(source->gen == id.gen, "Invalid AudioID, the handle is outdated");
+    SoundSource *source = fetch_source(id);
     if (source->gen == id.gen) {
         audio_struct.free_sources[audio_struct.num_free_sources++] = id.slot;
         source->gain = 0.0;
     } else {
         ERR("Invalid removal of AudioID that does not exist");
+    }
+    unlock_audio();
+}
+
+void post_sound_hook(AudioID id, FogCallback post_hook) {
+    ASSERT(id.slot < NUM_SOURCES, "Invalid index in ID");
+    lock_audio();
+    SoundSource *source = fetch_source(id);
+    if (source->gen == id.gen) {
+        source->post_hook = post_hook;
+    } else {
+        ERR("Tried to attach a post hook to an AudioID that does not exist");
     }
     unlock_audio();
 }
@@ -229,6 +233,7 @@ void audio_callback(void* userdata, u8* stream, int len) {
                 } else {
                     data->free_sources[data->num_free_sources++] = source_id;
                     source->gain = 0.0;
+                    source->post_hook();
                     break;
                 }
             }
