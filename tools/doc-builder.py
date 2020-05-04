@@ -193,7 +193,7 @@ def find_documentation_title(heading, comment, namespace):
             if potential_title:
                 return potential_title
         for word in line.split(" "):
-            if "(" in word:
+            if "(" in word and "//" not in line:
                 return word[:word.index("(")].replace("*", "")
     return "ERROR-NO-TITLE"
 
