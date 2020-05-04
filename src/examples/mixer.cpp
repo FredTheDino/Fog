@@ -31,3 +31,15 @@ fog_mixer_channel_set_delay(0, 0, 0, 0);
 // and lengh. This makes you able to change only one value and leave the other
 // intact.
 fog_mixer_channel_set_delay(0, 0.5, -1, 0);
+
+//// Queueing sounds and events
+// If you want something to happen when a sound is done playing (be it playing
+// another sound or maybe spawning an enemy?) you can add a post-hook to an
+// already playing sound.
+void stuff() {
+    printf("Bottom text\n");
+}
+AudioID id = fog_mixer_play_sound(...);
+fog_mixer_post_sound_hook(id, stuff);
+// You can remove a hook before it is executed by passing a null pointer.
+fog_mixer_post_sound_hook(id, NULL);
