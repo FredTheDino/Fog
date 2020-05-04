@@ -32,7 +32,7 @@ void insert(Binding binding) {
     global_mapping.used_bindings += 1;
 }
 
-b8 add(InputCode code, Name name, Player player) {
+b8 add_mod(InputCode code, Name name, Player player, f32 modifier) {
     Binding binding = {code, player, name, 0};
 
     // Check if there is a free binding.
@@ -43,7 +43,7 @@ b8 add(InputCode code, Name name, Player player) {
     for (u32 i = 0; i < NUM_ALTERNATIVE_BINDINGS; i++) {
         if (buttons[index + i].is_used()) continue;
         binding.binding_id = i;
-        buttons[index + i].reset(name);
+        buttons[index + i].reset(name, modifier);
         valid = true;
         break;
     }
@@ -135,7 +135,7 @@ b8 using_controller() {
 }
 
 #define BEGIN_BINDINGS_BLOCK                                 \
-    if (global_mapping.text_input) return false;               \
+    if (global_mapping.text_input) return false;             \
     for (u32 p = 0; p < (u32) Player::NUM; p++) {            \
         Player p_mask = Player(1 << p);                      \
         if (!is(player, p_mask)) continue;                   \
@@ -201,7 +201,7 @@ f32 value(Name name, Player player) {
     BEGIN_BINDINGS_BLOCK {
         if (!button.is_down()) continue;
         num_down++;
-        value += button.value;
+        value += button.value * button.modifier;
     }
     END_BINDINGS_BLOCK
     if (num_down) return value / num_down;

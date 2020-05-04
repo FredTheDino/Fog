@@ -101,6 +101,7 @@ struct Binding {
     Player player;
     Name name;
     u8 binding_id;
+    s32 inverted;
 
     b8 operator==(InputCode &other) const {
         return name != NO_INPUT && code == other;
@@ -136,6 +137,7 @@ struct Mapping {
 
     struct VirtualButton {
         Name name;
+        f32 modifier;
         ButtonState state;
         f32 value;
 
@@ -144,7 +146,7 @@ struct Mapping {
             state = v ? ButtonState::PRESSED : ButtonState::RELEASED;
         }
 
-        void reset(Name name) { *this = {name}; }
+        void reset(Name name, f32 modifier) { *this = {name, modifier}; }
         b8 is_down() { return (u32)state & (u32)ButtonState::DOWN; }
         b8 is_used() { return name != NO_INPUT; }
     };
@@ -223,12 +225,20 @@ void type_text(const char *string);
 // is changed.
 b8 edit_string(char *text, u32 max_length);
 
-///* add
-// Register a new mapping to the input system.<br>
-// code, the keycode, should be recived from calling K(DESIRED_KEY), DESIRED_KEY
-// should be lowercase letters for normal keys and UPPERCASE for special keys.
+///*
+// Register a new mapping to the input system.
+// The value returned from value(...) is multiplied with modifier.
 // Player, the player that has this binding, can be P1, P2, P3, P4.
-b8 add(InputCode code, Name name, Player player=P1);
+b8 add_mod(InputCode code, Name name, Player player, f32 modifier);
+
+///*
+// Register a new mapping to the input system.
+// Player, the player that has this binding, can be P1, P2, P3, P4.
+b8 add(InputCode code, Name name, Player player);
+
+b8 add(InputCode code, Name name, Player player=P1) {
+    return add_mod(code, name, player, 1.0f);
+}
 
 ///*
 // Returns true if the input button, stick or key was pressed or released this frame.
