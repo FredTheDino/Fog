@@ -20,6 +20,21 @@ const u32 CHANNEL_BUFFER_LENGTH_SECONDS = 3;  // ~2MB
 const u32 CHANNEL_BUFFER_LENGTH = AUDIO_SAMPLE_RATE * CHANNEL_BUFFER_LENGTH_SECONDS * 2;  // two channels
 const f32 SAMPLE_LIMIT = 1.0;
 
+struct SoundSource {
+    f32 sample;
+    AssetID source;
+    u32 channel;
+    f32 pitch;
+    f32 gain;
+    b8 looping;
+    b8 positional;
+    Vec2 position;
+
+    u8 gen;
+
+    FogCallback post_hook;
+};
+
 struct AudioMixer {
     u64 num_sounds;
     Sound **sound;
@@ -143,6 +158,10 @@ AudioID play_sound_at(u32 channel_id, AssetID asset_id,
 ///*
 // Stops a sound from playing.
 void stop_sound(AudioID id);
+
+///*
+// Attach a function to be called when a particular source is done playing.
+void attach_post_sound_hook(AudioID id, FogCallback post_hook);
 
 //
 // Returns a pointer to a channel. Returns nullptr if the channel_id isn't
