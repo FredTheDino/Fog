@@ -101,7 +101,6 @@ struct Binding {
     Player player;
     Name name;
     u8 binding_id;
-    s32 inverted;
 
     b8 operator==(InputCode &other) const {
         return name != NO_INPUT && code == other;
