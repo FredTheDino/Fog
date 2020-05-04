@@ -163,7 +163,7 @@ void stop_sound(AudioID id) {
     unlock_audio();
 }
 
-void attach_post_sound_hook(AudioID id, FogCallback post_hook) {
+void post_sound_hook(AudioID id, FogCallback post_hook) {
     ASSERT(id.slot < NUM_SOURCES, "Invalid index in ID");
     lock_audio();
     SoundSource *source = fetch_source(id);

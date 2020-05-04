@@ -161,7 +161,7 @@ void stop_sound(AudioID id);
 
 ///*
 // Attach a function to be called when a particular source is done playing.
-void attach_post_sound_hook(AudioID id, FogCallback post_hook);
+void post_sound_hook(AudioID id, FogCallback post_hook);
 
 //
 // Returns a pointer to a channel. Returns nullptr if the channel_id isn't
