@@ -233,7 +233,8 @@ void audio_callback(void* userdata, u8* stream, int len) {
                 } else {
                     data->free_sources[data->num_free_sources++] = source_id;
                     source->gain = 0.0;
-                    source->post_hook();
+                    if (source->post_hook)
+                        source->post_hook();
                     break;
                 }
             }
