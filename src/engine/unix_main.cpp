@@ -43,7 +43,8 @@ b8 debug_values_are_on();
 #include "math.h"
 
 #ifdef DEBUG
-static b8 show_perf = false;
+static b8 show_perf_text = false;
+static b8 show_perf_graph = false;
 static b8 debug_view = false;
 static b8 show_debug_values = true;
 
@@ -58,7 +59,8 @@ b8 debug_values_are_on() {
 Input::Name QUIT;
 Input::Name TWEAK_SMOOTH;
 Input::Name TWEAK_STEP;
-Input::Name DEBUG_PERF;
+Input::Name DEBUG_PERF_TEXT;
+Input::Name DEBUG_PERF_GRAPH;
 Input::Name DEBUG_VIEW;
 Input::Name DEBUG_VALUES;
 #else
@@ -66,7 +68,8 @@ Input::Name DEBUG_VALUES;
 Input::Name TWEAK_SMOOTH;
 Input::Name TWEAK_STEP;
 
-constexpr b8 show_perf = false;
+constexpr b8 show_perf_text = false;
+constexpr b8 show_perf_graph = false;
 constexpr b8 show_debug_values = false;
 
 b8 debug_values_are_on() {
@@ -118,7 +121,8 @@ void register_debug_keybinds() {
     QUIT = request_name();
     TWEAK_SMOOTH = request_name();
     TWEAK_STEP = request_name();
-    DEBUG_PERF = request_name();
+    DEBUG_PERF_TEXT = request_name();
+    DEBUG_PERF_GRAPH = request_name();
     DEBUG_VIEW = request_name();
     DEBUG_VALUES = request_name();
 }
@@ -134,18 +138,20 @@ void setup_debug_keybinds() {
     CHECK(add(K(LCTRL), TWEAK_STEP),
           "Failed to create mapping");
 
-    CHECK(add(K(F1), DEBUG_PERF),
+    CHECK(add(K(F1), DEBUG_PERF_TEXT),
           "Failed to create mapping");
 
-    CHECK(add(K(F2), DEBUG_VIEW),
+    CHECK(add(K(F2), DEBUG_PERF_GRAPH),
           "Failed to create mapping");
 
     CHECK(add(K(F3), DEBUG_VALUES),
           "Failed to create mapping");
 
     const auto debug_callback = [](f32, f32, f32, void*) {
-        if (pressed(DEBUG_PERF))
-            show_perf = !show_perf;
+        if (pressed(DEBUG_PERF_TEXT))
+            show_perf_text = !show_perf_text;
+        if (pressed(DEBUG_PERF_GRAPH))
+            show_perf_graph = !show_perf_graph;
         if (pressed(DEBUG_VIEW))
             debug_view = !debug_view;
         if (pressed(DEBUG_VALUES))
@@ -191,8 +197,10 @@ void update();
 void update() {
     Logic::frame(SDL_GetTicks() / 1000.0f);
 
-    if (show_perf)
-        Perf::report();
+    if (show_perf_text)
+        Perf::report_text();
+    if (show_perf_graph)
+        Perf::report_graph();
     Util::clear_tweak_values();
     Perf::clear();
     START_PERF(MAIN);
@@ -201,8 +209,10 @@ void update() {
     STOP_PERF(INPUT);
     SDL::poll_events();
 
+    START_PERF(UPDATE);
     Logic::call(Logic::At::PRE_UPDATE);
     Logic::call(Logic::At::POST_UPDATE);
+    STOP_PERF(UPDATE);
 
     Mixer::audio_struct.position = Renderer::fetch_camera()->position;
 }
@@ -297,8 +307,10 @@ void run(FogCallback user_update, FogCallback user_draw) {
     while (SDL::running) {
         Logic::frame(SDL_GetTicks() / 1000.0f);
 
-        if (show_perf)
-            Perf::report();
+        if (show_perf_text)
+            Perf::report_text();
+        if (show_perf_graph)
+            Perf::report_graph();
         Util::clear_tweak_values();
         Perf::clear();
         START_PERF(MAIN);
@@ -312,10 +324,12 @@ void run(FogCallback user_update, FogCallback user_draw) {
             SDL::running = false;
 #endif
 
+        START_PERF(UPDATE);
         Logic::call(Logic::At::PRE_UPDATE);
         // User defined
         user_update();
         Logic::call(Logic::At::POST_UPDATE);
+        STOP_PERF(UPDATE);
 
         Mixer::audio_struct.position = Renderer::fetch_camera()->position;
 

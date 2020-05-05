@@ -2,8 +2,14 @@ namespace Perf {
 
 ///# Performance
 // The Perf namespace makes it simple and easy to accumulate performance
-// metrics. But getting it up and running can be a bit tricky, you have to add
-// your own maker to the Perf::MarkerID in the "src/engine/util/performance.h".
+// metrics. To get started, add your own marker to Perf::MarkerID in
+// <code>src/engine/util/performance.h</code> and call
+// <code>START_PERF(..)</code> and <code>STOP_PERF(..)</code> where appropriate.
+// <span class="note"></span> It is currently not possible to add markers to
+// games. This is mainly meant for internal use.
+
+#define PERF_BUF_BIN_SIZE 6
+#define PERF_BUF_BIN_AMOUNT 100
 
 struct Clock {
     const char *name;
@@ -12,6 +18,10 @@ struct Clock {
     u64 count;
     u64 start;
     f64 time;
+
+    u32 buf_index;
+    u32 time_max_index;
+    f64 times[PERF_BUF_BIN_SIZE * PERF_BUF_BIN_AMOUNT];
 
     f64 last_time;
     u64 last_count;
@@ -22,13 +32,11 @@ struct Clock {
 FOG_EXPORT_STRUCT
 typedef enum {
     MAIN,
-    INPUT,
+    UPDATE,
     RENDER,
-    TEXT,
 
-    ENTITY_UPDATE,
-    ENTITY_DRAW,
-    ENTITY_DEFRAG,
+    INPUT,
+    TEXT,
 
     AUDIO,
     AUDIO_SOURCES,
@@ -54,7 +62,8 @@ void _stop_perf_clock(MarkerID id);
 #define OTHER_THREAD(marker) Perf::_mark_perf_clock(Perf::marker)
 void _mark_perf_clock(MarkerID id);
 
-void report();
+void report_text();
+void report_graph();
 
 }  // namespace Perf
 
