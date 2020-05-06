@@ -8,8 +8,9 @@ namespace Perf {
 // <span class="note"></span> It is currently not possible to add markers to
 // games. This is mainly meant for internal use.
 
-#define PERF_BUF_BIN_SIZE 6
+#define PERF_BUF_BIN_SIZE 4
 #define PERF_BUF_BIN_AMOUNT 100
+#define PERF_BUF_LEN (PERF_BUF_BIN_AMOUNT * PERF_BUF_BIN_SIZE)
 
 struct Clock {
     const char *name;

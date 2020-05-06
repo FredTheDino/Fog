@@ -11,7 +11,6 @@ void clear() {
 
         clock->times[clock->buf_index] = time;
 
-        //TODO(gu) it feels like there's a better way of doing this
         if (clock->buf_index == clock->time_max_index) {
             // current max value has been overwritten, find the new max
             f64 max = clock->times[0];
@@ -120,9 +119,9 @@ void report_text() {
     for (u64 i = 0; i < NUMBER_OF_MARKERS; i++) {
         // TODO(ed): Lock audio thread here.
         volatile Clock *clock = clocks + i;
-        snprintf(buffer, buffer_size, "%s %-17s- %5llu %9.3f %9.3f %9.3f",
-                clock->other_thread ? "*": " ",
-                clock->name, clock->last_count,
+        snprintf(buffer, buffer_size, " %s %-16s- %5llu %9.3f %9.3f %9.3f",
+                clock->other_thread ? "*": " ", clock->name,
+                clock->last_count,
                 clock->last_time / frame_time,
                 clock->last_time / clock->last_count,
                 clock->total_time / clock->total_count);
@@ -137,12 +136,12 @@ void report_text() {
 }
 
 void report_graph() {
+    static b8 bin_avg = false;
+
     // TODO
     // - names
-    // - only show on (debug) button press
     // - color
-    // - fit height
-    // - react to zoom, window size
+    // - calculate sizes/position
 
     f32 x;
     f32 y = 0.9;
@@ -163,20 +162,39 @@ void report_graph() {
 
         x = -0.9;
 
+        u32 index = (clock->buf_index
+                     + ((PERF_BUF_BIN_SIZE
+                         - clock->buf_index)
+                        % PERF_BUF_BIN_SIZE))
+                    % PERF_BUF_LEN;
+        /* This makes sure we always bin the same values, regardless of where we start.
+         * e.g. bin_size = 3:
+         *   8  -> 9
+         *   9  -> 9
+         *   10 -> 12
+         */
+
         f64 prev_time_bin = 0;
-        // first bin
         for (u32 i = 0; i < PERF_BUF_BIN_SIZE; i++) {
-            prev_time_bin += clock->times[i];
+            if (bin_avg) {
+                prev_time_bin += clock->times[index] / (f64) PERF_BUF_BIN_SIZE;
+            } else if (clock->times[index] > prev_time_bin) {
+                prev_time_bin = clock->times[index];
+            }
+            index = (index + 1) % PERF_BUF_LEN;
         }
-        prev_time_bin /= (f64) PERF_BUF_BIN_SIZE;
 
         f64 time_bin;
-        for (u32 bin = 1; bin < PERF_BUF_BIN_AMOUNT; bin++) {
+        for (u32 bin = 1; bin < PERF_BUF_BIN_AMOUNT-1; bin++) {  // The last bin is wip most of the time so skip it
             time_bin = 0;
             for (u32 i = 0; i < PERF_BUF_BIN_SIZE; i++) {
-                time_bin += clock->times[bin*PERF_BUF_BIN_SIZE + i];
+                if (bin_avg) {
+                    time_bin += clock->times[index] / (f64) PERF_BUF_BIN_SIZE;
+                } else if (clock->times[index] > time_bin) {
+                    time_bin = clock->times[index];
+                }
+                index = (index + 1) % PERF_BUF_LEN;
             }
-            time_bin /= (f64) PERF_BUF_BIN_SIZE;
 
             Renderer::push_line(15,
                                 V2(x, y + (max_height * (prev_time_bin / max_value))),
@@ -187,13 +205,17 @@ void report_graph() {
             prev_time_bin = time_bin;
         }
 
+        /*
         // "now"-line
         x = -0.9 - 0.018 + (0.018 * (clock->buf_index / PERF_BUF_BIN_SIZE)) + (0.018 * (clock->buf_index % PERF_BUF_BIN_SIZE) / PERF_BUF_BIN_SIZE);
         Renderer::push_line(15, V2(x, y), V2(x, y + 0.12), V4(1, 0, 0, 1), 0.005);
+        */
 
+        /*
         // peak-line
         x = -0.9 - 0.018 + (0.018 * (clock->time_max_index / PERF_BUF_BIN_SIZE)) + (0.018 * (clock->time_max_index % PERF_BUF_BIN_SIZE) / PERF_BUF_BIN_SIZE);
         Renderer::push_line(15, V2(x, y), V2(x, y + 0.12), V4(1, 0, 0, 1), 0.005);
+        */
 
         y -= 0.12;
     }
