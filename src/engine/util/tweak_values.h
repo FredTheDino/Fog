@@ -42,12 +42,13 @@ b8 tweak(const char *name, Vec2 *value, f32 modifier=1.0);
 b8 tweak(const char *name, Span *value, f32 modifier=1.0);
 
 // Overloaded tweaks without pointers
-void show(const char *name, b8 value);
-void show(const char *name, s32 value);
-void show(const char *name, u32 value);
-void show(const char *name, f32 value);
-void show(const char *name, Vec2 value);
-void show(const char *name, Span value);
+b8 show(const char *name, b8 value);
+b8 show(const char *name, s32 value);
+b8 show(const char *name, u32 value);
+b8 show(const char *name, f32 value);
+b8 show(const char *name, Vec2 value);
+b8 show(const char *name, Span value);
+b8 show(const char *name, char *value);
 
 ///* tweak
 // Exposes a value to the tweak GUI, this can be reached when
@@ -74,12 +75,13 @@ b8 tweak_span(const char *name, Span *value, f32 modifier=1.0);
 // Sometimes you just want to show the value of a variable
 // without being able to change it. They are shown in the UI
 // the same as the above tweaks.
-void show_b8(const char *name, b8 value);
-void show_s32(const char *name, s32 value);
-void show_u32(const char *name, u32 value);
-void show_f32(const char *name, f32 value);
-void show_vec2(const char *name, Vec2 value);
-void show_span(const char *name, Span value);
+b8 show_b8(const char *name, b8 value);
+b8 show_s32(const char *name, s32 value);
+b8 show_u32(const char *name, u32 value);
+b8 show_f32(const char *name, f32 value);
+b8 show_vec2(const char *name, Vec2 value);
+b8 show_span(const char *name, Span value);
+b8 show_str(const char *name, char *value);
 
 ///* Pass a string as a tweak
 // This prints out the string as a tweak.
@@ -93,10 +95,12 @@ b8 tweak_f32(const char *name, f32 *value, f32 modifier) { return tweak(name, va
 b8 tweak_vec2(const char *name, Vec2 *value, f32 modifier) { return tweak(name, value, modifier); }
 b8 tweak_span(const char *name, Span *value, f32 modifier) { return tweak(name, value, modifier); }
 
-void show_b8(const char *name, b8 value) { return show(name, value); }
-void show_s32(const char *name, s32 value) { return show(name, value); }
-void show_u32(const char *name, u32 value) { return show(name, value); }
-void show_f32(const char *name, f32 value) { return show(name, value); }
-void show_vec2(const char *name, Vec2 value) { return show(name, value); }
-void show_span(const char *name, Span value) { return show(name, value); }
-};
+b8 show_b8(const char *name, b8 value) { return show(name, value); }
+b8 show_s32(const char *name, s32 value) { return show(name, value); }
+b8 show_u32(const char *name, u32 value) { return show(name, value); }
+b8 show_f32(const char *name, f32 value) { return show(name, value); }
+b8 show_vec2(const char *name, Vec2 value) { return show(name, value); }
+b8 show_span(const char *name, Span value) { return show(name, value); }
+b8 show_str(const char *name, char *value) { return show(name, value); }
+
+}  // namespace Util

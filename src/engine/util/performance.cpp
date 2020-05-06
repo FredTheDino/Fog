@@ -106,33 +106,34 @@ void report_text() {
     const int buffer_size = 256;
     char buffer[buffer_size];
 
-    f32 y = Util::debug_top_of_screen();
-    f32 dy = Util::debug_line_height();
+    static b8 performance_section = false;
+    if (Util::begin_tweak_section("PERFORMANCE", &performance_section)) {
+        snprintf(buffer, buffer_size,
+                "   %-16s- %5s %9s %9s %9s",
+                "NAME", "C", "T/TOT", "T/C", "Avg. T/C");
+        Util::show(buffer);
 
-    Util::debug_text("=== PERFORMANCE ===", y -= dy);
-
-    snprintf(buffer, buffer_size,
-            "  %-17s- %5s %9s %9s %9s",
-            "NAME", "C", "T/TOT", "T/C", "Avg. T/C");
-    Util::debug_text(buffer, y -= dy);
-
-    for (u64 i = 0; i < NUMBER_OF_MARKERS; i++) {
-        // TODO(ed): Lock audio thread here.
-        volatile Clock *clock = clocks + i;
-        snprintf(buffer, buffer_size, " %s %-16s- %5llu %9.3f %9.3f %9.3f",
-                clock->other_thread ? "*": " ", clock->name,
-                clock->last_count,
-                clock->last_time / frame_time,
-                clock->last_time / clock->last_count,
-                clock->total_time / clock->total_count);
-        Util::debug_text(buffer, y -= dy);
+        for (u32 i = 0; i < NUMBER_OF_MARKERS; i++) {
+            // TODO(ed): Lock audio thread here.
+            volatile Clock *clock = clocks + i;
+            snprintf(buffer, buffer_size, "%s%s %-16s- %5llu %9.3f %9.3f %9.3f",
+                    clock->other_thread ? "*": " ",
+                    clock->draw ? "D": " ",
+                    clock->name,
+                    clock->last_count,
+                    clock->last_time / frame_time,
+                    clock->last_time / clock->last_count,
+                    clock->total_time / clock->total_count);
+            if (Util::show(clock->name, buffer)) {
+                clock->draw = !clock->draw;
+            }
+        }
+        snprintf(buffer, buffer_size, "   %-16s: %5lld",
+                 "FREE ARENAS", Util::global_memory.num_free_regions);
+        Util::show(buffer);
     }
-    y -= dy;
+    Util::end_tweak_section(&performance_section);
 
-    Util::debug_text("=== MEMORY ===", y -= dy);
-    snprintf(buffer, buffer_size, "  %-17s: %5lld",
-             "FREE ARENAS", Util::global_memory.num_free_regions);
-    Util::debug_text(buffer, y -= dy);
 }
 
 void report_graph() {

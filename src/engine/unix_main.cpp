@@ -43,7 +43,7 @@ b8 debug_values_are_on();
 #include "math.h"
 
 #ifdef DEBUG
-static b8 show_perf_text = false;
+static b8 show_perf_text = true;
 static b8 show_perf_graph = false;
 static b8 debug_view = false;
 static b8 show_debug_values = true;
