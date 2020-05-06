@@ -133,7 +133,6 @@ void report_text() {
         Util::show(buffer);
     }
     Util::end_tweak_section(&performance_section);
-
 }
 
 void report_graph() {
@@ -145,25 +144,33 @@ void report_graph() {
     // - calculate sizes/position
 
     f32 x;
-    f32 y = 0.9;
+    f32 y = -0.9;
 
-    f32 max_value;
-    f32 max_height = 0.08;
+    f32 max_value = 0.0f;
+    
+    for (u32 mark = 0; mark < NUMBER_OF_MARKERS; mark++) {
+        volatile Clock *clock = clocks + mark;
+        if (!clock->draw) continue;
+        if (clock->times[clock->time_max_index] > max_value)
+            max_value = clock->times[clock->time_max_index];
+    }
+    if (max_value == 0.0f) return;
+
+    f32 max_height = 0.4;
 
     for (u64 mark = 0; mark < NUMBER_OF_MARKERS; mark++) {
         volatile Clock *clock = clocks + mark;
         if (!clock->draw) continue;
 
-        Renderer::push_line(15, V2(-1, y), V2(1, y), V4(0, 0, 0, 1), 0.005);
+        //Renderer::push_line(15, V2(-1, y), V2(1, y), V4(0, 0, 0, 1), 0.005);
 
-        max_value = clock->times[clock->time_max_index];
+        //max_value = clock->times[clock->time_max_index];
         if (max_value == 0.0f) {
             Renderer::push_line(15, V2(-0.9, y), V2(-0.9 + (0.018 * PERF_BUF_BIN_AMOUNT), y), V4(1, 1, 1, 1), 0.005);
-            y -= 0.12;
             continue;
         }
 
-        x = -0.9;
+        x = -1;
 
         u32 index = (clock->buf_index
                      + ((PERF_BUF_BIN_SIZE
@@ -204,10 +211,9 @@ void report_graph() {
                                 V2(x + 0.02, y + (max_height * (time_bin / max_value))),
                                 V4(1, 1, 1, 1),
                                 0.005);
-            x += 0.018;
+            x += 2 / (f32) PERF_BUF_BIN_AMOUNT;
             prev_time_bin = time_bin;
         }
-        y -= 0.12;
     }
 }
 
