@@ -314,13 +314,18 @@ Vec4 V4(real x, real y, real z, real w);
 
 ///*
 //
-Vec3 V3_from_v2(Vec2 v);
+Vec3 V3_from_v2(Vec2 v, real z);
+
+///*
+//
+Vec4 V4_from_v3(Vec3 v, real w);
 
 Vec2 V2(real x, real y) { return {x, y}; }
 Vec3 V3(real x, real y, real z) { return {x, y, z}; }
 Vec4 V4(real x, real y, real z, real w) { return {x, y, z, w}; }
 
-Vec3 V3_from_v2(Vec2 v) { return {v.x, v.y, 0}; }
+Vec3 V3_from_v2(Vec2 v, real z) { return {v.x, v.y, z}; }
+Vec4 V4_from_v3(Vec3 v, real w) { return {v.x, v.y, v.z, w}; }
 
 #if _FOG_EXAMPLE
 //
