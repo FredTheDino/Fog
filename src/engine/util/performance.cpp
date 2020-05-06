@@ -150,9 +150,11 @@ void report_graph() {
     f32 max_height = 0.08;
 
     for (u64 mark = 0; mark < NUMBER_OF_MARKERS; mark++) {
+        volatile Clock *clock = clocks + mark;
+        if (!clock->draw) continue;
+
         Renderer::push_line(15, V2(-1, y), V2(1, y), V4(0, 0, 0, 1), 0.005);
 
-        volatile Clock *clock = clocks + mark;
         max_value = clock->times[clock->time_max_index];
         if (max_value == 0.0f) {
             Renderer::push_line(15, V2(-0.9, y), V2(-0.9 + (0.018 * PERF_BUF_BIN_AMOUNT), y), V4(1, 1, 1, 1), 0.005);
@@ -204,19 +206,6 @@ void report_graph() {
             x += 0.018;
             prev_time_bin = time_bin;
         }
-
-        /*
-        // "now"-line
-        x = -0.9 - 0.018 + (0.018 * (clock->buf_index / PERF_BUF_BIN_SIZE)) + (0.018 * (clock->buf_index % PERF_BUF_BIN_SIZE) / PERF_BUF_BIN_SIZE);
-        Renderer::push_line(15, V2(x, y), V2(x, y + 0.12), V4(1, 0, 0, 1), 0.005);
-        */
-
-        /*
-        // peak-line
-        x = -0.9 - 0.018 + (0.018 * (clock->time_max_index / PERF_BUF_BIN_SIZE)) + (0.018 * (clock->time_max_index % PERF_BUF_BIN_SIZE) / PERF_BUF_BIN_SIZE);
-        Renderer::push_line(15, V2(x, y), V2(x, y + 0.12), V4(1, 0, 0, 1), 0.005);
-        */
-
         y -= 0.12;
     }
 }

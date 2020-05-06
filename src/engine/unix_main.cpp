@@ -278,6 +278,8 @@ void init(int argc, char **argv) {
            "Failed to initalize renderer");
     Renderer::turn_on_camera(0);
 
+    Perf::clocks[0].draw = true;
+
     ASSERT(Mixer::init(),
             "Failed to initalize audio mixer");
     Asset::load("data.fog");

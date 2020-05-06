@@ -16,6 +16,7 @@ struct Clock {
     const char *name;
     b8 active;
     b8 other_thread;
+    b8 draw;
     u64 count;
     u64 start;
     f64 time;
