@@ -125,7 +125,7 @@ void register_debug_keybinds() {
 
 void setup_debug_keybinds() {
     using namespace Input;
-    CHECK(add(K(F12), QUIT),
+    CHECK(add(K(F10), QUIT),
           "Failed to create mapping");
 
     CHECK(add(K(LSHIFT), TWEAK_SMOOTH),
