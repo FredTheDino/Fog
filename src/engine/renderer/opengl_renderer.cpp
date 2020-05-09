@@ -493,7 +493,9 @@ struct StoredImage {
     u32 width, height;
 };
 
-u32 upload_texture(const Image *image, s32 index) {
+//TODO(gu) documentation
+FOG_EXPORT
+u32 upload_texture(Image *image, s32 index) {
     ASSERT(0 <= index && index <= OPENGL_TEXTURE_DEPTH, "Invalid index.");
     ASSERT(0 < image->components && image->components < 5,
            "Invalid number of components");

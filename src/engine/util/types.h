@@ -17,6 +17,7 @@ struct String {
     operator char *() const { return data; }
 };
 
+FOG_EXPORT_STRUCT
 struct Image {
     u8 *data;
     const u32 width;
@@ -24,6 +25,7 @@ struct Image {
     const u8 components;
     const u16 id;
 
+#ifdef FOG_ENGINE
     operator b8 () const {
         return data != nullptr;
     }
@@ -31,6 +33,7 @@ struct Image {
     u64 size() const {
         return width * height * components;
     }
+#endif
 };
 
 struct Sound {
