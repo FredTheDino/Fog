@@ -20,8 +20,8 @@ struct String {
 FOG_EXPORT_STRUCT
 struct Image {
     u8 *data;
-    const u32 width;
-    const u32 height;
+    u32 width;
+    u32 height;
     const u8 components;
     const u16 id;
 

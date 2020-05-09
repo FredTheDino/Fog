@@ -319,16 +319,16 @@ void run(FogCallback user_update, FogCallback user_draw) {
 
         Mixer::audio_struct.position = Renderer::fetch_camera()->position;
 
-        START_PERF(RENDER);
         Renderer::clear();
+        START_PERF(RENDER);
 
         Logic::call(Logic::At::PRE_DRAW);
         // User defined
         user_draw();
         Logic::call(Logic::At::POST_DRAW);
 
-        Renderer::blit();
         STOP_PERF(RENDER);
+        Renderer::blit();
 
         STOP_PERF(MAIN);
     }

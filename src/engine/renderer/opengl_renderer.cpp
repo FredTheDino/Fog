@@ -522,6 +522,7 @@ u32 upload_texture(Image *image, s32 index) {
               image->height == OPENGL_TEXTURE_HEIGHT,
           "Not using the entire texture 'slice'.");
 #endif
+    glBindTexture(GL_TEXTURE_2D_ARRAY, sprite_texture_array);
     glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, index, image->width,
                     image->height, 1, data_format, GL_UNSIGNED_BYTE, image->data);
     return index;
