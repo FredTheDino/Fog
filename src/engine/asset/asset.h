@@ -177,7 +177,7 @@ u64 num();
 // asset.
 u64 hash(AssetID id);
 
-//*
+///*
 // Checks if the passed in "id" is mapped to an image,
 // if it is an image is returned via pointer. It is
 // not recommended to modify any data received from the
