@@ -106,11 +106,11 @@ void load_texture(AssetFile *file, Asset::Header *header, b8 flip=true) {
     stbi_set_flip_vertically_on_load(flip);
     u8 *buffer = stbi_load(header->file_path, &w, &h, &c, 0);
     if (w > 512 || h > 512) {
-        printf("Cannot load %s, because it is too large.\n", header->file_path);
+        printf("\tCannot load %s, because it is too large.\n", header->file_path);
         return;
     }
     if (!buffer) {
-        printf("Failed to load image %s", header->file_path);
+        printf("\tFailed to load image %s", header->file_path);
         return;
     }
     Image image = {buffer, (u32) w, (u32) h, (u8) c, id++};
