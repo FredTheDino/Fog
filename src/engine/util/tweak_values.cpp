@@ -227,40 +227,52 @@ b8 tweak(const char *name, Span *value, f32 modifier) {
 
 // READ-ONLY VARIANTS
 
-void show(const char *name, b8 value) {
-    if (!debug_values_are_on()) return;
+b8 show(const char *name, b8 value) {
+    if (!debug_values_are_on()) return false;
     const char *buffer = Util::format_int(" %s: %s", name, value ? "true" : "false");
     debug_value_logic(name, buffer);
+    return name == global_tweak.active && Input::mouse_pressed(0);
 }
 
-void show(const char *name, f32 value) {
-    if (!debug_values_are_on()) return;
+b8 show(const char *name, f32 value) {
+    if (!debug_values_are_on()) return false;
     const char *buffer = Util::format_int(" %s: %.4f", name, value);
     debug_value_logic(name, buffer);
+    return name == global_tweak.active && Input::mouse_pressed(0);
 }
 
-void show(const char *name, s32 value) {
-    if (!debug_values_are_on()) return;
+b8 show(const char *name, s32 value) {
+    if (!debug_values_are_on()) return false;
     const char *buffer = Util::format_int(" %s: %d", name, value);
     debug_value_logic(name, buffer);
+    return name == global_tweak.active && Input::mouse_pressed(0);
 }
 
-void show(const char *name, u32 value) {
-    if (!debug_values_are_on()) return;
+b8 show(const char *name, u32 value) {
+    if (!debug_values_are_on()) return false;
     const char *buffer = Util::format_int(" %s: %u", name, value);
     debug_value_logic(name, buffer);
+    return name == global_tweak.active && Input::mouse_pressed(0);
 }
 
-void show(const char *name, Vec2 value) {
-    if (!debug_values_are_on()) return;
+b8 show(const char *name, Vec2 value) {
+    if (!debug_values_are_on()) return false;
     const char *buffer = Util::format_int(" %s: %.4f, %.4f", name, value.x, value.y);
     debug_value_logic(name, buffer);
+    return name == global_tweak.active && Input::mouse_pressed(0);
 }
 
-void show(const char *name, Span value) {
-    if (!debug_values_are_on()) return;
+b8 show(const char *name, Span value) {
+    if (!debug_values_are_on()) return false;
     const char *buffer = Util::format_int(" %s: %.4f, %.4f", name, value.min, value.max);
     debug_value_logic(name, buffer);
+    return name == global_tweak.active && Input::mouse_pressed(0);
+}
+
+b8 show(const char *name, char *value) {
+    if (!debug_values_are_on()) return false;
+    debug_value_logic(name, value);
+    return name == global_tweak.active && Input::mouse_pressed(0);
 }
 
 void show(char *str) {
@@ -268,4 +280,5 @@ void show(char *str) {
     f32 height = debug_line_height();
     debug_text(str, -1 + global_tweak.indentation * height, global_tweak.yoffset -= height, 0);
 }
-};
+
+}  // namespace Util
