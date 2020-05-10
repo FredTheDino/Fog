@@ -204,8 +204,9 @@ void integrate(Body *body, f32 delta) {
 
 #if 1
     f32 damping = CLAMP(0.0f, 1.0f, 1 - body->damping);
-    if (damping != 0.0f)
+    if (damping != 0.0f) {
         body->velocity = body->velocity * pow(damping, delta);
+    }
 #endif
 }
 

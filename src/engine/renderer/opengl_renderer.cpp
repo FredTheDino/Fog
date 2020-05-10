@@ -392,15 +392,15 @@ b8 init(const char *title, int width, int height) {
     glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RGBA8, OPENGL_TEXTURE_WIDTH,
                    OPENGL_TEXTURE_HEIGHT, OPENGL_TEXTURE_DEPTH);
 
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     glActiveTexture(GL_TEXTURE0);
 
     // Set initial state
-    glClearColor(0.3f, 0.1f, 0.2f, 1.0f);
+    glClearColor(0.016f, 0.039f, 0.039f, 1.0f);
     return true;
 }
 
@@ -567,7 +567,6 @@ void blit() {
 
     for (u32 cam = 0; cam < OPENGL_NUM_CAMERAS; cam++) {
         glBindFramebuffer(GL_FRAMEBUFFER, screen_fbos[cam]);
-        glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
         clear();
         u32 bit = (cam == 0) ? 1 : (1 << cam);
         if (!(_fog_active_cameras & bit)) continue;
@@ -585,7 +584,6 @@ void blit() {
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glClearColor(0.1f, 0.3f, 0.2f, 1.0f);
     clear();
     render_post_processing();
     // TODO(ed): This is where screen space reflections can be rendered.

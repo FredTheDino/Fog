@@ -209,9 +209,9 @@ void audio_callback(void* userdata, u8* stream, int len) {
             f32 falloff = 1.0 / MAX(1.0, distance_sq);
             // NOTE(ed): The lengths cancel out, so this is linear
             // falloff.
-            f32 left_dot = dot(distance, V2(1, 0));
+            f32 left_dot = dot(distance, V2(-1, 0));
             left_fade[source_id] = (left_dot + 1.0) / 2.0 * falloff;
-            f32 right_dot = dot(distance, V2(-1, 0));
+            f32 right_dot = dot(distance, V2(1, 0));
             right_fade[source_id] = (right_dot + 1.0) / 2.0 * falloff;
         }
     }

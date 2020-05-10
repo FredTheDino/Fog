@@ -286,7 +286,7 @@ void init(int argc, char **argv) {
 
 void post_init() {
 #ifdef DEBUG
-    setup_debug_keybinds();
+    // setup_debug_keybinds();
 #endif
     Util::strict_allocation_check();
     Logic::frame(SDL_GetTicks() / 1000.0f);
@@ -295,6 +295,7 @@ void post_init() {
 void run(FogCallback user_update, FogCallback user_draw) {
     post_init();
     while (SDL::running) {
+        int start_of_frame = SDL_GetTicks();
         Logic::frame(SDL_GetTicks() / 1000.0f);
 
         if (show_perf)
@@ -331,6 +332,11 @@ void run(FogCallback user_update, FogCallback user_draw) {
         STOP_PERF(RENDER);
 
         STOP_PERF(MAIN);
+        int to_wait = MAX((1000 / 60) + start_of_frame - SDL_GetTicks(), 0);
+        if (to_wait < 0) {
+            to_wait = 0;
+        }
+        SDL_Delay(to_wait);
     }
 
     _fog_close_app_responsibly();
