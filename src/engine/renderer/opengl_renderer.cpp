@@ -344,8 +344,8 @@ b8 init(const char *title, int width, int height) {
         ERR("Failed to initalize SDL");
         return false;
     }
-    window = SDL_CreateWindow(title, 0, 0, width, height,
-                              SDL_WINDOW_OPENGL);
+    window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+            width, height, SDL_WINDOW_OPENGL);
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
